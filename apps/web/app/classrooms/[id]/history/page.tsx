@@ -18,7 +18,7 @@ function firstLine(value: string | null, fallback: string): string {
 
 export default async function HistoryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = await requireUser();
+  const user = await requireUser({ allowGuest: true });
   const t = await getTranslations("Classroom.HistoryPage");
   const format = await getFormatter();
   const db = getDb();

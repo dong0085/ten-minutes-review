@@ -21,7 +21,7 @@ import { requireUser } from "@/lib/session";
 
 export default async function QuizzesPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = await requireUser();
+  const user = await requireUser({ allowGuest: true });
   const t = await getTranslations("Classroom.QuizzesPage");
   const locale = await getLocale();
   const db = getDb();

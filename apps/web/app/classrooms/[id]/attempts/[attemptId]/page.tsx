@@ -16,7 +16,7 @@ export default async function AttemptPage({
   params: Promise<{ id: string; attemptId: string }>;
 }) {
   const { id, attemptId } = await params;
-  const user = await requireUser();
+  const user = await requireUser({ allowGuest: true });
   const t = await getTranslations("Classroom.AttemptPage");
   const locale = await getLocale();
   const format = await getFormatter();

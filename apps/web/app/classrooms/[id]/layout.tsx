@@ -19,7 +19,7 @@ export default async function ClassroomLayout({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const user = await requireUser();
+  const user = await requireUser({ allowGuest: true });
   const t = await getTranslations("Classroom.Layout");
   const locale = await getLocale();
   const classroom = await getClassroom(getDb(), user.id, id);

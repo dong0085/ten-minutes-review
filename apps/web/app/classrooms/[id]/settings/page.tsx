@@ -11,7 +11,7 @@ export default async function ClassroomSettingsPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const user = await requireUser();
+  const user = await requireUser({ allowGuest: true });
   const classroom = await getClassroom(getDb(), user.id, id);
   if (!classroom) {
     notFound();

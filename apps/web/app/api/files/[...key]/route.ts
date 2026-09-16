@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { NextResponse, type NextRequest } from "next/server";
-import { getSessionUser } from "@/lib/session";
+import { getCurrentUserOrGuest } from "@/lib/session";
 import { resolveLocalPath } from "@/lib/storage";
 
 const CONTENT_TYPES: Record<string, string> = {
@@ -17,8 +17,8 @@ export async function GET(
   _request: NextRequest,
   context: { params: Promise<{ key: string[] }> },
 ) {
-  const user = await getSessionUser();
-  if (!user) {
+  const current = await getCurrentUserOrGuest();
+  if (!current) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   const { key } = await context.params;

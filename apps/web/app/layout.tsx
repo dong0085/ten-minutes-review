@@ -21,7 +21,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ThemeProvider } from "@/components/theme-provider";
 import { BrandMark } from "@/components/brand-mark";
 import { signOut } from "@/lib/auth";
-import { getSessionUser } from "@/lib/session";
+import { getCurrentUserOrGuest } from "@/lib/session";
 import { getTheme } from "@/lib/theme-server";
 import { Geist, Source_Serif_4 } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -43,7 +43,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const user = await getSessionUser();
+  const current = await getCurrentUserOrGuest();
+  const user = current?.user ?? null;
+  const isGuest = current?.isGuest ?? false;
   const locale = await getLocale();
   const theme = await getTheme();
   const t = await getTranslations("Layout");
@@ -66,9 +68,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                     <Link href="/classrooms">{t("classrooms")}</Link>
                   </Button>
                 ) : null}
-                <LanguageSwitcher signedIn={Boolean(user)} />
+                <LanguageSwitcher signedIn={Boolean(user && !isGuest)} />
                 <ThemeSwitcher currentTheme={theme} />
-                {user ? (
+                {user && !isGuest ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button

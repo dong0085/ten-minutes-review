@@ -11,10 +11,11 @@ import {
 } from "lucide-react";
 import { CATEGORIES } from "@tmr/core";
 import { Button } from "@/components/ui/button";
-import { getSessionUser } from "@/lib/session";
+import { getCurrentUserOrGuest } from "@/lib/session";
 
 export default async function HomePage() {
-  const user = await getSessionUser();
+  const current = await getCurrentUserOrGuest();
+  const user = current?.user ?? null;
   const t = await getTranslations("Home");
   const categoryT = await getTranslations("Category");
   const steps = [

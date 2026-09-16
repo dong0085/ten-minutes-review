@@ -13,7 +13,7 @@ export default async function QuizPage({
   params: Promise<{ id: string; quizId: string }>;
 }) {
   const { id, quizId } = await params;
-  const user = await requireUser();
+  const user = await requireUser({ allowGuest: true });
   const t = await getTranslations("Classroom.QuizPage");
   const locale = await getLocale();
   const data = await getQuizWithQuestionsForUser(getDb(), user.id, quizId);
