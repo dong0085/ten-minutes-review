@@ -1,4 +1,4 @@
-import { and, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import type { Db } from "../client";
 import { apiTokens } from "../schema/api_tokens";
 
@@ -8,6 +8,14 @@ export async function createApiToken(
 ) {
   const [token] = await db.insert(apiTokens).values(input).returning();
   return token;
+}
+
+export async function listActiveApiTokensByUser(db: Db, userId: string) {
+  return db
+    .select()
+    .from(apiTokens)
+    .where(and(eq(apiTokens.userId, userId), isNull(apiTokens.revokedAt)))
+    .orderBy(desc(apiTokens.createdAt));
 }
 
 export async function findActiveApiTokenByHash(db: Db, tokenHash: string) {
