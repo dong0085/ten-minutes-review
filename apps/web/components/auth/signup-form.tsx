@@ -7,7 +7,6 @@ import {
   type FormEvent,
 } from "react";
 import Link from "next/link";
-import { Info } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { UI_LOCALES } from "@tmr/core";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -15,11 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { languageLabel } from "@/lib/language-label";
 import { GoogleButton } from "./google-button";
 
@@ -123,39 +117,7 @@ export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
       <CardContent className="space-y-5">
         <form className="space-y-4" onSubmit={onSubmit}>
           <div>
-            <div className="flex items-center gap-1.5">
-              <Label htmlFor="signup-invite">{t("inviteCode")}</Label>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setInviteCode("dev-invite");
-                      writeInviteCookie("dev-invite");
-                    }}
-                    className="inline-flex cursor-pointer items-center justify-center rounded-full text-muted-foreground/80 transition hover:text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                    aria-label={t("inviteTooltip")}
-                  >
-                    <Info className="size-3.5" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="flex items-center gap-2">
-                  <span>{t("inviteTooltip")}</span>
-                  {inviteCode !== "dev-invite" ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setInviteCode("dev-invite");
-                        writeInviteCookie("dev-invite");
-                      }}
-                      className="cursor-pointer font-semibold underline underline-offset-2 hover:text-primary"
-                    >
-                      {t("useDevInvite")}
-                    </button>
-                  ) : null}
-                </TooltipContent>
-              </Tooltip>
-            </div>
+            <Label htmlFor="signup-invite">{t("inviteCode")}</Label>
             <Input
               id="signup-invite"
               value={inviteCode}

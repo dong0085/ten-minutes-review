@@ -25,8 +25,6 @@ export const auth = {
   SignUpForm: {
     inviteCode: "Invite code",
     invitePlaceholder: "From your invitation",
-    inviteTooltip: "The invite code is dev-invite",
-    useDevInvite: "Use dev-invite",
     email: "Email",
     password: "Password",
     language: "Language (optional)",

@@ -3,13 +3,8 @@ import { getMessages, UI_LOCALES } from "./index";
 
 describe("localization catalogs", () => {
   for (const locale of UI_LOCALES) {
-    it(`catalogs for ${locale} contain guest and invite strings`, () => {
+    it(`catalogs for ${locale} contain guest strings`, () => {
       const messages = getMessages(locale);
-
-      // Auth invite tooltip
-      expect(messages.Auth.SignUpForm.inviteTooltip).toBeTruthy();
-      expect(messages.Auth.SignUpForm.inviteTooltip).toContain("dev-invite");
-      expect(messages.Auth.SignUpForm.useDevInvite).toBeTruthy();
 
       // Home try as guest
       expect(messages.Home.tryAsGuest).toBeTruthy();

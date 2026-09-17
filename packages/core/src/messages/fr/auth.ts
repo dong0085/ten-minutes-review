@@ -28,8 +28,6 @@ export const auth: MessageShape<typeof enAuth> = {
   SignUpForm: {
     inviteCode: "Code d'invitation",
     invitePlaceholder: "Depuis ton invitation",
-    inviteTooltip: "Le code d'invitation est dev-invite",
-    useDevInvite: "Utiliser dev-invite",
     email: "E-mail",
     password: "Mot de passe",
     language: "Langue (facultatif)",
