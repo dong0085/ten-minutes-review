@@ -1,0 +1,51 @@
+name: TenMinuteReview
+options:
+  bundleIdPrefix: local.tenminutereview
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "17.0"
+configs:
+  Debug: debug
+  Release: release
+settings:
+  base:
+    SWIFT_VERSION: "5"
+    CODE_SIGN_STYLE: Automatic
+    GENERATE_INFOPLIST_FILE: false
+targets:
+  TenMinuteReview:
+    type: application
+    platform: iOS
+    sources:
+      - TenMinuteReview
+    configFiles:
+      Debug: Config/Debug.xcconfig
+      Release: Config/Release.xcconfig
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: local.tenminutereview.app
+        TARGETED_DEVICE_FAMILY: "1"
+      configs:
+        Debug:
+          INFOPLIST_FILE: SupportFiles/Info-Debug.plist
+        Release:
+          INFOPLIST_FILE: SupportFiles/Info.plist
+  TenMinuteReviewTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - Tests
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: true
+    dependencies:
+      - target: TenMinuteReview
+schemes:
+  TenMinuteReview:
+    build:
+      targets:
+        TenMinuteReview: all
+        TenMinuteReviewTests: [test]
+    test:
+      targets:
+        - TenMinuteReviewTests

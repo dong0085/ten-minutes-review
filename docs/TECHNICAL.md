@@ -9,6 +9,7 @@ The build blueprint. The data model is the centerpiece — it is the one part th
 | Piece | Choice | Job |
 |---|---|---|
 | Web | Next.js (App Router) on Vercel | UI and API route handlers |
+| iOS | SwiftUI app in `apps/ios` (XcodeGen project) | Thin client over the API |
 | Database | Postgres on Neon | All state, plus the job queue |
 | Worker | Node service on Render (free web service, health-check pinged) | Extraction, composition, email sends |
 | Queue | `jobs` table in Postgres | Work handoff, no Redis needed |
@@ -51,7 +52,11 @@ Postgres. All ids are UUIDs. All timestamps are `timestamptz`.
 
 ### accounts, sessions, verification_tokens
 
-Auth.js tables. `verification_tokens` carries a `purpose` column: `verify_email`, `reset_password`, or `invite`.
+Auth.js tables. `verification_tokens` carries a `purpose` column: `verify_email`, `reset_password`, or `invite`. The `accounts` and `sessions` tables exist for an adapter that was never wired up — sessions are JWTs in cookies.
+
+### api_tokens
+
+Bearer tokens for native clients. `id` uuid pk, `user_id` fk → users, `token_hash` text unique (sha256 hex of the raw `tmr_…` token — the raw value exists only in the client's keychain), `prefix` text (first 8 characters, for display), `name` text (device label supplied at sign-in), `created_at`, `last_used_at`, `revoked_at`. Tokens carry no expiry in v1; revocation is the lifecycle. `POST /api/auth/token` mints one after argon2 verification and runs the same login side effects as a cookie sign-in.
 
 ### classrooms
 
@@ -276,11 +281,13 @@ Stripe stays dark. The webhook route, the `subscriptions` table, and the plan ch
 
 ## 4. API surface
 
-Next.js route handlers, all session-scoped.
+Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve the caller from an `Authorization: Bearer tmr_…` header when one is present — the header's verdict is final — and fall back to the Auth.js session cookie otherwise, so every route below serves both the web app and the iOS client.
 
 | Method | Path | Job |
 |---|---|---|
 | `*` | `/api/auth/[...nextauth]` | Auth.js |
+| `POST` | `/api/auth/token` | Issue an API token (email + password → `tmr_…` bearer) |
+| `POST` | `/api/auth/token/revoke` | Revoke the presented token |
 | `GET` `POST` | `/api/classrooms` | List, create |
 | `GET` `PATCH` `DELETE` | `/api/classrooms/:id` | Read, rename/settings (including the dedicated `paused` transition), delete |
 | `POST` | `/api/classrooms/:id/uploads` | Text body or multipart image |
@@ -291,7 +298,7 @@ Next.js route handlers, all session-scoped.
 | `POST` | `/api/classrooms/:id/quizzes/cancel` | Cancel the in-flight compose job |
 | `GET` `DELETE` | `/api/quizzes/:id` | Read the quiz (answers withheld) or delete it with its attempts and answers |
 | `POST` | `/api/quizzes/:id/attempts` | Start an attempt |
-| `POST` | `/api/attempts/:id/submit` | Submit answers, receive correctness and explanations |
+| `POST` | `/api/attempts/submit` | Submit answers, receive correctness and explanations |
 | `GET` | `/api/attempts/:id` | Full review |
 | `GET` `PATCH` | `/api/me` | Profile |
 | `GET` `PATCH` | `/api/me/email-preferences` | |
@@ -313,7 +320,8 @@ Answers and explanations never leave the server before a submission. The quiz pa
 - LLM calls capped per user per day, so a runaway script cannot drain the DeepSeek balance.
 - Sign-up requires an invite code while the product is invite-only.
 - Passwords hashed with argon2id. Email verification required before the first upload.
-- Session cookies: httpOnly, secure, sameSite lax.
+- Session cookies: httpOnly, secure, sameSite lax. API tokens for native clients are stored hashed and revoked on demand.
+- The iOS app keeps its token in the keychain and revokes it on sign-out; every authenticated request carries `Authorization: Bearer`.
 
 ---
 

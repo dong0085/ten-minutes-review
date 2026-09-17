@@ -75,6 +75,17 @@ Each external service sits behind a single adapter selected from the root `.env`
 
 Copy `.env.example`, keep the defaults for local work, and add provider credentials only when switching an adapter to a real service.
 
+## iOS app
+
+`apps/ios` holds a native SwiftUI client — sign in, classrooms, notes (typed text or photos), and the daily quiz. Generate the Xcode project with XcodeGen and open it:
+
+```sh
+brew install xcodegen
+pnpm ios:generate
+```
+
+The Debug configuration talks to `http://localhost:3000`; see [`apps/ios/README.md`](apps/ios/README.md) for simulator and device setup.
+
 ## Project documents
 
 The documents are the source of truth for product behavior and architecture.
