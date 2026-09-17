@@ -5,6 +5,7 @@ export const account = {
     overview: "Overview",
     profile: "Profile",
     security: "Security",
+    apiTokens: "API tokens",
     data: "Data",
   },
   profileSection: "Profile",
@@ -105,6 +106,24 @@ export const account = {
     unlinkNeedsPassword: "Set a password above before unlinking Google.",
     linkErrorEmail: "That Google account uses a different email address than your account.",
     linkErrorSession: "Your session changed. Please try linking again.",
+  },
+  ApiTokens: {
+    title: "API tokens",
+    blurb:
+      "Create a token to sign the browser extension or another app into your account. You can revoke tokens at any time.",
+    nameLabel: "Name",
+    namePlaceholder: "Browser extension",
+    create: "Create token",
+    copy: "Copy",
+    copied: "Copied",
+    revealWarning: "Copy this token now. It is shown only once.",
+    done: "Done",
+    created: "Created {date}",
+    lastUsed: "Last used {date}",
+    never: "Never used",
+    revoke: "Revoke",
+    empty: "No tokens yet.",
+    error: "Could not manage your tokens.",
   },
   DeleteAccount: {
     description:

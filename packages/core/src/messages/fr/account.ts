@@ -8,6 +8,7 @@ export const account: MessageShape<(typeof en)["Account"]> = {
     overview: "Aperçu",
     profile: "Profil",
     security: "Sécurité",
+    apiTokens: "Jetons d'API",
     data: "Données",
   },
   profileSection: "Profil",
@@ -109,6 +110,24 @@ export const account: MessageShape<(typeof en)["Account"]> = {
     linkErrorEmail:
       "Ce compte Google utilise une adresse e-mail différente de celle de ton compte.",
     linkErrorSession: "Ta session a changé. Réessaie de connecter Google.",
+  },
+  ApiTokens: {
+    title: "Jetons d'API",
+    blurb:
+      "Crée un jeton pour connecter l'extension de navigateur ou une autre appli à ton compte. Tu peux révoquer un jeton à tout moment.",
+    nameLabel: "Nom",
+    namePlaceholder: "Extension de navigateur",
+    create: "Créer un jeton",
+    copy: "Copier",
+    copied: "Copié",
+    revealWarning: "Copie ce jeton maintenant. Il n'est affiché qu'une seule fois.",
+    done: "Terminé",
+    created: "Créé le {date}",
+    lastUsed: "Dernière utilisation : {date}",
+    never: "Jamais utilisé",
+    revoke: "Révoquer",
+    empty: "Aucun jeton pour le moment.",
+    error: "Impossible de gérer tes jetons.",
   },
   DeleteAccount: {
     description:

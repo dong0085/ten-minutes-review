@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Database, LayoutDashboard, ShieldCheck, UserRound } from "lucide-react";
+import { Database, KeyRound, LayoutDashboard, ShieldCheck, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function AccountNav() {
@@ -13,6 +13,7 @@ export function AccountNav() {
     { label: t("overview"), href: "/account", icon: LayoutDashboard },
     { label: t("profile"), href: "/account/profile", icon: UserRound },
     { label: t("security"), href: "/account/security", icon: ShieldCheck },
+    { label: t("apiTokens"), href: "/account/api-tokens", icon: KeyRound },
     { label: t("data"), href: "/account/data", icon: Database },
   ];
 
