@@ -32,6 +32,7 @@ export default async function ClassroomSettingsPage({
       <DailyReviewsSettings
         classroomId={classroom.id}
         initiallyPaused={classroom.pausedAt !== null}
+        initiallyIncludeAnswers={classroom.includeAnswersInEmail}
       />
       <ClassroomDangerZone classroomId={classroom.id} />
     </div>

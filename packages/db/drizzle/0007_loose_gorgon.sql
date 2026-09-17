@@ -1,0 +1,1 @@
+ALTER TABLE "classrooms" ADD COLUMN "include_answers_in_email" boolean DEFAULT false NOT NULL;

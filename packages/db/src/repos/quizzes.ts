@@ -408,7 +408,11 @@ export async function listDailyEmailQuizzesForUserOnDate(
 ) {
   const encodedSendAt = sql.param(sendAt, classrooms.createdAt);
   return db
-    .select({ quiz: quizzes, classroomName: classrooms.name })
+    .select({
+      quiz: quizzes,
+      classroomName: classrooms.name,
+      includeAnswers: classrooms.includeAnswersInEmail,
+    })
     .from(quizzes)
     .innerJoin(classrooms, eq(quizzes.classroomId, classrooms.id))
     .where(

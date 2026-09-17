@@ -10,6 +10,7 @@ export default function DailyQuizFrenchPreview() {
         {
           classroomName: "Anglais du quotidien",
           quizUrl: "https://example.com/classrooms/english/quiz/today",
+          includeAnswers: false,
           questions: [
             {
               position: 0,

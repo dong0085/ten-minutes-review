@@ -16,6 +16,7 @@ export const email = {
   dailyIntroMany:
     "Here is today's quiz menu. You can answer right here in your head, or open the web for scoring and explanations.",
   answerOnWeb: "Answer on the web",
+  answersHeading: "Answers",
   unsubscribeWhy: "You receive this email because daily quizzes are on.",
   unsubscribeAction: "Unsubscribe",
 };

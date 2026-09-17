@@ -13,7 +13,7 @@ import {
   Text,
 } from "react-email";
 import { formatMessage, getMessages } from "@tmr/core";
-import type { Category, QuestionType, UiLocale } from "@tmr/core";
+import type { Category, QuestionAnswer, QuestionType, UiLocale } from "@tmr/core";
 
 const colours = {
   paper: "#fbfaf6",
@@ -195,12 +195,15 @@ export function ActionEmailTemplate({
 export type DailyQuizEmailEntry = {
   classroomName: string;
   quizUrl: string;
+  includeAnswers: boolean;
   questions: {
     position: number;
     category: Category;
     type: QuestionType;
     stem: string;
     options: string[] | null;
+    answer?: QuestionAnswer | null;
+    explanation?: string | null;
   }[];
 };
 
@@ -225,6 +228,52 @@ export function dailyQuizEmailCopy(input: DailyQuizEmailTemplateProps) {
   const intro = input.entries.length > 1 ? messages.dailyIntroMany : messages.dailyIntro;
 
   return { greeting, intro, messages, subject };
+}
+
+type AllMessages = ReturnType<typeof getMessages>;
+
+function resolveEmailOptions(
+  question: DailyQuizEmailEntry["questions"][number],
+  allMessages: AllMessages,
+): string[] {
+  return (
+    question.options ??
+    (question.type === "true_false"
+      ? [allMessages.Quiz.QuestionReview.true, allMessages.Quiz.QuestionReview.false]
+      : [])
+  );
+}
+
+function formatEmailAnswer(
+  question: DailyQuizEmailEntry["questions"][number],
+  allMessages: AllMessages,
+): string {
+  const answer = question.answer;
+  if (!answer) {
+    return allMessages.Quiz.QuestionReview.noAnswer;
+  }
+  if ("value" in answer) {
+    if (answer.value === true) {
+      return allMessages.Quiz.QuestionReview.true;
+    }
+    if (answer.value === false) {
+      return allMessages.Quiz.QuestionReview.false;
+    }
+    return allMessages.Quiz.QuestionReview.noAnswer;
+  }
+  if ("index" in answer) {
+    const options = resolveEmailOptions(question, allMessages);
+    const letter = String.fromCharCode(65 + answer.index);
+    const text =
+      options[answer.index] ??
+      formatMessage(allMessages.Quiz.QuestionReview.option, { number: answer.index + 1 });
+    return `${letter}. ${text}`;
+  }
+  const blanks = "blanks" in answer ? answer.blanks : [];
+  if (blanks.length === 0 || blanks.every((blank) => !blank || blank.trim() === "")) {
+    return allMessages.Quiz.QuestionReview.noAnswer;
+  }
+  return blanks.map((blank) => (blank && blank.trim() !== "" ? blank : "—")).join(", ");
 }
 
 function Option({ index, children }: { index: number; children: ReactNode }) {
@@ -317,14 +366,7 @@ export function DailyQuizEmailTemplate(input: DailyQuizEmailTemplateProps) {
           </Heading>
 
           {entry.questions.map((question, questionIndex) => {
-            const options =
-              question.options ??
-              (question.type === "true_false"
-                ? [
-                    allMessages.Quiz.QuestionReview.true,
-                    allMessages.Quiz.QuestionReview.false,
-                  ]
-                : []);
+            const options = resolveEmailOptions(question, allMessages);
 
             return (
               <Section
@@ -368,6 +410,51 @@ export function DailyQuizEmailTemplate(input: DailyQuizEmailTemplateProps) {
               </Section>
             );
           })}
+
+          {entry.includeAnswers ? (
+            <Section
+              style={{
+                borderTop: `1px solid ${colours.border}`,
+                paddingTop: "20px",
+              }}
+            >
+              <Text
+                style={{
+                  color: colours.mintDeep,
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  margin: "0 0 10px",
+                  textTransform: "uppercase",
+                }}
+              >
+                {messages.answersHeading}
+              </Text>
+              {entry.questions.map((question, questionIndex) => (
+                <Section
+                  key={`answer-${question.position}-${questionIndex}`}
+                  style={{ margin: "0 0 10px" }}
+                >
+                  <Text style={{ color: colours.ink, fontSize: "14px", lineHeight: "1.5", margin: 0 }}>
+                    {String(question.position + 1).padStart(2, "0")} ·{" "}
+                    {formatEmailAnswer(question, allMessages)}
+                  </Text>
+                  {question.explanation ? (
+                    <Text
+                      style={{
+                        color: colours.muted,
+                        fontSize: "12px",
+                        lineHeight: "1.55",
+                        margin: "4px 0 0",
+                      }}
+                    >
+                      {question.explanation}
+                    </Text>
+                  ) : null}
+                </Section>
+              ))}
+            </Section>
+          ) : null}
 
           <Section style={{ marginTop: "4px" }}>
             <Button href={entry.quizUrl} style={buttonStyle}>

@@ -50,6 +50,13 @@
       "when": 1789607304989,
       "tag": "0006_loose_secret_warriors",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789609196691,
+      "tag": "0007_loose_gorgon",
+      "breakpoints": true
     }
   ]
 }
