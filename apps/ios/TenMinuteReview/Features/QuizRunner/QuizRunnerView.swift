@@ -10,12 +10,12 @@ struct QuizRunnerView: View {
             if let model {
                 switch model.phase {
                 case .loading:
-                    ProgressView("Preparing your quiz…")
+                    ProgressView(L10n.t("quiz.preparing"))
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 case .running:
                     RunningQuizView(model: model)
                 case .submitting:
-                    ProgressView("Scoring…")
+                    ProgressView(L10n.t("quiz.scoring"))
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 case .done(let outcome):
                     ResultView(outcome: outcome, quiz: quiz)
@@ -23,17 +23,17 @@ struct QuizRunnerView: View {
                     AttemptReviewView(attemptId: attemptId)
                 case .expired:
                     ContentUnavailableView(
-                        "This attempt expired",
+                        L10n.t("quiz.expired.title"),
                         systemImage: "clock.badge.exclamationmark",
-                        description: Text("Attempts stay open for two hours. Try again for a fresh one.")
+                        description: Text(L10n.t("quiz.expired.body"))
                     )
                 case .failed(let message):
                     ContentUnavailableView {
-                        Label("Something went wrong", systemImage: "exclamationmark.triangle")
+                        Label(L10n.t("quiz.wentWrong"), systemImage: "exclamationmark.triangle")
                     } description: {
                         Text(message)
                     } actions: {
-                        Button("Try again") {
+                        Button(L10n.t("quiz.tryAgain")) {
                             Task { await model.retry() }
                         }
                     }
@@ -43,7 +43,7 @@ struct QuizRunnerView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .navigationTitle("Quiz")
+        .navigationTitle(L10n.t("quiz.title"))
         .navigationBarTitleDisplayMode(.inline)
         .task {
             if model == nil {
@@ -69,7 +69,7 @@ private struct RunningQuizView: View {
             VStack(spacing: 20) {
                 if model.resumed {
                     Label(
-                        "Resumed — \(timeRemaining(model.secondsRemaining)) left",
+                        String(format: L10n.t("quiz.resumed"), minutesRemaining(model.secondsRemaining)),
                         systemImage: "clock.arrow.circlepath"
                     )
                     .font(AppFont.geist(12))
@@ -84,11 +84,11 @@ private struct RunningQuizView: View {
                 .tint(theme.colors.primary)
 
                 HStack {
-                    Text("Question \(model.current + 1) of \(model.questions.count)")
+                    Text(String(format: L10n.t("quiz.questionOf"), model.current + 1, model.questions.count))
                         .font(AppFont.geist(14, .medium))
                         .foregroundStyle(theme.colors.foreground)
                     Spacer()
-                    Text("\(model.answeredCount) answered")
+                    Text(String(format: L10n.t("quiz.answered"), model.answeredCount))
                         .font(AppFont.geist(12))
                         .foregroundStyle(theme.colors.mutedForeground)
                 }
@@ -110,7 +110,7 @@ private struct RunningQuizView: View {
             Button {
                 model.previous()
             } label: {
-                Label("Previous", systemImage: "chevron.left")
+                Label(L10n.t("quiz.previous"), systemImage: "chevron.left")
             }
             .disabled(model.current == 0)
 
@@ -120,7 +120,7 @@ private struct RunningQuizView: View {
                 Button {
                     Task { await model.submit() }
                 } label: {
-                    Text("Submit")
+                    Text(L10n.t("quiz.submit"))
                         .font(AppFont.geist(16, .semibold))
                         .foregroundStyle(theme.colors.primaryForeground)
                         .labelStyle(.titleAndIcon)
@@ -130,7 +130,7 @@ private struct RunningQuizView: View {
                 Button {
                     model.next()
                 } label: {
-                    Label("Next", systemImage: "chevron.right")
+                    Label(L10n.t("quiz.next"), systemImage: "chevron.right")
                         .font(AppFont.geist(16, .semibold))
                 }
                 .buttonStyle(.borderedProminent)
@@ -139,10 +139,9 @@ private struct RunningQuizView: View {
         .padding(.top, 8)
     }
 
-    private func timeRemaining(_ seconds: Int?) -> String {
-        guard let seconds else { return "time" }
-        let minutes = seconds / 60
-        return "\(max(minutes, 0)) min"
+    private func minutesRemaining(_ seconds: Int?) -> Int {
+        guard let seconds else { return 0 }
+        return max(seconds / 60, 0)
     }
 }
 
@@ -198,6 +197,7 @@ private struct QuestionContainerView: View {
             get: { model.answer(for: question)?.index },
             set: { newValue in
                 if let newValue {
+                    Haptics.tap()
                     model.record(.index(newValue), for: question)
                 }
             }
@@ -209,6 +209,7 @@ private struct QuestionContainerView: View {
             get: { model.answer(for: question)?.value },
             set: { newValue in
                 if let newValue {
+                    Haptics.tap()
                     model.record(.value(newValue), for: question)
                 }
             }

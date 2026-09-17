@@ -14,7 +14,7 @@ struct AttemptReviewView: View {
                 List {
                     Section {
                         HStack {
-                            Text("\(detail.attempt.correctCount)/\(detail.attempt.questionCount) correct")
+                            Text(String(format: L10n.t("review.correctCount"), detail.attempt.correctCount, detail.attempt.questionCount))
                                 .font(AppFont.geist(16, .semibold))
                                 .foregroundStyle(theme.colors.foreground)
                             Spacer()
@@ -22,7 +22,7 @@ struct AttemptReviewView: View {
                                 .font(AppFont.geist(12))
                                 .foregroundStyle(theme.colors.mutedForeground)
                         }
-                        Text("Took \(DateFormatting.duration(ms: detail.attempt.durationMs))")
+                        Text(String(format: L10n.t("review.took"), DateFormatting.duration(ms: detail.attempt.durationMs)))
                             .font(AppFont.geist(12))
                             .foregroundStyle(theme.colors.mutedForeground)
                     }
@@ -33,13 +33,13 @@ struct AttemptReviewView: View {
                                 .listRowSeparator(.hidden)
                         }
                     } header: {
-                        Text("Answers").eyebrowStyle(theme.colors)
+                        Text(L10n.t("review.answers")).eyebrowStyle(theme.colors)
                     }
                 }
                 .paperScreen()
             } else if let errorMessage {
                 ContentUnavailableView(
-                    "Review unavailable",
+                    L10n.t("review.unavailable"),
                     systemImage: "exclamationmark.triangle",
                     description: Text(errorMessage)
                 )
@@ -47,7 +47,7 @@ struct AttemptReviewView: View {
                 ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .navigationTitle("Attempt Review")
+        .navigationTitle(L10n.t("review.title"))
         .navigationBarTitleDisplayMode(.inline)
         .task {
             do {
@@ -55,7 +55,7 @@ struct AttemptReviewView: View {
             } catch let error as APIError {
                 errorMessage = error.message
             } catch {
-                errorMessage = "Could not load this attempt."
+                errorMessage = L10n.t("quiz.wentWrong")
             }
         }
     }
@@ -75,16 +75,16 @@ private struct ReviewRowView: View {
                     .foregroundStyle(theme.colors.foreground)
             }
             if let yours = answer.response?.describe {
-                Text("Your answer: \(yours)")
+                Text(String(format: L10n.t("review.yourAnswer"), yours))
                     .font(AppFont.geist(13))
                     .foregroundStyle(answer.isCorrect ? theme.colors.success : theme.colors.destructive)
             } else {
-                Text("Unanswered")
+                Text(L10n.t("review.unanswered"))
                     .font(AppFont.geist(13))
                     .foregroundStyle(theme.colors.mutedForeground)
             }
             if !answer.isCorrect {
-                Text("Correct answer: \(answer.correctAnswer.describe(options: answer.options))")
+                Text(String(format: L10n.t("results.correctAnswer"), answer.correctAnswer.describe(options: answer.options)))
                     .font(AppFont.geist(13))
                     .foregroundStyle(theme.colors.success)
             }

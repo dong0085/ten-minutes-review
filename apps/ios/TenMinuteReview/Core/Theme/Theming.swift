@@ -1,22 +1,5 @@
 import SwiftUI
 
-/// Typography, matching the web app's Geist sans and Source Serif 4
-/// editorial headings.
-enum AppFont {
-    static func geist(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
-        switch weight {
-        case .medium: return Font.custom("Geist-Medium", size: size)
-        case .semibold: return Font.custom("Geist-SemiBold", size: size)
-        case .bold: return Font.custom("Geist-Bold", size: size)
-        default: return Font.custom("Geist-Regular", size: size)
-        }
-    }
-
-    static func editorial(_ size: CGFloat, bold: Bool = false) -> Font {
-        Font.custom(bold ? "SourceSerif4-Bold" : "SourceSerif4-SemiBold", size: size)
-    }
-}
-
 // MARK: - Reusable styles
 
 extension Text {

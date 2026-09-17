@@ -17,6 +17,7 @@ struct AddNotesView: View {
     @State private var photos: [PhotosPickerItem] = []
     @State private var isBusy = false
     @State private var errorMessage: String?
+    @State private var progress: Double?
 
     private static let maxImages = 10
     private static let maxBytes = 10 * 1024 * 1024
@@ -25,8 +26,8 @@ struct AddNotesView: View {
         NavigationStack {
             Form {
                 Picker("Note type", selection: $mode) {
-                    Text("Typed notes").tag(Mode.text)
-                    Text("Photos").tag(Mode.images)
+                    Text(L10n.t("notes.text")).tag(Mode.text)
+                    Text(L10n.t("notes.photos")).tag(Mode.images)
                 }
                 .pickerStyle(.segmented)
                 .listRowBackground(Color.clear)
@@ -38,9 +39,9 @@ struct AddNotesView: View {
                             .frame(minHeight: 200)
                             .autocorrectionDisabled()
                     } header: {
-                        Text("Lesson notes")
+                        Text(L10n.t("notes.lessonNotes"))
                     } footer: {
-                        Text("Vocabulary pairs, phrases, grammar notes — anything from the session.")
+                        Text(L10n.t("notes.lessonHint"))
                     }
                 case .images:
                     Section {
@@ -49,17 +50,17 @@ struct AddNotesView: View {
                             maxSelectionCount: Self.maxImages,
                             matching: .images
                         ) {
-                            Label("Choose photos", systemImage: "photo.on.rectangle.angled")
+                            Label(L10n.t("notes.choose"), systemImage: "photo.on.rectangle.angled")
                         }
                         ForEach(Array(photos.enumerated()), id: \.offset) { index, item in
-                            Label(item.itemIdentifier ?? "Photo \(index + 1)", systemImage: "photo")
+                            Label(item.itemIdentifier ?? String(format: L10n.t("notes.photo"), index + 1), systemImage: "photo")
                                 .font(.callout)
                                 .foregroundStyle(.secondary)
                         }
                     } header: {
-                        Text("Handwritten pages")
+                        Text(L10n.t("notes.pages"))
                     } footer: {
-                        Text("Up to \(Self.maxImages) pages, 10 MB each. Photos are read like handwritten text.")
+                        Text(String(format: L10n.t("notes.pagesHint"), Self.maxImages))
                     }
                 }
 
@@ -68,9 +69,17 @@ struct AddNotesView: View {
                         submit()
                     } label: {
                         if isBusy {
-                            ProgressView().frame(maxWidth: .infinity)
+                            VStack(spacing: 8) {
+                                if let progress {
+                                    ProgressView(value: progress)
+                                        .tint(theme.colors.primary)
+                                } else {
+                                    ProgressView()
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
                         } else {
-                            Text("Add notes").frame(maxWidth: .infinity)
+                            Text(L10n.t("notes.submit")).frame(maxWidth: .infinity)
                         }
                     }
                     .disabled(isBusy || !canSubmit)
@@ -80,12 +89,12 @@ struct AddNotesView: View {
                     }
                 }
             }
-            .navigationTitle("Add Notes")
+            .navigationTitle(L10n.t("detail.notes.add"))
             .navigationBarTitleDisplayMode(.inline)
             .paperScreen()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(L10n.t("classrooms.cancel")) { dismiss() }
                 }
             }
         }
@@ -104,19 +113,24 @@ struct AddNotesView: View {
         isBusy = true
         errorMessage = nil
         Task {
-            defer { isBusy = false }
+            defer { isBusy = false; progress = nil }
             do {
                 switch mode {
                 case .text:
                     try await model.upload(text: text)
                 case .images:
-                    try await model.upload(files: try await loadSelectedPhotos())
+                    try await model.upload(files: try await loadSelectedPhotos()) { value in
+                        Task { @MainActor in progress = value }
+                    }
                 }
+                Haptics.success()
                 dismiss()
             } catch let error as APIError {
+                Haptics.failure()
                 errorMessage = error.message
             } catch {
-                errorMessage = "Upload failed. Please try again."
+                Haptics.failure()
+                errorMessage = L10n.t("notes.uploadFailed")
             }
         }
     }
@@ -132,7 +146,7 @@ struct AddNotesView: View {
             guard data.count <= Self.maxBytes else {
                 throw APIError(
                     statusCode: -1,
-                    message: "Photo \(index + 1) is larger than 10 MB. Pick a smaller version."
+                    message: String(format: L10n.t("notes.tooLarge"), index + 1)
                 )
             }
             let type = item.supportedContentTypes.first ?? UTType.heic
@@ -143,7 +157,7 @@ struct AddNotesView: View {
             )
         }
         guard !files.isEmpty else {
-            throw APIError(statusCode: -1, message: "None of the selected photos could be read.")
+            throw APIError(statusCode: -1, message: L10n.t("notes.unreadable"))
         }
         return files
     }

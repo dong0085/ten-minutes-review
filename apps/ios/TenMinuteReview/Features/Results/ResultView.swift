@@ -23,7 +23,7 @@ struct ResultView: View {
             .padding()
         }
         .background(theme.colors.background.ignoresSafeArea())
-        .navigationTitle("Results")
+        .navigationTitle(L10n.t("results.title"))
         .navigationBarTitleDisplayMode(.inline)
     }
 
@@ -42,7 +42,7 @@ struct ResultView: View {
                 Text("\(outcome.correctCount)/\(outcome.questionCount)")
                     .font(AppFont.editorial(34, bold: true))
                     .foregroundStyle(theme.colors.foreground)
-                Text("correct")
+                Text(L10n.t("results.correct"))
                     .font(AppFont.geist(12))
                     .foregroundStyle(theme.colors.mutedForeground)
             }
@@ -55,10 +55,10 @@ struct ResultView: View {
         let ratio = outcome.questionCount > 0
             ? Double(outcome.correctCount) / Double(outcome.questionCount)
             : 0
-        if ratio >= 0.9 { return "Excellent — that stuck." }
-        if ratio >= 0.7 { return "Solid. The misses go back in tomorrow's quiz." }
-        if ratio >= 0.5 { return "Halfway there — retests will help." }
-        return "Rough one. Review the explanations below."
+        if ratio >= 0.9 { return L10n.t("results.verdict.great") }
+        if ratio >= 0.7 { return L10n.t("results.verdict.solid") }
+        if ratio >= 0.5 { return L10n.t("results.verdict.half") }
+        return L10n.t("results.verdict.rough")
     }
 }
 
@@ -78,7 +78,7 @@ struct ResultRowView: View {
                         .foregroundStyle(theme.colors.foreground)
 
                     if !result.isCorrect {
-                        Text("Correct answer: \(result.correctAnswer.describe(options: question?.options))")
+                        Text(String(format: L10n.t("results.correctAnswer"), result.correctAnswer.describe(options: question?.options)))
                             .font(AppFont.geist(14))
                             .foregroundStyle(theme.colors.success)
                     }

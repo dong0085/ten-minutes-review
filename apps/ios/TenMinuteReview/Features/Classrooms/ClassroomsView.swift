@@ -15,18 +15,18 @@ struct ClassroomsView: View {
                         ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
                     case .failed(let message):
                         ContentUnavailableView {
-                            Label("Classrooms unavailable", systemImage: "wifi.exclamationmark")
+                            Label(L10n.t("classrooms.unavailable"), systemImage: "wifi.exclamationmark")
                         } description: {
                             Text(message)
                         } actions: {
-                            Button("Retry") { Task { await model.load() } }
+                            Button(L10n.t("classrooms.retry")) { Task { await model.load() } }
                         }
                     case .ready:
                         if model.classrooms.isEmpty {
                             ContentUnavailableView(
-                                "No classrooms yet",
+                                L10n.t("classrooms.empty.title"),
                                 systemImage: "book.closed",
-                                description: Text("A classroom holds one set of notes and its daily quiz.")
+                                description: Text(L10n.t("classrooms.empty.body"))
                             )
                         } else {
                             List {
@@ -43,7 +43,7 @@ struct ClassroomsView: View {
                                         .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                                     }
                                 } header: {
-                                    Text("Your classrooms").eyebrowStyle(theme.colors)
+                                    Text(L10n.t("classrooms.header")).eyebrowStyle(theme.colors)
                                 }
                             }
                             .paperScreen()
@@ -52,7 +52,7 @@ struct ClassroomsView: View {
                     }
                 }
             }
-            .navigationTitle("Classrooms")
+            .navigationTitle(L10n.t("classrooms.title"))
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
@@ -108,11 +108,11 @@ private struct ClassroomRow: View {
     private var statusBadge: some View {
         Group {
             if classroom.isPaused {
-                Text("Paused")
+                Text(L10n.t("classroom.status.paused"))
             } else if classroom.isActive ?? false {
-                Text("Active")
+                Text(L10n.t("classroom.status.active"))
             } else {
-                Text("Dormant")
+                Text(L10n.t("classroom.status.dormant"))
             }
         }
         .font(AppFont.geist(11, .semibold))
@@ -148,19 +148,19 @@ private struct CreateClassroomSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("Name", text: $name)
+                    TextField(L10n.t("classrooms.create.name"), text: $name)
                 } header: {
-                    Text("Classroom").eyebrowStyle(theme.colors)
+                    Text(L10n.t("classrooms.create.section")).eyebrowStyle(theme.colors)
                 }
                 Section {
-                    Picker("Studying", selection: $targetLanguage) {
+                    Picker(L10n.t("classrooms.create.studying"), selection: $targetLanguage) {
                         ForEach(languages, id: \.self) { Text($0.uppercased()) }
                     }
-                    Picker("Native", selection: $nativeLanguage) {
+                    Picker(L10n.t("classrooms.create.native"), selection: $nativeLanguage) {
                         ForEach(languages, id: \.self) { Text($0.uppercased()) }
                     }
                 } header: {
-                    Text("Languages").eyebrowStyle(theme.colors)
+                    Text(L10n.t("classrooms.create.languages")).eyebrowStyle(theme.colors)
                 } footer: {
                     if let errorMessage {
                         Text(errorMessage).foregroundStyle(theme.colors.destructive)
@@ -168,14 +168,14 @@ private struct CreateClassroomSheet: View {
                 }
             }
             .paperScreen()
-            .navigationTitle("New Classroom")
+            .navigationTitle(L10n.t("classrooms.create.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(L10n.t("classrooms.cancel")) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Create") {
+                    Button(L10n.t("classrooms.create.submit")) {
                         create()
                     }
                     .disabled(isBusy || name.trimmingCharacters(in: .whitespaces).isEmpty)

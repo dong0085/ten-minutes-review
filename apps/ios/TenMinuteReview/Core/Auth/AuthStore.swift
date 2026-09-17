@@ -38,19 +38,20 @@ final class AuthStore {
         }
         api.bearerToken = token
         user = storedUser()
-        if user == nil {
-            do {
-                let response: UserResponse = try await api.get(Endpoints.me)
-                user = response.user
-                persist(user: response.user)
-            } catch {
-                // Keep the token; the next authenticated call retries /api/me
-                // or bounces to sign-in through onUnauthorized.
-            }
-        }
-        if user != nil {
+        if let user {
+            L10n.uiLanguage = user.uiLanguage
             state = .signedIn
-        } else {
+            return
+        }
+        do {
+            let response: UserResponse = try await api.get(Endpoints.me)
+            user = response.user
+            persist(user: response.user)
+            L10n.uiLanguage = response.user.uiLanguage
+            state = .signedIn
+        } catch {
+            // Keep the token; the next authenticated call retries /api/me
+            // or bounces to sign-in through onUnauthorized.
             clearLocalSession()
         }
     }
@@ -70,6 +71,7 @@ final class AuthStore {
         persist(user: response.user)
         api.bearerToken = response.token
         user = response.user
+        L10n.uiLanguage = response.user.uiLanguage
         state = .signedIn
 
         // The server derives quiz dates from the stored timezone; follow the
@@ -78,6 +80,54 @@ final class AuthStore {
         if timezone != response.user.timezone {
             try? await api.sendVoid("PATCH", Endpoints.me, json: ["timezone": timezone])
         }
+    }
+
+    /// Creates the account (invite code and email verification run on the
+    /// web flow) and signs straight in.
+    func signUp(email: String, password: String, inviteCode: String) async throws {
+        struct SignupBody: Encodable {
+            let email: String
+            let password: String
+            let inviteCode: String
+            let timezone: String
+            let uiLanguage: String
+        }
+        _ = try await api.sendVoid("POST", Endpoints.signup, json: SignupBody(
+            email: email,
+            password: password,
+            inviteCode: inviteCode,
+            timezone: TimeZone.current.identifier,
+            uiLanguage: L10n.uiLanguage
+        ))
+        try await signIn(email: email, password: password)
+    }
+
+    func updateProfile(username: String? = nil, uiLanguage: String? = nil) async throws {
+        var body: [String: String] = [:]
+        if let username { body["username"] = username }
+        if let uiLanguage { body["uiLanguage"] = uiLanguage }
+        let response: UserResponse = try await api.send("PATCH", Endpoints.me, json: body)
+        user = response.user
+        persist(user: response.user)
+        if let uiLanguage {
+            L10n.uiLanguage = uiLanguage
+        }
+    }
+
+    func changePassword(current: String?, next: String) async throws {
+        var body: [String: String] = ["newPassword": next]
+        if let current {
+            body["currentPassword"] = current
+        }
+        _ = try await api.sendVoid("POST", Endpoints.mePassword, json: body)
+    }
+
+    func deleteAccount() async {
+        _ = try? await api.sendVoid("DELETE", Endpoints.me)
+        if let userId = user?.id {
+            draftsWipe?(userId)
+        }
+        clearLocalSession()
     }
 
     func signOut() async {
@@ -96,6 +146,9 @@ final class AuthStore {
 
     private static let tokenAccount = "bearer"
     private static let userKey = "tmr.current-user"
+
+    /// Set by AppEnvironment so account deletion can wipe local drafts.
+    var draftsWipe: ((String) -> Void)?
 
     private func clearLocalSession() {
         keychain.delete(account: Self.tokenAccount)

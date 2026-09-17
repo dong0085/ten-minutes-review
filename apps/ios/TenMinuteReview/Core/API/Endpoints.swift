@@ -1,8 +1,13 @@
 enum Endpoints {
     static let authToken = "/api/auth/token"
     static let authTokenRevoke = "/api/auth/token/revoke"
+    static let signup = "/api/auth/signup"
     static let classrooms = "/api/classrooms"
     static let me = "/api/me"
+    static let mePassword = "/api/me/password"
+    static let meEmailPreferences = "/api/me/email-preferences"
+    static let meReferrals = "/api/me/referrals"
+    static let meExport = "/api/me/export"
 
     static func classroom(_ id: String) -> String { "/api/classrooms/\(id)" }
     static func uploads(classroomID: String) -> String { "/api/classrooms/\(classroomID)/uploads" }

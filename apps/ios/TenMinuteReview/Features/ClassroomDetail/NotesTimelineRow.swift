@@ -10,6 +10,7 @@ struct NotesTimelineRow: View {
                 RemoteImage(urlString: imageUrl)
                     .frame(width: 52, height: 52)
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .accessibilityLabel(Text(L10n.t("upload.photoNote")))
             } else {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .fill(theme.colors.muted)
@@ -18,10 +19,12 @@ struct NotesTimelineRow: View {
                         Image(systemName: "doc.text")
                             .foregroundStyle(theme.colors.mutedForeground)
                     }
+                    .accessibilityHidden(true)
             }
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text(upload.subject ?? (upload.isImage ? "Photo note" : "Text note"))
+                    Text(upload.subject
+                        ?? L10n.t(upload.isImage ? "upload.photoNote" : "upload.textNote"))
                         .font(AppFont.geist(14, .semibold))
                         .foregroundStyle(theme.colors.foreground)
                         .lineLimit(1)
@@ -46,13 +49,13 @@ struct NotesTimelineRow: View {
         Group {
             switch upload.extractionStatus {
             case .done:
-                Label("Processed", systemImage: "checkmark.circle.fill")
+                Label(L10n.t("upload.processed"), systemImage: "checkmark.circle.fill")
             case .running:
-                Label("Processing…", systemImage: "arrow.triangle.2.circlepath")
+                Label(L10n.t("upload.processing"), systemImage: "arrow.triangle.2.circlepath")
             case .pending:
-                Label("Queued", systemImage: "clock")
+                Label(L10n.t("upload.queued"), systemImage: "clock")
             case .failed:
-                Label("Failed", systemImage: "exclamationmark.triangle.fill")
+                Label(L10n.t("upload.failed"), systemImage: "exclamationmark.triangle.fill")
             }
         }
         .font(AppFont.geist(11))

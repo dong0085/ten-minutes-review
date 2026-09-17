@@ -16,6 +16,7 @@ final class APIClient {
     var onUnauthorized: (() -> Void)?
 
     private let session: URLSession
+    private let cacheDirectory: URL
 
     init(baseURL: URL) {
         self.baseURL = baseURL
@@ -23,12 +24,15 @@ final class APIClient {
         configuration.timeoutIntervalForRequest = 90
         configuration.timeoutIntervalForResource = 300
         session = URLSession(configuration: configuration)
+        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        cacheDirectory = caches.appendingPathComponent("api-snapshots", isDirectory: true)
+        try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
     }
 
     // MARK: Requests
 
     func get<Response: Decodable>(_ path: String) async throws -> Response {
-        try await decode(await send("GET", path))
+        try await decode(await send("GET", path, cacheable: true))
     }
 
     func send<Response: Decodable>(_ method: String, _ path: String, json: (any Encodable)? = nil) async throws -> Response {
@@ -47,15 +51,60 @@ final class APIClient {
         _ = try await send(method, path, body: body)
     }
 
-    func upload<Response: Decodable>(_ path: String, files: [UploadedFile]) async throws -> Response {
+    /// Raw bytes for a path that returns a file (the data export).
+    func data(_ path: String) async throws -> Data {
+        try await send("GET", path)
+    }
+
+    func upload<Response: Decodable>(
+        _ path: String,
+        files: [UploadedFile],
+        progress: (@Sendable (Double) -> Void)? = nil
+    ) async throws -> Response {
         var form = MultipartFormData()
         for file in files {
             form.add(file: file)
         }
         var request = try buildRequest("POST", path)
-        request.httpBody = form.finalized()
+        let body = form.finalized()
+        request.httpBody = body
         request.setValue(form.contentTypeHeader, forHTTPHeaderField: "Content-Type")
-        return try await decode(await run(request))
+
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await withCheckedThrowingContinuation { continuation in
+                let task = self.session.uploadTask(with: request, from: body) { data, response, error in
+                    if let error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(returning: (data ?? Data(), response ?? URLResponse()))
+                    }
+                }
+                if let progress {
+                    self.observeProgress(of: task, progress)
+                }
+                task.resume()
+            }
+            guard let http = response as? HTTPURLResponse else {
+                throw APIError(statusCode: -1, message: "The server response was unreadable.")
+            }
+            guard (200..<300).contains(http.statusCode) else {
+                if http.statusCode == 401 {
+                    onUnauthorized?()
+                }
+                throw APIError.from(data: data, statusCode: http.statusCode)
+            }
+        } catch let error as APIError {
+            throw error
+        } catch let error as URLError {
+            throw APIError.wrapping(error)
+        }
+        do {
+            return try JSONDecoder().decode(Response.self, from: data)
+        } catch {
+            throw APIError(statusCode: -1, message: "Could not read the server response.")
+        }
     }
 
     /// Fetches raw bytes (image files) with the bearer header when the URL
@@ -89,10 +138,16 @@ final class APIClient {
         }
     }
 
-    private func send(_ method: String, _ path: String, body: Data? = nil) async throws -> Data {
+    private func send(_ method: String, _ path: String, body: Data? = nil, cacheable: Bool = false) async throws -> Data {
         var request = try buildRequest(method, path)
         request.httpBody = body
-        return try await run(request)
+        do {
+            return try await run(request, cacheable: cacheable && method == "GET", path: path)
+        } catch let error as APIError where error.code == "offline" {
+            // Offline: fall back to the last successful snapshot for reads.
+            guard cacheable, let snapshot = readSnapshot(path: path) else { throw error }
+            return snapshot
+        }
     }
 
     private func buildRequest(_ method: String, _ path: String) throws -> URLRequest {
@@ -107,7 +162,7 @@ final class APIClient {
         return request
     }
 
-    private func run(_ request: URLRequest) async throws -> Data {
+    private func run(_ request: URLRequest, cacheable: Bool = false, path: String? = nil) async throws -> Data {
         let attachedToken = request.value(forHTTPHeaderField: "Authorization") != nil
         let data: Data
         let status: Int
@@ -127,6 +182,34 @@ final class APIClient {
             }
             throw APIError.from(data: data, statusCode: status)
         }
+        if cacheable, let path {
+            writeSnapshot(data, path: path)
+        }
         return data
+    }
+
+    private func observeProgress(of task: URLSessionUploadTask, _ report: @escaping (Double) -> Void) {
+        let progress = task.progress
+        Task.detached { [weak progress] in
+            while let progress, !progress.isFinished, !progress.isCancelled {
+                await MainActor.run { report(progress.fractionCompleted) }
+                try? await Task.sleep(for: .milliseconds(120))
+            }
+        }
+    }
+
+    private func snapshotURL(path: String) -> URL {
+        let safe = path
+            .replacingOccurrences(of: "/", with: "_")
+            .addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? path
+        return cacheDirectory.appendingPathComponent("\(safe).json")
+    }
+
+    private func writeSnapshot(_ data: Data, path: String) {
+        try? data.write(to: snapshotURL(path: path), options: .atomic)
+    }
+
+    private func readSnapshot(path: String) -> Data? {
+        try? Data(contentsOf: snapshotURL(path: path))
     }
 }

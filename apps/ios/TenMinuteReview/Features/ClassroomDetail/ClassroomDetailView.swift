@@ -3,8 +3,11 @@ import SwiftUI
 struct ClassroomDetailView: View {
     @Environment(AppEnvironment.self) private var environment
     @Environment(ThemeStore.self) private var theme
+    @Environment(\.dismiss) private var dismiss
     @State private var model: ClassroomDetailModel?
     @State private var showsAddNotes = false
+    @State private var showsSettings = false
+    @State private var quizPendingDelete: QuizSummary?
     let classroom: Classroom
 
     var body: some View {
@@ -15,11 +18,11 @@ struct ClassroomDetailView: View {
                     ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
                 case .failed(let message):
                     ContentUnavailableView {
-                        Label("Classroom unavailable", systemImage: "wifi.exclamationmark")
+                        Label(L10n.t("classrooms.unavailable"), systemImage: "wifi.exclamationmark")
                     } description: {
                         Text(message)
                     } actions: {
-                        Button("Retry") { Task { await model.loadAll() } }
+                        Button(L10n.t("classrooms.retry")) { Task { await model.loadAll() } }
                     }
                 case .ready:
                     List {
@@ -29,18 +32,18 @@ struct ClassroomDetailView: View {
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                         } header: {
-                            Text("Today").eyebrowStyle(theme.colors)
+                            Text(L10n.t("detail.today")).eyebrowStyle(theme.colors)
                         }
                         Section {
                             BankCountsView(bank: model.bank)
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                         } header: {
-                            Text("Question bank").eyebrowStyle(theme.colors)
+                            Text(L10n.t("detail.bank")).eyebrowStyle(theme.colors)
                         }
                         Section {
                             if model.uploads.isEmpty {
-                                Text("Add your first note to start building the bank.")
+                                Text(L10n.t("detail.notes.empty"))
                                     .font(AppFont.geist(13))
                                     .foregroundStyle(theme.colors.mutedForeground)
                                     .listRowBackground(Color.clear)
@@ -53,11 +56,11 @@ struct ClassroomDetailView: View {
                                 }
                             }
                         } header: {
-                            Text("Notes").eyebrowStyle(theme.colors)
+                            Text(L10n.t("detail.notes")).eyebrowStyle(theme.colors)
                         }
                         Section {
                             if model.quizzes.isEmpty {
-                                Text("No quizzes yet.")
+                                Text(L10n.t("detail.quizzes.empty"))
                                     .font(AppFont.geist(13))
                                     .foregroundStyle(theme.colors.mutedForeground)
                                     .listRowBackground(Color.clear)
@@ -71,10 +74,24 @@ struct ClassroomDetailView: View {
                                     }
                                     .listRowBackground(Color.clear)
                                     .listRowSeparator(.hidden)
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                        Button(role: .destructive) {
+                                            quizPendingDelete = summary
+                                        } label: {
+                                            Label(L10n.t("quiz.delete"), systemImage: "trash")
+                                        }
+                                    }
+                                    .contextMenu {
+                                        Button(role: .destructive) {
+                                            quizPendingDelete = summary
+                                        } label: {
+                                            Label(L10n.t("quiz.delete"), systemImage: "trash")
+                                        }
+                                    }
                                 }
                             }
                         } header: {
-                            Text("Quizzes").eyebrowStyle(theme.colors)
+                            Text(L10n.t("detail.quizzes")).eyebrowStyle(theme.colors)
                         }
                     }
                     .paperScreen()
@@ -84,21 +101,55 @@ struct ClassroomDetailView: View {
                 ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .navigationTitle(classroom.name)
+        .navigationTitle(model?.classroom.name ?? classroom.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button {
-                    showsAddNotes = true
+                Menu {
+                    Button {
+                        showsAddNotes = true
+                    } label: {
+                        Label(L10n.t("detail.notes.add"), systemImage: "plus.square")
+                    }
+                    if model != nil {
+                        Button {
+                            showsSettings = true
+                        } label: {
+                            Label(L10n.t("detail.settings"), systemImage: "slider.horizontal.3")
+                        }
+                    }
                 } label: {
-                    Label("Add notes", systemImage: "plus.square")
+                    Image(systemName: "ellipsis.circle")
                 }
+                .accessibilityLabel(Text(L10n.t("detail.settings")))
+            }
+        }
+        .navigationDestination(isPresented: $showsSettings) {
+            if let model {
+                ClassroomSettingsView(model: model) { dismiss() }
             }
         }
         .sheet(isPresented: $showsAddNotes) {
             if let model {
                 AddNotesView(model: model)
             }
+        }
+        .confirmationDialog(
+            L10n.t("quiz.deleteConfirm.title"),
+            isPresented: Binding(
+                get: { quizPendingDelete != nil },
+                set: { if !$0 { quizPendingDelete = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(L10n.t("quiz.deleteConfirm.action"), role: .destructive) {
+                if let quiz = quizPendingDelete {
+                    Task { try? await model?.deleteQuiz(id: quiz.id) }
+                }
+                quizPendingDelete = nil
+            }
+        } message: {
+            Text(L10n.t("quiz.deleteConfirm.body"))
         }
         .task {
             if model == nil {
@@ -110,7 +161,7 @@ struct ClassroomDetailView: View {
     }
 }
 
-private struct QuizListRow: View {
+struct QuizListRow: View {
     @Environment(ThemeStore.self) private var theme
     let summary: QuizSummary
 
@@ -121,7 +172,7 @@ private struct QuizListRow: View {
                     .font(AppFont.geist(15, .semibold))
                     .foregroundStyle(theme.colors.foreground)
                 if summary.kind == "manual" {
-                    Text("On demand")
+                    Text(L10n.t("detail.quizzes.onDemand"))
                         .font(AppFont.geist(11, .semibold))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
@@ -129,16 +180,21 @@ private struct QuizListRow: View {
                         .foregroundStyle(theme.colors.secondaryForeground)
                 }
                 Spacer()
-                Text("\(summary.size) questions")
+                Text(String(format: L10n.t("detail.quizzes.questions"), summary.size))
                     .font(AppFont.geist(12))
                     .foregroundStyle(theme.colors.mutedForeground)
             }
             if summary.attemptCount > 0 {
-                Text("Best \(summary.bestScore ?? 0)/\(summary.size) · \(summary.attemptCount) attempt\(summary.attemptCount == 1 ? "" : "s")")
-                    .font(AppFont.geist(12))
-                    .foregroundStyle(theme.colors.mutedForeground)
+                Text(String(
+                    format: L10n.t("detail.quizzes.best"),
+                    summary.bestScore ?? 0,
+                    summary.size,
+                    summary.attemptCount
+                ))
+                .font(AppFont.geist(12))
+                .foregroundStyle(theme.colors.mutedForeground)
             } else {
-                Text("Not attempted")
+                Text(L10n.t("detail.quizzes.notAttempted"))
                     .font(AppFont.geist(12))
                     .foregroundStyle(theme.colors.mutedForeground)
             }
@@ -148,7 +204,7 @@ private struct QuizListRow: View {
 }
 
 /// Loads a past quiz by id and hands it to the runner for a retake.
-private struct RetakeView: View {
+struct RetakeView: View {
     let quizId: String
     let model: ClassroomDetailModel
 
@@ -161,7 +217,7 @@ private struct RetakeView: View {
                 QuizRunnerView(quiz: quiz)
             } else if let errorMessage {
                 ContentUnavailableView(
-                    "Quiz unavailable",
+                    L10n.t("classrooms.unavailable"),
                     systemImage: "exclamationmark.triangle",
                     description: Text(errorMessage)
                 )
@@ -169,7 +225,7 @@ private struct RetakeView: View {
                 ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .navigationTitle("Quiz")
+        .navigationTitle(L10n.t("quiz.title"))
         .navigationBarTitleDisplayMode(.inline)
         .task {
             do {
@@ -177,7 +233,7 @@ private struct RetakeView: View {
             } catch let error as APIError {
                 errorMessage = error.message
             } catch {
-                errorMessage = "Could not load this quiz."
+                errorMessage = L10n.t("quiz.wentWrong")
             }
         }
     }

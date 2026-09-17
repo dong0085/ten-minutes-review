@@ -84,6 +84,52 @@ final class ClassroomDetailModel {
         return response.quiz
     }
 
+    func update(
+        name: String,
+        targetLanguage: String,
+        nativeLanguage: String,
+        autoStopDays: Int
+    ) async throws {
+        struct UpdateBody: Encodable {
+            let name: String
+            let targetLanguage: String
+            let nativeLanguage: String
+            let autoStopDays: Int
+        }
+        let response: ClassroomResponse = try await api.send(
+            "PATCH",
+            Endpoints.classroom(classroom.id),
+            json: UpdateBody(
+                name: name,
+                targetLanguage: targetLanguage,
+                nativeLanguage: nativeLanguage,
+                autoStopDays: autoStopDays
+            )
+        )
+        classroom = response.classroom
+    }
+
+    func setPaused(_ paused: Bool) async throws {
+        let response: ClassroomResponse = try await api.send(
+            "PATCH",
+            Endpoints.classroom(classroom.id),
+            json: ["paused": paused]
+        )
+        classroom = response.classroom
+    }
+
+    func deleteClassroom() async throws {
+        _ = try await api.sendVoid("DELETE", Endpoints.classroom(classroom.id))
+    }
+
+    func deleteQuiz(id: String) async throws {
+        _ = try await api.sendVoid("DELETE", Endpoints.quiz(id))
+        if today?.quiz?.id == id {
+            await refreshToday()
+        }
+        await refreshQuizzes()
+    }
+
     func upload(text: String) async throws {
         struct TextBody: Encodable {
             let text: String
@@ -92,10 +138,11 @@ final class ClassroomDetailModel {
         await refreshUploads()
     }
 
-    func upload(files: [UploadedFile]) async throws {
+    func upload(files: [UploadedFile], progress: (@Sendable (Double) -> Void)? = nil) async throws {
         let accepted: UploadAccepted = try await api.upload(
             Endpoints.uploads(classroomID: classroom.id),
-            files: files
+            files: files,
+            progress: progress
         )
         guard !accepted.uploadIds.isEmpty else { return }
         await refreshUploads()

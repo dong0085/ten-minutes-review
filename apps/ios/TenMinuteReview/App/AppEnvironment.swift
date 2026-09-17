@@ -24,5 +24,8 @@ final class AppEnvironment {
                 auth?.handleUnauthorized()
             }
         }
+        auth.draftsWipe = { [weak drafts] userId in
+            drafts?.removeAll(userId: userId)
+        }
     }
 }

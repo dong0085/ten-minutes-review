@@ -6,12 +6,12 @@ struct BankCountsView: View {
 
     var body: some View {
         if bank.total == 0 {
-            Text("The bank fills up as notes are processed.")
+            Text(L10n.t("detail.bank.empty"))
                 .font(AppFont.geist(13))
                 .foregroundStyle(theme.colors.mutedForeground)
         } else {
             VStack(alignment: .leading, spacing: 10) {
-                Text("\(bank.total) points total")
+                Text(String(format: L10n.t("detail.bank.total"), bank.total))
                     .font(AppFont.geist(14, .medium))
                     .foregroundStyle(theme.colors.foreground)
                 ScrollView(.horizontal, showsIndicators: false) {

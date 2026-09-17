@@ -55,8 +55,8 @@ struct TrueFalseQuestionView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            choice("True", value: true, icon: "checkmark.circle")
-            choice("False", value: false, icon: "xmark.circle")
+            choice(L10n.t("quiz.true"), value: true, icon: "checkmark.circle")
+            choice(L10n.t("quiz.false"), value: false, icon: "xmark.circle")
         }
     }
 
@@ -101,10 +101,10 @@ struct FillBlankQuestionView: View {
         VStack(alignment: .leading, spacing: 14) {
             ForEach(0..<blankCount, id: \.self) { index in
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Blank \(index + 1)")
+                    Text(String(format: L10n.t("quiz.blank"), index + 1))
                         .font(AppFont.geist(11, .semibold))
                         .foregroundStyle(theme.colors.mutedForeground)
-                    TextField("Your answer", text: binding(for: index))
+                    TextField(L10n.t("quiz.yourAnswer"), text: binding(for: index))
                         .font(AppFont.geist(16))
                         .padding(12)
                         .background(theme.colors.card, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
@@ -117,7 +117,7 @@ struct FillBlankQuestionView: View {
                 }
             }
             if blankCount == 0 {
-                TextField("Your answer", text: singleFallback)
+                TextField(L10n.t("quiz.yourAnswer"), text: singleFallback)
                     .font(AppFont.geist(16))
                     .padding(12)
                     .background(theme.colors.card, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
