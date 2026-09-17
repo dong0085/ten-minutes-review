@@ -1,7 +1,7 @@
 import browser from "webextension-polyfill";
 import type { RecentSave, StoredState } from "./types";
 
-export const DEFAULT_BASE_URL = "http://localhost:3000";
+export const DEFAULT_BASE_URL = "https://ten-minutes-review.vercel.app";
 export const RECENT_SAVES_CAP = 10;
 
 const STORAGE_KEY = "state";

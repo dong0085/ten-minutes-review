@@ -133,6 +133,11 @@ export function renderSignedIn(
       <label for="default-classroom">Default classroom</label>
       <select id="default-classroom">${options}</select>
     </div>
+    ${
+      state.classrooms.length === 0
+        ? `<p class="muted small">No classrooms yet — <a href="${escapeHtml(state.baseUrl)}/classrooms" target="_blank" rel="noreferrer">create one on the website</a>.</p>`
+        : ""
+    }
     ${state.recentSaves.length > 0 ? `<h2>Recent saves</h2><ul class="saves">${saves}</ul>` : ""}
     ${settingsHtml(state.baseUrl)}
     <p id="error" class="error" hidden></p>

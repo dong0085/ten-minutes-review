@@ -5,11 +5,31 @@ import { buildNoteText, preview } from "../shared/format";
 import { getState, originPattern, pushRecentSave } from "../shared/storage";
 import { CLASSROOM_MENU_PREFIX } from "./menus";
 
+// info.selectionText can be truncated or empty on some selections (and in
+// Firefox); the menu click grants activeTab, so read the real selection
+// straight from the page and fall back to the menu text when injection fails
+// (chrome:// pages, PDFs, extension pages).
+async function readSelection(tab: browser.Tabs.Tab | undefined, fallback: string): Promise<string> {
+  if (tab?.id === undefined) {
+    return fallback;
+  }
+  try {
+    const results = await browser.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: () => String(window.getSelection() ?? ""),
+    });
+    const text = results[0]?.result;
+    return typeof text === "string" && text.trim() ? text : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export async function handleMenuClick(
   info: browser.Menus.OnClickData,
   tab: browser.Tabs.Tab | undefined,
 ): Promise<void> {
-  const selection = (info.selectionText ?? "").trim();
+  const selection = (await readSelection(tab, info.selectionText ?? "")).trim();
   if (!selection) {
     await flashBadge("!", true);
     await notify("No selectable text was found on this page.");

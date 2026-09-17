@@ -127,6 +127,10 @@ button.link:hover {
   color: var(--text);
 }
 
+a {
+  color: var(--accent);
+}
+
 .divider {
   display: flex;
   align-items: center;

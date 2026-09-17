@@ -97,7 +97,7 @@ pnpm build:extension
 - Chrome: `chrome://extensions` → Developer mode → Load unpacked → `apps/extension/dist/chrome`
 - Firefox: `about:debugging#/runtime/this-firefox` → Load Temporary Add-on → `apps/extension/dist/firefox/manifest.json`
 
-Sign in from the popup with email + password, or paste a token from Account → API tokens (the path for Google-only accounts). The default server is `http://localhost:3000`; change it in the popup's Server section. See [`apps/extension/README.md`](apps/extension/README.md) for details.
+Sign in from the popup with email + password, or paste a token from Account → API tokens (the path for Google-only accounts). The extension talks to the production site by default; for local development point the popup's Server section at `http://localhost:3000`. See [`apps/extension/README.md`](apps/extension/README.md) for details.
 
 ## Project documents
 

@@ -22,11 +22,14 @@ if (targets.length === 0) {
   process.exit(1);
 }
 
-// Bake a production API origin into the manifest's default host permission.
+// Bake a different default server (e.g. a self-host) instead of the production
+// site; localhost stays available for development.
 const origin = process.env.EXT_API_ORIGIN?.replace(/\/+$/, "");
 const manifest = JSON.parse(await readFile(path.join(root, "src/manifest.common.json"), "utf8"));
 if (origin) {
-  manifest.host_permissions = [`${origin}/*`];
+  const localhost = "http://localhost:3000/*";
+  manifest.host_permissions =
+    origin === "http://localhost:3000" ? [localhost] : [`${origin}/*`, localhost];
 }
 
 const ENTRIES = [

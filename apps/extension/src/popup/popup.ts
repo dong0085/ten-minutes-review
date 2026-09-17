@@ -1,10 +1,11 @@
 import browser from "webextension-polyfill";
 import {
+  ApiError,
   authenticateWithToken,
   revokeCurrentToken,
   signInWithPassword,
 } from "../shared/api-client";
-import { getState, originPattern, patchState } from "../shared/storage";
+import { DEFAULT_BASE_URL, getState, originPattern, patchState } from "../shared/storage";
 import { applyClassrooms, syncClassrooms } from "../shared/sync";
 import {
   renderSignedIn,
@@ -35,15 +36,19 @@ async function safeSyncClassrooms(): Promise<void> {
   }
 }
 
+// Captured at render time so handlers can call permissions.request as their
+// very first statement — Chrome rejects it if anything is awaited first, since
+// that drops the user-activation context of the click.
+let currentBaseUrl = DEFAULT_BASE_URL;
+
 const handlers: PopupHandlers = {
   async signIn(email, password) {
     setBusy(root, true);
     showError(root, null);
     try {
-      const { baseUrl } = await getState();
-      const granted = await ensureOriginPermission(baseUrl);
+      const granted = await ensureOriginPermission(currentBaseUrl);
       if (!granted) {
-        showError(root, `Allow access to ${baseUrl} to sign in.`);
+        showError(root, `Allow access to ${currentBaseUrl} to sign in.`);
         return;
       }
       const { token, user } = await signInWithPassword(email, password);
@@ -52,7 +57,12 @@ const handlers: PopupHandlers = {
       await notifyStateChanged();
       await render();
     } catch (error) {
-      showError(root, error instanceof Error ? error.message : "Sign-in failed.");
+      const message = error instanceof Error ? error.message : "Sign-in failed.";
+      const hint =
+        error instanceof ApiError && error.status === 401
+          ? " If you sign in with Google, create a token on the website under Account → API tokens and paste it below."
+          : "";
+      showError(root, message + hint);
     } finally {
       setBusy(root, false);
     }
@@ -63,10 +73,9 @@ const handlers: PopupHandlers = {
     showError(root, null);
     try {
       const trimmed = token.trim();
-      const { baseUrl } = await getState();
-      const granted = await ensureOriginPermission(baseUrl);
+      const granted = await ensureOriginPermission(currentBaseUrl);
       if (!granted) {
-        showError(root, `Allow access to ${baseUrl} to continue.`);
+        showError(root, `Allow access to ${currentBaseUrl} to continue.`);
         return;
       }
       const { user, classrooms } = await authenticateWithToken(trimmed);
@@ -82,10 +91,10 @@ const handlers: PopupHandlers = {
   },
 
   async saveBaseUrl(baseUrl) {
+    const normalized = baseUrl.trim().replace(/\/+$/, "");
     setBusy(root, true);
     showError(root, null);
     try {
-      const normalized = baseUrl.trim().replace(/\/+$/, "");
       const granted = await ensureOriginPermission(normalized);
       if (!granted) {
         showError(root, `Permission to access ${normalized} was denied.`);
@@ -124,6 +133,7 @@ const handlers: PopupHandlers = {
 // Arrow (not a hoisted function declaration) so `root` keeps its non-null narrowing here.
 const render = async (): Promise<void> => {
   const state = await getState();
+  currentBaseUrl = state.baseUrl;
   if (state.token && state.user) {
     renderSignedIn(root, state, handlers);
   } else {
