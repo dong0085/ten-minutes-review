@@ -1,28 +1,25 @@
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { ArrowUpRight, BookOpenText, FilePlus2 } from "lucide-react";
+import type { ClassroomDailyStatus } from "@tmr/core";
 import type { Classroom } from "@tmr/db";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { languageLabel } from "@/lib/language-label";
 
-export function isClassroomDormant(activeUntil: Date): boolean {
-  return activeUntil.getTime() < Date.now();
-}
-
 export async function ClassroomCard({
   classroom,
   index,
   bankSize,
   todayQuizId,
-  dormant,
+  status,
 }: {
   classroom: Classroom;
   index: number;
   bankSize: number;
   todayQuizId: string | null;
-  dormant: boolean;
+  status: ClassroomDailyStatus;
 }) {
   const t = await getTranslations("Classroom.Card");
   const locale = await getLocale();
@@ -56,9 +53,12 @@ export async function ClassroomCard({
               {target} <span aria-hidden="true">→</span> {native}
             </p>
           </div>
-          <Badge variant={dormant ? "warning" : "success"} className="gap-1.5">
+          <Badge
+            variant={status === "active" ? "success" : status === "paused" ? "destructive" : "warning"}
+            className="gap-1.5"
+          >
             <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
-            {dormant ? t("dormant") : t("active")}
+            {t(status)}
           </Badge>
         </div>
         <div className="mt-auto border-t border-border/65 pt-4">

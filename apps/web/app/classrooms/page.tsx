@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ArrowRight, BookOpen, Plus, Sparkles } from "lucide-react";
+import { classroomDailyStatus } from "@tmr/core";
 import { bankSize, getDailyQuizByClassroomAndDate, listClassrooms } from "@tmr/db";
-import {
-  ClassroomCard,
-  isClassroomDormant,
-} from "@/components/classroom/classroom-card";
+import { ClassroomCard } from "@/components/classroom/classroom-card";
 import { Button } from "@/components/ui/button";
 import { getDb } from "@/lib/db";
 import { getCurrentUserOrGuest } from "@/lib/session";
@@ -64,7 +62,7 @@ export default async function ClassroomsPage() {
         classroom,
         bankSize: size,
         todayQuizId: quiz?.id ?? null,
-        dormant: isClassroomDormant(classroom.activeUntil),
+        status: classroomDailyStatus(classroom),
       };
     }),
   );
@@ -95,7 +93,7 @@ export default async function ClassroomsPage() {
     );
   }
 
-  const activeCount = cards.filter(({ dormant }) => !dormant).length;
+  const activeCount = cards.filter(({ status }) => status === "active").length;
 
   return (
     <div className="space-y-8">
@@ -135,14 +133,14 @@ export default async function ClassroomsPage() {
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map(({ classroom, bankSize: size, todayQuizId, dormant }, index) => (
+        {cards.map(({ classroom, bankSize: size, todayQuizId, status }, index) => (
           <ClassroomCard
             key={classroom.id}
             index={index + 1}
             classroom={classroom}
             bankSize={size}
             todayQuizId={todayQuizId}
-            dormant={dormant}
+            status={status}
           />
         ))}
       </div>

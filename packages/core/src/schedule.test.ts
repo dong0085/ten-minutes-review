@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { dailySendAt, nextDailySendAt } from "./schedule";
+import {
+  classroomDailyStatus,
+  dailySendAt,
+  isClassroomEligibleForDailySend,
+  nextDailySendAt,
+} from "./schedule";
 
 describe("dailySendAt", () => {
   it("maps 7am Eastern to 12:00 UTC in winter", () => {
@@ -65,5 +70,56 @@ describe("nextDailySendAt", () => {
     expect(nextDailySendAt(new Date("2026-11-01T13:00:00Z")).toISOString()).toBe(
       "2026-11-02T12:00:00.000Z",
     );
+  });
+});
+
+describe("classroomDailyStatus", () => {
+  const now = new Date("2026-09-15T11:00:00.000Z");
+
+  it("gives an explicit pause precedence over dormancy", () => {
+    expect(
+      classroomDailyStatus(
+        {
+          activeUntil: new Date("2026-09-14T11:00:00.000Z"),
+          pausedAt: new Date("2026-09-10T11:00:00.000Z"),
+        },
+        now,
+      ),
+    ).toBe("paused");
+  });
+
+  it("distinguishes dormant and active classrooms", () => {
+    expect(
+      classroomDailyStatus({ activeUntil: new Date("2026-09-15T10:59:59.000Z"), pausedAt: null }, now),
+    ).toBe("dormant");
+    expect(
+      classroomDailyStatus({ activeUntil: new Date("2026-09-15T11:00:01.000Z"), pausedAt: null }, now),
+    ).toBe("active");
+  });
+});
+
+describe("isClassroomEligibleForDailySend", () => {
+  const sendAt = new Date("2026-09-15T11:00:00.000Z");
+  const createdAt = new Date("2026-09-01T12:00:00.000Z");
+
+  it("includes a classroom resumed before the send cutoff", () => {
+    expect(
+      isClassroomEligibleForDailySend(
+        { createdAt, dailyResumedAt: new Date("2026-09-15T10:59:59.999Z") },
+        sendAt,
+      ),
+    ).toBe(true);
+  });
+
+  it("defers a classroom resumed at or after the send cutoff", () => {
+    expect(
+      isClassroomEligibleForDailySend({ createdAt, dailyResumedAt: sendAt }, sendAt),
+    ).toBe(false);
+    expect(
+      isClassroomEligibleForDailySend(
+        { createdAt, dailyResumedAt: new Date("2026-09-15T11:00:00.001Z") },
+        sendAt,
+      ),
+    ).toBe(false);
   });
 });

@@ -9,6 +9,7 @@ export const classroom = {
   Card: {
     active: "Active",
     dormant: "Dormant",
+    paused: "Paused",
     knowledgePoints: "{count, plural, one {# knowledge point} other {# knowledge points}} in the bank",
     takeToday: "Take today's quiz",
     addNotes: "Add notes",
@@ -18,6 +19,7 @@ export const classroom = {
     title: "Today's quiz",
     ready: "Your quiz for today is ready.",
     idle: "Create one now, or wait for your morning email.",
+    paused: "Daily reviews are paused. You can still create a quiz whenever you like.",
     resetAt: "Resets at {local} ({utc} UTC)",
     resetAtTomorrow: "Resets tomorrow at {local} ({utc} UTC)",
     takeToday: "Take today's quiz",
@@ -66,11 +68,23 @@ export const classroom = {
     speak: "I speak",
     autoStop: "Auto-stop after quiet days",
     autoStopHelp:
-      "Emails pause after this many days without notes. Opening the classroom resumes them.",
+      "Daily reviews become dormant after this many quiet days. Opening the classroom reactivates them.",
     daysRange: "Choose a number of days between 1 and 90.",
     saved: "Saved.",
     saveChanges: "Save changes",
     error: "Something went wrong. Please try again.",
+  },
+  DailyReviews: {
+    title: "Daily reviews",
+    activeExplanation:
+      "Need a break? Pause scheduled quizzes and emails without losing your notes or history.",
+    pausedExplanation:
+      "Scheduled quizzes and emails are paused. Resume whenever you're ready; your next daily review will start the following morning.",
+    pause: "Pause daily reviews",
+    resume: "Resume daily reviews",
+    pausing: "Pausing…",
+    resuming: "Resuming…",
+    error: "Could not update daily reviews. Please try again.",
   },
   DangerZone: {
     title: "Archive or delete",
@@ -108,7 +122,10 @@ export const classroom = {
     back: "All classrooms",
     activeStatus: "Active",
     dormantStatus: "Dormant",
+    pausedStatus: "Paused",
     dormant: "Emails have stopped — add notes or open this page to resume.",
+    paused:
+      "Daily reviews are paused. Your notes, history, and on-demand quizzes are still available.",
   },
   HomePage: {
     addNotesTitle: "Add notes",

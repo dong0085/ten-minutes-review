@@ -1,4 +1,4 @@
-import { formatMessage, getMessages, toUiLocale } from "@tmr/core";
+import { dailySendAt, formatMessage, getMessages, toUiLocale } from "@tmr/core";
 import type { QuizKind, UiLocale } from "@tmr/core";
 import { createUnsubscribeToken } from "@tmr/core/node";
 import {
@@ -8,7 +8,7 @@ import {
   getEmailSendByQuiz,
   getQuizWithQuestionsForUser,
   getUserById,
-  listQuizzesForUserOnDate,
+  listDailyEmailQuizzesForUserOnDate,
   recordEmailSend,
 } from "@tmr/db";
 import type { Db } from "@tmr/db";
@@ -70,6 +70,16 @@ function requireString(payload: Record<string, unknown>, key: string): string {
   return value;
 }
 
+function dailyCutoff(payload: Record<string, unknown>): Date {
+  if (typeof payload.sendAt === "string") {
+    const parsed = new Date(payload.sendAt);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
+  return dailySendAt();
+}
+
 export async function handleSendEmailJob(
   db: Db,
   payload: Record<string, unknown>,
@@ -121,7 +131,12 @@ export async function handleSendEmailJob(
     if (alreadySent) {
       return;
     }
-    const rows = await listQuizzesForUserOnDate(db, userId, quizDate);
+    const rows = await listDailyEmailQuizzesForUserOnDate(
+      db,
+      userId,
+      quizDate,
+      dailyCutoff(payload),
+    );
     if (rows.length === 0) {
       return;
     }

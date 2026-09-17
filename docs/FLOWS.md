@@ -49,9 +49,9 @@ The default screen once a classroom exists. Shows:
 - **Unfinished** — up to three on-demand quizzes not taken yet, each one tap away.
 - **Add notes** — the primary action.
 - **History** — a clock control that opens the upload timeline.
-- **Settings** — name, languages, the auto-stop window.
+- **Settings** — name, languages, the auto-stop window, and a separate Daily reviews card with Pause or Resume.
 
-A dormant classroom shows a banner here: emails have stopped, add notes or open the classroom to resume them.
+A dormant classroom shows a banner here: emails have stopped, add notes or open the classroom to resume them. A manually paused classroom instead shows a paused banner and keeps that status even when the classroom is opened or notes are uploaded.
 
 ## 6. Upload notes
 
@@ -131,7 +131,20 @@ A classroom goes dormant 7 days after the last upload, or after the last login, 
 
 Dormancy deletes nothing. The bank, the uploads, and the history all stay, apart from quizzes and classrooms the learner removes.
 
-## 14. Account center
+## 14. Manually paused classroom
+
+Pause and Resume live only in the classroom's Settings screen. Manual pause takes visual precedence over dormancy.
+
+**While paused:**
+
+- Automatic daily quiz composition stops, and the classroom is omitted from the consolidated morning email.
+- Notes, uploads, the question bank, history, existing quizzes, and on-demand quiz creation remain available.
+- Existing daily quizzes are not deleted. On-demand quiz emails continue to follow the account's email preferences.
+- Sign-in, opening the classroom, and uploading notes may extend `active_until`, but never clear the pause.
+
+Resume is the only action that clears the pause. It refreshes `active_until` to at least the current time plus the classroom's auto-stop window. A resume before 7:00 AM Eastern can join that morning's send; a resume at or after 7:00 AM waits until the next morning and never triggers a same-day catch-up.
+
+## 15. Account center
 
 One page, read-first: account details, usage stats, and history are visible at a glance, and each editable section shows an **Edit** control that expands its form in place.
 
@@ -148,10 +161,11 @@ Sections:
 
 Account deletion removes classrooms, uploads, knowledge points, quizzes, attempts, and stored images. A confirmation step names what will be lost.
 
-## 15. Email preferences and unsubscribe
+## 16. Email preferences and unsubscribe
 
 - The daily email goes out at one fixed time, 7:00 AM Eastern, for everyone. The account page and the classroom home show the next send in the user's timezone, with UTC in parentheses.
 - Turning the daily email off is immediate and affects every classroom.
+- Account-wide email off/unsubscribe and per-classroom pause are independent. Pause/Resume never changes the account preference, and an account-wide opt-out still blocks daily and on-demand email according to the existing email rules.
 - Every email carries a one-click unsubscribe link that needs no sign-in. It lands on a page confirming the change, with a link back to settings.
 
 ---
@@ -166,4 +180,6 @@ Account deletion removes classrooms, uploads, knowledge points, quizzes, attempt
 | Daily quiz | Morning email, or the site | Attempt recorded |
 | Review | After submit | Explanations shown |
 | Reactivate | Opening a dormant classroom | `active_until` moves forward |
+| Pause daily reviews | Classroom Settings | `paused_at` is set; daily compose jobs are cancelled or asked to cancel |
+| Resume daily reviews | Classroom Settings | `paused_at` clears, `daily_resumed_at` is set, and `active_until` is refreshed |
 | Unsubscribe | Any email | `unsubscribed_at` set |

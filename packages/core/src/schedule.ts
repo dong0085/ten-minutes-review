@@ -71,3 +71,22 @@ export function nextDailySendAt(now: Date = new Date()): Date {
     DAILY_SEND_TIMEZONE,
   );
 }
+
+export type ClassroomDailyStatus = "active" | "dormant" | "paused";
+
+export function classroomDailyStatus(
+  classroom: { activeUntil: Date; pausedAt: Date | null },
+  now: Date = new Date(),
+): ClassroomDailyStatus {
+  if (classroom.pausedAt !== null) {
+    return "paused";
+  }
+  return classroom.activeUntil.getTime() <= now.getTime() ? "dormant" : "active";
+}
+
+export function isClassroomEligibleForDailySend(
+  classroom: { createdAt: Date; dailyResumedAt: Date | null },
+  sendAt: Date,
+): boolean {
+  return (classroom.dailyResumedAt ?? classroom.createdAt).getTime() < sendAt.getTime();
+}

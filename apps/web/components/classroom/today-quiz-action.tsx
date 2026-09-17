@@ -31,6 +31,7 @@ export function TodayQuizAction({
   classroomId,
   dailyQuizId,
   bankSize,
+  paused,
   nowMs,
   autoStart = false,
   initialJob,
@@ -41,6 +42,7 @@ export function TodayQuizAction({
   classroomId: string;
   dailyQuizId: string | null;
   bankSize: number;
+  paused: boolean;
   nowMs: number;
   autoStart?: boolean;
   initialJob: { status: JobStatus; requestedAt: string } | null;
@@ -254,13 +256,15 @@ export function TodayQuizAction({
         </div>
         <div>
           <p className="max-w-md text-sm leading-6 text-muted-foreground">
-            {activeQuizId ? t("ready") : t("idle")}
+            {paused ? t("paused") : activeQuizId ? t("ready") : t("idle")}
           </p>
-          <p className="mt-1 text-xs text-muted-foreground/80">
-            {resetTomorrow
-              ? t("resetAtTomorrow", { local: resetLocal, utc: resetUtc })
-              : t("resetAt", { local: resetLocal, utc: resetUtc })}
-          </p>
+          {!paused ? (
+            <p className="mt-1 text-xs text-muted-foreground/80">
+              {resetTomorrow
+                ? t("resetAtTomorrow", { local: resetLocal, utc: resetUtc })
+                : t("resetAt", { local: resetLocal, utc: resetUtc })}
+            </p>
+          ) : null}
         </div>
         <div>
           {activeQuizId ? (

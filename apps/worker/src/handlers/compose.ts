@@ -2,6 +2,8 @@ import {
   COMPOSITION_PROMPT_V2,
   COMPOSITION_PROMPT_VERSION,
   MIN_USABLE_QUESTIONS,
+  dailySendAt,
+  isClassroomEligibleForDailySend,
   parseCompositionResponse,
   parseCompositionResult,
   quizSize,
@@ -31,6 +33,26 @@ function requireString(payload: Record<string, unknown>, key: string): string {
     throw new Error(`compose job payload is missing ${key}`);
   }
   return value;
+}
+
+function dailyCutoff(payload: Record<string, unknown>): Date {
+  if (typeof payload.sendAt === "string") {
+    const parsed = new Date(payload.sendAt);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
+  return dailySendAt();
+}
+
+function blocksDailyComposition(
+  classroom: { pausedAt: Date | null; createdAt: Date; dailyResumedAt: Date | null },
+  sendAt: Date,
+): boolean {
+  return (
+    classroom.pausedAt !== null ||
+    !isClassroomEligibleForDailySend(classroom, sendAt)
+  );
 }
 
 export function passageIdFromDetail(detail: KnowledgePointDetail | null): string | null {
@@ -65,6 +87,7 @@ export async function handleComposeJob(
   const userId = requireString(payload, "userId");
   const localDate = requireString(payload, "localDate");
   const kind = payload.source === "manual" ? "manual" : "daily";
+  const sendAt = kind === "daily" ? dailyCutoff(payload) : null;
 
   if (await cancelIfRequested(db, jobId)) {
     console.log(`[worker] compose ${classroomId} ${localDate}: cancelled before start`);
@@ -85,6 +108,10 @@ export async function handleComposeJob(
   const classroom = await getClassroom(db, userId, classroomId);
   if (!classroom) {
     throw new Error(`classroom ${classroomId} not found for user ${userId}`);
+  }
+  if (kind === "daily" && sendAt && blocksDailyComposition(classroom, sendAt)) {
+    console.log(`[worker] compose ${classroomId} ${localDate}: daily reviews paused or deferred`);
+    return;
   }
 
   const bank = await listKnowledgePointsForComposition(db, classroomId);
@@ -142,7 +169,15 @@ export async function handleComposeJob(
     return;
   }
 
-  const { quiz } = await createQuizWithQuestions(db, {
+  if (kind === "daily" && sendAt) {
+    const latestClassroom = await getClassroom(db, userId, classroomId);
+    if (!latestClassroom || blocksDailyComposition(latestClassroom, sendAt)) {
+      console.log(`[worker] compose ${classroomId} ${localDate}: paused before save`);
+      return;
+    }
+  }
+
+  const { quiz, blocked } = await createQuizWithQuestions(db, {
     classroomId,
     userId,
     quizDate: localDate,
@@ -150,7 +185,12 @@ export async function handleComposeJob(
     size: kept.length,
     promptVersion: COMPOSITION_PROMPT_VERSION,
     questions,
+    dailySendAt: sendAt ?? undefined,
   });
+  if (blocked) {
+    console.log(`[worker] compose ${classroomId} ${localDate}: blocked at save`);
+    return;
+  }
   if (!quiz) {
     throw new Error(`failed to create quiz for classroom ${classroomId} on ${localDate}`);
   }

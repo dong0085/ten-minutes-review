@@ -15,7 +15,8 @@ export async function enqueueDueDailyComposeJobs(
   db: Db,
   now: Date = new Date(),
 ): Promise<number> {
-  const due = await listDueClassrooms(db, dailySendAt(now));
+  const sendAt = dailySendAt(now);
+  const due = await listDueClassrooms(db, sendAt);
   let enqueued = 0;
   for (const classroom of due) {
     if (
@@ -30,6 +31,7 @@ export async function enqueueDueDailyComposeJobs(
         userId: classroom.userId,
         localDate: classroom.localDate,
         source: "daily",
+        sendAt: sendAt.toISOString(),
       },
     });
     enqueued += 1;
@@ -41,7 +43,8 @@ export async function enqueueReadyDailyEmailJobs(
   db: Db,
   now: Date = new Date(),
 ): Promise<number> {
-  const recipients = await listReadyDailyEmailRecipients(db, dailySendAt(now));
+  const sendAt = dailySendAt(now);
+  const recipients = await listReadyDailyEmailRecipients(db, sendAt);
   let enqueued = 0;
   for (const recipient of recipients) {
     if (await hasActiveDailyEmailJob(db, recipient.userId, recipient.localDate)) {
@@ -53,6 +56,7 @@ export async function enqueueReadyDailyEmailJobs(
         userId: recipient.userId,
         quizDate: recipient.localDate,
         kind: "daily",
+        sendAt: sendAt.toISOString(),
       },
     });
     enqueued += 1;

@@ -2,10 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { ArrowLeft, Globe2 } from "lucide-react";
+import { classroomDailyStatus } from "@tmr/core";
 import { getClassroom } from "@tmr/db";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { isClassroomDormant } from "@/components/classroom/classroom-card";
 import { ClassroomTabs } from "@/components/classroom/classroom-tabs";
 import { getDb } from "@/lib/db";
 import { languageLabel } from "@/lib/language-label";
@@ -26,7 +26,7 @@ export default async function ClassroomLayout({
   if (!classroom) {
     notFound();
   }
-  const dormant = isClassroomDormant(classroom.activeUntil);
+  const status = classroomDailyStatus(classroom);
   const target = languageLabel(classroom.targetLanguage, locale);
   const native = languageLabel(classroom.nativeLanguage, locale);
 
@@ -50,13 +50,24 @@ export default async function ClassroomLayout({
             <Globe2 className="size-3.5 text-primary" />
             {target} <span aria-hidden="true">→</span> {native}
           </span>
-          <Badge variant={dormant ? "warning" : "success"} className="gap-1.5">
+          <Badge
+            variant={status === "active" ? "success" : status === "paused" ? "destructive" : "warning"}
+            className="gap-1.5"
+          >
             <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
-            {dormant ? t("dormantStatus") : t("activeStatus")}
+            {status === "paused"
+              ? t("pausedStatus")
+              : status === "dormant"
+                ? t("dormantStatus")
+                : t("activeStatus")}
           </Badge>
         </div>
       </div>
-      {dormant ? (
+      {status === "paused" ? (
+        <Alert className="border-destructive/20 bg-destructive/[0.06]">
+          <AlertDescription>{t("paused")}</AlertDescription>
+        </Alert>
+      ) : status === "dormant" ? (
         <Alert className="border-warning/20 bg-warning/[0.06]">
           <AlertDescription>{t("dormant")}</AlertDescription>
         </Alert>

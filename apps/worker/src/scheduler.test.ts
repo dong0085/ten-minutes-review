@@ -1,6 +1,12 @@
 import { PgDialect } from "drizzle-orm/pg-core";
+import { drizzle } from "drizzle-orm/pg-proxy";
 import { describe, expect, it, vi } from "vitest";
-import { listDueClassrooms } from "@tmr/db";
+import {
+  listDailyEmailQuizzesForUserOnDate,
+  listDueClassrooms,
+  listReadyDailyEmailRecipients,
+  listUnsentDailyEmailRecipients,
+} from "@tmr/db";
 import type { Db } from "@tmr/db";
 import { runWorkerOnce, WorkerRunError } from "./runner";
 import { auditOverdueDailyEmails } from "./scheduler";
@@ -16,6 +22,48 @@ describe("daily scheduler database query", () => {
 
     await listDueClassrooms({ execute } as unknown as Db, sendAt);
     expect(execute).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    ["due classrooms", listDueClassrooms],
+    ["ready email recipients", listReadyDailyEmailRecipients],
+    ["unsent email recipients", listUnsentDailyEmailRecipients],
+  ])("excludes paused and same-cutoff resumed classrooms from %s", async (_label, queryFn) => {
+    const sendAt = new Date("2026-09-15T11:00:00.000Z");
+    const execute = vi.fn(async (query) => {
+      const compiled = new PgDialect().sqlToQuery(query);
+      const normalized = compiled.sql.replace(/\s+/g, " ").toLowerCase();
+      expect(normalized).toContain("c.paused_at is null");
+      expect(normalized).toContain(
+        "coalesce(c.daily_resumed_at, c.created_at) < $2",
+      );
+      expect(compiled.params).toEqual([sendAt.toISOString(), sendAt.toISOString()]);
+      return [];
+    });
+
+    await queryFn({ execute } as unknown as Db, sendAt);
+    expect(execute).toHaveBeenCalledOnce();
+  });
+
+  it("filters queued daily email contents by pause and resume cutoff", async () => {
+    let capturedSql = "";
+    const proxy = drizzle(async (query) => {
+      capturedSql = query;
+      return { rows: [] };
+    });
+
+    await listDailyEmailQuizzesForUserOnDate(
+      proxy as unknown as Db,
+      "00000000-0000-0000-0000-000000000001",
+      "2026-09-15",
+      new Date("2026-09-15T11:00:00.000Z"),
+    );
+
+    const normalized = capturedSql.replace(/\s+/g, " ").toLowerCase();
+    expect(normalized).toContain('"classrooms"."paused_at" is null');
+    expect(normalized).toContain(
+      'coalesce("classrooms"."daily_resumed_at", "classrooms"."created_at") < $4',
+    );
   });
 
   it("does not audit delivery before the 30-minute grace period", async () => {

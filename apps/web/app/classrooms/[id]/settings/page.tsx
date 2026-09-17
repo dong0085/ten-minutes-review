@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getClassroom } from "@tmr/db";
 import { ClassroomDangerZone } from "@/components/classroom/classroom-danger-zone";
 import { ClassroomSettingsForm } from "@/components/classroom/classroom-settings-form";
+import { DailyReviewsSettings } from "@/components/classroom/daily-reviews-settings";
 import { getDb } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 
@@ -27,6 +28,10 @@ export default async function ClassroomSettingsPage({
           nativeLanguage: classroom.nativeLanguage,
           autoStopDays: classroom.autoStopDays,
         }}
+      />
+      <DailyReviewsSettings
+        classroomId={classroom.id}
+        initiallyPaused={classroom.pausedAt !== null}
       />
       <ClassroomDangerZone classroomId={classroom.id} />
     </div>

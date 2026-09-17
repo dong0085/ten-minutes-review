@@ -3,6 +3,7 @@ import {
   bankSize,
   deleteClassroom,
   getClassroom,
+  setClassroomDailyReviewsPaused,
   updateClassroom,
 } from "@tmr/db";
 import { handleRouteError, jsonError, jsonOk, readJson } from "@/lib/api";
@@ -14,6 +15,7 @@ const updateClassroomSchema = z.object({
   targetLanguage: z.string().trim().min(2).max(10).optional(),
   nativeLanguage: z.string().trim().min(2).max(10).optional(),
   autoStopDays: z.coerce.number().int().min(1).max(90).optional(),
+  paused: z.boolean().optional(),
 });
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -34,7 +36,7 @@ export async function GET(_request: Request, context: RouteContext) {
     return jsonOk({
       classroom: {
         ...classroom,
-        isActive: classroom.activeUntil.getTime() > Date.now(),
+        isActive: classroom.pausedAt === null && classroom.activeUntil.getTime() > Date.now(),
         bankSize: await bankSize(db, classroom.id),
       },
     });
@@ -51,8 +53,15 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
     const { user } = current;
     const { id } = await context.params;
-    const body = await readJson(request, updateClassroomSchema);
-    const classroom = await updateClassroom(getDb(), user.id, id, body);
+    const { paused, ...settings } = await readJson(request, updateClassroomSchema);
+    const db = getDb();
+    let classroom =
+      Object.keys(settings).length > 0
+        ? await updateClassroom(db, user.id, id, settings)
+        : await getClassroom(db, user.id, id);
+    if (classroom && paused !== undefined) {
+      classroom = await setClassroomDailyReviewsPaused(db, user.id, id, paused);
+    }
     if (!classroom) {
       return jsonError("Not found", 404);
     }

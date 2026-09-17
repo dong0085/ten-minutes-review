@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, isNull, sql } from "drizzle-orm";
 import type {
   Category,
   QuestionAnswer,
@@ -25,6 +25,7 @@ export type NewQuizInput = {
   size: number;
   promptVersion: string;
   questions: Omit<NewQuestion, "quizId">[];
+  dailySendAt?: Date;
 };
 
 export async function getDailyQuizByClassroomAndDate(
@@ -48,6 +49,28 @@ export async function getDailyQuizByClassroomAndDate(
 
 export async function createQuizWithQuestions(db: Db, input: NewQuizInput) {
   return db.transaction(async (tx) => {
+    if (input.kind === "daily") {
+      const conditions = [
+        eq(classrooms.id, input.classroomId),
+        isNull(classrooms.pausedAt),
+      ];
+      if (input.dailySendAt) {
+        const encodedSendAt = sql.param(input.dailySendAt, classrooms.createdAt);
+        conditions.push(
+          sql`COALESCE(${classrooms.dailyResumedAt}, ${classrooms.createdAt}) < ${encodedSendAt}`,
+        );
+      }
+      const [eligible] = await tx
+        .select({ id: classrooms.id })
+        .from(classrooms)
+        .where(and(...conditions))
+        .for("update")
+        .limit(1);
+      if (!eligible) {
+        return { quiz: null, created: false, blocked: true };
+      }
+    }
+
     const inserted = await tx
       .insert(quizzes)
       .values({
@@ -73,7 +96,7 @@ export async function createQuizWithQuestions(db: Db, input: NewQuizInput) {
           ),
         )
         .limit(1);
-      return { quiz: existing ?? null, created: false };
+      return { quiz: existing ?? null, created: false, blocked: false };
     }
     if (input.questions.length > 0) {
       await tx.insert(questions).values(
@@ -84,7 +107,7 @@ export async function createQuizWithQuestions(db: Db, input: NewQuizInput) {
         })),
       );
     }
-    return { quiz, created: true };
+    return { quiz, created: true, blocked: false };
   });
 }
 
@@ -372,6 +395,30 @@ export async function listQuizzesForUserOnDate(
         eq(quizzes.userId, userId),
         eq(quizzes.quizDate, quizDate),
         eq(quizzes.kind, "daily"),
+      ),
+    )
+    .orderBy(asc(classrooms.name));
+}
+
+export async function listDailyEmailQuizzesForUserOnDate(
+  db: Db,
+  userId: string,
+  quizDate: string,
+  sendAt: Date,
+) {
+  const encodedSendAt = sql.param(sendAt, classrooms.createdAt);
+  return db
+    .select({ quiz: quizzes, classroomName: classrooms.name })
+    .from(quizzes)
+    .innerJoin(classrooms, eq(quizzes.classroomId, classrooms.id))
+    .where(
+      and(
+        eq(quizzes.userId, userId),
+        eq(quizzes.quizDate, quizDate),
+        eq(quizzes.kind, "daily"),
+        isNull(classrooms.archivedAt),
+        isNull(classrooms.pausedAt),
+        sql`COALESCE(${classrooms.dailyResumedAt}, ${classrooms.createdAt}) < ${encodedSendAt}`,
       ),
     )
     .orderBy(asc(classrooms.name));

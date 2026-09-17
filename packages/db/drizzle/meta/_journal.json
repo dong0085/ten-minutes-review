@@ -43,6 +43,13 @@
       "when": 1789525343978,
       "tag": "0005_glossy_cassandra_nova",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789607304989,
+      "tag": "0006_loose_secret_warriors",
+      "breakpoints": true
     }
   ]
 }

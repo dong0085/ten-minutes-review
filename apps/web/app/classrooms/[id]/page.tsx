@@ -125,6 +125,7 @@ export default async function ClassroomHomePage({
                 classroomId={classroom.id}
                 dailyQuizId={dailyQuiz?.id ?? null}
                 bankSize={size}
+                paused={classroom.pausedAt !== null}
                 nowMs={nowMs()}
                 autoStart={create === "1"}
                 resetLocal={reset.local}

@@ -80,6 +80,59 @@ export async function updateClassroom(
   return classroom ?? null;
 }
 
+export async function setClassroomDailyReviewsPaused(
+  db: Db,
+  userId: string,
+  classroomId: string,
+  paused: boolean,
+  now: Date = new Date(),
+) {
+  return db.transaction(async (tx) => {
+    const encodedNow = sql.param(now, classrooms.updatedAt);
+    const [classroom] = await tx
+      .update(classrooms)
+      .set(
+        paused
+          ? { pausedAt: now, updatedAt: now }
+          : {
+              pausedAt: null,
+              dailyResumedAt: now,
+              activeUntil: sql`GREATEST(${classrooms.activeUntil}, ${encodedNow} + (${classrooms.autoStopDays} * interval '1 day'))`,
+              updatedAt: now,
+            },
+      )
+      .where(and(eq(classrooms.id, classroomId), eq(classrooms.userId, userId)))
+      .returning();
+
+    if (!classroom || !paused) {
+      return classroom ?? null;
+    }
+
+    await tx.execute(sql`
+      UPDATE jobs
+      SET status = 'cancelled',
+          last_error = 'cancelled: daily reviews paused',
+          finished_at = ${encodedNow},
+          locked_at = NULL,
+          locked_by = NULL
+      WHERE kind = 'compose'
+        AND status = 'pending'
+        AND payload->>'classroomId' = ${classroomId}
+        AND COALESCE(payload->>'source', 'daily') = 'daily'
+    `);
+    await tx.execute(sql`
+      UPDATE jobs
+      SET payload = payload || '{"cancelRequested": true}'::jsonb
+      WHERE kind = 'compose'
+        AND status = 'running'
+        AND payload->>'classroomId' = ${classroomId}
+        AND COALESCE(payload->>'source', 'daily') = 'daily'
+    `);
+
+    return classroom;
+  });
+}
+
 export async function archiveClassroom(db: Db, userId: string, classroomId: string) {
   const [classroom] = await db
     .update(classrooms)
@@ -144,11 +197,12 @@ export async function listDueClassrooms(db: Db, sendAt: Date) {
     LEFT JOIN email_preferences ep ON ep.user_id = u.id
     WHERE c.archived_at IS NULL
       AND c.active_until > now()
+      AND c.paused_at IS NULL
       AND COALESCE(u.is_guest, false) = false
       AND COALESCE(ep.daily_enabled, true)
       AND ep.unsubscribed_at IS NULL
       AND now() >= ${encodedSendAt}
-      AND c.created_at < ${encodedSendAt}
+      AND COALESCE(c.daily_resumed_at, c.created_at) < ${encodedSendAt}
       AND EXISTS (
         SELECT 1 FROM knowledge_points kp
         WHERE kp.classroom_id = c.id
@@ -187,11 +241,12 @@ export async function listReadyDailyEmailRecipients(db: Db, sendAt: Date) {
       LEFT JOIN email_preferences ep ON ep.user_id = u.id
       WHERE c.archived_at IS NULL
         AND c.active_until > now()
+        AND c.paused_at IS NULL
         AND COALESCE(u.is_guest, false) = false
         AND COALESCE(ep.daily_enabled, true)
         AND ep.unsubscribed_at IS NULL
         AND now() >= ${encodedSendAt}
-        AND c.created_at < ${encodedSendAt}
+        AND COALESCE(c.daily_resumed_at, c.created_at) < ${encodedSendAt}
         AND EXISTS (
           SELECT 1 FROM knowledge_points kp
           WHERE kp.classroom_id = c.id
@@ -239,10 +294,11 @@ export async function listUnsentDailyEmailRecipients(db: Db, sendAt: Date) {
       LEFT JOIN email_preferences ep ON ep.user_id = u.id
       WHERE c.archived_at IS NULL
         AND c.active_until > now()
+        AND c.paused_at IS NULL
         AND COALESCE(ep.daily_enabled, true)
         AND ep.unsubscribed_at IS NULL
         AND now() >= ${encodedSendAt}
-        AND c.created_at < ${encodedSendAt}
+        AND COALESCE(c.daily_resumed_at, c.created_at) < ${encodedSendAt}
         AND EXISTS (
           SELECT 1 FROM knowledge_points kp
           WHERE kp.classroom_id = c.id

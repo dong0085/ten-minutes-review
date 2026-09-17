@@ -22,6 +22,8 @@ export const classrooms = pgTable(
     nativeLanguage: text("native_language").notNull(),
     autoStopDays: integer("auto_stop_days").notNull().default(7),
     activeUntil: timestamp("active_until", { withTimezone: true }).notNull().defaultNow(),
+    pausedAt: timestamp("paused_at", { withTimezone: true }),
+    dailyResumedAt: timestamp("daily_resumed_at", { withTimezone: true }),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

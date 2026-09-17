@@ -11,7 +11,8 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
   },
   Card: {
     active: "Active",
-    dormant: "En pause",
+    dormant: "Inactive",
+    paused: "En pause",
     knowledgePoints:
       "{count, plural, one {# point de connaissance} other {# points de connaissance}} dans la banque",
     takeToday: "Fais le quiz du jour",
@@ -22,6 +23,8 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     title: "Le quiz du jour",
     ready: "Ton quiz du jour est prêt.",
     idle: "Crée-le maintenant ou attends ton e-mail du matin.",
+    paused:
+      "Les révisions quotidiennes sont en pause. Tu peux toujours créer un quiz quand tu le souhaites.",
     resetAt: "Réinitialisation à {local} ({utc} UTC)",
     resetAtTomorrow: "Réinitialisation demain à {local} ({utc} UTC)",
     takeToday: "Faire le quiz du jour",
@@ -70,11 +73,23 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     speak: "Je parle",
     autoStop: "Arrêt automatique après des jours sans activité",
     autoStopHelp:
-      "Les e-mails s'arrêtent après ce nombre de jours sans notes. Ouvrir la classe les relance.",
+      "Les révisions quotidiennes deviennent inactives après ce nombre de jours sans activité. Ouvrir la classe les réactive.",
     daysRange: "Choisis un nombre de jours entre 1 et 90.",
     saved: "Enregistré.",
     saveChanges: "Enregistrer les modifications",
     error: "Une erreur est survenue. Réessaie.",
+  },
+  DailyReviews: {
+    title: "Révisions quotidiennes",
+    activeExplanation:
+      "Besoin d'une pause ? Mets en pause les quiz planifiés et les e-mails sans perdre tes notes ni ton historique.",
+    pausedExplanation:
+      "Les quiz planifiés et les e-mails sont en pause. Reprends quand tu veux ; ta prochaine révision quotidienne commencera le lendemain matin.",
+    pause: "Mettre les révisions en pause",
+    resume: "Reprendre les révisions quotidiennes",
+    pausing: "Mise en pause…",
+    resuming: "Reprise…",
+    error: "Impossible de modifier les révisions quotidiennes. Réessaie.",
   },
   DangerZone: {
     title: "Archiver ou supprimer",
@@ -112,8 +127,12 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
   Layout: {
     back: "Toutes les classes",
     activeStatus: "Active",
-    dormantStatus: "En pause",
-    dormant: "Les e-mails sont en pause — ajoute des notes ou ouvre cette page pour les relancer.",
+    dormantStatus: "Inactive",
+    pausedStatus: "En pause",
+    dormant:
+      "Les e-mails se sont arrêtés — ajoute des notes ou ouvre cette page pour les relancer.",
+    paused:
+      "Les révisions quotidiennes sont en pause. Tes notes, ton historique et les quiz à la demande restent disponibles.",
   },
   HomePage: {
     addNotesTitle: "Ajouter des notes",

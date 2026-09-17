@@ -12,7 +12,9 @@ A web app that turns a tutoring session's notes — text or images — into a da
 - A **classroom** = one note set + one question bank + one daily quiz series.
 - A user owns multiple classrooms. Classrooms are private to their owner.
 - **Notes can be added any time.** New notes are processed into the classroom's question bank and become eligible for later daily quizzes.
-- **Active state:** a classroom is active while notes have been uploaded within the last **7 days**. Active classrooms receive daily emails. After 7 quiet days the classroom goes dormant and emails stop. Logging in brings it back to active.
+- **Automatic dormancy:** a classroom is active while notes have been uploaded within the last **7 days**. Active classrooms receive scheduled daily reviews. After 7 quiet days the classroom goes dormant and its scheduled reviews stop. Logging in brings it back to active.
+- **Manual pause:** each classroom can independently pause scheduled quiz composition and its entry in the morning email. Pausing never archives or removes the classroom, and notes, uploads, the bank, history, existing quizzes, and on-demand quiz creation keep working. Only an explicit Resume action clears a manual pause; sign-in, opening the classroom, and uploads do not.
+- Resuming before the fixed 7:00 AM Eastern send makes the classroom eligible that morning. Resuming at or after the cutoff waits until the following morning. Resume also refreshes the automatic activity window.
 - Classroom settings expose the auto-stop window, defaulting to 7 days.
 
 ## Notes & uploads
@@ -48,7 +50,7 @@ A web app that turns a tutoring session's notes — text or images — into a da
 - **Composition:** newest material first within the 7-day window, plus light re-tests of knowledge points the user missed, reworded as a new question. Full spaced repetition stays out of MVP.
 - **Attempts:** unlimited for now. Every attempt is recorded — answers, correctness, time taken. The answer and explanation are revealed after submit.
 - **Deleting a quiz:** the quizzes list carries a Delete control. Confirming removes the quiz, its questions, and every attempt against it. A deleted daily quiz stays gone for that day; the scheduler does not compose a replacement.
-- On the web, the quiz stays available on demand after a classroom goes dormant. Emails stop; access continues. On-demand quizzes are unlimited for now. Each creation is counted over rolling 24-hour, 7-day, and 30-day windows so fair-use limits can be introduced later.
+- On the web, quizzes stay available on demand after a classroom goes dormant or is manually paused. Scheduled emails stop; access continues. On-demand quizzes are unlimited for now. Each creation is counted over rolling 24-hour, 7-day, and 30-day windows so fair-use limits can be introduced later.
 - **On-demand quizzes** are created from the classroom home: a button opens a small progress modal (Queued → Writing your quiz → Ready) that can be minimized into the card or cancelled. Cancelling never counts and writes no quiz. Each generated on-demand quiz sends its own email with just that quiz, subject to the same email preferences. It appears in the quizzes list tagged "On demand".
 - **Validated:** one real session yields roughly 110–150 knowledge points and questions — comfortably 7 days of quizzes. The 7-day window matches one session per week. Evidence in `TRIAL-RUN.md`.
 
@@ -58,6 +60,7 @@ A web app that turns a tutoring session's notes — text or images — into a da
 - With multiple classrooms, the email presents a **menu** of that day's classroom quizzes; the user picks one to enter.
 - The email **carries the questions inline** and links to the web for interactive answering. It is a portal, not just a notification. Answering mentally without clicking is a valid path; nothing is recorded in that case.
 - Sends are on by default and come with unsubscribe. Sending requires at least one active classroom.
+- Account-wide email preferences and unsubscribe remain authoritative over every classroom. A classroom pause is narrower: it changes only that classroom and never changes those account settings.
 - **On-demand quizzes** send their own email when generated: just that quiz, with the same preferences and unsubscribe gate as the morning email.
 
 ## Accounts & auth

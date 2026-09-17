@@ -64,10 +64,12 @@ Auth.js tables. `verification_tokens` carries a `purpose` column: `verify_email`
 | `native_language` | text | ISO 639-1 |
 | `auto_stop_days` | int | Default 7; the classroom-settings override |
 | `active_until` | timestamptz | Extended by every upload **and** every login |
+| `paused_at` | timestamptz | Nullable; an explicit per-classroom pause of scheduled daily reviews |
+| `daily_resumed_at` | timestamptz | Nullable; the last explicit resume, used for the morning cutoff |
 | `archived_at` | timestamptz | Null while live |
 | `created_at` / `updated_at` | timestamptz | |
 
-`active_until` is the whole active/dormant rule in one column. A classroom is active while `active_until > now()`. Uploads and logins both push it forward.
+`active_until` controls automatic active/dormant state. A classroom is active while `active_until > now()`, and uploads and logins both push it forward. Manual pause is independent and takes status precedence: `paused_at IS NOT NULL` means scheduled composition and inclusion in the morning email stop even if the activity window is live. Those activity extensions never clear `paused_at`. Resume clears it, records `daily_resumed_at`, and extends `active_until` to at least `now() + auto_stop_days`.
 
 ### uploads
 
@@ -206,7 +208,7 @@ RETURNING *;
 
 A job that has been `running` for over 10 minutes returns to `pending`, up to 3 attempts, then lands in `failed` with the error stored.
 
-Compose jobs carry `classroomId`, `userId`, `localDate`, and `source` (`daily` or `manual`). Cancelling a `pending` job sets its status to `cancelled`; cancelling a `running` job adds `cancelRequested: true` to the payload, and the worker re-reads that flag just before saving the quiz. A cancelled job writes no quiz.
+Compose jobs carry `classroomId`, `userId`, `localDate`, and `source` (`daily` or `manual`); daily jobs also carry the exact `sendAt` cutoff used by the scheduler. Cancelling a `pending` job sets its status to `cancelled`; cancelling a `running` job adds `cancelRequested: true` to the payload, and the worker re-reads that flag just before saving the quiz. Pausing performs those transitions for daily compose jobs only. The daily save path also locks and rechecks the classroom pause/resume eligibility, closing the race with a concurrent pause. Manual jobs are not cancelled or blocked.
 
 ---
 
@@ -236,10 +238,11 @@ JOIN users u ON u.id = c.user_id
 JOIN email_preferences ep ON ep.user_id = u.id
 WHERE c.archived_at IS NULL
   AND c.active_until > now()
+  AND c.paused_at IS NULL
   AND ep.daily_enabled
   AND ep.unsubscribed_at IS NULL
   AND now() >= $send_at
-  AND c.created_at < $send_at
+  AND COALESCE(c.daily_resumed_at, c.created_at) < $send_at
   AND NOT EXISTS (
     SELECT 1 FROM quizzes q
     WHERE q.classroom_id = c.id
@@ -253,7 +256,7 @@ WHERE c.archived_at IS NULL
   );
 ```
 
-`$send_at` is the current day's 7:00 AM Eastern instant. `created_at < $send_at` means a classroom created later that day waits for tomorrow's send, while a classroom that existed at that instant stays eligible for the rest of the day — a missed wake-up catches up rather than skipping. The learner's local date still comes from their own timezone, so the quiz lands on the right calendar day everywhere.
+`$send_at` is the current day's 7:00 AM Eastern instant. `COALESCE(daily_resumed_at, created_at) < $send_at` means a newly created or newly resumed classroom must have been eligible before that instant. A late worker can still catch up for a classroom that was eligible at send time, but a classroom resumed at or after the cutoff waits until tomorrow. The learner's local date still comes from their own timezone, so the quiz lands on the right calendar day everywhere. The same pause and cutoff predicates are used by due composition, ready-recipient, and overdue-delivery audit queries.
 
 Each match gets a `compose` job. The worker writes the quiz and its questions, then enqueues one `send_email` job per **user** — not per classroom, because the email is a single menu.
 
@@ -261,9 +264,9 @@ On-demand quizzes use the same compose job and the same selection rules, enqueue
 
 ### Email
 
-The worker builds one email per user per day containing every classroom quiz composed that morning, questions inline, each with a link to the web quiz. The daily email goes out at the fixed 7:00 AM Eastern instant for every user; the account page and classroom home show the next send in the reader's own timezone, with UTC in parentheses. Sends through Brevo (or Resend), then writes `email_sends`. The unique constraint absorbs a duplicate run.
+The worker builds one email per user per day containing every eligible classroom quiz composed that morning, questions inline, each with a link to the web quiz. When a queued email runs, its quiz query re-applies `paused_at IS NULL` and the resume cutoff, so a pause or late resume after queuing removes only that classroom while other active classrooms remain. The daily email goes out at the fixed 7:00 AM Eastern instant for every user; the account page and classroom home show the next send in the reader's own timezone, with UTC in parentheses. Sends through Brevo (or Resend), then writes `email_sends`. The unique constraint absorbs a duplicate run.
 
-On-demand composition enqueues its own `send_email` job carrying `kind: "manual"` and the new `quizId`. That email contains just that quiz and dedupes per quiz, so it can be sent the same day the morning email already went out. Both kinds respect `email_preferences`.
+On-demand composition enqueues its own `send_email` job carrying `kind: "manual"` and the new `quizId`. That email contains just that quiz and dedupes per quiz, so it can be sent the same day the morning email already went out. Per-classroom pause does not block this path. Both kinds respect the existing account-wide `email_preferences` and unsubscribe state; pause/resume never modifies them.
 
 ### Billing
 
@@ -279,7 +282,7 @@ Next.js route handlers, all session-scoped.
 |---|---|---|
 | `*` | `/api/auth/[...nextauth]` | Auth.js |
 | `GET` `POST` | `/api/classrooms` | List, create |
-| `GET` `PATCH` `DELETE` | `/api/classrooms/:id` | Read, rename and settings, archive |
+| `GET` `PATCH` `DELETE` | `/api/classrooms/:id` | Read, rename/settings (including the dedicated `paused` transition), delete |
 | `POST` | `/api/classrooms/:id/uploads` | Text body or multipart image |
 | `GET` | `/api/classrooms/:id/uploads` | Timeline |
 | `GET` | `/api/classrooms/:id/bank` | Counts per category |
