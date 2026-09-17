@@ -11,6 +11,8 @@ export const classroom = {
     dormant: "Dormant",
     paused: "Paused",
     knowledgePoints: "{count, plural, one {# knowledge point} other {# knowledge points}} in the bank",
+    daysRemaining:
+      "{count, plural, =0 {Last day of quizzes} one {# more day of quizzes} other {# more days of quizzes}}",
     takeToday: "Take today's quiz",
     addNotes: "Add notes",
   },

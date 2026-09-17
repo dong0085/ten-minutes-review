@@ -84,6 +84,18 @@ export function classroomDailyStatus(
   return classroom.activeUntil.getTime() <= now.getTime() ? "dormant" : "active";
 }
 
+export function classroomQuizDaysRemaining(
+  classroom: { activeUntil: Date },
+  timeZone: string,
+  now: Date = new Date(),
+): number {
+  const end = zonedParts(classroom.activeUntil, timeZone);
+  const current = zonedParts(now, timeZone);
+  const endDay = Date.UTC(end.year, end.month - 1, end.day);
+  const currentDay = Date.UTC(current.year, current.month - 1, current.day);
+  return Math.max(0, Math.round((endDay - currentDay) / DAY_MS));
+}
+
 export function isClassroomEligibleForDailySend(
   classroom: { createdAt: Date; dailyResumedAt: Date | null },
   sendAt: Date,

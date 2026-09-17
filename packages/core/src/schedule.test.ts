@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   classroomDailyStatus,
+  classroomQuizDaysRemaining,
   dailySendAt,
   isClassroomEligibleForDailySend,
   nextDailySendAt,
@@ -95,6 +96,55 @@ describe("classroomDailyStatus", () => {
     expect(
       classroomDailyStatus({ activeUntil: new Date("2026-09-15T11:00:01.000Z"), pausedAt: null }, now),
     ).toBe("active");
+  });
+});
+
+describe("classroomQuizDaysRemaining", () => {
+  const timeZone = "America/Toronto";
+
+  it("counts whole local days after today", () => {
+    const now = new Date("2026-09-15T15:00:00.000Z");
+    expect(
+      classroomQuizDaysRemaining(
+        { activeUntil: new Date("2026-09-18T15:00:00.000Z") },
+        timeZone,
+        now,
+      ),
+    ).toBe(3);
+  });
+
+  it("returns zero when the active window ends today", () => {
+    const now = new Date("2026-09-15T15:00:00.000Z");
+    expect(
+      classroomQuizDaysRemaining(
+        { activeUntil: new Date("2026-09-15T22:00:00.000Z") },
+        timeZone,
+        now,
+      ),
+    ).toBe(0);
+  });
+
+  it("clamps a past window to zero", () => {
+    const now = new Date("2026-09-15T15:00:00.000Z");
+    expect(
+      classroomQuizDaysRemaining(
+        { activeUntil: new Date("2026-09-10T15:00:00.000Z") },
+        timeZone,
+        now,
+      ),
+    ).toBe(0);
+  });
+
+  it("uses the given timezone's calendar day", () => {
+    // 02:00 UTC on Sep 16 is still Sep 15 in Toronto.
+    const now = new Date("2026-09-16T02:00:00.000Z");
+    expect(
+      classroomQuizDaysRemaining(
+        { activeUntil: new Date("2026-09-18T15:00:00.000Z") },
+        timeZone,
+        now,
+      ),
+    ).toBe(3);
   });
 });
 

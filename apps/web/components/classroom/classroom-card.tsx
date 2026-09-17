@@ -6,6 +6,7 @@ import type { Classroom } from "@tmr/db";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { PencilIcon } from "@/components/pencil-icon";
 import { languageLabel } from "@/lib/language-label";
 
 export async function ClassroomCard({
@@ -14,12 +15,14 @@ export async function ClassroomCard({
   bankSize,
   todayQuizId,
   status,
+  daysRemaining,
 }: {
   classroom: Classroom;
   index: number;
   bankSize: number;
   todayQuizId: string | null;
   status: ClassroomDailyStatus;
+  daysRemaining: number;
 }) {
   const t = await getTranslations("Classroom.Card");
   const locale = await getLocale();
@@ -84,6 +87,12 @@ export async function ClassroomCard({
             </Button>
           )}
         </div>
+        {status !== "dormant" ? (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <PencilIcon className="size-3.5 shrink-0" />
+            <span>{t("daysRemaining", { count: daysRemaining })}</span>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );

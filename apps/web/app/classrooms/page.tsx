@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ArrowRight, BookOpen, Plus, Sparkles } from "lucide-react";
-import { classroomDailyStatus } from "@tmr/core";
+import { classroomDailyStatus, classroomQuizDaysRemaining } from "@tmr/core";
 import { bankSize, getDailyQuizByClassroomAndDate, listClassrooms } from "@tmr/db";
 import { ClassroomCard } from "@/components/classroom/classroom-card";
 import { Button } from "@/components/ui/button";
@@ -68,6 +68,7 @@ export default async function ClassroomsPage() {
         bankSize: size,
         todayQuizId: quiz?.id ?? null,
         status: classroomDailyStatus(classroom),
+        quizDaysRemaining: classroomQuizDaysRemaining(classroom, user.timezone),
       };
     }),
   );
@@ -138,7 +139,7 @@ export default async function ClassroomsPage() {
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map(({ classroom, bankSize: size, todayQuizId, status }, index) => (
+        {cards.map(({ classroom, bankSize: size, todayQuizId, status, quizDaysRemaining }, index) => (
           <ClassroomCard
             key={classroom.id}
             index={index + 1}
@@ -146,6 +147,7 @@ export default async function ClassroomsPage() {
             bankSize={size}
             todayQuizId={todayQuizId}
             status={status}
+            daysRemaining={quizDaysRemaining}
           />
         ))}
       </div>

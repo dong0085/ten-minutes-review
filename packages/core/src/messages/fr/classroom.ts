@@ -15,6 +15,8 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     paused: "En pause",
     knowledgePoints:
       "{count, plural, one {# point de connaissance} other {# points de connaissance}} dans la banque",
+    daysRemaining:
+      "{count, plural, =0 {Dernier jour de quiz} one {# jour de quiz restant} other {# jours de quiz restants}}",
     takeToday: "Fais le quiz du jour",
     addNotes: "Ajouter des notes",
   },
