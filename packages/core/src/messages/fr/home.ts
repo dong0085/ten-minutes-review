@@ -34,6 +34,22 @@ export const home = {
   categoriesTitle: "Bien plus qu'un <highlight>exercice de vocabulaire.</highlight>",
   categoriesCopy:
     "Chaque révision alterne mémorisation, production, structure et compréhension pour garder le cours cohérent.",
+  highlights: {
+    kicker: "Pensé pour toi",
+    title: "Apprends à ta façon.",
+    noPressure: {
+      title: "Pas de points. Pas de pression.",
+      copy: "Pas de séries à maintenir, de classements ni de badges à collectionner — seulement une courte révision de ce que tu as vraiment appris.",
+    },
+    pause: {
+      title: "Fais une pause sans perdre le fil.",
+      copy: "Mets les révisions quotidiennes en pause quand tu en as besoin. Ta classe sera prête à ton retour.",
+    },
+    notes: {
+      title: "Tes notes restent à portée de main.",
+      copy: "Tous tes textes et toutes tes photos restent dans l'historique de ta classe, prêts à être consultés quand tu le souhaites.",
+    },
+  },
   closingKicker: "La révision de demain commence aujourd'hui",
   closingTitle: "Accorde <highlight>dix minutes de plus</highlight> au cours avant qu'il ne s'efface.",
 } as const;

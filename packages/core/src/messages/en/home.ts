@@ -34,6 +34,22 @@ export const home = {
   categoriesTitle: "More than a <highlight>vocabulary drill.</highlight>",
   categoriesCopy:
     "Each review moves between recall, production, structure, and comprehension so the lesson stays connected.",
+  highlights: {
+    kicker: "Designed around you",
+    title: "Learn on your terms.",
+    noPressure: {
+      title: "No points. No pressure.",
+      copy: "No streaks, leaderboards, or badges to chase—just a short review of what you actually learned.",
+    },
+    pause: {
+      title: "Pause without losing your place.",
+      copy: "Pause daily reviews when life gets busy. Your classroom will be ready when you return.",
+    },
+    notes: {
+      title: "Your notes stay with you.",
+      copy: "Every text and photo remains in your classroom history, ready whenever you want to revisit it.",
+    },
+  },
   closingKicker: "Tomorrow's review starts today",
   closingTitle: "Give the lesson <highlight>ten more minutes</highlight> before it slips away.",
 } as const;

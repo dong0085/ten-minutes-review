@@ -6,7 +6,10 @@ import {
   Camera,
   Check,
   Clock3,
+  Feather,
   FileText,
+  NotebookPen,
+  Pause,
   Sparkles,
 } from "lucide-react";
 import { CATEGORIES } from "@tmr/core";
@@ -22,6 +25,23 @@ export default async function HomePage() {
     { icon: FileText, number: "01", title: t("steps.addTitle"), copy: t("steps.addCopy") },
     { icon: Sparkles, number: "02", title: t("steps.shapeTitle"), copy: t("steps.shapeCopy") },
     { icon: Clock3, number: "03", title: t("steps.reviewTitle"), copy: t("steps.reviewCopy") },
+  ];
+  const highlights = [
+    {
+      icon: Feather,
+      title: t("highlights.noPressure.title"),
+      copy: t("highlights.noPressure.copy"),
+    },
+    {
+      icon: Pause,
+      title: t("highlights.pause.title"),
+      copy: t("highlights.pause.copy"),
+    },
+    {
+      icon: NotebookPen,
+      title: t("highlights.notes.title"),
+      copy: t("highlights.notes.copy"),
+    },
   ];
 
   return (
@@ -183,6 +203,29 @@ export default async function HomePage() {
                 {String(index + 1).padStart(2, "0")}
               </span>
             </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-t border-border/70 py-16 sm:py-20">
+        <div className="max-w-2xl">
+          <p className="eyebrow">{t("highlights.kicker")}</p>
+          <h2 className="mt-3 font-heading text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+            {t("highlights.title")}
+          </h2>
+        </div>
+        <div className="mt-10 grid divide-y divide-border border-y border-border/70 md:grid-cols-3 md:divide-x md:divide-y-0">
+          {highlights.map(({ icon: Icon, title, copy }) => (
+            <article key={title} className="group px-2 py-7 sm:px-4 md:px-7 md:py-8">
+              <span
+                aria-hidden="true"
+                className="grid size-10 place-items-center rounded-xl bg-primary/[0.08] text-primary transition-transform duration-200 group-hover:-translate-y-0.5"
+              >
+                <Icon className="size-4.5" />
+              </span>
+              <h3 className="mt-5 font-heading text-xl font-semibold">{title}</h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{copy}</p>
+            </article>
           ))}
         </div>
       </section>

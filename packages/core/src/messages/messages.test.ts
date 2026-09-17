@@ -3,11 +3,19 @@ import { getMessages, UI_LOCALES } from "./index";
 
 describe("localization catalogs", () => {
   for (const locale of UI_LOCALES) {
-    it(`catalogs for ${locale} contain guest strings`, () => {
+    it(`catalogs for ${locale} contain required strings`, () => {
       const messages = getMessages(locale);
 
-      // Home try as guest
+      // Home
       expect(messages.Home.tryAsGuest).toBeTruthy();
+      expect(messages.Home.highlights.kicker).toBeTruthy();
+      expect(messages.Home.highlights.title).toBeTruthy();
+      expect(messages.Home.highlights.noPressure.title).toBeTruthy();
+      expect(messages.Home.highlights.noPressure.copy).toBeTruthy();
+      expect(messages.Home.highlights.pause.title).toBeTruthy();
+      expect(messages.Home.highlights.pause.copy).toBeTruthy();
+      expect(messages.Home.highlights.notes.title).toBeTruthy();
+      expect(messages.Home.highlights.notes.copy).toBeTruthy();
 
       // Classroom guest preview banner & daily quiz CTA
       expect(messages.Classroom.HomePage.guestBanner).toBeTruthy();
