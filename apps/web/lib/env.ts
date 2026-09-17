@@ -26,4 +26,5 @@ export const env = {
   deepseekBaseUrl: process.env.DEEPSEEK_BASE_URL ?? "https://api.deepseek.com",
   deepseekModel: process.env.DEEPSEEK_MODEL ?? "deepseek-chat",
   blobReadWriteToken: process.env.BLOB_READ_WRITE_TOKEN ?? "",
+  goatcounterUrl: process.env.GOATCOUNTER_URL ?? "",
 };
