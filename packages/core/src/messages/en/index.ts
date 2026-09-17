@@ -9,6 +9,7 @@ import { common } from "./common";
 import { footer } from "./footer";
 import { home } from "./home";
 import { layout } from "./layout";
+import { notFound } from "./not-found";
 import { privacy } from "./privacy";
 import { quiz } from "./quiz";
 import { seo } from "./seo";
@@ -30,4 +31,5 @@ export const en = {
   Footer: footer,
   About: about,
   Privacy: privacy,
+  NotFound: notFound,
 };

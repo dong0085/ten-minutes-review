@@ -34,6 +34,16 @@ export const home = {
   categoriesTitle: "Bien plus qu'un <highlight>exercice de vocabulaire.</highlight>",
   categoriesCopy:
     "Chaque révision alterne mémorisation, production, structure et compréhension pour garder le cours cohérent.",
+  forms: {
+    mcq: { name: "Choix multiple", hint: "Reconnaître le bon mot ou la bonne expression du premier coup d'œil." },
+    fillBlank: { name: "Texte à trous", hint: "Produire le mot toi-même, en contexte." },
+    trueFalse: { name: "Vrai ou faux", hint: "Des vérifications rapides de ta lecture." },
+    photo: { name: "À partir de tes photos", hint: "Des questions tirées de tes pages manuscrites." },
+    outro: { name: "Un petit mélange", hint: "Chaque révision combine ces formes, taillée pour dix minutes." },
+    blankLabel: "Trou 1",
+    true: "Vrai",
+    false: "Faux",
+  },
   highlights: {
     kicker: "Pensé pour toi",
     title: "Apprends à ta façon.",

@@ -13,9 +13,9 @@ import {
   Pause,
   Sparkles,
 } from "lucide-react";
-import { CATEGORIES } from "@tmr/core";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
+import { QuizFormShuffle } from "@/components/quiz-form-shuffle";
 import { env } from "@/lib/env";
 import { getCurrentUserOrGuest } from "@/lib/session";
 
@@ -48,7 +48,6 @@ export default async function HomePage() {
     applicationCategory: "EducationalApplication",
     operatingSystem: "Web",
   };
-  const categoryT = await getTranslations("Category");
   const steps = [
     { icon: FileText, number: "01", title: t("steps.addTitle"), copy: t("steps.addCopy") },
     { icon: Sparkles, number: "02", title: t("steps.shapeTitle"), copy: t("steps.shapeCopy") },
@@ -217,8 +216,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="grid gap-8 border-t border-border/70 py-16 sm:py-20 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-        <Reveal>
+      <section className="border-t border-border/70 pt-16 sm:pt-20">
+        <Reveal className="max-w-2xl">
           <BookOpenCheck className="size-5 text-primary" />
           <h2 className="mt-5 font-heading text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
             {t.rich("categoriesTitle", {
@@ -229,22 +228,7 @@ export default async function HomePage() {
             {t("categoriesCopy")}
           </p>
         </Reveal>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {CATEGORIES.map((category, index) => (
-            <Reveal
-              as="div"
-              key={category}
-              delay={index * 70}
-              from="right"
-              className="flex items-center justify-between rounded-xl border border-border/70 bg-card/60 px-4 py-3.5 text-sm"
-            >
-              <span className="font-medium">{categoryT(category)}</span>
-              <span className="font-heading text-xs italic text-muted-foreground/65">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-            </Reveal>
-          ))}
-        </div>
+        <QuizFormShuffle />
       </section>
 
       <section className="border-t border-border/70 py-16 sm:py-20">
