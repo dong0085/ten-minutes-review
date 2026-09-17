@@ -56,14 +56,15 @@ for (const target of targets) {
   await mkdir(path.join(outdir, "icons"), { recursive: true });
 
   // IIFE so the same artifact runs as a Chrome classic service worker and a
-  // Firefox event-page script.
+  // Firefox event-page script. Store builds stay unminified: AMO flags
+  // minified bundles and demands a separate source-code submission.
   for (const [input, output] of ENTRIES) {
     const buildContext = await context({
       entryPoints: [path.join(root, "src", input)],
       outfile: path.join(outdir, output),
       bundle: true,
       format: "iife",
-      minify: !watch,
+      minify: !store && !watch,
       sourcemap: watch ? "inline" : false,
       target: target.target,
       define: { __TMR_API_ORIGIN__: JSON.stringify(defaultOrigin) },
@@ -89,7 +90,12 @@ for (const target of targets) {
   } else {
     targetManifest.background = { scripts: ["background.js"] };
     targetManifest.browser_specific_settings = {
-      gecko: { id: "notes@tenminutereview.app", strict_min_version: "128.0" },
+      gecko: {
+        id: "notes@tenminutereview.app",
+        strict_min_version: "128.0",
+        // Firefox requires an explicit declaration; the extension collects no data.
+        data_collection_permissions: { required: ["none"] },
+      },
     };
   }
   await writeFile(
