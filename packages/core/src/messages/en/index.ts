@@ -1,3 +1,4 @@
+import { about } from "./about";
 import { account } from "./account";
 import { api } from "./api";
 import { auth } from "./auth";
@@ -5,8 +6,10 @@ import { email } from "./email";
 import { category } from "./category";
 import { classroom } from "./classroom";
 import { common } from "./common";
+import { footer } from "./footer";
 import { home } from "./home";
 import { layout } from "./layout";
+import { privacy } from "./privacy";
 import { quiz } from "./quiz";
 import { seo } from "./seo";
 import { upload } from "./upload";
@@ -24,4 +27,7 @@ export const en = {
   Upload: upload,
   Email: email,
   Api: api,
+  Footer: footer,
+  About: about,
+  Privacy: privacy,
 };
