@@ -10,6 +10,7 @@ The build blueprint. The data model is the centerpiece — it is the one part th
 |---|---|---|
 | Web | Next.js (App Router) on Vercel | UI and API route handlers |
 | iOS | SwiftUI app in `apps/ios` (XcodeGen project) | Thin client over the API |
+| Extension | Chrome/Firefox MV3 in `apps/extension` | Context-menu note capture over the API |
 | Database | Postgres on Neon | All state, plus the job queue |
 | Worker | Node service on Render (free web service, health-check pinged) | Extraction, composition, email sends |
 | Queue | `jobs` table in Postgres | Work handoff, no Redis needed |
@@ -281,7 +282,7 @@ Stripe stays dark. The webhook route, the `subscriptions` table, and the plan ch
 
 ## 4. API surface
 
-Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve the caller from an `Authorization: Bearer tmr_…` header when one is present — the header's verdict is final — and fall back to the Auth.js session cookie otherwise, so every route below serves both the web app and the iOS client.
+Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve the caller from an `Authorization: Bearer tmr_…` header when one is present — the header's verdict is final — and fall back to the Auth.js session cookie otherwise, so every route below serves the web app, the iOS client, and the browser extension.
 
 | Method | Path | Job |
 |---|---|---|
@@ -304,6 +305,8 @@ Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve t
 | `GET` `PATCH` | `/api/me/email-preferences` | |
 | `GET` | `/api/me/export` | Data export |
 | `DELETE` | `/api/me` | Account deletion |
+| `GET` `POST` | `/api/me/tokens` | List, create API tokens (create returns the raw token once) |
+| `DELETE` | `/api/me/tokens/:id` | Revoke a token |
 | `GET` | `/api/me/referrals` | Codes and status |
 | `POST` | `/api/webhooks/stripe` | |
 | `GET` | `/unsubscribe?token=` | One click, no login |
@@ -322,6 +325,7 @@ Answers and explanations never leave the server before a submission. The quiz pa
 - Passwords hashed with argon2id. Email verification required before the first upload.
 - Session cookies: httpOnly, secure, sameSite lax. API tokens for native clients are stored hashed and revoked on demand.
 - The iOS app keeps its token in the keychain and revokes it on sign-out; every authenticated request carries `Authorization: Bearer`.
+- The browser extension keeps its token in `browser.storage.local` and revokes it on sign-out. Tokens are created and inspected at Account → API tokens, which also serves Google-only accounts that cannot use the password-based `/api/auth/token`.
 
 ---
 

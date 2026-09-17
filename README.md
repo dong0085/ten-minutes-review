@@ -86,6 +86,19 @@ pnpm ios:generate
 
 The Debug configuration talks to `http://localhost:3000`; see [`apps/ios/README.md`](apps/ios/README.md) for simulator and device setup.
 
+## Browser extension
+
+`apps/extension` holds a Chrome/Firefox extension — select text on any page, right-click, save it as a note. Build and load it unpacked:
+
+```sh
+pnpm build:extension
+```
+
+- Chrome: `chrome://extensions` → Developer mode → Load unpacked → `apps/extension/dist/chrome`
+- Firefox: `about:debugging#/runtime/this-firefox` → Load Temporary Add-on → `apps/extension/dist/firefox/manifest.json`
+
+Sign in from the popup with email + password, or paste a token from Account → API tokens (the path for Google-only accounts). The default server is `http://localhost:3000`; change it in the popup's Server section. See [`apps/extension/README.md`](apps/extension/README.md) for details.
+
 ## Project documents
 
 The documents are the source of truth for product behavior and architecture.
@@ -107,6 +120,7 @@ pnpm typecheck
 pnpm test
 pnpm --filter web lint
 pnpm build
+pnpm build:extension
 pnpm dev:email
 pnpm docs:render
 ```
