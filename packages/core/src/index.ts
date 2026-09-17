@@ -9,5 +9,4 @@ export * from "./option-order";
 export * from "./grading";
 export * from "./llm-json";
 export * from "./url";
-export * from "./email-templates";
 export * from "./prompts/index";

@@ -24,13 +24,11 @@ export async function POST(request: Request) {
         expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
         purpose: "verify_email",
       });
-      await sendEmail({
-        to: email,
-        ...renderVerificationEmail(
-          `${env.appUrl}/verify?token=${token}`,
-          toUiLocale(user.uiLanguage),
-        ),
-      });
+      const verificationEmail = await renderVerificationEmail(
+        `${env.appUrl}/verify?token=${token}`,
+        toUiLocale(user.uiLanguage),
+      );
+      await sendEmail({ to: email, ...verificationEmail });
     }
     return jsonOk({ ok: true });
   } catch (error) {

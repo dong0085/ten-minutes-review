@@ -61,13 +61,11 @@ export async function POST(request: Request) {
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
       purpose: "verify_email",
     });
-    await sendEmail({
-      to: body.email,
-      ...renderVerificationEmail(
-        `${env.appUrl}/verify?token=${token}`,
-        toUiLocale(body.uiLanguage),
-      ),
-    });
+    const verificationEmail = await renderVerificationEmail(
+      `${env.appUrl}/verify?token=${token}`,
+      toUiLocale(body.uiLanguage),
+    );
+    await sendEmail({ to: body.email, ...verificationEmail });
 
     if (referrerUserId) {
       await recordReferralSignup(db, {

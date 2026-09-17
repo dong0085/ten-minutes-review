@@ -6,6 +6,7 @@
     "node": ">=22"
   },
   "scripts": {
+    "dev:email": "pnpm --filter @tmr/email dev",
     "dev:web": "pnpm --filter web dev",
     "dev:worker": "pnpm --filter worker dev",
     "docs:render": "sh docs/readme/render.sh",

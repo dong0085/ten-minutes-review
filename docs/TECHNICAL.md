@@ -14,7 +14,7 @@ The build blueprint. The data model is the centerpiece — it is the one part th
 | Queue | `jobs` table in Postgres | Work handoff, no Redis needed |
 | Images | Vercel Blob | Uploaded note images |
 | LLM | DeepSeek, behind one adapter module | Extraction and composition |
-| Email | Brevo (or Resend), behind one adapter | Daily quiz email |
+| Email | React Email templates; Brevo (or Resend) delivery adapter | Transactional and quiz email |
 | Billing | Stripe | Modeled now, inactive |
 
 The web app never calls the LLM inline. It writes a row and returns. The worker picks it up. That keeps request latency predictable and lets a slow extraction retry without the user waiting.
@@ -26,7 +26,7 @@ The UI ships in English and French. `apps/web/i18n/request.ts` resolves the loca
 Message catalogs live in `packages/core/src/messages` (`en/` and `fr/`, namespaces `Common`, `Layout`, `Home`, `Auth`, `Account`, `Classroom`, `Quiz`, `Category`, `Upload`, `Email`, `Api`). `getMessages`, `formatMessage`, and `toUiLocale` are shared by the web app and the worker.
 
 - API error messages are localized centrally in `apps/web/lib/api.ts`: routes keep their English literals, which map to `Api` catalog keys before the response leaves the server.
-- Transactional emails (`packages/core/src/email-templates.ts`) take a `UiLocale`; call sites pass the recipient's `ui_language`.
+- Transactional emails (`packages/email`) take a `UiLocale`; call sites pass the recipient's `ui_language`. React Email renders the localized components to HTML and plain text before the existing provider adapter sends them.
 - Quiz stems, options, and explanations are generated in the target language and stored as content. Only UI chrome is translated; a question authored in French stays French in an English interface. A production fill_blank also carries the native cue in parentheses — see `PROMPTS.md`.
 
 ---

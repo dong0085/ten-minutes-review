@@ -37,8 +37,9 @@ The web app never waits for the language model. It writes an `extract`, `compose
 |---|---|
 | `apps/web` | Next.js 16 App Router UI, Auth.js sessions, and session-scoped API routes |
 | `apps/worker` | Extraction, quiz composition, scheduled delivery, retries, and health server |
-| `packages/core` | Domain types, prompts, grading, quiz sizing, localization, and email templates |
+| `packages/core` | Domain types, prompts, grading, quiz sizing, and localization |
 | `packages/db` | Drizzle schema, migrations, and user-scoped repositories |
+| `packages/email` | React Email templates, localized rendering, and browser previews |
 
 ## The learning loop
 
@@ -92,8 +93,11 @@ pnpm typecheck
 pnpm test
 pnpm --filter web lint
 pnpm build
+pnpm dev:email
 pnpm docs:render
 ```
+
+`pnpm dev:email` opens the localized React Email previews at [http://localhost:3001](http://localhost:3001).
 
 `pnpm docs:render` rebuilds the committed README artwork from the Typst sources in `docs/readme/`. It requires Typst 0.15 or newer and no Typst packages or network access.
 

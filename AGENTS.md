@@ -6,12 +6,13 @@ Specs live in `docs/`: `SCOPE.md` (every product decision), `PROMPTS.md` (the tw
 
 - `apps/web` — Next.js 16 App Router UI and API routes, deploys to Vercel.
 - `apps/worker` — job loop (`extract`, `compose`, `send_email`) plus the 15-minute scheduler and a `/health` HTTP server, runs on Render with `tsx`, applies migrations on boot.
-- `packages/core` — domain types, prompt constants (`EXTRACTION_PROMPT_V2`, `COMPOSITION_PROMPT_V2`), grading, quiz sizing, email templates.
+- `packages/core` — domain types, prompt constants (`EXTRACTION_PROMPT_V2`, `COMPOSITION_PROMPT_V2`), grading, quiz sizing.
 - `packages/db` — Drizzle schema, SQL migrations in `drizzle/`, repositories.
+- `packages/email` — React Email templates, localized HTML/text rendering, and browser previews.
 
 ## Commands
 
-- `pnpm dev:web`, `pnpm dev:worker`
+- `pnpm dev:web`, `pnpm dev:worker`, `pnpm dev:email`
 - `pnpm typecheck`, `pnpm test`, `pnpm --filter web lint`, `pnpm build`
 - `pnpm db:generate` after a schema edit; `pnpm db:migrate` to apply
 - Keep `CREATE EXTENSION IF NOT EXISTS citext;` at the top of the first migration file when it is regenerated.
@@ -23,4 +24,4 @@ Specs live in `docs/`: `SCOPE.md` (every product decision), `PROMPTS.md` (the tw
 - Answers and explanations stay server-side until an attempt is submitted.
 - LLM, email, and storage each sit behind one adapter chosen by `LLM_PROVIDER`, `EMAIL_PROVIDER`, `STORAGE_PROVIDER`. Defaults are `mock`, `console`, `local`.
 - Env lives in the repo-root `.env`: `@next/env` loads it for the web app, `dotenv` for the worker and drizzle-kit.
-- Tests use Vitest in `packages/core` and `apps/worker`.
+- Tests use Vitest in `packages/core`, `packages/email`, and `apps/worker`.

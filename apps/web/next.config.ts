@@ -6,7 +6,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 loadEnvConfig(path.resolve(process.cwd(), "../.."));
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@tmr/core", "@tmr/db"],
+  transpilePackages: ["@tmr/core", "@tmr/db", "@tmr/email"],
   serverExternalPackages: ["@node-rs/argon2", "postgres"],
 };
 

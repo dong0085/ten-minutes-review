@@ -2,13 +2,12 @@ import { Resend } from "resend";
 import { env } from "./env";
 
 export {
-  escapeHtml,
   renderActionEmail,
   renderDailyQuizEmail,
   renderPasswordResetEmail,
   renderVerificationEmail,
-} from "@tmr/core";
-export type { DailyQuizEmailEntry } from "@tmr/core";
+} from "@tmr/email";
+export type { DailyQuizEmailEntry } from "@tmr/email";
 
 export type EmailMessage = {
   to: string;

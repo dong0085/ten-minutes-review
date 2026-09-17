@@ -7,7 +7,7 @@ import {
 } from "@tmr/core";
 import { createMockProvider } from "./llm";
 import type { CompositionPayload } from "./llm";
-import { buildEmailEntries, withUnsubscribeFooter } from "./handlers/send-email";
+import { buildEmailEntries } from "./handlers/send-email";
 
 describe("quizSize and sanitize", () => {
   it("floors at 8 and caps at 20", () => {
@@ -153,8 +153,8 @@ describe("send email helpers", () => {
     const questions = [
       {
         position: 0,
-        category: "vocabulary",
-        type: "mcq",
+        category: "vocabulary" as const,
+        type: "mcq" as const,
         stem: "« l'étendoir » veut dire :",
         options: ["the clothes line", "the rent"],
         answer: { index: 0 },
@@ -181,18 +181,5 @@ describe("send email helpers", () => {
     });
     expect(entries[0]?.questions[0]).not.toHaveProperty("answer");
     expect(entries[0]?.questions[0]).not.toHaveProperty("explanation");
-  });
-
-  it("appends an unsubscribe footer to html and text", () => {
-    const footer = withUnsubscribeFooter(
-      "<p>Body</p>",
-      "Body\n",
-      "http://localhost:3000/unsubscribe?token=abc",
-      "en",
-    );
-    expect(footer.html).toContain("http://localhost:3000/unsubscribe?token=abc");
-    expect(footer.html).toContain("Unsubscribe");
-    expect(footer.text).toContain("Unsubscribe: http://localhost:3000/unsubscribe?token=abc");
-    expect(footer.text.startsWith("Body")).toBe(true);
   });
 });

@@ -1,5 +1,5 @@
-import { dailySendAt, formatMessage, getMessages, toUiLocale } from "@tmr/core";
-import type { QuizKind, UiLocale } from "@tmr/core";
+import { dailySendAt, toUiLocale } from "@tmr/core";
+import type { Category, QuestionType, QuizKind } from "@tmr/core";
 import { createUnsubscribeToken } from "@tmr/core/node";
 import {
   getClassroom,
@@ -13,7 +13,7 @@ import {
 } from "@tmr/db";
 import type { Db } from "@tmr/db";
 import { env } from "../env";
-import { escapeHtml, renderDailyQuizEmail, sendEmail } from "../email";
+import { renderDailyQuizEmail, sendEmail } from "../email";
 import type { DailyQuizEmailEntry } from "../email";
 
 const UNSUBSCRIBE_TOKEN_DAYS = 90;
@@ -21,8 +21,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 export type EmailQuestion = {
   position: number;
-  category: string;
-  type: string;
+  category: Category;
+  type: QuestionType;
   stem: string;
   options: string[] | null;
 };
@@ -48,18 +48,6 @@ export function buildEmailEntries(
       options: question.options,
     })),
   }));
-}
-
-export function withUnsubscribeFooter(
-  html: string,
-  text: string,
-  unsubscribeUrl: string,
-  locale: UiLocale,
-): { html: string; text: string } {
-  const messages = getMessages(locale).Email;
-  const htmlFooter = `<p style="color: #737373; font-size: 13px;">${escapeHtml(messages.unsubscribeWhy)} <a href="${escapeHtml(unsubscribeUrl)}">${escapeHtml(messages.unsubscribeAction)}</a></p>`;
-  const textFooter = `\n${messages.unsubscribeWhy}\n${messages.unsubscribeAction}: ${unsubscribeUrl}\n`;
-  return { html: `${html}\n${htmlFooter}`, text: `${text}${textFooter}` };
 }
 
 function requireString(payload: Record<string, unknown>, key: string): string {
@@ -164,19 +152,23 @@ export async function handleSendEmailJob(
 
   const entries = buildEmailEntries(env.appUrl, quizzes);
   const locale = toUiLocale(user.uiLanguage);
-  const message = renderDailyQuizEmail({ locale, username: user.username, entries });
   const unsubscribeUrl = `${env.appUrl}/unsubscribe?token=${createUnsubscribeToken(
     userId,
     env.authSecret,
     new Date(Date.now() + UNSUBSCRIBE_TOKEN_DAYS * DAY_MS),
   )}`;
-  const { html, text } = withUnsubscribeFooter(message.html, message.text, unsubscribeUrl, locale);
+  const message = await renderDailyQuizEmail({
+    locale,
+    username: user.username,
+    entries,
+    unsubscribeUrl,
+  });
 
   const { id } = await sendEmail({
     to: user.email,
     subject: message.subject,
-    html,
-    text,
+    html: message.html,
+    text: message.text,
   });
 
   const recorded = await recordEmailSend(db, {

@@ -24,13 +24,11 @@ export async function POST(request: Request) {
         expires: new Date(Date.now() + 60 * 60 * 1000),
         purpose: "reset_password",
       });
-      await sendEmail({
-        to: email,
-        ...renderPasswordResetEmail(
-          `${env.appUrl}/reset?token=${token}`,
-          toUiLocale(user.uiLanguage),
-        ),
-      });
+      const resetEmail = await renderPasswordResetEmail(
+        `${env.appUrl}/reset?token=${token}`,
+        toUiLocale(user.uiLanguage),
+      );
+      await sendEmail({ to: email, ...resetEmail });
     }
     return jsonOk({ ok: true });
   } catch (error) {

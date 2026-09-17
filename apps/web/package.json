@@ -14,6 +14,7 @@
     "@node-rs/argon2": "^2.2.1",
     "@tmr/core": "workspace:*",
     "@tmr/db": "workspace:*",
+    "@tmr/email": "workspace:*",
     "@vercel/blob": "^2.8.0",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.3.0",
