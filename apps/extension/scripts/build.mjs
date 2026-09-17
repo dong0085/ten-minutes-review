@@ -1,4 +1,5 @@
 import { context } from "esbuild";
+import { execFileSync } from "node:child_process";
 import { copyFile, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,6 +9,8 @@ const root = path.resolve(here, "..");
 
 const args = process.argv.slice(2);
 const watch = args.includes("--watch");
+const store = args.includes("--store");
+const zip = args.includes("--zip");
 const requested = args.filter((arg) => !arg.startsWith("--"));
 
 const ALL_TARGETS = [
@@ -25,17 +28,19 @@ if (targets.length === 0) {
 // The default server this build targets: EXT_API_ORIGIN (self-hosting, local
 // development), otherwise the production site. It feeds both the manifest's
 // host permissions and the code's base URL via --define, so they can't drift.
+// --store drops the localhost permission (dev-only) to keep store reviews clean.
 const PRODUCTION_ORIGIN = "https://ten-minutes-review.vercel.app";
 const origin = process.env.EXT_API_ORIGIN?.replace(/\/+$/, "");
 const defaultOrigin = origin ?? PRODUCTION_ORIGIN;
+if (store && defaultOrigin === "http://localhost:3000") {
+  console.error("A store build cannot target localhost.");
+  process.exit(1);
+}
 
 const manifest = JSON.parse(await readFile(path.join(root, "src/manifest.common.json"), "utf8"));
-{
-  const localhost = "http://localhost:3000/*";
-  manifest.host_permissions =
-    defaultOrigin === "http://localhost:3000"
-      ? [localhost]
-      : [`${defaultOrigin}/*`, localhost];
+manifest.host_permissions = [`${defaultOrigin}/*`];
+if (!store) {
+  manifest.host_permissions.push("http://localhost:3000/*");
 }
 
 const ENTRIES = [
@@ -92,4 +97,16 @@ for (const target of targets) {
     `${JSON.stringify(targetManifest, null, 2)}\n`,
   );
   console.log(`built dist/${target.name}`);
+}
+
+// Store-ready zips: manifest.json at the archive root, as both stores expect.
+if (zip) {
+  const webstoreDir = path.join(root, "dist", "webstore");
+  await mkdir(webstoreDir, { recursive: true });
+  for (const target of targets) {
+    execFileSync("zip", ["-r", "-q", path.join(webstoreDir, `${target.name}.zip`), "."], {
+      cwd: path.join(root, "dist", target.name),
+    });
+    console.log(`zipped dist/webstore/${target.name}.zip`);
+  }
 }

@@ -14,6 +14,5 @@
     "128": "icons/icon-128.png"
   },
   "permissions": ["contextMenus", "storage", "notifications", "activeTab", "scripting"],
-  "host_permissions": ["https://ten-minutes-review.vercel.app/*", "http://localhost:3000/*"],
-  "optional_host_permissions": ["http://*/*", "https://*/*"]
+  "host_permissions": ["https://ten-minutes-review.vercel.app/*", "http://localhost:3000/*"]
 }

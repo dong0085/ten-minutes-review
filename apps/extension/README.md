@@ -43,3 +43,19 @@ Sign out revokes the token server-side and clears local state.
 
 `src/icons/*.png` are generated from `apps/web/app/icon.svg` (stores require
 raster icons). Regenerate with `qlmanage -t -s <size> -o <dir> icon.svg`.
+
+## Publishing
+
+`pnpm package` produces store builds in `dist/chrome`, `dist/firefox`, and
+upload-ready zips in `dist/webstore/` (manifest.json at the archive root). The
+`--store` build drops the dev-only localhost host permission; submissions
+against any other origin than the production site are rejected.
+
+Before the first submission you still need, per store:
+
+- Chrome Web Store: a $5 developer account, the privacy-practices form
+  (selected text is sent to our own API only), a privacy-policy URL, and
+  listing assets (screenshots 1280×800 or 640×400, small promo tile).
+- Firefox Add-ons (AMO): a developer account, and either `web-ext sign` with an
+  API key for self-distribution or a manual listing — AMO also asks for the
+  source of bundled/minified code; point it at this repository.
