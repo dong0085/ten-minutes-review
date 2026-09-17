@@ -2,7 +2,7 @@ import browser from "webextension-polyfill";
 import { ApiError, createTextUpload } from "../shared/api-client";
 import { flashBadge, notify, tryOpenPopup } from "../shared/feedback";
 import { buildNoteText, preview } from "../shared/format";
-import { getState, originPattern, pushRecentSave } from "../shared/storage";
+import { DEFAULT_BASE_URL, getState, originPattern, pushRecentSave } from "../shared/storage";
 import { CLASSROOM_MENU_PREFIX } from "./menus";
 
 // info.selectionText can be truncated or empty on some selections (and in
@@ -45,11 +45,11 @@ export async function handleMenuClick(
   }
 
   const hasPermission = await browser.permissions.contains({
-    origins: [originPattern(state.baseUrl)],
+    origins: [originPattern(DEFAULT_BASE_URL)],
   });
   if (!hasPermission) {
     await flashBadge("!", true);
-    await notify(`Open the popup and allow access to ${state.baseUrl} under Server.`);
+    await notify(`Allow access to ${DEFAULT_BASE_URL} in the extension's permissions, then try again.`);
     return;
   }
 
@@ -88,7 +88,7 @@ export async function handleMenuClick(
     } else if (error instanceof ApiError) {
       await notify(error.message);
     } else {
-      await notify(`Could not reach ${state.baseUrl}. Is the server running?`);
+      await notify(`Could not reach ${DEFAULT_BASE_URL}. Is the server running?`);
     }
   }
 }

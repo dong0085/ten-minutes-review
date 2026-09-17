@@ -22,14 +22,20 @@ if (targets.length === 0) {
   process.exit(1);
 }
 
-// Bake a different default server (e.g. a self-host) instead of the production
-// site; localhost stays available for development.
+// The default server this build targets: EXT_API_ORIGIN (self-hosting, local
+// development), otherwise the production site. It feeds both the manifest's
+// host permissions and the code's base URL via --define, so they can't drift.
+const PRODUCTION_ORIGIN = "https://ten-minutes-review.vercel.app";
 const origin = process.env.EXT_API_ORIGIN?.replace(/\/+$/, "");
+const defaultOrigin = origin ?? PRODUCTION_ORIGIN;
+
 const manifest = JSON.parse(await readFile(path.join(root, "src/manifest.common.json"), "utf8"));
-if (origin) {
+{
   const localhost = "http://localhost:3000/*";
   manifest.host_permissions =
-    origin === "http://localhost:3000" ? [localhost] : [`${origin}/*`, localhost];
+    defaultOrigin === "http://localhost:3000"
+      ? [localhost]
+      : [`${defaultOrigin}/*`, localhost];
 }
 
 const ENTRIES = [
@@ -55,6 +61,7 @@ for (const target of targets) {
       minify: !watch,
       sourcemap: watch ? "inline" : false,
       target: target.target,
+      define: { __TMR_API_ORIGIN__: JSON.stringify(defaultOrigin) },
       logLevel: "info",
     });
     if (watch) {

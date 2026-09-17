@@ -16,7 +16,6 @@ export type RecentSave = {
 };
 
 export type StoredState = {
-  baseUrl: string;
   token: string | null;
   user: PublicUserLite | null;
   classrooms: ClassroomLite[];

@@ -1,5 +1,5 @@
 import type { ClassroomLite, PublicUserLite } from "./types";
-import { getState } from "./storage";
+import { DEFAULT_BASE_URL, getState } from "./storage";
 
 export class ApiError extends Error {
   readonly status: number;
@@ -36,7 +36,7 @@ async function authedFetch(
   init: RequestInit = {},
   tokenOverride?: string,
 ): Promise<Response> {
-  const { baseUrl, token } = await getState();
+  const { token } = await getState();
   const headers = new Headers(init.headers);
   if (init.body !== undefined) {
     headers.set("content-type", "application/json");
@@ -45,7 +45,7 @@ async function authedFetch(
   if (tokenToUse) {
     headers.set("authorization", `Bearer ${tokenToUse}`);
   }
-  const response = await fetch(`${baseUrl}${path}`, { ...init, headers });
+  const response = await fetch(`${DEFAULT_BASE_URL}${path}`, { ...init, headers });
   await ensureOk(response);
   return response;
 }
@@ -78,8 +78,7 @@ export async function signInWithPassword(
   email: string,
   password: string,
 ): Promise<{ token: string; user: PublicUserLite }> {
-  const { baseUrl } = await getState();
-  const response = await fetch(`${baseUrl}/api/auth/token`, {
+  const response = await fetch(`${DEFAULT_BASE_URL}/api/auth/token`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ email, password, deviceName: "Browser extension" }),

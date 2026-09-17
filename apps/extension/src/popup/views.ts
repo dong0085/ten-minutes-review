@@ -1,3 +1,4 @@
+import { DEFAULT_BASE_URL } from "../shared/storage";
 import type { StoredState } from "../shared/types";
 
 function escapeHtml(value: string): string {
@@ -11,33 +12,9 @@ function escapeHtml(value: string): string {
 export type PopupHandlers = {
   signIn: (email: string, password: string) => Promise<void>;
   useToken: (token: string) => Promise<void>;
-  saveBaseUrl: (baseUrl: string) => Promise<void>;
   signOut: () => Promise<void>;
   setDefaultClassroom: (classroomId: string) => Promise<void>;
 };
-
-function settingsHtml(baseUrl: string): string {
-  return `
-    <div class="divider"><span>Server</span></div>
-    <form id="settings" class="stack">
-      <label for="base-url">Base URL</label>
-      <input id="base-url" name="base-url" type="url" required value="${escapeHtml(baseUrl)}" />
-      <button type="submit">Save server</button>
-    </form>
-  `;
-}
-
-function wireSettings(root: HTMLElement, handlers: PopupHandlers): void {
-  root.querySelector<HTMLFormElement>("#settings")?.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const input = (event.currentTarget as HTMLFormElement).querySelector<HTMLInputElement>(
-      "#base-url",
-    );
-    if (input) {
-      void handlers.saveBaseUrl(input.value);
-    }
-  });
-}
 
 export function showError(root: HTMLElement, message: string | null): void {
   const element = root.querySelector<HTMLElement>("#error");
@@ -52,11 +29,7 @@ export function setBusy(root: HTMLElement, busy: boolean): void {
   });
 }
 
-export function renderSignedOut(
-  root: HTMLElement,
-  state: StoredState,
-  handlers: PopupHandlers,
-): void {
+export function renderSignedOut(root: HTMLElement, handlers: PopupHandlers): void {
   root.innerHTML = `
     <header class="header"><h1>Ten Minute Review</h1></header>
     <p class="muted">Save selected text from any page as a study note.</p>
@@ -74,11 +47,9 @@ export function renderSignedOut(
       <button type="submit">Use token</button>
     </form>
     <p class="muted small">Create one in Account → API tokens, then paste it here.</p>
-    ${settingsHtml(state.baseUrl)}
     <p id="error" class="error" hidden></p>
   `;
 
-  wireSettings(root, handlers);
   root.querySelector<HTMLFormElement>("#sign-in")?.addEventListener("submit", (event) => {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
@@ -135,15 +106,13 @@ export function renderSignedIn(
     </div>
     ${
       state.classrooms.length === 0
-        ? `<p class="muted small">No classrooms yet — <a href="${escapeHtml(state.baseUrl)}/classrooms" target="_blank" rel="noreferrer">create one on the website</a>.</p>`
+        ? `<p class="muted small">No classrooms yet — <a href="${escapeHtml(DEFAULT_BASE_URL)}/classrooms" target="_blank" rel="noreferrer">create one on the website</a>.</p>`
         : ""
     }
     ${state.recentSaves.length > 0 ? `<h2>Recent saves</h2><ul class="saves">${saves}</ul>` : ""}
-    ${settingsHtml(state.baseUrl)}
     <p id="error" class="error" hidden></p>
   `;
 
-  wireSettings(root, handlers);
   root.querySelector("#sign-out")?.addEventListener("click", () => void handlers.signOut());
   root
     .querySelector<HTMLSelectElement>("#default-classroom")

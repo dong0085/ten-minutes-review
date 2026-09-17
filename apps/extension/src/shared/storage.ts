@@ -1,13 +1,12 @@
 import browser from "webextension-polyfill";
 import type { RecentSave, StoredState } from "./types";
 
-export const DEFAULT_BASE_URL = "https://ten-minutes-review.vercel.app";
+export const DEFAULT_BASE_URL = __TMR_API_ORIGIN__;
 export const RECENT_SAVES_CAP = 10;
 
 const STORAGE_KEY = "state";
 
 const FALLBACK: StoredState = {
-  baseUrl: DEFAULT_BASE_URL,
   token: null,
   user: null,
   classrooms: [],
