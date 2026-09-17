@@ -7,15 +7,19 @@ import {
   deleteUser,
   extendClassroomActivityForLogin,
   getUserByEmail,
+  getUserIdByProviderAccount,
+  getUserById,
+  linkAccount,
   recordReferralSignup,
   transferClassrooms,
+  updateUser,
   upsertEmailPreferences,
 } from "@tmr/db";
 import { env } from "./env";
 import { verifyCredentials } from "./credentials";
 import { getDb } from "./db";
 import { resolveInviteCode } from "./invite";
-import { GUEST_COOKIE_NAME } from "./session";
+import { GUEST_COOKIE_NAME, LINK_GOOGLE_COOKIE_NAME } from "./session";
 
 declare module "next-auth" {
   interface Session {
@@ -69,10 +73,58 @@ export const authConfig: NextAuthConfig = {
         return false;
       }
       const db = getDb();
+      const store = await cookies();
+
+      if (account?.provider === "google" && account.providerAccountId) {
+        const providerAccountId = String(account.providerAccountId);
+
+        // Explicit link started from account settings: attach the Google
+        // identity to the signed-in user rather than signing in fresh.
+        if (store.get(LINK_GOOGLE_COOKIE_NAME)?.value) {
+          store.delete(LINK_GOOGLE_COOKIE_NAME);
+          const session = await auth();
+          const sessionUserId = session?.user?.id;
+          const sessionUser = sessionUserId ? await getUserById(db, sessionUserId) : null;
+          if (!sessionUser || sessionUser.isGuest) {
+            return "/account/security?linkError=session";
+          }
+          if (user.email.toLowerCase() !== sessionUser.email.toLowerCase()) {
+            return "/account/security?linkError=email";
+          }
+          await linkAccount(db, {
+            userId: sessionUser.id,
+            provider: "google",
+            providerAccountId,
+          });
+          if (!sessionUser.emailVerifiedAt) {
+            await updateUser(db, sessionUser.id, { emailVerifiedAt: new Date() });
+          }
+          user.id = sessionUser.id;
+          return true;
+        }
+
+        const linkedUserId = await getUserIdByProviderAccount(db, "google", providerAccountId);
+        if (linkedUserId) {
+          user.id = linkedUserId;
+          const guestId = store.get(GUEST_COOKIE_NAME)?.value;
+          if (guestId && guestId !== linkedUserId) {
+            await transferClassrooms(db, guestId, linkedUserId).catch(() => null);
+            await deleteUser(db, guestId).catch(() => null);
+          }
+          return true;
+        }
+      }
+
       const existing = await getUserByEmail(db, user.email);
       if (existing) {
         user.id = existing.id;
-        const store = await cookies();
+        if (account?.provider === "google" && account.providerAccountId) {
+          await linkAccount(db, {
+            userId: existing.id,
+            provider: "google",
+            providerAccountId: String(account.providerAccountId),
+          });
+        }
         const guestId = store.get(GUEST_COOKIE_NAME)?.value;
         if (guestId && guestId !== existing.id) {
           await transferClassrooms(db, guestId, existing.id).catch(() => null);
@@ -86,7 +138,6 @@ export const authConfig: NextAuthConfig = {
       let referrerUserId: string | null = null;
       let sourceCode: string | null = null;
       if (env.inviteOnly) {
-        const store = await cookies();
         const cookieCode = store.get("tmr_invite")?.value ?? null;
         const resolved = await resolveInviteCode(db, cookieCode);
         if (!resolved) {
@@ -106,7 +157,6 @@ export const authConfig: NextAuthConfig = {
       }
       user.id = created.id;
 
-      const store = await cookies();
       const guestId = store.get(GUEST_COOKIE_NAME)?.value;
       if (guestId && guestId !== created.id) {
         await transferClassrooms(db, guestId, created.id).catch(() => null);

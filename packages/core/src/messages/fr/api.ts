@@ -22,4 +22,6 @@ export const api: MessageShape<(typeof en)["Api"]> = {
   fileWrongType: "{name} doit être une image JPEG, PNG, WebP, GIF, AVIF ou HEIC",
   invalidDate: "Date invalide",
   invalidTimezone: "Fuseau horaire invalide",
+  passwordIncorrect: "Ton mot de passe actuel est incorrect.",
+  unlinkWithoutPassword: "Définis un mot de passe avant de délier Google.",
 };

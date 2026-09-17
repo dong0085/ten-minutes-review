@@ -1,9 +1,7 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import {
   getActivityStats,
-  getEmailPreferences,
   getLearningStats,
   getOrCreateReferralCode,
   listClassrooms,
@@ -13,7 +11,6 @@ import {
   listReferralsByReferrer,
 } from "@tmr/db";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -24,47 +21,29 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AccountStats } from "@/components/account/account-stats";
-import { DeleteAccount } from "@/components/account/delete-account";
-import { EmailPreferencesForm } from "@/components/account/email-preferences-form";
-import { ProfileForm } from "@/components/account/profile-form";
 import { getDb } from "@/lib/db";
 import { env } from "@/lib/env";
 import { languageLabel } from "@/lib/language-label";
-import { formatResetTime } from "@/lib/send-time";
 import { requireUser } from "@/lib/session";
-
-export const metadata: Metadata = {
-  robots: { index: false },
-};
 
 export default async function AccountPage() {
   const user = await requireUser();
   const t = await getTranslations("Account");
+  const tNav = await getTranslations("Account.Nav");
   const locale = await getLocale();
   const format = await getFormatter();
-  const reset = formatResetTime(locale, user.timezone);
   const db = getDb();
-  const [
-    preferences,
-    classrooms,
-    quizzes,
-    referral,
-    referrals,
-    activity,
-    learning,
-    attempts,
-    misses,
-  ] = await Promise.all([
-    getEmailPreferences(db, user.id),
-    listClassrooms(db, user.id),
-    listQuizzesForUser(db, user.id),
-    getOrCreateReferralCode(db, user.id),
-    listReferralsByReferrer(db, user.id),
-    getActivityStats(db, user.id, user.timezone),
-    getLearningStats(db, user.id),
-    listRecentAttemptScores(db, user.id),
-    listRecentMissesForUser(db, user.id),
-  ]);
+  const [referral, referrals, activity, learning, attempts, misses, classrooms, quizzes] =
+    await Promise.all([
+      getOrCreateReferralCode(db, user.id),
+      listReferralsByReferrer(db, user.id),
+      getActivityStats(db, user.id, user.timezone),
+      getLearningStats(db, user.id),
+      listRecentAttemptScores(db, user.id),
+      listRecentMissesForUser(db, user.id),
+      listClassrooms(db, user.id),
+      listQuizzesForUser(db, user.id),
+    ]);
 
   const shareUrl = referral.code ? `${env.appUrl}/signup?code=${referral.code}` : env.appUrl;
 
@@ -84,20 +63,11 @@ export default async function AccountPage() {
   return (
     <div className="space-y-7">
       <div className="border-b border-border/70 pb-7">
-        <p className="eyebrow">{t("overview")}</p>
+        <p className="eyebrow">{t("title")}</p>
         <h1 className="mt-2 font-heading text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
-          {t("title")}
+          {tNav("overview")}
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">{user.username ?? user.email}</p>
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-          <Badge variant="secondary">{t("free")}</Badge>
-          {user.username ? <span>{user.email}</span> : null}
-          <span>
-            {t("memberSince", {
-              date: format.dateTime(user.createdAt, { month: "long", year: "numeric" }),
-            })}
-          </span>
-        </div>
+        <p className="mt-1 text-sm text-muted-foreground">{t("overview")}</p>
       </div>
 
       <AccountStats
@@ -106,32 +76,6 @@ export default async function AccountPage() {
         attempts={attempts}
         misses={misses}
       />
-
-      <Card>
-        <CardContent>
-          <h2 className="font-heading text-xl font-semibold">{t("profileSection")}</h2>
-          <ProfileForm
-            defaultUsername={user.username}
-            defaultUiLanguage={user.uiLanguage}
-            defaultTimezone={user.timezone}
-          />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent>
-          <h2 className="font-heading text-xl font-semibold">{t("emailPreferencesSection")}</h2>
-          <EmailPreferencesForm
-            defaultDailyEnabled={preferences?.dailyEnabled ?? true}
-            unsubscribedAt={
-              preferences?.unsubscribedAt ? preferences.unsubscribedAt.toISOString() : null
-            }
-            resetLocal={reset.local}
-            resetUtc={reset.utc}
-            resetTomorrow={reset.tomorrow}
-          />
-        </CardContent>
-      </Card>
 
       <Card>
         <CardContent>
@@ -262,19 +206,6 @@ export default async function AccountPage() {
               </TableBody>
             </Table>
           )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent>
-          <h2 className="font-heading text-xl font-semibold">{t("dataSection")}</h2>
-          <p className="mt-2 text-sm text-muted-foreground">{t("exportBlurb")}</p>
-          <Button asChild variant="outline" className="mt-3">
-            <a href="/api/me/export">{t("exportButton")}</a>
-          </Button>
-          <div className="mt-4 border-t border-border pt-4">
-            <DeleteAccount />
-          </div>
         </CardContent>
       </Card>
 

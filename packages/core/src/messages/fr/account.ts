@@ -4,6 +4,12 @@ import type { MessageShape } from "../type";
 export const account: MessageShape<(typeof en)["Account"]> = {
   overview: "Ton parcours d'apprentissage",
   title: "Compte",
+  Nav: {
+    overview: "Aperçu",
+    profile: "Profil",
+    security: "Sécurité",
+    data: "Données",
+  },
   profileSection: "Profil",
   emailPreferencesSection: "Préférences d'e-mail",
   classroomsSection: "Classes",
@@ -78,6 +84,31 @@ export const account: MessageShape<(typeof en)["Account"]> = {
     trend: "{count} dernières tentatives",
     empty: "Fais un quiz pour voir ton activité et ta progression ici.",
     goToClassrooms: "Aller aux classes",
+  },
+  Security: {
+    passwordTitle: "Mot de passe",
+    passwordBlurb: "Utilise au moins 8 caractères.",
+    noPasswordBlurb:
+      "Tu te connectes actuellement avec Google. Définis un mot de passe pour aussi te connecter avec ton e-mail.",
+    currentPassword: "Mot de passe actuel",
+    newPassword: "Nouveau mot de passe",
+    confirmPassword: "Confirmer le mot de passe",
+    mismatch: "Les deux mots de passe ne correspondent pas.",
+    change: "Changer le mot de passe",
+    set: "Définir un mot de passe",
+    saved: "Mot de passe mis à jour.",
+    error: "Impossible d'enregistrer ton mot de passe.",
+    connectionsTitle: "Comptes connectés",
+    google: "Google",
+    googleLinked: "Connecté",
+    googleNotLinked: "Non connecté",
+    linkGoogle: "Connecter Google",
+    unlinkGoogle: "Délier",
+    unlinking: "Suppression…",
+    unlinkNeedsPassword: "Définis d'abord un mot de passe ci-dessus pour délier Google.",
+    linkErrorEmail:
+      "Ce compte Google utilise une adresse e-mail différente de celle de ton compte.",
+    linkErrorSession: "Ta session a changé. Réessaie de connecter Google.",
   },
   DeleteAccount: {
     description:

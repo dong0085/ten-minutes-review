@@ -22,6 +22,8 @@ const MESSAGE_KEYS: Record<string, ApiMessageKey> = {
   "Attach between 1 and 10 images": "imageCount",
   "Invalid date": "invalidDate",
   "Invalid timezone": "invalidTimezone",
+  "Current password is incorrect": "passwordIncorrect",
+  "Set a password before unlinking Google": "unlinkWithoutPassword",
 };
 
 const TOO_LARGE = /^(.+) is larger than 10MB$/;

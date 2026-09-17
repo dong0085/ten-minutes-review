@@ -1,7 +1,7 @@
 import { and, eq, gt, lt } from "drizzle-orm";
 import type { TokenPurpose } from "@tmr/core";
 import type { Db } from "../client";
-import { users, verificationTokens } from "../schema/users";
+import { accounts, users, verificationTokens } from "../schema/users";
 
 export type CreateUserInput = {
   email: string;
@@ -92,6 +92,49 @@ export async function updateUser(db: Db, id: string, patch: UpdateUserInput) {
 
 export async function deleteUser(db: Db, id: string) {
   await db.delete(users).where(eq(users.id, id));
+}
+
+export async function getAccountByProvider(db: Db, userId: string, provider: string) {
+  const [row] = await db
+    .select()
+    .from(accounts)
+    .where(and(eq(accounts.userId, userId), eq(accounts.provider, provider)))
+    .limit(1);
+  return row ?? null;
+}
+
+export async function getUserIdByProviderAccount(
+  db: Db,
+  provider: string,
+  providerAccountId: string,
+) {
+  const [row] = await db
+    .select({ userId: accounts.userId })
+    .from(accounts)
+    .where(and(eq(accounts.provider, provider), eq(accounts.providerAccountId, providerAccountId)))
+    .limit(1);
+  return row?.userId ?? null;
+}
+
+export async function linkAccount(
+  db: Db,
+  input: { userId: string; provider: string; providerAccountId: string },
+) {
+  await db
+    .insert(accounts)
+    .values({ ...input, type: "oauth" })
+    .onConflictDoUpdate({
+      target: [accounts.provider, accounts.providerAccountId],
+      set: { userId: input.userId },
+    });
+}
+
+export async function unlinkAccount(db: Db, userId: string, provider: string) {
+  const removed = await db
+    .delete(accounts)
+    .where(and(eq(accounts.userId, userId), eq(accounts.provider, provider)))
+    .returning({ provider: accounts.provider });
+  return removed.length > 0;
 }
 
 export async function createVerificationToken(

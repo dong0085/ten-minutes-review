@@ -1,6 +1,12 @@
 export const account = {
   overview: "Your learning record",
   title: "Account",
+  Nav: {
+    overview: "Overview",
+    profile: "Profile",
+    security: "Security",
+    data: "Data",
+  },
   profileSection: "Profile",
   emailPreferencesSection: "Email preferences",
   classroomsSection: "Classrooms",
@@ -75,6 +81,30 @@ export const account = {
     trend: "Last {count} attempts",
     empty: "Take a quiz to see your activity and learning stats here.",
     goToClassrooms: "Go to classrooms",
+  },
+  Security: {
+    passwordTitle: "Password",
+    passwordBlurb: "Use at least 8 characters.",
+    noPasswordBlurb:
+      "You currently sign in with Google. Set a password to also sign in with your email.",
+    currentPassword: "Current password",
+    newPassword: "New password",
+    confirmPassword: "Confirm password",
+    mismatch: "The two passwords do not match.",
+    change: "Change password",
+    set: "Set password",
+    saved: "Password updated.",
+    error: "Could not save your password.",
+    connectionsTitle: "Connected accounts",
+    google: "Google",
+    googleLinked: "Connected",
+    googleNotLinked: "Not connected",
+    linkGoogle: "Link Google",
+    unlinkGoogle: "Unlink",
+    unlinking: "Unlinking…",
+    unlinkNeedsPassword: "Set a password above before unlinking Google.",
+    linkErrorEmail: "That Google account uses a different email address than your account.",
+    linkErrorSession: "Your session changed. Please try linking again.",
   },
   DeleteAccount: {
     description:

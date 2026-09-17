@@ -19,4 +19,6 @@ export const api = {
   fileWrongType: "{name} must be a JPEG, PNG, WebP, GIF, AVIF, or HEIC image",
   invalidDate: "Invalid date",
   invalidTimezone: "Invalid timezone",
+  passwordIncorrect: "Your current password is incorrect.",
+  unlinkWithoutPassword: "Set a password before unlinking Google.",
 };
