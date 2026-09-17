@@ -236,6 +236,46 @@
     content: "";
     transform: rotate(-1.8deg);
   }
+
+  /* Scroll reveals. components/reveal.tsx flips data-reveal when an element
+     enters the viewport; the motion itself is all CSS. */
+  [data-reveal="hidden"] {
+    opacity: 0;
+    transform: translateY(0.625rem);
+  }
+
+  [data-reveal="hidden"][data-reveal-from="right"] {
+    transform: translateX(1.25rem);
+  }
+
+  [data-reveal] {
+    transition:
+      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Highlighter draw-on: inside a revealed block, the marker is swept
+     across by hand once the block settles. */
+  [data-reveal="hidden"] .marker-swipe::after,
+  [data-reveal="hidden"] .marker-loop::after {
+    scale: 0 1;
+  }
+
+  [data-reveal="shown"] .marker-swipe::after,
+  [data-reveal="shown"] .marker-loop::after {
+    animation: marker-draw 0.65s cubic-bezier(0.3, 0, 0.2, 1) 0.35s both;
+  }
+
+  @keyframes marker-draw {
+    from {
+      scale: 0 1;
+      transform-origin: 0 50%;
+    }
+    to {
+      scale: 1 1;
+      transform-origin: 0 50%;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
