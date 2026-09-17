@@ -1,4 +1,5 @@
 import { render, toPlainText } from "react-email";
+import React from "react";
 import type { ReactElement } from "react";
 import type { UiLocale } from "@tmr/core";
 import { getMessages } from "@tmr/core";
