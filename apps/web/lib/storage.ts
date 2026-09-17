@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { head, put } from "@vercel/blob";
 import { env } from "./env";
+import { s3GetObjectBytes, s3PutObject } from "./s3";
 
 export const LOCAL_UPLOAD_DIR = path.resolve(process.cwd(), "../..", ".uploads");
 
@@ -37,6 +38,10 @@ export async function putObject(
     });
     return { key: blob.pathname || key, url: blob.url };
   }
+  if (env.storageProvider === "s3") {
+    await s3PutObject(key, data, contentType);
+    return { key, url: `/api/files/${key}` };
+  }
   const target = path.join(LOCAL_UPLOAD_DIR, key);
   await mkdir(path.dirname(target), { recursive: true });
   await writeFile(target, data);
@@ -48,6 +53,7 @@ export async function objectUrl(key: string): Promise<string> {
     const blob = await head(key, { token: env.blobReadWriteToken || undefined });
     return blob.url;
   }
+  // local and s3 serve through the authed /api/files route.
   return `/api/files/${key}`;
 }
 
@@ -78,6 +84,10 @@ export async function getObjectBytes(
       bytes,
       mimeType: response.headers.get("content-type") ?? mimeTypeForKey(key),
     };
+  }
+
+  if (env.storageProvider === "s3") {
+    return s3GetObjectBytes(key);
   }
 
   const target = resolveLocalPath(key);

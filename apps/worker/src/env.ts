@@ -22,7 +22,7 @@ function required(name: string): string {
 
 export type LlmProviderName = "mock" | "deepseek";
 export type EmailProviderName = "console" | "resend" | "brevo";
-export type StorageProviderName = "local" | "vercel";
+export type StorageProviderName = "local" | "vercel" | "s3";
 
 export const env = {
   get databaseUrl(): string {
@@ -39,7 +39,11 @@ export const env = {
     "resend",
     "brevo",
   ] as const),
-  storageProvider: provider(process.env.STORAGE_PROVIDER, "local", ["local", "vercel"] as const),
+  storageProvider: provider(process.env.STORAGE_PROVIDER, "local", [
+    "local",
+    "vercel",
+    "s3",
+  ] as const),
   emailFrom: process.env.EMAIL_FROM ?? "Ten Minutes Review <onboarding@resend.dev>",
   deepseekApiKey: process.env.DEEPSEEK_API_KEY ?? "",
   deepseekBaseUrl: process.env.DEEPSEEK_BASE_URL ?? "https://api.deepseek.com",
@@ -47,6 +51,12 @@ export const env = {
   resendApiKey: process.env.RESEND_API_KEY ?? "",
   brevoApiKey: process.env.BREVO_API_KEY ?? "",
   blobReadWriteToken: process.env.BLOB_READ_WRITE_TOKEN ?? "",
+  s3Bucket: process.env.S3_BUCKET ?? "",
+  s3Region: process.env.S3_REGION ?? "us-east-1",
+  s3AccessKeyId: process.env.S3_ACCESS_KEY_ID ?? "",
+  s3SecretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? "",
+  s3Endpoint: process.env.S3_ENDPOINT ?? "",
+  s3ForcePathStyle: process.env.S3_FORCE_PATH_STYLE === "true",
 };
 
 export type Env = typeof env;

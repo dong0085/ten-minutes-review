@@ -14,6 +14,7 @@
     "@tmr/core": "workspace:*",
     "@tmr/db": "workspace:*",
     "@tmr/email": "workspace:*",
+    "aws4fetch": "^1.0.20",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.45.2",
     "postgres": "^3.4.9",

@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { env } from "./env";
+import { s3GetObjectBytes } from "./s3";
 
 export const LOCAL_UPLOAD_DIR = path.resolve(process.cwd(), "../..", ".uploads");
 
@@ -55,6 +56,10 @@ export async function getObjectBytes(key: string): Promise<ObjectBytes> {
       bytes,
       mimeType: response.headers.get("content-type") ?? mimeTypeForKey(key),
     };
+  }
+
+  if (env.storageProvider === "s3") {
+    return s3GetObjectBytes(key);
   }
 
   const target = resolveLocalPath(key);

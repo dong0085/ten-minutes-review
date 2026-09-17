@@ -86,6 +86,8 @@ The documents are the source of truth for product behavior and architecture.
 | [`docs/TECHNICAL.md`](docs/TECHNICAL.md) | Architecture, data model, API surface, pipelines, and deployment |
 | [`docs/FLOWS.md`](docs/FLOWS.md) | Screen-by-screen behavior |
 | [`docs/TRIAL-RUN.md`](docs/TRIAL-RUN.md) | Field notes from the real tutoring session that validated the loop |
+| [`docs/DEPLOY-AWS.md`](docs/DEPLOY-AWS.md) | Self-hosting on AWS: Lightsail and App Runner runbooks |
+| [`docs/PLAN-B-STATUS.md`](docs/PLAN-B-STATUS.md) | Implementation record, verification evidence, and next steps for the AWS path |
 
 ## Useful commands
 
@@ -108,5 +110,6 @@ pnpm docs:render
 - Deploy the repository's `render.yaml` blueprint to Render for the worker.
 - Give both services `DATABASE_URL`, `AUTH_SECRET`, `APP_URL`, and the selected provider credentials.
 - Connect Vercel Blob for production image uploads and set the repository `WORKER_URL` variable for the morning keep-alive workflow.
+- Self-host on AWS with Docker Compose: see [`docs/DEPLOY-AWS.md`](docs/DEPLOY-AWS.md).
 
 Billing, referral rewards, tier enforcement, quiz-type selection, and full spaced repetition are modeled or specified but intentionally deferred. See [`docs/TECHNICAL.md`](docs/TECHNICAL.md#7-deferred) for the current boundary.
