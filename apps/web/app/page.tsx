@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { CATEGORIES } from "@tmr/core";
 import { Button } from "@/components/ui/button";
+import { Reveal } from "@/components/reveal";
 import { getCurrentUserOrGuest } from "@/lib/session";
 
 export default async function HomePage() {
@@ -47,7 +48,7 @@ export default async function HomePage() {
   return (
     <div className="pb-12 sm:pb-20">
       <section className="relative grid min-h-[34rem] items-center gap-12 py-8 lg:grid-cols-[1.02fr_0.98fr] lg:gap-16 lg:py-14">
-        <div className="relative z-10 max-w-2xl">
+        <Reveal className="relative z-10 max-w-2xl">
           <p className="eyebrow">{t("eyebrow")}</p>
           <h1 className="mt-5 max-w-3xl font-heading text-5xl leading-[0.98] font-semibold tracking-[-0.045em] text-balance sm:text-6xl lg:text-[4.6rem]">
             {t.rich("title", {
@@ -97,9 +98,9 @@ export default async function HomePage() {
               ),
             )}
           </ul>
-        </div>
+        </Reveal>
 
-        <div className="relative mx-auto w-full max-w-[34rem] lg:mx-0">
+        <Reveal delay={150} className="relative mx-auto w-full max-w-[34rem] lg:mx-0">
           <div
             aria-hidden="true"
             className="absolute -inset-8 -z-10 rounded-full bg-primary/[0.07] blur-3xl"
@@ -152,19 +153,24 @@ export default async function HomePage() {
               </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       <section id="how-it-works" className="border-t border-border/70 py-16 sm:py-20">
-        <div className="max-w-2xl">
+        <Reveal className="max-w-2xl">
           <p className="eyebrow">{t("howItWorksKicker")}</p>
           <h2 className="mt-3 font-heading text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
             {t("howItWorksTitle")}
           </h2>
-        </div>
+        </Reveal>
         <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-border/70 bg-border/70 md:grid-cols-3">
           {steps.map(({ icon: Icon, number, title, copy }, index) => (
-            <article key={number} className="group bg-card/95 p-6 sm:p-7">
+            <Reveal
+              as="article"
+              key={number}
+              delay={index * 120}
+              className="group bg-card/95 p-6 sm:p-7"
+            >
               <div className="flex items-center justify-between">
                 <span className="grid size-10 place-items-center rounded-xl bg-primary/[0.08] text-primary transition-transform duration-200 group-hover:-translate-y-0.5">
                   <Icon className="size-4.5" />
@@ -175,13 +181,13 @@ export default async function HomePage() {
                 {index === 1 ? <span className="marker-note">{title}</span> : title}
               </h3>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">{copy}</p>
-            </article>
+            </Reveal>
           ))}
         </div>
       </section>
 
       <section className="grid gap-8 border-t border-border/70 py-16 sm:py-20 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-        <div>
+        <Reveal>
           <BookOpenCheck className="size-5 text-primary" />
           <h2 className="mt-5 font-heading text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
             {t.rich("categoriesTitle", {
@@ -191,32 +197,40 @@ export default async function HomePage() {
           <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground">
             {t("categoriesCopy")}
           </p>
-        </div>
+        </Reveal>
         <div className="grid gap-2 sm:grid-cols-2">
           {CATEGORIES.map((category, index) => (
-            <div
+            <Reveal
+              as="div"
               key={category}
+              delay={index * 70}
+              from="right"
               className="flex items-center justify-between rounded-xl border border-border/70 bg-card/60 px-4 py-3.5 text-sm"
             >
               <span className="font-medium">{categoryT(category)}</span>
               <span className="font-heading text-xs italic text-muted-foreground/65">
                 {String(index + 1).padStart(2, "0")}
               </span>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
 
       <section className="border-t border-border/70 py-16 sm:py-20">
-        <div className="max-w-2xl">
+        <Reveal className="max-w-2xl">
           <p className="eyebrow">{t("highlights.kicker")}</p>
           <h2 className="mt-3 font-heading text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
             {t("highlights.title")}
           </h2>
-        </div>
+        </Reveal>
         <div className="mt-10 grid divide-y divide-border border-y border-border/70 md:grid-cols-3 md:divide-x md:divide-y-0">
-          {highlights.map(({ icon: Icon, title, copy }) => (
-            <article key={title} className="group px-2 py-7 sm:px-4 md:px-7 md:py-8">
+          {highlights.map(({ icon: Icon, title, copy }, index) => (
+            <Reveal
+              as="article"
+              key={title}
+              delay={index * 120}
+              className="group px-2 py-7 sm:px-4 md:px-7 md:py-8"
+            >
               <span
                 aria-hidden="true"
                 className="grid size-10 place-items-center rounded-xl bg-primary/[0.08] text-primary transition-transform duration-200 group-hover:-translate-y-0.5"
@@ -225,12 +239,15 @@ export default async function HomePage() {
               </span>
               <h3 className="mt-5 font-heading text-xl font-semibold">{title}</h3>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">{copy}</p>
-            </article>
+            </Reveal>
           ))}
         </div>
       </section>
 
-      <section className="relative overflow-hidden rounded-[2rem] border border-primary/15 bg-primary/[0.075] px-6 py-12 text-center sm:px-10 sm:py-16">
+      <Reveal
+        as="section"
+        className="relative overflow-hidden rounded-[2rem] border border-primary/15 bg-primary/[0.075] px-6 py-12 text-center sm:px-10 sm:py-16"
+      >
         <div aria-hidden="true" className="absolute inset-x-16 top-0 h-px bg-primary/25" />
         <p className="eyebrow">{t("closingKicker")}</p>
         <h2 className="mx-auto mt-4 max-w-2xl font-heading text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
@@ -244,7 +261,7 @@ export default async function HomePage() {
             <ArrowRight />
           </Link>
         </Button>
-      </section>
+      </Reveal>
     </div>
   );
 }
