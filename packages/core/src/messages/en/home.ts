@@ -35,11 +35,10 @@ export const home = {
   categoriesCopy:
     "Each review moves between recall, production, structure, and comprehension so the lesson stays connected.",
   forms: {
-    mcq: { name: "Multiple choice", hint: "Recognize the right word or phrase at a glance." },
-    fillBlank: { name: "Fill the blank", hint: "Produce the word yourself, in context." },
-    trueFalse: { name: "True or false", hint: "Quick checks on what you read." },
-    photo: { name: "From your photos", hint: "Questions drawn from your handwritten pages." },
-    outro: { name: "One short mix", hint: "Each review blends these forms, sized for ten minutes." },
+    mcq: "Multiple choice",
+    fillBlank: "Fill the blank",
+    trueFalse: "True or false",
+    photo: "From your photos",
     blankLabel: "Blank 1",
     true: "True",
     false: "False",

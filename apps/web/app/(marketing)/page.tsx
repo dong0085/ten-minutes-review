@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
-import { QuizFormShuffle } from "@/components/quiz-form-shuffle";
+import { QuizFormCards } from "@/components/quiz-form-cards";
 import { env } from "@/lib/env";
 import { getCurrentUserOrGuest } from "@/lib/session";
 
@@ -216,8 +216,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="border-t border-border/70 pt-16 sm:pt-20">
-        <Reveal className="max-w-2xl">
+      <section className="grid gap-8 border-t border-border/70 py-16 sm:py-20 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-16">
+        <Reveal>
           <BookOpenCheck className="size-5 text-primary" />
           <h2 className="mt-5 font-heading text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
             {t.rich("categoriesTitle", {
@@ -228,7 +228,7 @@ export default async function HomePage() {
             {t("categoriesCopy")}
           </p>
         </Reveal>
-        <QuizFormShuffle />
+        <QuizFormCards />
       </section>
 
       <section className="border-t border-border/70 py-16 sm:py-20">

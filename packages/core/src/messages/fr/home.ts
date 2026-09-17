@@ -35,11 +35,10 @@ export const home = {
   categoriesCopy:
     "Chaque révision alterne mémorisation, production, structure et compréhension pour garder le cours cohérent.",
   forms: {
-    mcq: { name: "Choix multiple", hint: "Reconnaître le bon mot ou la bonne expression du premier coup d'œil." },
-    fillBlank: { name: "Texte à trous", hint: "Produire le mot toi-même, en contexte." },
-    trueFalse: { name: "Vrai ou faux", hint: "Des vérifications rapides de ta lecture." },
-    photo: { name: "À partir de tes photos", hint: "Des questions tirées de tes pages manuscrites." },
-    outro: { name: "Un petit mélange", hint: "Chaque révision combine ces formes, taillée pour dix minutes." },
+    mcq: "Choix multiple",
+    fillBlank: "Texte à trous",
+    trueFalse: "Vrai ou faux",
+    photo: "À partir de tes photos",
     blankLabel: "Trou 1",
     true: "Vrai",
     false: "Faux",
