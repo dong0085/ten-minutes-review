@@ -8,6 +8,7 @@ final class AppEnvironment {
     let auth: AuthStore
     let drafts: DraftStore
     let images: AuthenticatedImageLoader
+    let theme = ThemeStore()
 
     init() {
         let base = Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String

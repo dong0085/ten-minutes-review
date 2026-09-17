@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AttemptReviewView: View {
     @Environment(AppEnvironment.self) private var environment
+    @Environment(ThemeStore.self) private var theme
     let attemptId: String
 
     @State private var detail: AttemptDetail?
@@ -14,22 +15,28 @@ struct AttemptReviewView: View {
                     Section {
                         HStack {
                             Text("\(detail.attempt.correctCount)/\(detail.attempt.questionCount) correct")
-                                .font(.headline)
+                                .font(AppFont.geist(16, .semibold))
+                                .foregroundStyle(theme.colors.foreground)
                             Spacer()
                             Text(DateFormatting.dateTime(DateFormatting.parseISO8601(detail.attempt.submittedAt)))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .font(AppFont.geist(12))
+                                .foregroundStyle(theme.colors.mutedForeground)
                         }
                         Text("Took \(DateFormatting.duration(ms: detail.attempt.durationMs))")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(AppFont.geist(12))
+                            .foregroundStyle(theme.colors.mutedForeground)
                     }
-                    Section("Answers") {
+                    Section {
                         ForEach(Array(detail.answers.enumerated()), id: \.element.questionId) { _, answer in
                             ReviewRowView(answer: answer)
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
                         }
+                    } header: {
+                        Text("Answers").eyebrowStyle(theme.colors)
                     }
                 }
+                .paperScreen()
             } else if let errorMessage {
                 ContentUnavailableView(
                     "Review unavailable",
@@ -55,34 +62,37 @@ struct AttemptReviewView: View {
 }
 
 private struct ReviewRowView: View {
+    @Environment(ThemeStore.self) private var theme
     let answer: AttemptAnswer
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .top, spacing: 8) {
                 Image(systemName: answer.isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
-                    .foregroundStyle(answer.isCorrect ? .green : .red)
+                    .foregroundStyle(answer.isCorrect ? theme.colors.success : theme.colors.destructive)
                 Text(answer.stem)
-                    .font(.subheadline.weight(.medium))
+                    .font(AppFont.geist(15, .semibold))
+                    .foregroundStyle(theme.colors.foreground)
             }
             if let yours = answer.response?.describe {
                 Text("Your answer: \(yours)")
-                    .font(.footnote)
-                    .foregroundStyle(answer.isCorrect ? .green : .red)
+                    .font(AppFont.geist(13))
+                    .foregroundStyle(answer.isCorrect ? theme.colors.success : theme.colors.destructive)
             } else {
                 Text("Unanswered")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .font(AppFont.geist(13))
+                    .foregroundStyle(theme.colors.mutedForeground)
             }
             if !answer.isCorrect {
                 Text("Correct answer: \(answer.correctAnswer.describe(options: answer.options))")
-                    .font(.footnote)
-                    .foregroundStyle(.green)
+                    .font(AppFont.geist(13))
+                    .foregroundStyle(theme.colors.success)
             }
             Text(answer.explanation)
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+                .font(AppFont.geist(13))
+                .foregroundStyle(theme.colors.mutedForeground)
         }
-        .padding(.vertical, 4)
+        .padding(14)
+        .editorialSurface()
     }
 }

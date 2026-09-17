@@ -61,6 +61,7 @@ struct QuizRunnerView: View {
 }
 
 private struct RunningQuizView: View {
+    @Environment(ThemeStore.self) private var theme
     let model: QuizRunnerModel
 
     var body: some View {
@@ -71,8 +72,8 @@ private struct RunningQuizView: View {
                         "Resumed — \(timeRemaining(model.secondsRemaining)) left",
                         systemImage: "clock.arrow.circlepath"
                     )
-                    .font(.footnote)
-                    .foregroundStyle(.orange)
+                    .font(AppFont.geist(12))
+                    .foregroundStyle(theme.colors.warning)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
@@ -80,14 +81,16 @@ private struct RunningQuizView: View {
                     value: Double(model.current + 1),
                     total: Double(max(model.questions.count, 1))
                 )
+                .tint(theme.colors.primary)
 
                 HStack {
                     Text("Question \(model.current + 1) of \(model.questions.count)")
-                        .font(.subheadline.weight(.medium))
+                        .font(AppFont.geist(14, .medium))
+                        .foregroundStyle(theme.colors.foreground)
                     Spacer()
                     Text("\(model.answeredCount) answered")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(AppFont.geist(12))
+                        .foregroundStyle(theme.colors.mutedForeground)
                 }
 
                 if let question = model.currentQuestion {
@@ -98,6 +101,7 @@ private struct RunningQuizView: View {
             }
             .padding()
         }
+        .background(theme.colors.background.ignoresSafeArea())
         .scrollBounceBehavior(.basedOnSize)
     }
 
@@ -116,8 +120,10 @@ private struct RunningQuizView: View {
                 Button {
                     Task { await model.submit() }
                 } label: {
-                    Label("Submit", systemImage: "checkmark.circle.fill")
-                        .font(.headline)
+                    Text("Submit")
+                        .font(AppFont.geist(16, .semibold))
+                        .foregroundStyle(theme.colors.primaryForeground)
+                        .labelStyle(.titleAndIcon)
                 }
                 .buttonStyle(.borderedProminent)
             } else {
@@ -125,7 +131,7 @@ private struct RunningQuizView: View {
                     model.next()
                 } label: {
                     Label("Next", systemImage: "chevron.right")
-                        .font(.headline)
+                        .font(AppFont.geist(16, .semibold))
                 }
                 .buttonStyle(.borderedProminent)
             }
@@ -141,16 +147,20 @@ private struct RunningQuizView: View {
 }
 
 private struct QuestionContainerView: View {
+    @Environment(ThemeStore.self) private var theme
     let model: QuizRunnerModel
     let question: QuizQuestion
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(question.category.rawValue.capitalized)
-                .font(.caption.weight(.semibold))
+                .font(AppFont.geist(11, .semibold))
+                .kerning(2)
+                .textCase(.uppercase)
+                .foregroundStyle(theme.colors.primary)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 3)
-                .background(.tint.opacity(0.1), in: Capsule())
+                .background(theme.colors.secondary, in: Capsule())
 
             switch question.type {
             case .mcq:
@@ -163,7 +173,7 @@ private struct QuestionContainerView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     RemoteImage(urlString: question.imageUrl ?? "")
                         .frame(maxHeight: 260)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     MCQQuestionView(
                         question: question,
                         order: model.optionOrder(for: question),
@@ -177,7 +187,8 @@ private struct QuestionContainerView: View {
             }
 
             Text(question.stem)
-                .font(.body)
+                .font(AppFont.geist(17))
+                .foregroundStyle(theme.colors.foreground)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

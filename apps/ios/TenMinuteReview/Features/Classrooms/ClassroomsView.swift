@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ClassroomsView: View {
     @Environment(AppEnvironment.self) private var environment
+    @Environment(ThemeStore.self) private var theme
     @State private var model: ClassroomsModel?
     @State private var showsCreateSheet = false
 
@@ -28,13 +29,24 @@ struct ClassroomsView: View {
                                 description: Text("A classroom holds one set of notes and its daily quiz.")
                             )
                         } else {
-                            List(model.classrooms) { classroom in
-                                NavigationLink {
-                                    ClassroomDetailView(classroom: classroom)
-                                } label: {
-                                    ClassroomRow(classroom: classroom)
+                            List {
+                                Section {
+                                    ForEach(model.classrooms) { classroom in
+                                        NavigationLink {
+                                            ClassroomDetailView(classroom: classroom)
+                                        } label: {
+                                            ClassroomRow(classroom: classroom)
+                                                .editorialSurface()
+                                        }
+                                        .listRowBackground(Color.clear)
+                                        .listRowSeparator(.hidden)
+                                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                                    }
+                                } header: {
+                                    Text("Your classrooms").eyebrowStyle(theme.colors)
                                 }
                             }
+                            .paperScreen()
                             .refreshable { await model.load() }
                         }
                     }
@@ -51,7 +63,9 @@ struct ClassroomsView: View {
                 }
             }
             .sheet(isPresented: $showsCreateSheet) {
-                CreateClassroomSheet(model: model)
+                if let model {
+                    CreateClassroomSheet(model: model)
+                }
             }
             .task {
                 if model == nil {
@@ -65,27 +79,30 @@ struct ClassroomsView: View {
 }
 
 private struct ClassroomRow: View {
+    @Environment(ThemeStore.self) private var theme
     let classroom: Classroom
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(classroom.name).font(.headline)
+                Text(classroom.name)
+                    .font(AppFont.geist(16, .semibold))
+                    .foregroundStyle(theme.colors.foreground)
                 Spacer()
                 statusBadge
             }
-            HStack(spacing: 8) {
+            HStack(spacing: 10) {
                 Text("\(classroom.targetLanguage.uppercased()) → \(classroom.nativeLanguage.uppercased())")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(AppFont.geist(12))
+                    .foregroundStyle(theme.colors.mutedForeground)
                 if let bankSize = classroom.bankSize {
                     Label("\(bankSize)", systemImage: "square.stack.3d.up")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(AppFont.geist(12))
+                        .foregroundStyle(theme.colors.mutedForeground)
                 }
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 4)
     }
 
     private var statusBadge: some View {
@@ -98,21 +115,22 @@ private struct ClassroomRow: View {
                 Text("Dormant")
             }
         }
-        .font(.caption2.weight(.semibold))
+        .font(AppFont.geist(11, .semibold))
         .padding(.horizontal, 8)
         .padding(.vertical, 3)
-        .background(badgeColor.opacity(0.15), in: Capsule())
+        .background(badgeColor.opacity(0.14), in: Capsule())
         .foregroundStyle(badgeColor)
     }
 
     private var badgeColor: Color {
-        if classroom.isPaused { return .orange }
-        if classroom.isActive ?? false { return .green }
-        return .secondary
+        if classroom.isPaused { return theme.colors.warning }
+        if classroom.isActive ?? false { return theme.colors.success }
+        return theme.colors.mutedForeground
     }
 }
 
 private struct CreateClassroomSheet: View {
+    @Environment(ThemeStore.self) private var theme
     @Environment(\.dismiss) private var dismiss
     let model: ClassroomsModel?
 
@@ -132,7 +150,7 @@ private struct CreateClassroomSheet: View {
                 Section {
                     TextField("Name", text: $name)
                 } header: {
-                    Text("Classroom")
+                    Text("Classroom").eyebrowStyle(theme.colors)
                 }
                 Section {
                     Picker("Studying", selection: $targetLanguage) {
@@ -142,13 +160,14 @@ private struct CreateClassroomSheet: View {
                         ForEach(languages, id: \.self) { Text($0.uppercased()) }
                     }
                 } header: {
-                    Text("Languages")
+                    Text("Languages").eyebrowStyle(theme.colors)
                 } footer: {
                     if let errorMessage {
-                        Text(errorMessage).foregroundStyle(.red)
+                        Text(errorMessage).foregroundStyle(theme.colors.destructive)
                     }
                 }
             }
+            .paperScreen()
             .navigationTitle("New Classroom")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ClassroomDetailView: View {
     @Environment(AppEnvironment.self) private var environment
+    @Environment(ThemeStore.self) private var theme
     @State private var model: ClassroomDetailModel?
     @State private var showsAddNotes = false
     let classroom: Classroom
@@ -22,26 +23,45 @@ struct ClassroomDetailView: View {
                     }
                 case .ready:
                     List {
-                        Section("Today") {
+                        Section {
                             TodayQuizCardView(model: model)
+                                .editorialSurface()
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                        } header: {
+                            Text("Today").eyebrowStyle(theme.colors)
                         }
-                        Section("Question bank") {
+                        Section {
                             BankCountsView(bank: model.bank)
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                        } header: {
+                            Text("Question bank").eyebrowStyle(theme.colors)
                         }
-                        Section("Notes") {
+                        Section {
                             if model.uploads.isEmpty {
                                 Text("Add your first note to start building the bank.")
-                                    .foregroundStyle(.secondary)
+                                    .font(AppFont.geist(13))
+                                    .foregroundStyle(theme.colors.mutedForeground)
+                                    .listRowBackground(Color.clear)
+                                    .listRowSeparator(.hidden)
                             } else {
                                 ForEach(model.uploads) { upload in
                                     NotesTimelineRow(upload: upload)
+                                        .listRowBackground(Color.clear)
+                                        .listRowSeparator(.hidden)
                                 }
                             }
+                        } header: {
+                            Text("Notes").eyebrowStyle(theme.colors)
                         }
-                        Section("Quizzes") {
+                        Section {
                             if model.quizzes.isEmpty {
                                 Text("No quizzes yet.")
-                                    .foregroundStyle(.secondary)
+                                    .font(AppFont.geist(13))
+                                    .foregroundStyle(theme.colors.mutedForeground)
+                                    .listRowBackground(Color.clear)
+                                    .listRowSeparator(.hidden)
                             } else {
                                 ForEach(model.quizzes) { summary in
                                     NavigationLink {
@@ -49,10 +69,15 @@ struct ClassroomDetailView: View {
                                     } label: {
                                         QuizListRow(summary: summary)
                                     }
+                                    .listRowBackground(Color.clear)
+                                    .listRowSeparator(.hidden)
                                 }
                             }
+                        } header: {
+                            Text("Quizzes").eyebrowStyle(theme.colors)
                         }
                     }
+                    .paperScreen()
                     .refreshable { await model.loadAll() }
                 }
             } else {
@@ -86,37 +111,39 @@ struct ClassroomDetailView: View {
 }
 
 private struct QuizListRow: View {
+    @Environment(ThemeStore.self) private var theme
     let summary: QuizSummary
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(DateFormatting.quizDateLabel(summary.quizDate))
-                    .font(.headline)
+                    .font(AppFont.geist(15, .semibold))
+                    .foregroundStyle(theme.colors.foreground)
                 if summary.kind == "manual" {
                     Text("On demand")
-                        .font(.caption2.weight(.semibold))
+                        .font(AppFont.geist(11, .semibold))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(.blue.opacity(0.12), in: Capsule())
-                        .foregroundStyle(.blue)
+                        .background(theme.colors.secondary, in: Capsule())
+                        .foregroundStyle(theme.colors.secondaryForeground)
                 }
                 Spacer()
                 Text("\(summary.size) questions")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(AppFont.geist(12))
+                    .foregroundStyle(theme.colors.mutedForeground)
             }
             if summary.attemptCount > 0 {
                 Text("Best \(summary.bestScore ?? 0)/\(summary.size) · \(summary.attemptCount) attempt\(summary.attemptCount == 1 ? "" : "s")")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(AppFont.geist(12))
+                    .foregroundStyle(theme.colors.mutedForeground)
             } else {
                 Text("Not attempted")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(AppFont.geist(12))
+                    .foregroundStyle(theme.colors.mutedForeground)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 4)
     }
 }
 

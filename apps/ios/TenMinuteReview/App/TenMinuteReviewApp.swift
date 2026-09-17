@@ -8,6 +8,8 @@ struct TenMinuteReviewApp: App {
         WindowGroup {
             RootView()
                 .environment(environment)
+                .environment(environment.theme)
+                .tint(environment.theme.colors.primary)
         }
     }
 }

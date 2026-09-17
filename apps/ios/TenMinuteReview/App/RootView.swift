@@ -22,6 +22,7 @@ struct RootView: View {
 
 struct MainTabView: View {
     @Environment(AppEnvironment.self) private var environment
+    @Environment(ThemeStore.self) private var theme
 
     var body: some View {
         TabView {
@@ -30,5 +31,7 @@ struct MainTabView: View {
             AccountView()
                 .tabItem { Label("Account", systemImage: "person.crop.circle") }
         }
+        .toolbarBackground(theme.colors.background, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
     }
 }

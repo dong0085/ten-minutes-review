@@ -1,33 +1,36 @@
 import SwiftUI
 
 struct BankCountsView: View {
+    @Environment(ThemeStore.self) private var theme
     let bank: BankSummary
 
     var body: some View {
         if bank.total == 0 {
             Text("The bank fills up as notes are processed.")
-                .foregroundStyle(.secondary)
+                .font(AppFont.geist(13))
+                .foregroundStyle(theme.colors.mutedForeground)
         } else {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 10) {
                 Text("\(bank.total) points total")
-                    .font(.subheadline.weight(.medium))
+                    .font(AppFont.geist(14, .medium))
+                    .foregroundStyle(theme.colors.foreground)
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         ForEach(bank.orderedCounts, id: \.label) { entry in
                             HStack(spacing: 4) {
                                 Text(entry.label.capitalized)
+                                    .font(AppFont.geist(12))
                                 Text("\(entry.count)")
-                                    .font(.caption.weight(.semibold))
+                                    .font(AppFont.geist(12, .semibold))
                             }
-                            .font(.caption)
+                            .foregroundStyle(theme.colors.secondaryForeground)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 5)
-                            .background(.tint.opacity(0.1), in: Capsule())
+                            .background(theme.colors.secondary, in: Capsule())
                         }
                     }
                 }
             }
-            .padding(.vertical, 4)
         }
     }
 }

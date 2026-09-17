@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ResultView: View {
+    @Environment(ThemeStore.self) private var theme
     let outcome: SubmitOutcome
     let quiz: Quiz
 
@@ -9,8 +10,8 @@ struct ResultView: View {
             VStack(spacing: 20) {
                 scoreRing
                 Text(verdict)
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
+                    .font(AppFont.geist(14))
+                    .foregroundStyle(theme.colors.mutedForeground)
 
                 ForEach(outcome.results, id: \.questionId) { result in
                     ResultRowView(
@@ -21,6 +22,7 @@ struct ResultView: View {
             }
             .padding()
         }
+        .background(theme.colors.background.ignoresSafeArea())
         .navigationTitle("Results")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -31,17 +33,18 @@ struct ResultView: View {
             : 0
         return ZStack {
             Circle()
-                .stroke(Color.secondary.opacity(0.15), lineWidth: 12)
+                .stroke(theme.colors.border.opacity(0.5), lineWidth: 12)
             Circle()
                 .trim(from: 0, to: ratio)
-                .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 12, lineCap: .round))
+                .stroke(theme.colors.primary, style: StrokeStyle(lineWidth: 12, lineCap: .round))
                 .rotationEffect(.degrees(-90))
             VStack(spacing: 2) {
                 Text("\(outcome.correctCount)/\(outcome.questionCount)")
-                    .font(.system(.largeTitle, design: .rounded).bold())
+                    .font(AppFont.editorial(34, bold: true))
+                    .foregroundStyle(theme.colors.foreground)
                 Text("correct")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(AppFont.geist(12))
+                    .foregroundStyle(theme.colors.mutedForeground)
             }
         }
         .frame(width: 140, height: 140)
@@ -60,6 +63,7 @@ struct ResultView: View {
 }
 
 struct ResultRowView: View {
+    @Environment(ThemeStore.self) private var theme
     let result: QuestionResult
     let question: QuizQuestion?
 
@@ -67,25 +71,26 @@ struct ResultRowView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top, spacing: 10) {
                 Image(systemName: result.isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
-                    .foregroundStyle(result.isCorrect ? .green : .red)
+                    .foregroundStyle(result.isCorrect ? theme.colors.success : theme.colors.destructive)
                 VStack(alignment: .leading, spacing: 6) {
                     Text(question?.stem ?? "")
-                        .font(.subheadline.weight(.medium))
+                        .font(AppFont.geist(15, .semibold))
+                        .foregroundStyle(theme.colors.foreground)
 
                     if !result.isCorrect {
                         Text("Correct answer: \(result.correctAnswer.describe(options: question?.options))")
-                            .font(.subheadline)
-                            .foregroundStyle(.green)
+                            .font(AppFont.geist(14))
+                            .foregroundStyle(theme.colors.success)
                     }
 
                     Text(result.explanation)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .font(AppFont.geist(13))
+                        .foregroundStyle(theme.colors.mutedForeground)
                 }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
-        .background(.secondary.opacity(0.06), in: RoundedRectangle(cornerRadius: 12))
+        .editorialSurface()
     }
 }

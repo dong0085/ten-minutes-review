@@ -3,6 +3,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct AddNotesView: View {
+    @Environment(ThemeStore.self) private var theme
     @Environment(\.dismiss) private var dismiss
     let model: ClassroomDetailModel
 
@@ -81,6 +82,7 @@ struct AddNotesView: View {
             }
             .navigationTitle("Add Notes")
             .navigationBarTitleDisplayMode(.inline)
+            .paperScreen()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
