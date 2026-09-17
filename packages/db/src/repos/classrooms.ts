@@ -98,7 +98,7 @@ export async function setClassroomDailyReviewsPaused(
           : {
               pausedAt: null,
               dailyResumedAt: now,
-              activeUntil: sql`GREATEST(${classrooms.activeUntil}, ${encodedNow} + (${classrooms.autoStopDays} * interval '1 day'))`,
+              activeUntil: sql`GREATEST(${classrooms.activeUntil}, ${now.toISOString()}::timestamptz + (${classrooms.autoStopDays} * interval '1 day'))`,
               updatedAt: now,
             },
       )
