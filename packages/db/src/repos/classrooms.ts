@@ -162,7 +162,7 @@ export async function extendClassroomActivity(
   await db
     .update(classrooms)
     .set({
-      activeUntil: sql`GREATEST(${classrooms.activeUntil}, now()) + (${days} * interval '1 day')`,
+      activeUntil: sql`GREATEST(${classrooms.activeUntil}, now() + (${days} * interval '1 day'))`,
       updatedAt: new Date(),
     })
     .where(and(...conditions));
@@ -172,7 +172,7 @@ export async function extendClassroomActivityForLogin(db: Db, userId: string) {
   await db
     .update(classrooms)
     .set({
-      activeUntil: sql`GREATEST(${classrooms.activeUntil}, now()) + (${classrooms.autoStopDays} * interval '1 day')`,
+      activeUntil: sql`GREATEST(${classrooms.activeUntil}, now() + (${classrooms.autoStopDays} * interval '1 day'))`,
       updatedAt: new Date(),
     })
     .where(and(eq(classrooms.userId, userId), isNull(classrooms.archivedAt)));
