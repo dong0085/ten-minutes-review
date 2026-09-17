@@ -1,4 +1,5 @@
 export * from "./users";
+export * from "./api_tokens";
 export * from "./classrooms";
 export * from "./bank";
 export * from "./quizzes";

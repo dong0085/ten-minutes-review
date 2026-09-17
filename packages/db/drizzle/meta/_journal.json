@@ -57,6 +57,13 @@
       "when": 1789609196691,
       "tag": "0007_loose_gorgon",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789659436069,
+      "tag": "0008_loving_blindfold",
+      "breakpoints": true
     }
   ]
 }

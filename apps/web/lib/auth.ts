@@ -1,7 +1,6 @@
 import NextAuth, { type DefaultSession, type NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
-import { verify } from "@node-rs/argon2";
 import { cookies } from "next/headers";
 import {
   createUser,
@@ -13,6 +12,7 @@ import {
   upsertEmailPreferences,
 } from "@tmr/db";
 import { env } from "./env";
+import { verifyCredentials } from "./credentials";
 import { getDb } from "./db";
 import { resolveInviteCode } from "./invite";
 import { GUEST_COOKIE_NAME } from "./session";
@@ -41,12 +41,8 @@ providers.push(
       if (!email || !password) {
         return null;
       }
-      const user = await getUserByEmail(getDb(), email);
-      if (!user?.passwordHash) {
-        return null;
-      }
-      const valid = await verify(user.passwordHash, password).catch(() => false);
-      if (!valid) {
+      const user = await verifyCredentials(email, password);
+      if (!user) {
         return null;
       }
       return { id: user.id, email: user.email, name: user.username ?? user.email };
