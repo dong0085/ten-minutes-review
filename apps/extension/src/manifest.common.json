@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Ten Minute Review",
+  "version": "0.1.0",
+  "description": "Save selected text from any web page as a study note.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Ten Minute Review"
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": ["contextMenus", "storage", "notifications", "activeTab"],
+  "host_permissions": ["http://localhost:3000/*"],
+  "optional_host_permissions": ["http://*/*", "https://*/*"]
+}

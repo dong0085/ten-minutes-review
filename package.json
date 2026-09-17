@@ -14,6 +14,7 @@
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "build": "pnpm --filter web build",
+    "build:extension": "pnpm --filter extension build",
     "db:generate": "pnpm --filter @tmr/db db:generate",
     "db:migrate": "pnpm --filter @tmr/db db:migrate"
   }
