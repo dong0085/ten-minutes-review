@@ -39,6 +39,7 @@ describe("email templates", () => {
         {
           classroomName: "Français avec Marie",
           quizUrl: "https://example.com/quiz/1",
+          includeAnswers: false,
           questions: [
             {
               position: 0,
@@ -46,6 +47,8 @@ describe("email templates", () => {
               type: "mcq",
               stem: "« l'étendoir » veut dire :",
               options: ["the clothes line", "the rent"],
+              answer: { index: 1 },
+              explanation: "Un étendoir sert à faire sécher le linge.",
             },
             {
               position: 1,
@@ -53,6 +56,8 @@ describe("email templates", () => {
               type: "true_false",
               stem: "Cette phrase est correcte.",
               options: null,
+              answer: { value: false },
+              explanation: "L'accord du participe est nécessaire ici.",
             },
           ],
         },
@@ -75,6 +80,81 @@ describe("email templates", () => {
     expect(message.text).toContain("A the clothes line");
     expect(message.html).not.toContain("correct answer");
     expect(message.text).not.toContain("correct answer");
+    expect(message.html).not.toContain("Réponses");
+    expect(message.text).not.toContain("Réponses");
+    expect(message.html).not.toContain("sécher le linge");
+    expect(message.text).not.toContain("sécher le linge");
+    expect(message.html).not.toContain("accord du participe");
+    expect(message.text).not.toContain("accord du participe");
+  });
+
+  it("renders the answer key when includeAnswers is on", async () => {
+    const message = await renderDailyQuizEmail({
+      locale: "en",
+      username: "Alex",
+      unsubscribeUrl: "https://example.com/unsubscribe",
+      entries: [
+        {
+          classroomName: "French with Marie",
+          quizUrl: "https://example.com/quiz/1",
+          includeAnswers: true,
+          questions: [
+            {
+              position: 0,
+              category: "vocabulary",
+              type: "mcq",
+              stem: "What does « l'étendoir » mean?",
+              options: ["The clothes line", "The rent"],
+              answer: { index: 0 },
+              explanation: "The rack you hang laundry on to dry.",
+            },
+            {
+              position: 1,
+              category: "grammar",
+              type: "true_false",
+              stem: "« Il faut partir » expresses necessity.",
+              options: null,
+              answer: { value: true },
+            },
+            {
+              position: 2,
+              category: "phrase",
+              type: "fill_blank",
+              stem: "Complete: Me gustaría ___ una mesa.",
+              options: null,
+              answer: { blanks: ["reservar"] },
+            },
+          ],
+        },
+        {
+          classroomName: "Spanish conversation",
+          quizUrl: "https://example.com/quiz/2",
+          includeAnswers: false,
+          questions: [
+            {
+              position: 0,
+              category: "phrase",
+              type: "fill_blank",
+              stem: "Complete: Vamos a ___ un café.",
+              options: null,
+              answer: { blanks: ["tomar"] },
+              explanation: "Tomar is the everyday verb for having a drink.",
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(message.text.match(/Answers/g)).toHaveLength(1);
+    expect(message.text).toContain("A. The clothes line");
+    expect(message.text).toContain("02 · True");
+    expect(message.text).toContain("03 · reservar");
+    expect(message.html).toContain("The rack you hang laundry on to dry.");
+    expect(message.text).toContain("The rack you hang laundry on to dry.");
+    expect(message.html).not.toContain("tomar");
+    expect(message.text).not.toContain("tomar");
+    expect(message.html).not.toContain("Tomar is the everyday verb");
+    expect(message.text).not.toContain("Tomar is the everyday verb");
   });
 
   it("renders a multi-classroom English subject", async () => {
@@ -86,11 +166,13 @@ describe("email templates", () => {
         {
           classroomName: "French",
           quizUrl: "https://example.com/quiz/1",
+          includeAnswers: false,
           questions: [],
         },
         {
           classroomName: "Spanish",
           quizUrl: "https://example.com/quiz/2",
+          includeAnswers: false,
           questions: [],
         },
       ],

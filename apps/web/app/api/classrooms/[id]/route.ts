@@ -15,6 +15,7 @@ const updateClassroomSchema = z.object({
   targetLanguage: z.string().trim().min(2).max(10).optional(),
   nativeLanguage: z.string().trim().min(2).max(10).optional(),
   autoStopDays: z.coerce.number().int().min(1).max(90).optional(),
+  includeAnswersInEmail: z.boolean().optional(),
   paused: z.boolean().optional(),
 });
 

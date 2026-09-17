@@ -89,6 +89,9 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     resume: "Reprendre les révisions quotidiennes",
     pausing: "Mise en pause…",
     resuming: "Reprise…",
+    includeAnswers: "Inclure les réponses dans les e-mails quotidiens",
+    includeAnswersHelp:
+      "Ajoute une clé de réponses avec explications à la fin du quiz de chaque classe dans l'e-mail.",
     error: "Impossible de modifier les révisions quotidiennes. Réessaie.",
   },
   DangerZone: {

@@ -1,5 +1,5 @@
 import { dailySendAt, toUiLocale } from "@tmr/core";
-import type { Category, QuestionType, QuizKind } from "@tmr/core";
+import type { Category, QuestionAnswer, QuestionType, QuizKind } from "@tmr/core";
 import { createUnsubscribeToken } from "@tmr/core/node";
 import {
   getClassroom,
@@ -25,11 +25,14 @@ export type EmailQuestion = {
   type: QuestionType;
   stem: string;
   options: string[] | null;
+  answer?: QuestionAnswer | null;
+  explanation?: string | null;
 };
 
 export type EmailQuizData = {
   classroomName: string;
   quiz: { id: string; classroomId: string };
+  includeAnswers?: boolean;
   questions: EmailQuestion[];
 };
 
@@ -37,17 +40,24 @@ export function buildEmailEntries(
   appUrl: string,
   quizzes: EmailQuizData[],
 ): DailyQuizEmailEntry[] {
-  return quizzes.map((entry) => ({
-    classroomName: entry.classroomName,
-    quizUrl: `${appUrl}/classrooms/${entry.quiz.classroomId}/quiz/${entry.quiz.id}`,
-    questions: entry.questions.map((question) => ({
-      position: question.position,
-      category: question.category,
-      type: question.type,
-      stem: question.stem,
-      options: question.options,
-    })),
-  }));
+  return quizzes.map((entry) => {
+    const includeAnswers = entry.includeAnswers ?? false;
+    return {
+      classroomName: entry.classroomName,
+      quizUrl: `${appUrl}/classrooms/${entry.quiz.classroomId}/quiz/${entry.quiz.id}`,
+      includeAnswers,
+      questions: entry.questions.map((question) => ({
+        position: question.position,
+        category: question.category,
+        type: question.type,
+        stem: question.stem,
+        options: question.options,
+        ...(includeAnswers
+          ? { answer: question.answer ?? null, explanation: question.explanation ?? null }
+          : {}),
+      })),
+    };
+  });
 }
 
 function requireString(payload: Record<string, unknown>, key: string): string {
@@ -106,12 +116,15 @@ export async function handleSendEmailJob(
     quizzes.push({
       classroomName: classroom.name,
       quiz: { id: full.quiz.id, classroomId: full.quiz.classroomId },
+      includeAnswers: classroom.includeAnswersInEmail,
       questions: full.questions.map((question) => ({
         position: question.position,
         category: question.category,
         type: question.type,
         stem: question.stem,
         options: question.options,
+        answer: question.answer,
+        explanation: question.explanation,
       })),
     });
   } else {
@@ -136,12 +149,15 @@ export async function handleSendEmailJob(
       quizzes.push({
         classroomName: row.classroomName,
         quiz: { id: full.quiz.id, classroomId: full.quiz.classroomId },
+        includeAnswers: row.includeAnswers,
         questions: full.questions.map((question) => ({
           position: question.position,
           category: question.category,
           type: question.type,
           stem: question.stem,
           options: question.options,
+          answer: question.answer,
+          explanation: question.explanation,
         })),
       });
     }

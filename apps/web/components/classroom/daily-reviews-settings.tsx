@@ -6,19 +6,25 @@ import { useTranslations } from "next-intl";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export function DailyReviewsSettings({
   classroomId,
   initiallyPaused,
+  initiallyIncludeAnswers,
 }: {
   classroomId: string;
   initiallyPaused: boolean;
+  initiallyIncludeAnswers: boolean;
 }) {
   const t = useTranslations("Classroom.DailyReviews");
   const router = useRouter();
   const [paused, setPaused] = useState(initiallyPaused);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [includeAnswers, setIncludeAnswers] = useState(initiallyIncludeAnswers);
+  const [answersPending, setAnswersPending] = useState(false);
+  const [answersError, setAnswersError] = useState<string | null>(null);
 
   async function togglePaused() {
     setPending(true);
@@ -41,6 +47,33 @@ export function DailyReviewsSettings({
       setError(t("error"));
     } finally {
       setPending(false);
+    }
+  }
+
+  async function toggleIncludeAnswers(checked: boolean) {
+    setAnswersPending(true);
+    setAnswersError(null);
+    try {
+      const response = await fetch(`/api/classrooms/${classroomId}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ includeAnswersInEmail: checked }),
+      });
+      if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as { error?: string } | null;
+        setIncludeAnswers(!checked);
+        setAnswersError(body?.error ?? t("error"));
+        return;
+      }
+      const body = (await response.json()) as {
+        classroom: { includeAnswersInEmail: boolean };
+      };
+      setIncludeAnswers(body.classroom.includeAnswersInEmail);
+    } catch {
+      setIncludeAnswers(!checked);
+      setAnswersError(t("error"));
+    } finally {
+      setAnswersPending(false);
     }
   }
 
@@ -74,6 +107,23 @@ export function DailyReviewsSettings({
               ? t("resume")
               : t("pause")}
         </Button>
+        <Separator />
+        <label className="flex items-center gap-3 text-sm">
+          <input
+            type="checkbox"
+            checked={includeAnswers}
+            disabled={answersPending}
+            onChange={(event) => toggleIncludeAnswers(event.target.checked)}
+            className="h-4 w-4 accent-primary"
+          />
+          <span>{t("includeAnswers")}</span>
+        </label>
+        <p className="text-sm leading-6 text-muted-foreground">{t("includeAnswersHelp")}</p>
+        {answersError ? (
+          <Alert variant="destructive">
+            <AlertDescription>{answersError}</AlertDescription>
+          </Alert>
+        ) : null}
       </CardContent>
     </Card>
   );

@@ -84,6 +84,9 @@ export const classroom = {
     resume: "Resume daily reviews",
     pausing: "Pausing…",
     resuming: "Resuming…",
+    includeAnswers: "Include answers in daily emails",
+    includeAnswersHelp:
+      "Adds an answer key with explanations at the end of each classroom's quiz email.",
     error: "Could not update daily reviews. Please try again.",
   },
   DangerZone: {

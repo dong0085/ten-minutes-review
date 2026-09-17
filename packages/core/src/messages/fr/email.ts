@@ -20,6 +20,7 @@ export const email: MessageShape<(typeof en)["Email"]> = {
   dailyIntroMany:
     "Voici le menu des quiz du jour. Tu peux répondre de tête ici même, ou ouvrir le site pour le score et les explications.",
   answerOnWeb: "Répondre sur le site",
+  answersHeading: "Réponses",
   unsubscribeWhy: "Tu reçois cet e-mail parce que les quiz quotidiens sont activés.",
   unsubscribeAction: "Se désinscrire",
 };
