@@ -1,5 +1,14 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { VerifyView } from "@/components/auth/verify-view";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Auth");
+  return {
+    title: t("VerifyPage.title"),
+    robots: { index: false },
+  };
+}
 
 export default async function VerifyPage() {
   const t = await getTranslations("Auth.VerifyPage");

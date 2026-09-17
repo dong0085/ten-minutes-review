@@ -21,6 +21,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ThemeProvider } from "@/components/theme-provider";
 import { BrandMark } from "@/components/brand-mark";
 import { signOut } from "@/lib/auth";
+import { env } from "@/lib/env";
 import { getCurrentUserOrGuest } from "@/lib/session";
 import { getTheme } from "@/lib/theme-server";
 import { Geist, Source_Serif_4 } from "next/font/google";
@@ -37,8 +38,13 @@ const sourceSerif = Source_Serif_4({
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Layout");
   return {
-    title: t("title"),
+    metadataBase: new URL(env.appUrl),
+    title: {
+      default: t("title"),
+      template: `%s · ${t("title")}`,
+    },
     description: t("description"),
+    twitter: { card: "summary_large_image" },
   };
 }
 

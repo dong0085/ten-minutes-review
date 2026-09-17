@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ArrowRight, BookOpen, Plus, Sparkles } from "lucide-react";
@@ -7,6 +8,10 @@ import { ClassroomCard } from "@/components/classroom/classroom-card";
 import { Button } from "@/components/ui/button";
 import { getDb } from "@/lib/db";
 import { getCurrentUserOrGuest } from "@/lib/session";
+
+export const metadata: Metadata = {
+  robots: { index: false },
+};
 
 function localDate(timezone: string): string {
   try {

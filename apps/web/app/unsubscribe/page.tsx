@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getUserById, upsertEmailPreferences } from "@tmr/db";
@@ -5,6 +6,10 @@ import { verifyUnsubscribeToken } from "@tmr/core/node";
 import { Button } from "@/components/ui/button";
 import { getDb } from "@/lib/db";
 import { env } from "@/lib/env";
+
+export const metadata: Metadata = {
+  robots: { index: false },
+};
 
 export default async function UnsubscribePage({
   searchParams,

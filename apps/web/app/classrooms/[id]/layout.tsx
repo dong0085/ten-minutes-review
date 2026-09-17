@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -10,6 +11,10 @@ import { ClassroomTabs } from "@/components/classroom/classroom-tabs";
 import { getDb } from "@/lib/db";
 import { languageLabel } from "@/lib/language-label";
 import { requireUser } from "@/lib/session";
+
+export const metadata: Metadata = {
+  robots: { index: false },
+};
 
 export default async function ClassroomLayout({
   children,

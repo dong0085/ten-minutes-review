@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import {
@@ -15,12 +16,38 @@ import {
 import { CATEGORIES } from "@tmr/core";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
+import { env } from "@/lib/env";
 import { getCurrentUserOrGuest } from "@/lib/session";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Seo");
+  return {
+    title: { absolute: t("homeTitle") },
+    description: t("homeDescription"),
+    alternates: { canonical: "/" },
+    openGraph: {
+      title: t("homeTitle"),
+      description: t("homeDescription"),
+      url: "/",
+      type: "website",
+    },
+  };
+}
 
 export default async function HomePage() {
   const current = await getCurrentUserOrGuest();
   const user = current?.user ?? null;
   const t = await getTranslations("Home");
+  const seo = await getTranslations("Seo");
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Ten Minutes Review",
+    description: seo("homeDescription"),
+    url: env.appUrl,
+    applicationCategory: "EducationalApplication",
+    operatingSystem: "Web",
+  };
   const categoryT = await getTranslations("Category");
   const steps = [
     { icon: FileText, number: "01", title: t("steps.addTitle"), copy: t("steps.addCopy") },
@@ -47,6 +74,10 @@ export default async function HomePage() {
 
   return (
     <div className="pb-12 sm:pb-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <section className="relative grid min-h-[34rem] items-center gap-12 py-8 lg:grid-cols-[1.02fr_0.98fr] lg:gap-16 lg:py-14">
         <Reveal className="relative z-10 max-w-2xl">
           <p className="eyebrow">{t("eyebrow")}</p>

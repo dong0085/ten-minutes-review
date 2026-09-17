@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { isLanguageCode } from "@tmr/core";
 import { NewClassroomForm } from "@/components/classroom/new-classroom-form";
 import { getCurrentUserOrGuest } from "@/lib/session";
+
+export const metadata: Metadata = {
+  robots: { index: false },
+};
 
 export default async function NewClassroomPage() {
   const current = await getCurrentUserOrGuest();

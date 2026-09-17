@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import {
@@ -31,6 +32,10 @@ import { env } from "@/lib/env";
 import { languageLabel } from "@/lib/language-label";
 import { formatResetTime } from "@/lib/send-time";
 import { requireUser } from "@/lib/session";
+
+export const metadata: Metadata = {
+  robots: { index: false },
+};
 
 export default async function AccountPage() {
   const user = await requireUser();

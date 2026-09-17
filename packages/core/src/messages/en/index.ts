@@ -8,12 +8,14 @@ import { common } from "./common";
 import { home } from "./home";
 import { layout } from "./layout";
 import { quiz } from "./quiz";
+import { seo } from "./seo";
 import { upload } from "./upload";
 
 export const en = {
   Common: common,
   Layout: layout,
   Home: home,
+  Seo: seo,
   Auth: auth,
   Account: account,
   Classroom: classroom,

@@ -1,5 +1,14 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ForgotForm } from "@/components/auth/forgot-form";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Auth");
+  return {
+    title: t("ForgotPage.title"),
+    robots: { index: false },
+  };
+}
 
 export default async function ForgotPage() {
   const t = await getTranslations("Auth.ForgotPage");
