@@ -22,6 +22,43 @@ export async function insertKnowledgePoints(db: Db, rows: NewKnowledgePoint[]) {
   return db.insert(knowledgePoints).values(rows).returning();
 }
 
+export async function setKnowledgePointRetired(
+  db: Db,
+  userId: string,
+  knowledgePointId: string,
+  retired: boolean = true,
+) {
+  const [point] = await db
+    .select({
+      id: knowledgePoints.id,
+      classroomId: knowledgePoints.classroomId,
+      retiredAt: knowledgePoints.retiredAt,
+      targetText: knowledgePoints.targetText,
+    })
+    .from(knowledgePoints)
+    .innerJoin(classrooms, eq(knowledgePoints.classroomId, classrooms.id))
+    .where(and(eq(knowledgePoints.id, knowledgePointId), eq(classrooms.userId, userId)))
+    .limit(1);
+
+  if (!point) {
+    return null;
+  }
+
+  const retiredAt = retired ? new Date() : null;
+  const [updated] = await db
+    .update(knowledgePoints)
+    .set({ retiredAt })
+    .where(eq(knowledgePoints.id, knowledgePointId))
+    .returning({
+      id: knowledgePoints.id,
+      classroomId: knowledgePoints.classroomId,
+      retiredAt: knowledgePoints.retiredAt,
+      targetText: knowledgePoints.targetText,
+    });
+
+  return updated ?? null;
+}
+
 export async function listKnowledgePointsForUser(
   db: Db,
   userId: string,

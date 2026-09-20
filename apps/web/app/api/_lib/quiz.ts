@@ -18,6 +18,8 @@ export type QuizQuestionPayload = {
   stem: string;
   options: string[] | null;
   imageUrl: string | null;
+  knowledgePointId: string;
+  isKnowledgePointRetired: boolean;
 };
 
 export type QuizPayload = {
@@ -74,6 +76,21 @@ export async function buildQuizPayload(
     }
   }
 
+  const pointIds = Array.from(new Set(row.questions.map((q) => q.knowledgePointId)));
+  const pointRows =
+    pointIds.length > 0
+      ? await db
+          .select({
+            id: knowledgePoints.id,
+            retiredAt: knowledgePoints.retiredAt,
+          })
+          .from(knowledgePoints)
+          .where(inArray(knowledgePoints.id, pointIds))
+      : [];
+  const retiredPointIds = new Set(
+    pointRows.filter((p) => p.retiredAt !== null).map((p) => p.id),
+  );
+
   const questionPayloads = await Promise.all(
     row.questions.map(async (question): Promise<QuizQuestionPayload> => {
       const storageKey = storageKeyByQuestion.get(question.id);
@@ -89,6 +106,8 @@ export async function buildQuizPayload(
         stem: question.stem,
         options: question.options ?? null,
         imageUrl,
+        knowledgePointId: question.knowledgePointId,
+        isKnowledgePointRetired: retiredPointIds.has(question.knowledgePointId),
       };
     }),
   );

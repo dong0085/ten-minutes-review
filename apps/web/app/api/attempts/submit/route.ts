@@ -1,8 +1,13 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { gradeAttempt } from "@tmr/core";
 import type { QuestionResponse } from "@tmr/core";
-import { attempts, createAttemptWithAnswers, getQuizWithQuestionsForUser } from "@tmr/db";
+import {
+  attempts,
+  createAttemptWithAnswers,
+  getQuizWithQuestionsForUser,
+  knowledgePoints,
+} from "@tmr/db";
 import { handleRouteError, jsonError, jsonOk, readJson } from "@/lib/api";
 import { getDb } from "@/lib/db";
 import { env } from "@/lib/env";
@@ -88,12 +93,29 @@ export async function POST(request: Request) {
       return jsonError("Could not record the attempt", 500);
     }
 
+    const pointIds = Array.from(new Set(row.questions.map((q) => q.knowledgePointId)));
+    const pointRows =
+      pointIds.length > 0
+        ? await db
+            .select({
+              id: knowledgePoints.id,
+              retiredAt: knowledgePoints.retiredAt,
+            })
+            .from(knowledgePoints)
+            .where(inArray(knowledgePoints.id, pointIds))
+        : [];
+    const retiredPointIds = new Set(
+      pointRows.filter((p) => p.retiredAt !== null).map((p) => p.id),
+    );
+
     return jsonOk({
       attemptId: attempt.id,
       correctCount: graded.correctCount,
       questionCount: graded.questionCount,
       results: row.questions.map((question) => ({
         questionId: question.id,
+        knowledgePointId: question.knowledgePointId,
+        isKnowledgePointRetired: retiredPointIds.has(question.knowledgePointId),
         isCorrect: isCorrectById.get(question.id) ?? false,
         correctAnswer: question.answer,
         explanation: question.explanation,

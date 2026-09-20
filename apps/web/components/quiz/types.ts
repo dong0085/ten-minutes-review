@@ -8,6 +8,8 @@ export type QuizQuestion = {
   stem: string;
   options: string[] | null;
   imageUrl?: string | null;
+  knowledgePointId?: string;
+  isKnowledgePointRetired?: boolean;
 };
 
 export type LocalResponse = {

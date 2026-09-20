@@ -19,4 +19,5 @@ enum Endpoints {
     static func attempts(quizID: String) -> String { "/api/quizzes/\(quizID)/attempts" }
     static let submitAttempt = "/api/attempts/submit"
     static func attempt(_ id: String) -> String { "/api/attempts/\(id)" }
+    static func omitKnowledgePoint(_ id: String) -> String { "/api/knowledge-points/\(id)/omit" }
 }

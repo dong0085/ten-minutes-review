@@ -30,6 +30,7 @@ import {
   type QuizOptionOrders,
 } from "@/lib/quiz-draft";
 import { QuestionReviewCard, type AnswerShape } from "./question-review";
+import { OmitKnowledgePointButton } from "./omit-knowledge-point-button";
 import type { LocalResponse, QuizQuestion } from "./types";
 
 type SubmitResult = {
@@ -38,6 +39,8 @@ type SubmitResult = {
   questionCount: number;
   results: {
     questionId: string;
+    knowledgePointId?: string;
+    isKnowledgePointRetired?: boolean;
     isCorrect: boolean;
     correctAnswer: AnswerShape;
     explanation: string;
@@ -138,6 +141,7 @@ export function QuizRunner({
   );
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SubmitResult | null>(null);
+  const [omittedPointIds, setOmittedPointIds] = useState<Set<string>>(new Set());
   const startedAt = useRef(0);
   const questionStartedAt = useRef(0);
   const durations = useRef<Record<string, number>>({});
@@ -146,6 +150,18 @@ export function QuizRunner({
   const optionRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const focusFirstBlank = useRef(false);
 
+  const handleToggleOmit = useCallback((pointId: string, omitted: boolean) => {
+    setOmittedPointIds((prev) => {
+      const next = new Set(prev);
+      if (omitted) {
+        next.add(pointId);
+      } else {
+        next.delete(pointId);
+      }
+      return next;
+    });
+  }, []);
+
   const startAttempt = useCallback(async () => {
     setPhase("loading");
     setError(null);
@@ -153,6 +169,7 @@ export function QuizRunner({
     setResponses({});
     setOptionOrders({});
     setQuestions([]);
+    setOmittedPointIds(new Set());
     setCurrent(0);
     durations.current = {};
     try {
@@ -169,6 +186,13 @@ export function QuizRunner({
           draft.optionOrders,
           loadQuizOptionOrders(userId, quizId),
         );
+        const initialOmitted = new Set<string>();
+        for (const question of restoredQuestions) {
+          if (question.knowledgePointId && question.isKnowledgePointRetired) {
+            initialOmitted.add(question.knowledgePointId);
+          }
+        }
+        setOmittedPointIds(initialOmitted);
         setAttemptToken(draft.attemptToken);
         setQuestions(restoredQuestions);
         setOptionOrders(restoredOptionOrders);
@@ -191,6 +215,13 @@ export function QuizRunner({
         {},
         loadQuizOptionOrders(userId, quizId),
       );
+      const initialOmitted = new Set<string>();
+      for (const question of data.questions) {
+        if (question.knowledgePointId && question.isKnowledgePointRetired) {
+          initialOmitted.add(question.knowledgePointId);
+        }
+      }
+      setOmittedPointIds(initialOmitted);
       setAttemptToken(data.attemptToken);
       setQuestions(data.questions);
       setOptionOrders(nextOptionOrders);
@@ -465,14 +496,23 @@ export function QuizRunner({
           if (!item) {
             return null;
           }
+          const pointId = question.knowledgePointId ?? item.knowledgePointId;
+          const isOmitted = pointId
+            ? omittedPointIds.has(pointId)
+            : (item.isKnowledgePointRetired ?? false);
           return (
             <QuestionReviewCard
               key={question.id}
-              question={question}
+              question={{
+                ...question,
+                knowledgePointId: pointId,
+                isKnowledgePointRetired: isOmitted,
+              }}
               response={responses[question.id]}
               correctAnswer={item.correctAnswer}
               isCorrect={item.isCorrect}
               explanation={item.explanation}
+              onOmitToggle={handleToggleOmit}
             />
           );
         })}
@@ -518,7 +558,18 @@ export function QuizRunner({
         <div aria-hidden="true" className="absolute inset-y-6 left-0 w-px bg-primary/25" />
         <CardContent className="space-y-6 py-2 sm:px-8 sm:py-5">
           <div className="flex items-center justify-between gap-2">
-            <Badge variant="secondary">{categoryLabel(currentQuestion.category)}</Badge>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="secondary">{categoryLabel(currentQuestion.category)}</Badge>
+              {currentQuestion.knowledgePointId ? (
+                <OmitKnowledgePointButton
+                  knowledgePointId={currentQuestion.knowledgePointId}
+                  isOmitted={omittedPointIds.has(currentQuestion.knowledgePointId)}
+                  onToggle={(omitted) =>
+                    handleToggleOmit(currentQuestion.knowledgePointId!, omitted)
+                  }
+                />
+              ) : null}
+            </div>
             <span className="font-heading text-sm italic text-muted-foreground/60">
               {String(current + 1).padStart(2, "0")}
             </span>

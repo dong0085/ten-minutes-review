@@ -7,6 +7,7 @@ import type {
   QuizKind,
 } from "@tmr/core";
 import type { Db } from "../client";
+import { knowledgePoints } from "../schema/bank";
 import { classrooms } from "../schema/classrooms";
 import {
   attempts,
@@ -316,6 +317,8 @@ export async function getAttemptForUser(db: Db, userId: string, attemptId: strin
 
 export type ReviewAnswer = {
   questionId: string;
+  knowledgePointId: string;
+  isKnowledgePointRetired: boolean;
   response: QuestionResponse | null;
   isCorrect: boolean;
   durationMs: number | null;
@@ -336,6 +339,8 @@ export async function getAttemptReview(db: Db, userId: string, attemptId: string
   const rows = await db
     .select({
       questionId: questions.id,
+      knowledgePointId: questions.knowledgePointId,
+      isKnowledgePointRetired: sql<boolean>`${knowledgePoints.retiredAt} IS NOT NULL`,
       response: attemptAnswers.response,
       isCorrect: attemptAnswers.isCorrect,
       durationMs: attemptAnswers.durationMs,
@@ -349,6 +354,7 @@ export async function getAttemptReview(db: Db, userId: string, attemptId: string
     })
     .from(attemptAnswers)
     .innerJoin(questions, eq(attemptAnswers.questionId, questions.id))
+    .leftJoin(knowledgePoints, eq(questions.knowledgePointId, knowledgePoints.id))
     .where(eq(attemptAnswers.attemptId, attemptId))
     .orderBy(asc(questions.position));
   return { attempt, answers: rows as ReviewAnswer[] };

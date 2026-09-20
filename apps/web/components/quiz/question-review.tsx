@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { OmitKnowledgePointButton } from "./omit-knowledge-point-button";
 
 export type AnswerShape =
   | {
@@ -23,6 +24,8 @@ export type ReviewCardQuestion = {
   stem: string;
   options: string[] | null;
   imageUrl?: string | null;
+  knowledgePointId?: string;
+  isKnowledgePointRetired?: boolean;
 };
 
 export function QuestionReviewCard({
@@ -31,12 +34,14 @@ export function QuestionReviewCard({
   correctAnswer,
   isCorrect,
   explanation,
+  onOmitToggle,
 }: {
   question: ReviewCardQuestion;
   response: AnswerShape;
   correctAnswer?: AnswerShape;
   isCorrect?: boolean;
   explanation?: string;
+  onOmitToggle?: (pointId: string, omitted: boolean) => void;
 }) {
   const t = useTranslations("Quiz.QuestionReview");
   const categoryT = useTranslations("Category");
@@ -89,12 +94,19 @@ export function QuestionReviewCard({
         />
       ) : null}
       <CardContent className="space-y-4 sm:px-6">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="font-heading text-sm font-semibold italic text-muted-foreground">
               {t("question", { number: question.position })}
             </span>
             <Badge variant="secondary">{categoryLabel}</Badge>
+            {question.knowledgePointId ? (
+              <OmitKnowledgePointButton
+                knowledgePointId={question.knowledgePointId}
+                isOmitted={question.isKnowledgePointRetired}
+                onToggle={(omitted) => onOmitToggle?.(question.knowledgePointId!, omitted)}
+              />
+            ) : null}
           </div>
           {isCorrect !== undefined ? (
             <Badge variant={isCorrect ? "success" : "destructive"}>

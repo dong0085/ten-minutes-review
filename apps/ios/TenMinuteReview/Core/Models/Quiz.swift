@@ -21,6 +21,8 @@ struct QuizQuestion: Codable, Identifiable, Hashable {
     let stem: String
     let options: [String]?
     let imageUrl: String?
+    let knowledgePointId: String?
+    let isKnowledgePointRetired: Bool?
 }
 
 struct Quiz: Codable, Identifiable, Hashable {

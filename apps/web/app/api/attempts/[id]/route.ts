@@ -28,6 +28,8 @@ export async function GET(_request: Request, context: RouteContext) {
       },
       answers: answers.map((answer) => ({
         questionId: answer.questionId,
+        knowledgePointId: answer.knowledgePointId,
+        isKnowledgePointRetired: answer.isKnowledgePointRetired,
         position: answer.position,
         category: answer.category,
         type: answer.type,

@@ -108,6 +108,8 @@ export default async function AttemptPage({
             type: answer.type,
             stem: answer.stem,
             options: answer.options,
+            knowledgePointId: answer.knowledgePointId,
+            isKnowledgePointRetired: answer.isKnowledgePointRetired,
           }}
           response={answer.response}
           correctAnswer={answer.answer}

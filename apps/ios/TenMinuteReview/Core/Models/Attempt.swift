@@ -8,6 +8,8 @@ struct QuestionResult: Decodable, Hashable {
     let isCorrect: Bool
     let correctAnswer: CorrectAnswer
     let explanation: String
+    let knowledgePointId: String?
+    let isKnowledgePointRetired: Bool?
 }
 
 struct SubmitOutcome: Decodable {
@@ -37,6 +39,8 @@ struct AttemptAnswer: Decodable, Hashable {
     let isCorrect: Bool
     let correctAnswer: CorrectAnswer
     let explanation: String
+    let knowledgePointId: String?
+    let isKnowledgePointRetired: Bool?
 }
 
 struct AttemptDetail: Decodable {
