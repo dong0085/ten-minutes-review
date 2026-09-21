@@ -36,5 +36,4 @@ export const env = {
   s3SecretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? "",
   s3Endpoint: process.env.S3_ENDPOINT ?? "",
   s3ForcePathStyle: process.env.S3_FORCE_PATH_STYLE === "true",
-  goatcounterUrl: process.env.GOATCOUNTER_URL ?? "",
 };

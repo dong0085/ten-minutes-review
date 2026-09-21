@@ -13,10 +13,6 @@ export const privacy = {
     title: "What we do with it",
     copy: "We use what you store to generate your quizzes and email them to you. That's all. Your data is never sold, never shared, and never used for ads.",
   },
-  analytics: {
-    title: "Analytics",
-    copy: "This site uses GoatCounter, a privacy-friendly analytics tool. It sets no cookies, does no cross-site tracking, and collects no personal data.",
-  },
   email: {
     title: "Email",
     copy: "We email you quiz deliveries and account notices like password resets and verification. Nothing else — never marketing.",

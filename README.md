@@ -71,7 +71,6 @@ Each external service sits behind a single adapter selected from the root `.env`
 | Email | `EMAIL_PROVIDER=console` | `brevo` or `resend` |
 | Image storage | `STORAGE_PROVIDER=local` | `vercel` |
 | Database | Local Postgres | Neon Postgres |
-| Analytics | off | GoatCounter (`GOATCOUNTER_URL`) |
 
 Copy `.env.example`, keep the defaults for local work, and add provider credentials only when switching an adapter to a real service.
 

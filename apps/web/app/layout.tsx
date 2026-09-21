@@ -20,7 +20,6 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ThemeProvider } from "@/components/theme-provider";
 import { BrandMark } from "@/components/brand-mark";
-import { GoatCounterAnalytics } from "@/components/goatcounter-analytics";
 import { signOut } from "@/lib/auth";
 import { env } from "@/lib/env";
 import { getCurrentUserOrGuest } from "@/lib/session";
@@ -135,9 +134,6 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             {children}
           </main>
           <Toaster />
-          {env.goatcounterUrl ? (
-            <GoatCounterAnalytics endpoint={env.goatcounterUrl} />
-          ) : null}
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>

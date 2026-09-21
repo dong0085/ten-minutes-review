@@ -13,10 +13,6 @@ export const privacy = {
     title: "Ce que nous en faisons",
     copy: "Nous utilisons ces données pour générer tes quiz et te les envoyer par courriel. C'est tout. Tes données ne sont jamais vendues, jamais partagées et jamais utilisées à des fins publicitaires.",
   },
-  analytics: {
-    title: "Statistiques",
-    copy: "Ce site utilise GoatCounter, un outil de statistiques respectueux de la vie privée. Aucun cookie, aucun suivi entre les sites, aucune donnée personnelle.",
-  },
   email: {
     title: "Courriels",
     copy: "Nous t'envoyons tes quiz et les avis liés à ton compte, comme les réinitialisations de mot de passe et la vérification. Rien d'autre — jamais de marketing.",

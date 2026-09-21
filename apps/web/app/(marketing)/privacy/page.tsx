@@ -50,11 +50,6 @@ export default async function PrivacyPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="font-heading text-xl font-semibold">{t("analytics.title")}</h2>
-        <p className="text-sm leading-6 text-muted-foreground">{t("analytics.copy")}</p>
-      </section>
-
-      <section className="space-y-4">
         <h2 className="font-heading text-xl font-semibold">{t("email.title")}</h2>
         <p className="text-sm leading-6 text-muted-foreground">{t("email.copy")}</p>
       </section>
