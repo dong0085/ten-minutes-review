@@ -1,2 +1,3 @@
-// Production API origin. Point this at the deployed web app before shipping.
-API_BASE_URL = https://ten-minute-review.example.com
+// Production API origin.
+// "/$()/" keeps xcconfig from reading "//" as a comment.
+API_BASE_URL = https:/$()/tenminutesreview.study
