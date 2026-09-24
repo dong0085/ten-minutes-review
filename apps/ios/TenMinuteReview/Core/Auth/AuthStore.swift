@@ -40,14 +40,15 @@ final class AuthStore {
         user = storedUser()
         if let user {
             L10n.uiLanguage = user.uiLanguage
+            onUser?(user)
             state = .signedIn
+            // Pick up changes made on another device, such as a new palette.
+            Task { await refreshUser() }
             return
         }
         do {
             let response: UserResponse = try await api.get(Endpoints.me)
-            user = response.user
-            persist(user: response.user)
-            L10n.uiLanguage = response.user.uiLanguage
+            apply(user: response.user)
             state = .signedIn
         } catch {
             // Keep the token; the next authenticated call retries /api/me
@@ -70,8 +71,7 @@ final class AuthStore {
         keychain.write(response.token, account: Self.tokenAccount)
         persist(user: response.user)
         api.bearerToken = response.token
-        user = response.user
-        L10n.uiLanguage = response.user.uiLanguage
+        apply(user: response.user)
         state = .signedIn
 
         // The server derives quiz dates from the stored timezone; follow the
@@ -102,16 +102,23 @@ final class AuthStore {
         try await signIn(email: email, password: password)
     }
 
-    func updateProfile(username: String? = nil, uiLanguage: String? = nil) async throws {
+    func updateProfile(
+        username: String? = nil,
+        uiLanguage: String? = nil,
+        uiTheme: String? = nil
+    ) async throws {
         var body: [String: String] = [:]
         if let username { body["username"] = username }
         if let uiLanguage { body["uiLanguage"] = uiLanguage }
+        if let uiTheme { body["uiTheme"] = uiTheme }
         let response: UserResponse = try await api.send("PATCH", Endpoints.me, json: body)
-        user = response.user
-        persist(user: response.user)
-        if let uiLanguage {
-            L10n.uiLanguage = uiLanguage
-        }
+        apply(user: response.user)
+    }
+
+    func refreshUser() async {
+        guard isSignedIn,
+              let response: UserResponse = try? await api.get(Endpoints.me) else { return }
+        apply(user: response.user)
     }
 
     func changePassword(current: String?, next: String) async throws {
@@ -149,6 +156,17 @@ final class AuthStore {
 
     /// Set by AppEnvironment so account deletion can wipe local drafts.
     var draftsWipe: ((String) -> Void)?
+
+    /// Set by AppEnvironment so account settings, such as the palette, follow
+    /// the signed-in user.
+    var onUser: ((PublicUser) -> Void)?
+
+    private func apply(user: PublicUser) {
+        self.user = user
+        persist(user: user)
+        L10n.uiLanguage = user.uiLanguage
+        onUser?(user)
+    }
 
     private func clearLocalSession() {
         keychain.delete(account: Self.tokenAccount)

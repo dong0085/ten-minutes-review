@@ -39,7 +39,7 @@ struct AccountView: View {
                 Section {
                     ForEach(Palette.allCases) { palette in
                         Button {
-                            theme.select(palette)
+                            changePalette(palette)
                         } label: {
                             HStack {
                                 Circle()
@@ -179,6 +179,14 @@ struct AccountView: View {
     private func changeLanguage(_ language: String) {
         Task {
             try? await environment.auth.updateProfile(uiLanguage: language)
+        }
+    }
+
+    private func changePalette(_ palette: Palette) {
+        theme.select(palette)
+        guard environment.auth.isSignedIn else { return }
+        Task {
+            try? await environment.auth.updateProfile(uiTheme: palette.rawValue)
         }
     }
 

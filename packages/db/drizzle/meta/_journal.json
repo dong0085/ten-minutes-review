@@ -64,6 +64,13 @@
       "when": 1789659436069,
       "tag": "0008_loving_blindfold",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790264693036,
+      "tag": "0009_yummy_steel_serpent",
+      "breakpoints": true
     }
   ]
 }

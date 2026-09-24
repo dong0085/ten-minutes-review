@@ -11,11 +11,14 @@ export function normalizeTheme(value: string | null | undefined): UiTheme | null
 }
 
 /**
- * Anyone who has not picked a theme gets the default one, so the first paint
- * is already in the right palette and no client-side switching is needed.
- * Stored on a cookie rather than the user record, so the choice works before
- * sign-in and needs no migration.
+ * The account's saved palette wins, so the choice follows the learner across
+ * devices. The cookie covers guests and signed-out visitors, and anyone who
+ * has not picked a theme gets the default one. The first paint is already in
+ * the right palette, so no client-side switching is needed.
  */
-export function resolveTheme(cookieTheme: string | null | undefined): UiTheme {
-  return normalizeTheme(cookieTheme) ?? DEFAULT_THEME;
+export function resolveTheme(
+  accountTheme: string | null | undefined,
+  cookieTheme: string | null | undefined,
+): UiTheme {
+  return normalizeTheme(accountTheme) ?? normalizeTheme(cookieTheme) ?? DEFAULT_THEME;
 }

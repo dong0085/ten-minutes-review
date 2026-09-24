@@ -19,6 +19,7 @@ export type UpdateUserInput = {
   avatarUrl?: string | null;
   passwordHash?: string | null;
   uiLanguage?: string;
+  uiTheme?: string | null;
   timezone?: string;
   isGuest?: boolean;
   emailVerifiedAt?: Date | null;
