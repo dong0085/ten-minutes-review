@@ -93,7 +93,7 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <section className="relative grid min-h-[34rem] items-center gap-12 py-8 lg:grid-cols-[1.02fr_0.98fr] lg:gap-16 lg:py-14">
+      <section className="section-band band-dots relative grid min-h-[34rem] items-center gap-12 py-8 lg:grid-cols-[1.02fr_0.98fr] lg:gap-16 lg:py-14">
         <Reveal className="relative z-10 max-w-2xl">
           <p className="eyebrow">{t("eyebrow")}</p>
           <h1 className="mt-5 max-w-3xl font-heading text-5xl leading-[0.98] font-semibold tracking-[-0.045em] text-balance sm:text-6xl lg:text-[4.6rem]">
@@ -202,7 +202,7 @@ export default async function HomePage() {
         </Reveal>
       </section>
 
-      <section className="border-t border-border/70 py-12 sm:py-14">
+      <section className="section-band band-airmail py-12 sm:py-14">
         <Reveal className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-16">
           <div>
             <p className="eyebrow">{t("languagesKicker")}</p>
@@ -229,7 +229,7 @@ export default async function HomePage() {
         </Reveal>
       </section>
 
-      <section id="how-it-works" className="border-t border-border/70 py-16 sm:py-20">
+      <section id="how-it-works" className="section-band band-graph py-16 sm:py-20">
         <Reveal className="max-w-2xl">
           <p className="eyebrow">{t("howItWorksKicker")}</p>
           <h2 className="mt-3 font-heading text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
@@ -259,7 +259,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="grid gap-8 border-t border-border/70 py-16 sm:py-20 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-16">
+      <section className="section-band band-desk grid gap-8 py-16 sm:py-20 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-16">
         <Reveal>
           <BookOpenCheck className="size-5 text-primary" />
           <h2 className="mt-5 font-heading text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
@@ -274,7 +274,7 @@ export default async function HomePage() {
         <QuizFormCards />
       </section>
 
-      <section className="border-t border-border/70 py-16 sm:py-20">
+      <section className="section-band band-ruled py-16 sm:py-20">
         <Reveal className="max-w-2xl">
           <p className="eyebrow">{t("highlights.kicker")}</p>
           <h2 className="mt-3 font-heading text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
@@ -304,8 +304,9 @@ export default async function HomePage() {
 
       <Reveal
         as="section"
-        className="relative overflow-hidden rounded-[2rem] border border-primary/15 bg-primary/[0.075] px-6 py-12 text-center sm:px-10 sm:py-16"
+        className="relative isolate overflow-hidden rounded-[2rem] border border-primary/15 bg-primary/[0.075] px-6 py-12 text-center sm:px-10 sm:py-16"
       >
+        <div aria-hidden="true" className="cta-rays absolute inset-0 -z-10" />
         <div aria-hidden="true" className="absolute inset-x-16 top-0 h-px bg-primary/25" />
         <p className="eyebrow">{t("closingKicker")}</p>
         <h2 className="mx-auto mt-4 max-w-2xl font-heading text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
