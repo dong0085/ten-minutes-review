@@ -170,7 +170,7 @@ export default async function ClassroomHomePage({
 
       <Card className="bg-card/70">
         <CardContent>
-          <BankSummary counts={counts} />
+          <BankSummary counts={counts} manageHref={`/classrooms/${id}/bank`} />
         </CardContent>
       </Card>
 

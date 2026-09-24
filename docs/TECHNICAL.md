@@ -294,6 +294,9 @@ Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve t
 | `POST` | `/api/classrooms/:id/uploads` | Text body or multipart image |
 | `GET` | `/api/classrooms/:id/uploads` | Timeline |
 | `GET` | `/api/classrooms/:id/bank` | Counts per category |
+| `GET` | `/api/classrooms/:id/knowledge-points` | Every knowledge point, omitted ones included, with answered/missed counts |
+| `PATCH` | `/api/knowledge-points/:id` | Edit target text, meaning, or note |
+| `POST` | `/api/knowledge-points/:id/omit` | Omit from (`{ omit: true }`) or restore to future quizzes |
 | `GET` | `/api/classrooms/:id/quizzes/today` | Today's daily quiz plus any in-flight compose job, answers withheld |
 | `POST` | `/api/classrooms/:id/quizzes` | Create an on-demand quiz (enqueues a compose job) |
 | `POST` | `/api/classrooms/:id/quizzes/cancel` | Cancel the in-flight compose job |

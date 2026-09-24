@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { BookOpen, Clock3, Home, Settings2, Upload } from "lucide-react";
+import { BookOpen, Clock3, Home, Library, Settings2, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function ClassroomTabs({ classroomId }: { classroomId: string }) {
@@ -14,6 +14,7 @@ export function ClassroomTabs({ classroomId }: { classroomId: string }) {
     { label: t("home"), href: base, icon: Home },
     { label: t("upload"), href: `${base}/upload`, icon: Upload },
     { label: t("history"), href: `${base}/history`, icon: Clock3 },
+    { label: t("bank"), href: `${base}/bank`, icon: Library },
     { label: t("quizzes"), href: `${base}/quizzes`, icon: BookOpen },
     { label: t("settings"), href: `${base}/settings`, icon: Settings2 },
   ];

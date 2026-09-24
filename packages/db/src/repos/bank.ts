@@ -59,6 +59,50 @@ export async function setKnowledgePointRetired(
   return updated ?? null;
 }
 
+export async function updateKnowledgePointText(
+  db: Db,
+  userId: string,
+  knowledgePointId: string,
+  fields: { targetText?: string; nativeText?: string | null; note?: string | null },
+) {
+  const [point] = await db
+    .select({ id: knowledgePoints.id })
+    .from(knowledgePoints)
+    .innerJoin(classrooms, eq(knowledgePoints.classroomId, classrooms.id))
+    .where(and(eq(knowledgePoints.id, knowledgePointId), eq(classrooms.userId, userId)))
+    .limit(1);
+
+  if (!point) {
+    return null;
+  }
+
+  const [updated] = await db
+    .update(knowledgePoints)
+    .set(fields)
+    .where(eq(knowledgePoints.id, knowledgePointId))
+    .returning();
+
+  return updated ?? null;
+}
+
+// Every knowledge point in the classroom, omitted ones included, with how often
+// the learner answered questions built on it.
+export async function listBankForUser(db: Db, userId: string, classroomId: string) {
+  return db
+    .select({
+      point: knowledgePoints,
+      answered: sql<number>`count(${attemptAnswers.id})::int`,
+      missed: sql<number>`count(${attemptAnswers.id}) filter (where ${attemptAnswers.isCorrect} = false)::int`,
+    })
+    .from(knowledgePoints)
+    .innerJoin(classrooms, eq(knowledgePoints.classroomId, classrooms.id))
+    .leftJoin(questions, eq(questions.knowledgePointId, knowledgePoints.id))
+    .leftJoin(attemptAnswers, eq(attemptAnswers.questionId, questions.id))
+    .where(and(eq(knowledgePoints.classroomId, classroomId), eq(classrooms.userId, userId)))
+    .groupBy(knowledgePoints.id)
+    .orderBy(desc(knowledgePoints.createdAt), asc(knowledgePoints.id));
+}
+
 export async function listKnowledgePointsForUser(
   db: Db,
   userId: string,
