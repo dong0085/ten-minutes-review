@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { ArrowRight, BookOpen, Plus, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Sparkles } from "lucide-react";
 import {
   FREE_TIER,
   classroomDailyStatus,
@@ -16,9 +16,11 @@ import {
   listClassrooms,
 } from "@tmr/db";
 import { ClassroomCard } from "@/components/classroom/classroom-card";
+import { NewClassroomButton } from "@/components/classroom/new-classroom-button";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getDb } from "@/lib/db";
+import { env } from "@/lib/env";
 import { getCurrentUserOrGuest } from "@/lib/session";
 
 export const metadata: Metadata = {
@@ -165,12 +167,10 @@ export default async function ClassroomsPage() {
               ) : null}
             </TooltipContent>
           </Tooltip>
-          <Button asChild>
-            <Link href="/classrooms/new">
-              <Plus />
-              {t("newClassroom")}
-            </Link>
-          </Button>
+          <NewClassroomButton
+            locked={!isGuest && !isPaid && cards.length >= FREE_TIER.classrooms}
+            billingEnabled={env.billingEnabled}
+          />
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

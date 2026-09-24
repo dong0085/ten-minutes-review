@@ -124,6 +124,12 @@ export const classroom = {
     uploadsHint:
       "Free plan: {used} of {limit} notes uploads used this month, shared across all classrooms.",
     newClassroom: "New classroom",
+    proBadge: "Pro",
+    lockedLabel: "New classroom (free plan limit reached, Pro required)",
+    lockedTitle: "You've reached 3 classrooms",
+    lockedBody:
+      "The free plan includes 3 classrooms and 2 notes uploads a month. Pro removes both limits for $2.99/month.",
+    lockedClose: "Not now",
     emptyKicker: "Begin with one lesson",
     emptyTitle: "Your notes become a ten-minute quiz",
     emptyBlurb:

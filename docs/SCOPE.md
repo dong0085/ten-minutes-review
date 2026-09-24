@@ -76,6 +76,7 @@ A web app that turns a tutoring session's notes — text or images — into a da
 - Billing runs on **Stripe** Checkout and the Customer Portal. Webhooks keep the `subscriptions` table in sync. The payment UI shows in production once `BILLING_ENABLED=true`.
 - **Free tier:** 3 classrooms, 5 attempts *(my call: per quiz per day)*, quiz-type selection is a paid feature. Enforcement is deferred; the fields exist.
 - **Notes uploads:** free users, and paid users whose subscription has lapsed or been canceled, get 2 notes uploads per calendar month (in their timezone), shared across all classrooms. Each image counts as one upload. Paid access means a subscription with status `active` or `trialing` whose current period has not ended. This cap and the 3-classroom cap are enforced now.
+- **Locked New classroom button:** once a free user has 3 classrooms, the button shows a lock and a Pro badge. Clicking it opens an upgrade prompt with the Stripe Checkout button. Users who already have more than 3 classrooms keep them.
 
 ## Referrals
 

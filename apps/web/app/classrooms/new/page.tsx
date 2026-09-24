@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { isLanguageCode } from "@tmr/core";
+import { FREE_TIER, isLanguageCode } from "@tmr/core";
+import { countClassrooms, hasPaidPlan } from "@tmr/db";
 import { NewClassroomForm } from "@/components/classroom/new-classroom-form";
+import { getDb } from "@/lib/db";
 import { getCurrentUserOrGuest } from "@/lib/session";
 
 export const metadata: Metadata = {
@@ -10,6 +13,16 @@ export const metadata: Metadata = {
 
 export default async function NewClassroomPage() {
   const current = await getCurrentUserOrGuest();
+  if (current && !current.isGuest) {
+    const db = getDb();
+    if (
+      (await countClassrooms(db, current.user.id)) >= FREE_TIER.classrooms &&
+      !(await hasPaidPlan(db, current.user.id))
+    ) {
+      // The classrooms list shows the locked button and upgrade prompt.
+      redirect("/classrooms");
+    }
+  }
   const t = await getTranslations("Classroom.NewForm");
   const defaultNativeLanguage =
     current && isLanguageCode(current.user.uiLanguage) ? current.user.uiLanguage : "en";

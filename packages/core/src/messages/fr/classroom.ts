@@ -130,6 +130,12 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     uploadsHint:
       "Forfait gratuit : {used} sur {limit} envois de notes utilisés ce mois-ci, partagés entre toutes tes classes.",
     newClassroom: "Nouvelle classe",
+    proBadge: "Pro",
+    lockedLabel: "Nouvelle classe (limite du forfait gratuit atteinte, Pro requis)",
+    lockedTitle: "Vous avez atteint 3 classes",
+    lockedBody:
+      "Le forfait gratuit comprend 3 classes et 2 envois de notes par mois. Pro lève ces deux limites pour 2,99 $/mois.",
+    lockedClose: "Plus tard",
     emptyKicker: "Commence par un cours",
     emptyTitle: "Tes notes deviennent un quiz de dix minutes",
     emptyBlurb:

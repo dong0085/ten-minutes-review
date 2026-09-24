@@ -6,6 +6,13 @@ const provider = <T extends string>(
   allowed: readonly T[],
 ): T => (value && allowed.includes(value as T) ? (value as T) : fallback);
 
+// `STRIPE_MODE=sandbox` swaps in the `STRIPE_SANDBOX_*` keys for local testing.
+// Vercel production always uses the live keys.
+const stripeSandbox =
+  process.env.STRIPE_MODE === "sandbox" && process.env.VERCEL_ENV !== "production";
+const stripeVar = (name: string) =>
+  process.env[stripeSandbox ? `STRIPE_SANDBOX_${name}` : `STRIPE_${name}`] ?? "";
+
 export const env = {
   appUrl: normalizeAppUrl(process.env.APP_URL ?? "http://localhost:3000"),
   authSecret: process.env.AUTH_SECRET ?? "dev-insecure-secret-change-me",
@@ -36,9 +43,9 @@ export const env = {
   s3SecretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? "",
   s3Endpoint: process.env.S3_ENDPOINT ?? "",
   s3ForcePathStyle: process.env.S3_FORCE_PATH_STYLE === "true",
-  stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? "",
-  stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
-  stripePriceId: process.env.STRIPE_PRICE_ID ?? "",
+  stripeSecretKey: stripeVar("SECRET_KEY"),
+  stripeWebhookSecret: stripeVar("WEBHOOK_SECRET"),
+  stripePriceId: stripeVar("PRICE_ID"),
   // `TEAMID.bundle.id` entries, comma-separated, for iOS password autofill.
   appleAppIds: (process.env.APPLE_APP_IDS ?? "")
     .split(",")

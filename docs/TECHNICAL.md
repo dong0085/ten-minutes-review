@@ -363,8 +363,12 @@ RESEND_API_KEY
 BLOB_READ_WRITE_TOKEN
 STRIPE_SECRET_KEY
 STRIPE_WEBHOOK_SECRET
+STRIPE_PRICE_ID
+BILLING_ENABLED
 APP_URL
 ```
+
+For local billing tests, set `STRIPE_MODE=sandbox` with `STRIPE_SANDBOX_SECRET_KEY`, `STRIPE_SANDBOX_WEBHOOK_SECRET`, and `STRIPE_SANDBOX_PRICE_ID`. The web app then uses those instead of the live keys. Vercel production ignores `STRIPE_MODE`.
 
 Migrations run from the worker on boot, so the web app never needs database credentials at build time.
 
