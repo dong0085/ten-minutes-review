@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>API_BASE_URL</key>
+	<string>$(API_BASE_URL)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -20,8 +22,6 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
-	<key>API_BASE_URL</key>
-	<string>$(API_BASE_URL)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSAppTransportSecurity</key>
@@ -33,6 +33,18 @@
 	<string>Photograph handwritten notes to build your question bank.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Add photos of your handwritten notes to build your question bank.</string>
+<<<<<<< HEAD
+=======
+	<key>UIAppFonts</key>
+	<array>
+		<string>Geist-Regular.ttf</string>
+		<string>Geist-Medium.ttf</string>
+		<string>Geist-SemiBold.ttf</string>
+		<string>Geist-Bold.ttf</string>
+		<string>SourceSerif4-SemiBold.ttf</string>
+		<string>SourceSerif4-Bold.ttf</string>
+	</array>
+>>>>>>> 6bbfd15 (fix: reorder API_BASE_URL entry and add missing launch screen and orientation keys)
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>
