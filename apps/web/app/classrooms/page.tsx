@@ -119,7 +119,7 @@ export default async function ClassroomsPage() {
     isPaid || isGuest ? null : await countUploadsSince(db, user.id, startOfMonthAt(user.timezone));
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {isGuest ? (
         <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-primary/25 bg-primary/[0.06] p-4 sm:flex-row sm:px-5">
           <p className="text-sm font-medium text-foreground/90">{tHome("guestBanner")}</p>
@@ -132,11 +132,11 @@ export default async function ClassroomsPage() {
         </div>
       ) : null}
 
-      <div className="flex flex-col gap-6 border-b border-border/70 pb-8 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="eyebrow">{t("kicker")}</p>
           <h1 className="mt-2 font-heading text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
-            {t("title")}
+            <span className="marker-swipe">{t("title")}</span>
           </h1>
           <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
             {t("blurb")}
@@ -173,7 +173,7 @@ export default async function ClassroomsPage() {
           />
         </div>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-x-6 gap-y-8 pt-2 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map(({ classroom, bankSize: size, todayQuizId, status, quizDaysRemaining }, index) => (
           <ClassroomCard
             key={classroom.id}

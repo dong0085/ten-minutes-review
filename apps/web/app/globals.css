@@ -471,6 +471,99 @@
     background-position: left center;
   }
 
+  /* Classroom stationery: exercise books, a desk calendar, a notepad,
+     taped slips, and a card-catalog cabinet. */
+
+  /* Exercise book cover: a cloth spine in --spine with a stitched seam. */
+  .exercise-book {
+    --spine: var(--primary);
+    background-image:
+      linear-gradient(
+        to right,
+        color-mix(in oklch, var(--spine), transparent 8%) 0 0.85rem,
+        color-mix(in oklch, var(--spine), black 12%) 0.85rem calc(0.85rem + 1px),
+        transparent calc(0.85rem + 1px)
+      ),
+      var(--paper-grain);
+  }
+
+  .exercise-book::before {
+    position: absolute;
+    inset-block: 0.9rem;
+    left: 0.4rem;
+    width: 1px;
+    background-image: linear-gradient(
+      to bottom,
+      color-mix(in oklch, var(--card), transparent 30%) 55%,
+      transparent 55%
+    );
+    background-size: 1px 7px;
+    content: "";
+  }
+
+  /* Cover label plate, like the white sticker on a school notebook. */
+  .label-plate {
+    border: 1px solid color-mix(in oklch, var(--foreground), transparent 82%);
+    border-radius: 0.55rem;
+    background: var(--card);
+    box-shadow:
+      inset 0 0 0 3px var(--card),
+      inset 0 0 0 4px color-mix(in oklch, var(--foreground), transparent 90%);
+  }
+
+  /* Ribbon bookmark hanging from the top edge, with a notched tail. */
+  .ribbon {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%);
+  }
+
+  /* Notepad with a torn zigzag top edge. */
+  .torn-top {
+    --tooth: 9px;
+    mask:
+      linear-gradient(black, black) 0 var(--tooth) / 100% calc(100% - var(--tooth)) no-repeat,
+      conic-gradient(from 135deg at 50% 0, black 90deg, transparent 0) 0 0 / calc(var(--tooth) * 2) var(--tooth) repeat-x;
+  }
+
+  /* Warm legal-pad yellow with a red double margin; follows the theme in dark mode. */
+  .notepad {
+    --margin-ink: color-mix(in oklch, var(--destructive), transparent 55%);
+    background-color: color-mix(in oklch, var(--warning), var(--card) 88%);
+    background-image: linear-gradient(
+      to right,
+      transparent 0.8rem,
+      var(--margin-ink) 0.8rem calc(0.8rem + 1px),
+      transparent calc(0.8rem + 1px) calc(0.8rem + 4px),
+      var(--margin-ink) calc(0.8rem + 4px) calc(0.8rem + 5px),
+      transparent calc(0.8rem + 5px)
+    );
+  }
+
+  .dark .notepad {
+    background-color: color-mix(in oklch, var(--warning), var(--card) 90%);
+  }
+
+  /* Strip of translucent tape holding a slip to the page. */
+  .tape {
+    background: color-mix(in oklch, var(--warning), transparent 72%);
+    box-shadow: 0 1px 1px rgb(var(--shadow-colour) / 0.06);
+    backdrop-filter: blur(1px);
+  }
+
+  /* Card-catalog drawer front. */
+  .drawer {
+    background:
+      linear-gradient(to bottom, color-mix(in oklch, var(--foreground), transparent 96%), transparent 40%),
+      var(--card);
+    box-shadow:
+      inset 0 -2px 0 color-mix(in oklch, var(--foreground), transparent 92%),
+      0 1px 2px rgb(var(--shadow-colour) / 0.05);
+  }
+
+  /* Folder tabs: the active tab joins the rule underneath. */
+  .folder-tabs {
+    box-shadow: inset 0 -1px 0 var(--border);
+  }
+
   /* Homepage dealt quiz cards. components/quiz-form-cards.tsx flips
      data-dealt when the cluster enters the viewport; the deal is CSS. */
   .deal-inner {
