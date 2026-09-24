@@ -11,6 +11,7 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     settings: "Réglages",
   },
   Card: {
+    number: "N° {index}",
     active: "Active",
     dormant: "Inactive",
     paused: "En pause",
@@ -117,7 +118,7 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     empty: "Aucun point de connaissance pour le moment. Ajoute des notes pour construire la banque.",
     total:
       "{count, plural, one {# point de connaissance} other {# points de connaissance}} prêts à être utilisés.",
-    manage: "Gérer la banque →",
+    manage: "Gérer la banque",
   },
   ListPage: {
     kicker: "Tes espaces d'apprentissage",
@@ -153,6 +154,9 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
       "Les révisions quotidiennes sont en pause. Tes notes, ton historique et les quiz à la demande restent disponibles.",
   },
   HomePage: {
+    guestDailyQuizKicker: "Chaque matin",
+    pinboardKicker: "Épinglé",
+    logbookKicker: "Carnet de bord",
     addNotesTitle: "Ajouter des notes",
     addNotesBlurb:
       "Colle tes notes ou ajoute des photos de ton écriture. Les nouveaux éléments rejoignent la banque de questions.",

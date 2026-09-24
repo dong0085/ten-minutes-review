@@ -8,6 +8,7 @@ export const classroom = {
     settings: "设置",
   },
   Card: {
+    number: "第 {index} 册",
     active: "进行中",
     dormant: "休眠",
     paused: "已暂停",
@@ -103,7 +104,7 @@ export const classroom = {
     title: "题库",
     empty: "还没有知识点。添加笔记来建立题库。",
     total: "{count, plural, other {# 个知识点}}可供出题。",
-    manage: "管理题库 →",
+    manage: "管理题库",
   },
   ListPage: {
     kicker: "你的学习空间",
@@ -135,6 +136,9 @@ export const classroom = {
     paused: "每日复习已暂停。你的笔记、记录和随时生成的测验仍然可用。",
   },
   HomePage: {
+    guestDailyQuizKicker: "每天早上",
+    pinboardKicker: "贴在墙上",
+    logbookKicker: "学习日志",
     addNotesTitle: "添加笔记",
     addNotesBlurb: "粘贴笔记或添加手写笔记的照片。新内容会加入题库。",
     addNotes: "添加笔记",

@@ -8,6 +8,7 @@ export const classroom = {
     settings: "Settings",
   },
   Card: {
+    number: "No. {index}",
     active: "Active",
     dormant: "Dormant",
     paused: "Paused",
@@ -111,7 +112,7 @@ export const classroom = {
     title: "Question bank",
     empty: "No knowledge points yet. Add notes to build the bank.",
     total: "{count, plural, one {# knowledge point} other {# knowledge points}} ready to draw from.",
-    manage: "Manage the bank →",
+    manage: "Manage the bank",
   },
   ListPage: {
     kicker: "Your learning spaces",
@@ -146,6 +147,9 @@ export const classroom = {
       "Daily reviews are paused. Your notes, history, and on-demand quizzes are still available.",
   },
   HomePage: {
+    guestDailyQuizKicker: "Every morning",
+    pinboardKicker: "Pinned up",
+    logbookKicker: "Logbook",
     addNotesTitle: "Add notes",
     addNotesBlurb:
       "Paste your notes or add photos of your handwriting. New material joins the question bank.",
