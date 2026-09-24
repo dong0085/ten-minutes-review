@@ -78,6 +78,13 @@
       "when": 1790266619856,
       "tag": "0010_thankful_colossus",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790271623362,
+      "tag": "0011_long_karma",
+      "breakpoints": true
     }
   ]
 }

@@ -179,7 +179,7 @@ Usage stats are computed live from `attempts` and `attempt_answers` in `packages
 
 ### subscriptions, referrals
 
-`subscriptions`: `id`, `user_id`, `stripe_customer_id`, `stripe_subscription_id`, `plan`, `status`, `current_period_end`, `cancel_at_period_end`, timestamps. Populated by webhooks when billing turns on. The UI stays debug-only until then.
+`subscriptions`: `id`, `user_id`, `stripe_customer_id`, `stripe_subscription_id`, `plan`, `status`, `current_period_end`, `cancel_at_period_end`, timestamps. **Unique on `user_id`** — one row per user, upserted by the Stripe webhook.
 
 `referrals`: `id`, `referrer_user_id`, `code` unique, `referred_user_id` nullable, `status` (`created`, `signed_up`, `rewarded`), `reward_months` default 1, `created_at`, `rewarded_at`.
 
@@ -278,7 +278,12 @@ On-demand composition enqueues its own `send_email` job carrying `kind: "manual"
 
 ### Billing
 
-Stripe stays dark. The webhook route, the `subscriptions` table, and the plan checks exist; the UI that starts a checkout renders only in debug builds.
+- `POST /api/billing/checkout` creates a Stripe Checkout Session for `STRIPE_PRICE_ID` and returns `{ url }`. The user id rides along as `client_reference_id` and as `subscription_data.metadata.userId`.
+- `POST /api/billing/portal` returns a Customer Portal `{ url }` for users with a `stripe_customer_id`.
+- `POST /api/webhooks/stripe` verifies the signature with `STRIPE_WEBHOOK_SECRET` and handles `customer.subscription.created`, `.updated`, and `.deleted`. Each event upserts the user's `subscriptions` row from the event payload. The user comes from `metadata.userId`, falling back to the row that already holds the Stripe customer id. `current_period_end` is read from the first subscription item.
+- `hasPaidAccess` (`packages/core/src/plan.ts`) is the single paid check: status `active` or `trialing` and a period that has not ended. Everything else counts as free.
+- The account page subscription card and both billing routes run when `BILLING_ENABLED=true` or in non-production builds.
+- Sandbox and live mode each need their own keys, price, and webhook endpoint. Local testing uses `stripe listen --forward-to localhost:<port>/api/webhooks/stripe`.
 
 ---
 

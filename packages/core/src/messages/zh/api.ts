@@ -14,6 +14,8 @@ export const api = {
   attemptRecord: "无法记录此次作答",
   uploadLimit: "已达上传上限：每天 50 次",
   freeUploadLimit: "免费版每月最多上传 2 次笔记",
+  billingUnavailable: "暂时无法使用付费功能",
+  alreadySubscribed: "你已经有一个有效的订阅",
   invalidFormData: "表单数据无效",
   imageCount: "请附加 1 到 10 张图片",
   fileTooLarge: "{name} 超过 10MB",

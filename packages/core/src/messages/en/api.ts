@@ -14,6 +14,8 @@ export const api = {
   attemptRecord: "Could not record the attempt",
   uploadLimit: "Upload limit reached: 50 uploads per day",
   freeUploadLimit: "Free plan is limited to 2 notes uploads per month",
+  billingUnavailable: "Billing is not available right now",
+  alreadySubscribed: "You already have an active subscription",
   invalidFormData: "Invalid form data",
   imageCount: "Attach between 1 and 10 images",
   fileTooLarge: "{name} is larger than 10MB",

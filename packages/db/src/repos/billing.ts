@@ -2,7 +2,7 @@ import { and, desc, eq, isNotNull, isNull } from "drizzle-orm";
 import { hasPaidAccess } from "@tmr/core";
 import { randomToken } from "@tmr/core/node";
 import type { Db } from "../client";
-import { referrals, subscriptions } from "../schema/billing";
+import { referrals, subscriptions, type NewSubscription } from "../schema/billing";
 
 export async function getReferralByCode(db: Db, code: string) {
   const [row] = await db.select().from(referrals).where(eq(referrals.code, code)).limit(1);
@@ -71,6 +71,27 @@ export async function getSubscription(db: Db, userId: string) {
     .where(eq(subscriptions.userId, userId))
     .limit(1);
   return row ?? null;
+}
+
+export async function getSubscriptionByStripeCustomer(db: Db, stripeCustomerId: string) {
+  const [row] = await db
+    .select()
+    .from(subscriptions)
+    .where(eq(subscriptions.stripeCustomerId, stripeCustomerId))
+    .limit(1);
+  return row ?? null;
+}
+
+export async function upsertSubscription(db: Db, input: NewSubscription) {
+  const [row] = await db
+    .insert(subscriptions)
+    .values(input)
+    .onConflictDoUpdate({
+      target: subscriptions.userId,
+      set: { ...input, updatedAt: new Date() },
+    })
+    .returning();
+  return row;
 }
 
 export async function hasPaidPlan(db: Db, userId: string) {
