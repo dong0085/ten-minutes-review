@@ -28,11 +28,19 @@ const modeIcons = {
 } as const;
 
 /**
- * Keeps the palette cookie and next-themes mode independent. Palette changes
- * update the current page immediately; mode changes are handled by the
- * provider and persist through its own local storage key.
+ * Keeps the palette and next-themes mode independent. Palette changes update
+ * the current page immediately and save to the account when signed in, so the
+ * choice follows the learner to other devices; the cookie keeps it for guests
+ * and after sign-out. Mode changes are handled by the provider and persist
+ * through its own local storage key.
  */
-export function ThemeSwitcher({ currentTheme }: { currentTheme: UiTheme }) {
+export function ThemeSwitcher({
+  currentTheme,
+  signedIn,
+}: {
+  currentTheme: UiTheme;
+  signedIn: boolean;
+}) {
   const t = useTranslations("Layout");
   const router = useRouter();
   const { theme, setTheme } = useTheme();
@@ -45,13 +53,20 @@ export function ThemeSwitcher({ currentTheme }: { currentTheme: UiTheme }) {
   const [pending, startTransition] = useTransition();
   const activeTheme = picked ?? currentTheme;
 
-  const pick = (nextTheme: UiTheme) => {
+  const pick = async (nextTheme: UiTheme) => {
     // These browser APIs provide immediate persistence and avoid a palette flash.
     // eslint-disable-next-line react-hooks/immutability
     document.cookie = `${UI_THEME_COOKIE}=${nextTheme}; path=/; max-age=${COOKIE_MAX_AGE}; samesite=lax`;
     // eslint-disable-next-line react-hooks/immutability
     document.documentElement.dataset.theme = nextTheme;
     setPicked(nextTheme);
+    if (signedIn) {
+      await fetch("/api/me", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ uiTheme: nextTheme }),
+      }).catch(() => null);
+    }
     startTransition(() => router.refresh());
   };
 

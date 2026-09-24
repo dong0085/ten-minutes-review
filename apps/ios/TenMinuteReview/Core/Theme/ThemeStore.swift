@@ -2,7 +2,8 @@ import Foundation
 import Observation
 
 /// Palette choice, stored under the same `UI_THEME` key the web app uses
-/// for its cookie. Default mirrors `DEFAULT_THEME` — mint.
+/// for its cookie. When signed in, the account's `uiTheme` overrides it on
+/// every user refresh. Default mirrors `DEFAULT_THEME` — mint.
 @MainActor
 @Observable
 final class ThemeStore {

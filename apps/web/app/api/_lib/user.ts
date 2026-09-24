@@ -7,6 +7,7 @@ export function publicUser(user: User) {
     username: user.username,
     avatarUrl: user.avatarUrl,
     uiLanguage: user.uiLanguage,
+    uiTheme: user.uiTheme,
     timezone: user.timezone,
     emailVerifiedAt: user.emailVerifiedAt,
     createdAt: user.createdAt,

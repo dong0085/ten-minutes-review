@@ -29,6 +29,7 @@ Message catalogs live in `packages/core/src/messages` (`en/` and `fr/`, namespac
 
 - API error messages are localized centrally in `apps/web/lib/api.ts`: routes keep their English literals, which map to `Api` catalog keys before the response leaves the server.
 - Transactional emails (`packages/email`) take a `UiLocale`; call sites pass the recipient's `ui_language`. React Email renders the localized components to HTML and plain text before the existing provider adapter sends them.
+- The colour palette follows the same order: a signed-in user's `ui_theme`, otherwise the `UI_THEME` cookie, falling back to `mint`. The header switch saves to the account through `PATCH /api/me` and also sets the cookie, so the palette survives sign-out. iOS reads `uiTheme` from `/api/me` and saves through the same route.
 - Quiz stems, options, and explanations are generated in the target language and stored as content. Only UI chrome is translated; a question authored in French stays French in an English interface. A production fill_blank also carries the native cue in parentheses — see `PROMPTS.md`.
 
 ---
@@ -48,6 +49,7 @@ Postgres. All ids are UUIDs. All timestamps are `timestamptz`.
 | `avatar_url` | text | |
 | `password_hash` | text | Null for OAuth-only accounts |
 | `ui_language` | text | ISO 639-1, default `en` |
+| `ui_theme` | text | Colour palette (`mint`, `sky`, `sakura`, `lavender`); null until the user picks one |
 | `timezone` | text | IANA name, e.g. `Asia/Shanghai` |
 | `created_at` / `updated_at` | timestamptz | |
 

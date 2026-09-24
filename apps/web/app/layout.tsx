@@ -53,7 +53,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const user = current?.user ?? null;
   const isGuest = current?.isGuest ?? false;
   const locale = await getLocale();
-  const theme = await getTheme();
+  const signedIn = Boolean(user && !isGuest);
+  const theme = await getTheme(signedIn ? user?.uiTheme : null);
   const t = await getTranslations("Layout");
   return (
     <html
@@ -74,8 +75,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                     <Link href="/classrooms">{t("classrooms")}</Link>
                   </Button>
                 ) : null}
-                <LanguageSwitcher signedIn={Boolean(user && !isGuest)} />
-                <ThemeSwitcher currentTheme={theme} />
+                <LanguageSwitcher signedIn={signedIn} />
+                <ThemeSwitcher currentTheme={theme} signedIn={signedIn} />
                 {user && !isGuest ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

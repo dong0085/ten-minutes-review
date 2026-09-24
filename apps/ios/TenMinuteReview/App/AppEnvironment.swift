@@ -27,5 +27,10 @@ final class AppEnvironment {
         auth.draftsWipe = { [weak drafts] userId in
             drafts?.removeAll(userId: userId)
         }
+        auth.onUser = { [weak theme] user in
+            if let palette = user.uiTheme.flatMap(Palette.init(rawValue:)) {
+                theme?.select(palette)
+            }
+        }
     }
 }

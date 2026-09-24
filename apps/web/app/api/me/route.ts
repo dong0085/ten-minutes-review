@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { UI_THEMES } from "@tmr/core";
 import { deleteUser, updateUser } from "@tmr/db";
 import { handleRouteError, jsonError, jsonOk, readJson } from "@/lib/api";
 import { getDb } from "@/lib/db";
@@ -8,6 +9,7 @@ import { isTimezone, publicUser } from "@/app/api/_lib/user";
 const updateMeSchema = z.object({
   username: z.union([z.string().trim().min(1).max(80), z.null()]).optional(),
   uiLanguage: z.string().trim().min(2).max(10).optional(),
+  uiTheme: z.enum(UI_THEMES).optional(),
   timezone: z
     .string()
     .trim()
@@ -39,6 +41,7 @@ export async function PATCH(request: Request) {
     const updated = await updateUser(getDb(), user.id, {
       username: body.username,
       uiLanguage: body.uiLanguage,
+      uiTheme: body.uiTheme,
       timezone: body.timezone,
     });
     if (!updated) {

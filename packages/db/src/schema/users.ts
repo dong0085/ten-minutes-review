@@ -26,6 +26,7 @@ export const users = pgTable("users", {
   passwordHash: text("password_hash"),
   sessionVersion: integer("session_version").notNull().default(0),
   uiLanguage: text("ui_language").notNull().default("en"),
+  uiTheme: text("ui_theme"),
   timezone: text("timezone").notNull().default("UTC"),
   isGuest: boolean("is_guest").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
