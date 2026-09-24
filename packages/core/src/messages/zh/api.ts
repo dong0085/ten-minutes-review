@@ -13,6 +13,7 @@ export const api = {
   attemptSubmitted: "此次作答已提交",
   attemptRecord: "无法记录此次作答",
   uploadLimit: "已达上传上限：每天 50 次",
+  freeUploadLimit: "免费版每月最多上传 2 次笔记",
   invalidFormData: "表单数据无效",
   imageCount: "请附加 1 到 10 张图片",
   fileTooLarge: "{name} 超过 10MB",

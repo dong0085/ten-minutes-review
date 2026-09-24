@@ -18,6 +18,7 @@ const MESSAGE_KEYS: Record<string, ApiMessageKey> = {
   "This attempt was already submitted": "attemptSubmitted",
   "Could not record the attempt": "attemptRecord",
   "Upload limit reached: 50 uploads per day": "uploadLimit",
+  "Free plan is limited to 2 notes uploads per month": "freeUploadLimit",
   "Invalid form data": "invalidFormData",
   "Attach between 1 and 10 images": "imageCount",
   "Invalid date": "invalidDate",

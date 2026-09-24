@@ -1,4 +1,5 @@
 import { and, desc, eq, isNotNull, isNull } from "drizzle-orm";
+import { hasPaidAccess } from "@tmr/core";
 import { randomToken } from "@tmr/core/node";
 import type { Db } from "../client";
 import { referrals, subscriptions } from "../schema/billing";
@@ -70,4 +71,8 @@ export async function getSubscription(db: Db, userId: string) {
     .where(eq(subscriptions.userId, userId))
     .limit(1);
   return row ?? null;
+}
+
+export async function hasPaidPlan(db: Db, userId: string) {
+  return hasPaidAccess(await getSubscription(db, userId));
 }

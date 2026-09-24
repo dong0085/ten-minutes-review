@@ -11,6 +11,7 @@ export const DAILY_SEND_TIMEZONE = "America/Toronto";
 export const FREE_TIER = {
   classrooms: 3,
   attemptsPerQuizPerDay: 5,
+  notesUploadsPerMonth: 2,
 } as const;
 
 export const MONTHLY_PRICE_USD = 2.99;

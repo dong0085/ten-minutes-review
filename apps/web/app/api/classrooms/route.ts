@@ -5,6 +5,7 @@ import {
   countClassrooms,
   createClassroom,
   createGuestUser,
+  hasPaidPlan,
   listClassrooms,
   listQuizzesForUserOnDate,
 } from "@tmr/db";
@@ -76,7 +77,11 @@ export async function POST(request: Request) {
     if (user.isGuest && existingCount >= 1) {
       return jsonError("Guest preview is limited to 1 classroom. Sign up to create more.", 403);
     }
-    if (!user.isGuest && existingCount >= FREE_TIER.classrooms) {
+    if (
+      !user.isGuest &&
+      existingCount >= FREE_TIER.classrooms &&
+      !(await hasPaidPlan(db, user.id))
+    ) {
       return jsonError("Free plan is limited to 3 classrooms", 403);
     }
 
