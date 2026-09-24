@@ -115,6 +115,11 @@ export const classroom = {
       "进行中的课堂每天早上都会通过邮件收到一份新测验。课堂在一段时间没有动静后会进入休眠；添加笔记或打开课堂即可唤醒。",
     uploadsHint: "免费版：本月已上传 {used}/{limit} 次笔记，所有课堂共用。",
     newClassroom: "新建课堂",
+    proBadge: "Pro",
+    lockedLabel: "新建课堂（免费版已达上限，需要 Pro）",
+    lockedTitle: "已达到 3 个课堂",
+    lockedBody: "免费版包含 3 个课堂，每月 2 次笔记上传。升级 Pro（每月 2.99 美元）即可解除这两项限制。",
+    lockedClose: "以后再说",
     emptyKicker: "从一节课开始",
     emptyTitle: "你的语言课笔记，变成十分钟测验",
     emptyBlurb:
