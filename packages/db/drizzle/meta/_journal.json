@@ -64,6 +64,13 @@
       "when": 1789659436069,
       "tag": "0008_loving_blindfold",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790264567721,
+      "tag": "0009_slippery_anthem",
+      "breakpoints": true
     }
   ]
 }

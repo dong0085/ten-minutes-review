@@ -63,3 +63,10 @@ export async function revokeApiTokenById(db: Db, input: { userId: string; id: st
     .returning({ id: apiTokens.id });
   return revoked.length > 0;
 }
+
+export async function revokeAllApiTokensByUser(db: Db, userId: string) {
+  await db
+    .update(apiTokens)
+    .set({ revokedAt: new Date() })
+    .where(and(eq(apiTokens.userId, userId), isNull(apiTokens.revokedAt)));
+}

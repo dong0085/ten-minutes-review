@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { cookies } from "next/headers";
 import {
+  bumpSessionVersion,
   createUser,
   deleteUser,
   extendClassroomActivityForLogin,
@@ -11,6 +12,7 @@ import {
   getUserById,
   linkAccount,
   recordReferralSignup,
+  revokeAllApiTokensByUser,
   transferClassrooms,
   updateUser,
   upsertEmailPreferences,
@@ -68,7 +70,7 @@ export const authConfig: NextAuthConfig = {
     },
   },
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account, profile }) {
       if (!user.email) {
         return false;
       }
@@ -119,11 +121,23 @@ export const authConfig: NextAuthConfig = {
       if (existing) {
         user.id = existing.id;
         if (account?.provider === "google" && account.providerAccountId) {
+          // Google proves the address belongs to this person. If nobody had
+          // verified it before, a password set at signup may belong to someone
+          // else who registered the address first, so drop it and sign out
+          // every session and token issued under it.
+          if (!existing.emailVerifiedAt && profile?.email_verified !== true) {
+            return "/signin?error=OAuthAccountNotLinked";
+          }
           await linkAccount(db, {
             userId: existing.id,
             provider: "google",
             providerAccountId: String(account.providerAccountId),
           });
+          if (!existing.emailVerifiedAt) {
+            await updateUser(db, existing.id, { emailVerifiedAt: new Date(), passwordHash: null });
+            await revokeAllApiTokensByUser(db, existing.id);
+            await bumpSessionVersion(db, existing.id);
+          }
         }
         const guestId = store.get(GUEST_COOKIE_NAME)?.value;
         if (guestId && guestId !== existing.id) {
@@ -185,6 +199,23 @@ export const authConfig: NextAuthConfig = {
         if (dbUser) {
           token.userId = dbUser.id;
         }
+      }
+      if (typeof token.userId !== "string") {
+        return token;
+      }
+      // A database hiccup should keep people signed in, so only a successful
+      // lookup can end the session.
+      const dbUser = await getUserById(getDb(), token.userId).catch(() => undefined);
+      if (dbUser === undefined) {
+        return token;
+      }
+      if (!dbUser) {
+        return null;
+      }
+      if (user) {
+        token.sessionVersion = dbUser.sessionVersion;
+      } else if ((token.sessionVersion ?? 0) !== dbUser.sessionVersion) {
+        return null;
       }
       return token;
     },

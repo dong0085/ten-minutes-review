@@ -1,4 +1,4 @@
-import { and, eq, gt, lt } from "drizzle-orm";
+import { and, eq, gt, lt, sql } from "drizzle-orm";
 import type { TokenPurpose } from "@tmr/core";
 import type { Db } from "../client";
 import { accounts, users, verificationTokens } from "../schema/users";
@@ -88,6 +88,15 @@ export async function updateUser(db: Db, id: string, patch: UpdateUserInput) {
     .where(eq(users.id, id))
     .returning();
   return user ?? null;
+}
+
+// Every web session carries the version it was issued under; bumping it
+// signs the user out everywhere on their next request.
+export async function bumpSessionVersion(db: Db, id: string) {
+  await db
+    .update(users)
+    .set({ sessionVersion: sql`${users.sessionVersion} + 1`, updatedAt: new Date() })
+    .where(eq(users.id, id));
 }
 
 export async function deleteUser(db: Db, id: string) {
