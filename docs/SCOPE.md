@@ -75,6 +75,7 @@ A web app that turns a tutoring session's notes — text or images — into a da
 - **$2.99 USD per month.**
 - Billing runs on **Stripe**. The payment UI is inactive and hidden, shown in debug builds only. The full subscription lifecycle — plan, status, cancel, webhooks — is modeled now and built later.
 - **Free tier:** 3 classrooms, 5 attempts *(my call: per quiz per day)*, quiz-type selection is a paid feature. Enforcement is deferred; the fields exist.
+- **Notes uploads:** free users, and paid users whose subscription has lapsed or been canceled, get 2 notes uploads per calendar month (in their timezone), shared across all classrooms. Each image counts as one upload. Paid access means a subscription with status `active` or `trialing` whose current period has not ended. This cap and the 3-classroom cap are enforced now.
 
 ## Referrals
 

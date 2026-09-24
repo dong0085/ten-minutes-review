@@ -4,6 +4,7 @@ export * from "./theme";
 export * from "./messages";
 export * from "./constants";
 export * from "./schedule";
+export * from "./plan";
 export * from "./quiz-size";
 export * from "./option-order";
 export * from "./grading";

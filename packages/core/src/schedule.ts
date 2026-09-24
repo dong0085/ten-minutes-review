@@ -72,6 +72,11 @@ export function nextDailySendAt(now: Date = new Date()): Date {
   );
 }
 
+export function startOfMonthAt(timeZone: string, now: Date = new Date()): Date {
+  const parts = zonedParts(now, timeZone);
+  return zonedTimeToUtc(parts.year, parts.month, 1, 0, timeZone);
+}
+
 export type ClassroomDailyStatus = "active" | "dormant" | "paused";
 
 export function classroomDailyStatus(

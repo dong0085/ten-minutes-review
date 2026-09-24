@@ -5,7 +5,25 @@ import {
   dailySendAt,
   isClassroomEligibleForDailySend,
   nextDailySendAt,
+  startOfMonthAt,
 } from "./schedule";
+
+describe("startOfMonthAt", () => {
+  it("returns local midnight on the first of the month", () => {
+    expect(
+      startOfMonthAt("America/Toronto", new Date("2026-09-24T12:00:00Z")).toISOString(),
+    ).toBe("2026-09-01T04:00:00.000Z");
+  });
+
+  it("uses the local calendar month near a month boundary", () => {
+    expect(
+      startOfMonthAt("America/Toronto", new Date("2026-10-01T02:00:00Z")).toISOString(),
+    ).toBe("2026-09-01T04:00:00.000Z");
+    expect(startOfMonthAt("Asia/Shanghai", new Date("2026-09-30T17:00:00Z")).toISOString()).toBe(
+      "2026-09-30T16:00:00.000Z",
+    );
+  });
+});
 
 describe("dailySendAt", () => {
   it("maps 7am Eastern to 12:00 UTC in winter", () => {

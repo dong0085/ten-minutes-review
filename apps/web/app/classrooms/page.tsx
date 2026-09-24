@@ -2,10 +2,22 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ArrowRight, BookOpen, Plus, Sparkles } from "lucide-react";
-import { classroomDailyStatus, classroomQuizDaysRemaining } from "@tmr/core";
-import { bankSize, getDailyQuizByClassroomAndDate, listClassrooms } from "@tmr/db";
+import {
+  FREE_TIER,
+  classroomDailyStatus,
+  classroomQuizDaysRemaining,
+  startOfMonthAt,
+} from "@tmr/core";
+import {
+  bankSize,
+  countUploadsSince,
+  getDailyQuizByClassroomAndDate,
+  hasPaidPlan,
+  listClassrooms,
+} from "@tmr/db";
 import { ClassroomCard } from "@/components/classroom/classroom-card";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getDb } from "@/lib/db";
 import { getCurrentUserOrGuest } from "@/lib/session";
 
@@ -100,6 +112,9 @@ export default async function ClassroomsPage() {
   }
 
   const activeCount = cards.filter(({ status }) => status === "active").length;
+  const isPaid = !isGuest && (await hasPaidPlan(db, user.id));
+  const uploadsThisMonth =
+    isPaid || isGuest ? null : await countUploadsSince(db, user.id, startOfMonthAt(user.timezone));
 
   return (
     <div className="space-y-8">
@@ -126,10 +141,30 @@ export default async function ClassroomsPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <div className="hidden items-center gap-2 rounded-xl border border-border/70 bg-card/60 px-3.5 py-2 text-xs text-muted-foreground sm:flex">
-            <Sparkles className="size-3.5 text-primary" />
-            {t("activeSummary", { active: activeCount, total: cards.length })}
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div
+                tabIndex={0}
+                className="hidden cursor-help items-center gap-2 rounded-xl border border-border/70 bg-card/60 px-3.5 py-2 text-xs text-muted-foreground outline-none transition-colors hover:border-primary/40 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 sm:flex"
+              >
+                <Sparkles className="size-3.5 text-primary" />
+                {isPaid
+                  ? t("activeCount", { active: activeCount })
+                  : t("activeSummary", { active: activeCount, total: cards.length })}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="space-y-1.5 py-2 leading-5">
+              <p>{t("activeHint")}</p>
+              {uploadsThisMonth !== null ? (
+                <p className="text-muted-foreground">
+                  {t("uploadsHint", {
+                    used: Math.min(uploadsThisMonth, FREE_TIER.notesUploadsPerMonth),
+                    limit: FREE_TIER.notesUploadsPerMonth,
+                  })}
+                </p>
+              ) : null}
+            </TooltipContent>
+          </Tooltip>
           <Button asChild>
             <Link href="/classrooms/new">
               <Plus />

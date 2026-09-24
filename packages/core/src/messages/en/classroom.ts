@@ -118,6 +118,11 @@ export const classroom = {
     title: "Classrooms",
     blurb: "Each classroom keeps one stream of notes, questions, and daily reviews together.",
     activeSummary: "{active} of {total} active",
+    activeCount: "{active} active",
+    activeHint:
+      "Active classrooms get a fresh quiz by email every morning. A classroom rests after a stretch of quiet days; add notes or open it to wake it up.",
+    uploadsHint:
+      "Free plan: {used} of {limit} notes uploads used this month, shared across all classrooms.",
     newClassroom: "New classroom",
     emptyKicker: "Begin with one lesson",
     emptyTitle: "Your notes become a ten-minute quiz",

@@ -110,6 +110,10 @@ export const classroom = {
     title: "课堂",
     blurb: "每个课堂把一组笔记、题目和每日复习放在一起。",
     activeSummary: "{total} 个中有 {active} 个进行中",
+    activeCount: "{active} 个进行中",
+    activeHint:
+      "进行中的课堂每天早上都会通过邮件收到一份新测验。课堂在一段时间没有动静后会进入休眠；添加笔记或打开课堂即可唤醒。",
+    uploadsHint: "免费版：本月已上传 {used}/{limit} 次笔记，所有课堂共用。",
     newClassroom: "新建课堂",
     emptyKicker: "从一节课开始",
     emptyTitle: "你的语言课笔记，变成十分钟测验",

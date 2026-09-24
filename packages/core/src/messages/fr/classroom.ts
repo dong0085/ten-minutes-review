@@ -124,6 +124,11 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     title: "Classes",
     blurb: "Chaque classe rassemble un fil de notes, de questions et de révisions quotidiennes.",
     activeSummary: "{active} sur {total} actives",
+    activeCount: "{active} actives",
+    activeHint:
+      "Les classes actives reçoivent un nouveau quiz par e-mail chaque matin. Une classe se met en pause après quelques jours calmes ; ajoute des notes ou ouvre-la pour la réveiller.",
+    uploadsHint:
+      "Forfait gratuit : {used} sur {limit} envois de notes utilisés ce mois-ci, partagés entre toutes tes classes.",
     newClassroom: "Nouvelle classe",
     emptyKicker: "Commence par un cours",
     emptyTitle: "Tes notes deviennent un quiz de dix minutes",

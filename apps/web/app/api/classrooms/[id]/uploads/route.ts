@@ -1,12 +1,18 @@
 import { after } from "next/server";
 import { z } from "zod";
-import { MAX_IMAGE_BYTES, MAX_UPLOADS_PER_USER_PER_DAY } from "@tmr/core";
+import {
+  FREE_TIER,
+  MAX_IMAGE_BYTES,
+  MAX_UPLOADS_PER_USER_PER_DAY,
+  startOfMonthAt,
+} from "@tmr/core";
 import {
   countUploadsSince,
   createUpload,
   enqueueJob,
   extendClassroomActivity,
   getClassroom,
+  hasPaidPlan,
   listUploadsForUser,
 } from "@tmr/db";
 import { handleRouteError, jsonError, jsonOk, readJson } from "@/lib/api";
@@ -52,6 +58,8 @@ function safeFilename(name: string): string {
   const cleaned = name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-80);
   return cleaned || "image";
 }
+
+const FREE_UPLOAD_LIMIT = "Free plan is limited to 2 notes uploads per month";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -118,6 +126,14 @@ export async function POST(request: Request, context: RouteContext) {
       return jsonError("Upload limit reached: 50 uploads per day", 429);
     }
 
+    const isPaid = !user.isGuest && (await hasPaidPlan(db, user.id));
+    const monthCount = isPaid
+      ? 0
+      : await countUploadsSince(db, user.id, startOfMonthAt(user.timezone));
+    if (!isPaid && monthCount >= FREE_TIER.notesUploadsPerMonth) {
+      return jsonError(FREE_UPLOAD_LIMIT, 403);
+    }
+
     const contentType = request.headers.get("content-type") ?? "";
     const uploadIds: string[] = [];
     const scheduled: { uploadId: string; jobId: string }[] = [];
@@ -138,6 +154,9 @@ export async function POST(request: Request, context: RouteContext) {
       }
       if (!user.isGuest && recentCount + files.length > MAX_UPLOADS_PER_USER_PER_DAY) {
         return jsonError("Upload limit reached: 50 uploads per day", 429);
+      }
+      if (!isPaid && monthCount + files.length > FREE_TIER.notesUploadsPerMonth) {
+        return jsonError(FREE_UPLOAD_LIMIT, 403);
       }
       const validated: { file: File; mimeType: string }[] = [];
       for (const file of files) {
