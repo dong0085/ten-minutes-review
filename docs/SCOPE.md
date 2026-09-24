@@ -67,7 +67,7 @@ A web app that turns a tutoring session's notes — text or images — into a da
 
 - **Email is the identifier.** Username is display-only, shown beside the avatar.
 - Google OAuth plus email/password, with email verification and password reset.
-- **Sign-ups:** open to the public, invite-only for now.
+- **Sign-ups:** open to the public.
 - **Account center:** usage stats (activity and learning insight from stored attempts), profile (username, avatar, password, email), subscription status, classroom management, quiz history and results, referral stats and links, email preferences, data export, delete account.
 
 ## Plans, limits & billing

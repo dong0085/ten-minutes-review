@@ -4,7 +4,6 @@ export const api = {
   invalidRequest: "Please check the form and try again.",
   generic: "Something went wrong. Please try again.",
   emailRegistered: "Email already registered",
-  inviteRequired: "Invite code required",
   invalidToken: "Invalid or missing token",
   invalidExpiredToken: "Invalid or expired token",
   freePlanLimit: "Free plan is limited to 3 classrooms",

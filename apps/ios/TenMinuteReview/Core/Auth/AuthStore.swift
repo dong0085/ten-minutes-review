@@ -82,20 +82,18 @@ final class AuthStore {
         }
     }
 
-    /// Creates the account (invite code and email verification run on the
-    /// web flow) and signs straight in.
-    func signUp(email: String, password: String, inviteCode: String) async throws {
+    /// Creates the account (email verification runs on the web flow) and
+    /// signs straight in.
+    func signUp(email: String, password: String) async throws {
         struct SignupBody: Encodable {
             let email: String
             let password: String
-            let inviteCode: String
             let timezone: String
             let uiLanguage: String
         }
         _ = try await api.sendVoid("POST", Endpoints.signup, json: SignupBody(
             email: email,
             password: password,
-            inviteCode: inviteCode,
             timezone: TimeZone.current.identifier,
             uiLanguage: L10n.uiLanguage
         ))

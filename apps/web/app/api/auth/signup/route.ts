@@ -16,13 +16,13 @@ import { handleRouteError, jsonError, jsonOk, readJson } from "@/lib/api";
 import { getDb } from "@/lib/db";
 import { renderVerificationEmail, sendEmail } from "@/lib/email";
 import { env } from "@/lib/env";
-import { resolveInviteCode } from "@/lib/invite";
+import { resolveReferrer } from "@/lib/referral";
 import { GUEST_COOKIE_NAME } from "@/lib/session";
 
 const signupSchema = z.object({
   email: z.email(),
   password: z.string().min(8),
-  inviteCode: z.string().trim().min(1).optional(),
+  referralCode: z.string().trim().min(1).optional(),
   timezone: z.string().trim().min(1).max(64).optional(),
   uiLanguage: z.string().trim().min(2).max(10).optional(),
 });
@@ -36,16 +36,7 @@ export async function POST(request: Request) {
       return jsonError("Email already registered", 409);
     }
 
-    let referrerUserId: string | null = null;
-    if (body.inviteCode) {
-      const invite = await resolveInviteCode(db, body.inviteCode);
-      if (env.inviteOnly && !invite) {
-        return jsonError("Invite code required", 403);
-      }
-      referrerUserId = invite?.referrerUserId ?? null;
-    } else if (env.inviteOnly) {
-      return jsonError("Invite code required", 403);
-    }
+    const referrerUserId = await resolveReferrer(db, body.referralCode);
 
     const user = await createUser(db, {
       email: body.email,
@@ -70,7 +61,7 @@ export async function POST(request: Request) {
     if (referrerUserId) {
       await recordReferralSignup(db, {
         referrerUserId,
-        sourceCode: body.inviteCode ?? null,
+        sourceCode: body.referralCode ?? null,
         referredUserId: user.id,
       });
     }

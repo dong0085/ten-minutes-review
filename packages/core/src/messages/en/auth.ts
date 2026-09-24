@@ -3,7 +3,6 @@ export const auth = {
     title: "Sign in",
     subtitle: "Pick up where you left off.",
     verified: "Your email is verified. Sign in to continue.",
-    inviteError: "That invite code did not work. Create an account with a valid code.",
     signInError: "We could not sign you in. Please try again.",
   },
   SignInForm: {
@@ -20,17 +19,13 @@ export const auth = {
   SignUpPage: {
     title: "Create your account",
     subtitle: "Your notes become a ten-minute quiz every morning.",
-    inviteError: "A valid invite code is needed to sign up.",
   },
   SignUpForm: {
-    inviteCode: "Invite code",
-    invitePlaceholder: "From your invitation",
     email: "Email",
     password: "Password",
     language: "Language (optional)",
     browserDefault: "Browser default",
     timezone: "Timezone (optional)",
-    inviteInvalid: "That invite code is not valid.",
     emailTaken: "An account with that email already exists.",
     genericError: "Something went wrong. Please try again.",
     creating: "Creating account…",

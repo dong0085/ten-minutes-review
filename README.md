@@ -25,7 +25,7 @@ In a second terminal, start the job worker:
 pnpm dev:worker
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and use the development invite code `dev-invite`. The defaults in `.env.example` provide fixture extraction and quiz composition, print email to the worker log, and store uploaded images in `.uploads/`.
+Open [http://localhost:3000](http://localhost:3000) and sign up. The defaults in `.env.example` provide fixture extraction and quiz composition, print email to the worker log, and store uploaded images in `.uploads/`.
 
 ## Architecture
 

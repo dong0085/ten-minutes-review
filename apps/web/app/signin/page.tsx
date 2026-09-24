@@ -41,7 +41,7 @@ export default async function SignInPage({
       ) : null}
       {error ? (
         <Alert variant="destructive">
-          <AlertDescription>{error === "invite" ? t("inviteError") : t("signInError")}</AlertDescription>
+          <AlertDescription>{t("signInError")}</AlertDescription>
         </Alert>
       ) : null}
       <SignInForm />
