@@ -9,7 +9,7 @@ struct TenMinuteReviewApp: App {
             RootView()
                 .environment(environment)
                 .environment(environment.theme)
-                .tint(environment.theme.colors.primary)
+                .tint(environment.theme.palette.tint)
         }
     }
 }

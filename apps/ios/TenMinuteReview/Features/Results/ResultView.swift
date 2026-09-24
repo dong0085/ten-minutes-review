@@ -1,18 +1,24 @@
 import SwiftUI
 
 struct ResultView: View {
-    @Environment(ThemeStore.self) private var theme
     let outcome: SubmitOutcome
     let quiz: Quiz
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                scoreRing
-                Text(verdict)
-                    .font(AppFont.geist(14))
-                    .foregroundStyle(theme.colors.mutedForeground)
+        List {
+            Section {
+                VStack(spacing: 12) {
+                    scoreRing
+                    Text(verdict)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+            }
 
+            Section {
                 ForEach(outcome.results, id: \.questionId) { result in
                     ResultRowView(
                         result: result,
@@ -20,41 +26,40 @@ struct ResultView: View {
                     )
                 }
             }
-            .padding()
         }
-        .background(theme.colors.background.ignoresSafeArea())
+        .listStyle(.insetGrouped)
         .navigationTitle(L10n.t("results.title"))
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    private var scoreRing: some View {
-        let ratio = outcome.questionCount > 0
+    private var ratio: Double {
+        outcome.questionCount > 0
             ? Double(outcome.correctCount) / Double(outcome.questionCount)
             : 0
-        return ZStack {
+    }
+
+    private var scoreRing: some View {
+        ZStack {
             Circle()
-                .stroke(theme.colors.border.opacity(0.5), lineWidth: 12)
+                .stroke(.quaternary, lineWidth: 10)
             Circle()
                 .trim(from: 0, to: ratio)
-                .stroke(theme.colors.primary, style: StrokeStyle(lineWidth: 12, lineCap: .round))
+                .stroke(.tint, style: StrokeStyle(lineWidth: 10, lineCap: .round))
                 .rotationEffect(.degrees(-90))
-            VStack(spacing: 2) {
+            VStack(spacing: 0) {
                 Text("\(outcome.correctCount)/\(outcome.questionCount)")
-                    .font(AppFont.editorial(34, bold: true))
-                    .foregroundStyle(theme.colors.foreground)
+                    .font(.largeTitle.bold())
+                    .monospacedDigit()
                 Text(L10n.t("results.correct"))
-                    .font(AppFont.geist(12))
-                    .foregroundStyle(theme.colors.mutedForeground)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
-        .frame(width: 140, height: 140)
-        .padding(.top, 12)
+        .frame(width: 128, height: 128)
+        .accessibilityElement(children: .combine)
     }
 
     private var verdict: String {
-        let ratio = outcome.questionCount > 0
-            ? Double(outcome.correctCount) / Double(outcome.questionCount)
-            : 0
         if ratio >= 0.9 { return L10n.t("results.verdict.great") }
         if ratio >= 0.7 { return L10n.t("results.verdict.solid") }
         if ratio >= 0.5 { return L10n.t("results.verdict.half") }
@@ -63,34 +68,27 @@ struct ResultView: View {
 }
 
 struct ResultRowView: View {
-    @Environment(ThemeStore.self) private var theme
     let result: QuestionResult
     let question: QuizQuestion?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: result.isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
-                    .foregroundStyle(result.isCorrect ? theme.colors.success : theme.colors.destructive)
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(question?.stem ?? "")
-                        .font(AppFont.geist(15, .semibold))
-                        .foregroundStyle(theme.colors.foreground)
-
-                    if !result.isCorrect {
-                        Text(String(format: L10n.t("results.correctAnswer"), result.correctAnswer.describe(options: question?.options)))
-                            .font(AppFont.geist(14))
-                            .foregroundStyle(theme.colors.success)
-                    }
-
-                    Text(result.explanation)
-                        .font(AppFont.geist(13))
-                        .foregroundStyle(theme.colors.mutedForeground)
+        Label {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(question?.stem ?? "")
+                    .font(.headline)
+                if !result.isCorrect {
+                    Text(String(format: L10n.t("results.correctAnswer"), result.correctAnswer.describe(options: question?.options)))
+                        .font(.subheadline)
+                        .foregroundStyle(.green)
                 }
+                Text(result.explanation)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
+        } icon: {
+            Image(systemName: result.isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
+                .foregroundStyle(result.isCorrect ? .green : .red)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(14)
-        .editorialSurface()
+        .padding(.vertical, 4)
     }
 }

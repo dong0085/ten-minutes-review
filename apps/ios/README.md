@@ -36,6 +36,20 @@ ID: open the project, select the target, set your team under *Signing &
 Capabilities*, and connect the device. Free provisioning re-signs every
 seven days — rebuild to refresh.
 
+## Password autofill
+
+The sign-in fields carry `username` and `password` content types, so iOS
+offers saved passwords from the keyboard's key button. Linking the app to
+the website — so the site's saved passwords appear as the top suggestion —
+uses Associated Domains, which needs a paid Apple Developer team:
+
+1. Add `apps/ios/TenMinuteReview/TenMinuteReview.entitlements` with
+   `com.apple.developer.associated-domains` = `webcredentials:tenminutesreview.study`,
+   and point the target's `CODE_SIGN_ENTITLEMENTS` at it in `project.yml`.
+2. Set `APPLE_APP_IDS=<TEAMID>.study.tenminutesreview.app` on the web
+   deployment. The site serves it at `/.well-known/apple-app-site-association`.
+3. Regenerate the project and sign with the paid team.
+
 ## Tests
 
 ```sh
@@ -47,7 +61,7 @@ xcodebuild test \
 
 ## Architecture notes
 
-- `Core/Theme` — the web app's design system, ported: OKLCH colour math resolves the same token values as `apps/web/app/globals.css`, all four palettes (mint, sky, sakura, lavender) switch live from Account, light/dark follows the device, and the bundled Geist + Source Serif 4 faces match the site's typography.
+- `Core/Theme` — the app follows native iOS design: stock `List`/`Form` screens, system fonts with Dynamic Type, system backgrounds and status colours. The web palettes (mint, sky, sakura, lavender) supply the app-wide tint, resolved from the same OKLCH `--primary` values as `apps/web/app/globals.css`, and switch live from Account.
 - `Core/API` — `APIClient` (bearer token, JSON + multipart), stable error
   codes from the server's `{error, code}` envelope.
 - `Core/Auth` — Keychain-stored API token; sign-in mints one via

@@ -2,7 +2,6 @@ import SwiftUI
 
 struct AttemptReviewView: View {
     @Environment(AppEnvironment.self) private var environment
-    @Environment(ThemeStore.self) private var theme
     let attemptId: String
 
     @State private var detail: AttemptDetail?
@@ -13,30 +12,24 @@ struct AttemptReviewView: View {
             if let detail {
                 List {
                     Section {
-                        HStack {
-                            Text(String(format: L10n.t("review.correctCount"), detail.attempt.correctCount, detail.attempt.questionCount))
-                                .font(AppFont.geist(16, .semibold))
-                                .foregroundStyle(theme.colors.foreground)
-                            Spacer()
+                        LabeledContent {
                             Text(DateFormatting.dateTime(DateFormatting.parseISO8601(detail.attempt.submittedAt)))
-                                .font(AppFont.geist(12))
-                                .foregroundStyle(theme.colors.mutedForeground)
+                        } label: {
+                            Text(String(format: L10n.t("review.correctCount"), detail.attempt.correctCount, detail.attempt.questionCount))
+                                .font(.headline)
                         }
                         Text(String(format: L10n.t("review.took"), DateFormatting.duration(ms: detail.attempt.durationMs)))
-                            .font(AppFont.geist(12))
-                            .foregroundStyle(theme.colors.mutedForeground)
+                            .foregroundStyle(.secondary)
                     }
                     Section {
                         ForEach(Array(detail.answers.enumerated()), id: \.element.questionId) { _, answer in
                             ReviewRowView(answer: answer)
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
                         }
                     } header: {
-                        Text(L10n.t("review.answers")).eyebrowStyle(theme.colors)
+                        Text(L10n.t("review.answers"))
                     }
                 }
-                .paperScreen()
+                .listStyle(.insetGrouped)
             } else if let errorMessage {
                 ContentUnavailableView(
                     L10n.t("review.unavailable"),
@@ -62,37 +55,35 @@ struct AttemptReviewView: View {
 }
 
 private struct ReviewRowView: View {
-    @Environment(ThemeStore.self) private var theme
     let answer: AttemptAnswer
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .top, spacing: 8) {
-                Image(systemName: answer.isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
-                    .foregroundStyle(answer.isCorrect ? theme.colors.success : theme.colors.destructive)
+        Label {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(answer.stem)
-                    .font(AppFont.geist(15, .semibold))
-                    .foregroundStyle(theme.colors.foreground)
+                    .font(.headline)
+                if let yours = answer.response?.describe {
+                    Text(String(format: L10n.t("review.yourAnswer"), yours))
+                        .font(.subheadline)
+                        .foregroundStyle(answer.isCorrect ? .green : .red)
+                } else {
+                    Text(L10n.t("review.unanswered"))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                if !answer.isCorrect {
+                    Text(String(format: L10n.t("results.correctAnswer"), answer.correctAnswer.describe(options: answer.options)))
+                        .font(.subheadline)
+                        .foregroundStyle(.green)
+                }
+                Text(answer.explanation)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
-            if let yours = answer.response?.describe {
-                Text(String(format: L10n.t("review.yourAnswer"), yours))
-                    .font(AppFont.geist(13))
-                    .foregroundStyle(answer.isCorrect ? theme.colors.success : theme.colors.destructive)
-            } else {
-                Text(L10n.t("review.unanswered"))
-                    .font(AppFont.geist(13))
-                    .foregroundStyle(theme.colors.mutedForeground)
-            }
-            if !answer.isCorrect {
-                Text(String(format: L10n.t("results.correctAnswer"), answer.correctAnswer.describe(options: answer.options)))
-                    .font(AppFont.geist(13))
-                    .foregroundStyle(theme.colors.success)
-            }
-            Text(answer.explanation)
-                .font(AppFont.geist(13))
-                .foregroundStyle(theme.colors.mutedForeground)
+        } icon: {
+            Image(systemName: answer.isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
+                .foregroundStyle(answer.isCorrect ? .green : .red)
         }
-        .padding(14)
-        .editorialSurface()
+        .padding(.vertical, 4)
     }
 }

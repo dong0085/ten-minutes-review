@@ -1,55 +1,45 @@
 import SwiftUI
 
 struct SignInView: View {
-    @Environment(ThemeStore.self) private var theme
     @State private var isSignUp = false
 
     var body: some View {
-        ZStack {
-            theme.colors.background.ignoresSafeArea()
-            LinearGradient(
-                colors: [theme.colors.backgroundTint, .clear],
-                startPoint: .topLeading,
-                endPoint: .center
-            )
-            .ignoresSafeArea()
-
-            ScrollView {
-                VStack(spacing: 28) {
-                    VStack(spacing: 10) {
-                        Image(systemName: "books.vertical.fill")
-                            .font(.system(size: 44))
-                            .foregroundStyle(theme.colors.primary)
+        NavigationStack {
+            Form {
+                Section {
+                    VStack(spacing: 12) {
+                        Image("AppLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 88, height: 88)
+                            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                             .accessibilityHidden(true)
                         Text("Ten Minute Review")
-                            .font(AppFont.editorial(32))
-                            .foregroundStyle(theme.colors.foreground)
-                            .multilineTextAlignment(.center)
+                            .font(.title.bold())
                         Text(L10n.t("app.tagline"))
-                            .font(AppFont.geist(14))
-                            .foregroundStyle(theme.colors.mutedForeground)
-                            .multilineTextAlignment(.center)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
                     }
-                    .padding(.top, 48)
-
-                    if isSignUp {
-                        SignUpCard {
-                            isSignUp = false
-                        }
-                    } else {
-                        SignInCard(showSignUp: $isSignUp)
-                    }
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .listRowBackground(Color.clear)
                 }
-                .padding(24)
+
+                if isSignUp {
+                    SignUpForm {
+                        isSignUp = false
+                    }
+                } else {
+                    SignInForm(showSignUp: $isSignUp)
+                }
             }
             .scrollDismissesKeyboard(.interactively)
         }
     }
 }
 
-private struct SignInCard: View {
+private struct SignInForm: View {
     @Environment(AppEnvironment.self) private var environment
-    @Environment(ThemeStore.self) private var theme
     @Binding var showSignUp: Bool
 
     @State private var email = ""
@@ -58,60 +48,36 @@ private struct SignInCard: View {
     @State private var errorMessage: String?
 
     var body: some View {
-        VStack(spacing: 16) {
-            VStack(spacing: 0) {
-                TextField(L10n.t("signin.email"), text: $email)
-                    .textContentType(.emailAddress)
-                    .keyboardType(.emailAddress)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                    .font(AppFont.geist(16))
-                    .foregroundStyle(theme.colors.foreground)
-                    .padding(16)
-                Divider().overlay(theme.colors.border.opacity(0.7))
-                SecureField(L10n.t("signin.password"), text: $password)
-                    .textContentType(.password)
-                    .font(AppFont.geist(16))
-                    .foregroundStyle(theme.colors.foreground)
-                    .padding(16)
-            }
-            .editorialSurface()
-
-            Button {
-                signIn()
-            } label: {
-                Group {
-                    if isBusy {
-                        ProgressView().tint(theme.colors.primaryForeground)
-                    } else {
-                        Text(L10n.t("signin.title"))
-                            .font(AppFont.geist(16, .semibold))
-                            .foregroundStyle(theme.colors.primaryForeground)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .background(theme.colors.primary, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-            }
-            .disabled(isBusy || email.isEmpty || password.isEmpty)
-            .opacity(email.isEmpty || password.isEmpty ? 0.55 : 1)
-
+        Section {
+            TextField(L10n.t("signin.email"), text: $email)
+                .textContentType(.username)
+                .keyboardType(.emailAddress)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+            SecureField(L10n.t("signin.password"), text: $password)
+                .textContentType(.password)
+        } footer: {
             if let errorMessage {
-                Text(errorMessage)
-                    .font(AppFont.geist(13))
-                    .foregroundStyle(theme.colors.destructive)
-                    .multilineTextAlignment(.center)
+                Text(errorMessage).foregroundStyle(.red)
             }
+        }
 
+        Section {
+            SubmitButton(
+                title: L10n.t("signin.title"),
+                isBusy: isBusy,
+                action: signIn
+            )
+            .disabled(isBusy || email.isEmpty || password.isEmpty)
+        }
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
+
+        Section {
             Button(L10n.t("signin.switchToSignUp")) {
                 showSignUp = true
             }
-            .font(AppFont.geist(13, .medium))
-            .foregroundStyle(theme.colors.primary)
-
             Link(L10n.t("signin.forgot"), destination: forgotURL)
-                .font(AppFont.geist(13))
-                .foregroundStyle(theme.colors.mutedForeground)
         }
     }
 
@@ -142,9 +108,8 @@ private struct SignInCard: View {
     }
 }
 
-private struct SignUpCard: View {
+private struct SignUpForm: View {
     @Environment(AppEnvironment.self) private var environment
-    @Environment(ThemeStore.self) private var theme
     var onDone: () -> Void
 
     @State private var email = ""
@@ -160,62 +125,39 @@ private struct SignUpCard: View {
     }
 
     var body: some View {
-        VStack(spacing: 16) {
-            VStack(spacing: 0) {
-                field(L10n.t("signin.email"), text: $email, keyboard: .emailAddress)
-                Divider().overlay(theme.colors.border.opacity(0.7))
-                SecureField(L10n.t("signin.password"), text: $password)
-                    .textContentType(.newPassword)
-                    .font(AppFont.geist(16))
-                    .foregroundStyle(theme.colors.foreground)
-                    .padding(16)
-                Divider().overlay(theme.colors.border.opacity(0.7))
-                field(L10n.t("signup.invite"), text: $inviteCode, keyboard: .default)
-            }
-            .editorialSurface()
-
-            Button {
-                signUp()
-            } label: {
-                Group {
-                    if isBusy {
-                        ProgressView().tint(theme.colors.primaryForeground)
-                    } else {
-                        Text(L10n.t("signup.submit"))
-                            .font(AppFont.geist(16, .semibold))
-                            .foregroundStyle(theme.colors.primaryForeground)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .background(theme.colors.primary, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-            }
-            .disabled(isBusy || !canSubmit)
-            .opacity(canSubmit ? 1 : 0.55)
-
+        Section {
+            TextField(L10n.t("signin.email"), text: $email)
+                .textContentType(.username)
+                .keyboardType(.emailAddress)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+            SecureField(L10n.t("signin.password"), text: $password)
+                .textContentType(.newPassword)
+            TextField(L10n.t("signup.invite"), text: $inviteCode)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+        } footer: {
             if let errorMessage {
-                Text(errorMessage)
-                    .font(AppFont.geist(13))
-                    .foregroundStyle(theme.colors.destructive)
-                    .multilineTextAlignment(.center)
+                Text(errorMessage).foregroundStyle(.red)
             }
+        }
 
+        Section {
+            SubmitButton(
+                title: L10n.t("signup.submit"),
+                isBusy: isBusy,
+                action: signUp
+            )
+            .disabled(isBusy || !canSubmit)
+        }
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
+
+        Section {
             Button(L10n.t("signin.haveAccount")) {
                 onDone()
             }
-            .font(AppFont.geist(13, .medium))
-            .foregroundStyle(theme.colors.primary)
         }
-    }
-
-    private func field(_ placeholder: String, text: Binding<String>, keyboard: UIKeyboardType) -> some View {
-        TextField(placeholder, text: text)
-            .keyboardType(keyboard)
-            .textInputAutocapitalization(.never)
-            .autocorrectionDisabled()
-            .font(AppFont.geist(16))
-            .foregroundStyle(theme.colors.foreground)
-            .padding(16)
     }
 
     private func signUp() {
@@ -237,5 +179,26 @@ private struct SignUpCard: View {
                 errorMessage = L10n.t("signup.genericError")
             }
         }
+    }
+}
+
+/// Full-width prominent button that swaps its title for a spinner while busy.
+private struct SubmitButton: View {
+    let title: String
+    let isBusy: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            ZStack {
+                Text(title).opacity(isBusy ? 0 : 1)
+                if isBusy {
+                    ProgressView()
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.large)
     }
 }

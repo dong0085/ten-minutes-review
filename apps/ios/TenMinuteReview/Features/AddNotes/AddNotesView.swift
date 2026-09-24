@@ -3,7 +3,6 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct AddNotesView: View {
-    @Environment(ThemeStore.self) private var theme
     @Environment(\.dismiss) private var dismiss
     let model: ClassroomDetailModel
 
@@ -72,7 +71,6 @@ struct AddNotesView: View {
                             VStack(spacing: 8) {
                                 if let progress {
                                     ProgressView(value: progress)
-                                        .tint(theme.colors.primary)
                                 } else {
                                     ProgressView()
                                 }
@@ -91,7 +89,6 @@ struct AddNotesView: View {
             }
             .navigationTitle(L10n.t("detail.notes.add"))
             .navigationBarTitleDisplayMode(.inline)
-            .paperScreen()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(L10n.t("classrooms.cancel")) { dismiss() }

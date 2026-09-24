@@ -1,51 +1,49 @@
 import SwiftUI
 
 struct NotesTimelineRow: View {
-    @Environment(ThemeStore.self) private var theme
     let upload: Upload
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             if upload.isImage, let imageUrl = upload.imageUrl {
                 RemoteImage(urlString: imageUrl)
-                    .frame(width: 52, height: 52)
+                    .frame(width: 48, height: 48)
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     .accessibilityLabel(Text(L10n.t("upload.photoNote")))
             } else {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(theme.colors.muted)
-                    .frame(width: 52, height: 52)
+                    .fill(.quaternary)
+                    .frame(width: 48, height: 48)
                     .overlay {
                         Image(systemName: "doc.text")
-                            .foregroundStyle(theme.colors.mutedForeground)
+                            .foregroundStyle(.secondary)
                     }
                     .accessibilityHidden(true)
             }
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(alignment: .firstTextBaseline) {
                     Text(upload.subject
                         ?? L10n.t(upload.isImage ? "upload.photoNote" : "upload.textNote"))
-                        .font(AppFont.geist(14, .semibold))
-                        .foregroundStyle(theme.colors.foreground)
+                        .font(.headline)
                         .lineLimit(1)
                     Spacer()
-                    statusChip
+                    statusLabel
                 }
                 Text(DateFormatting.dateTime(DateFormatting.parseISO8601(upload.createdAt)))
-                    .font(AppFont.geist(12))
-                    .foregroundStyle(theme.colors.mutedForeground)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
                 if !upload.isImage, let text = upload.textContent, !text.isEmpty {
                     Text(text)
-                        .font(AppFont.geist(12))
-                        .foregroundStyle(theme.colors.mutedForeground)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                         .lineLimit(2)
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 2)
     }
 
-    private var statusChip: some View {
+    private var statusLabel: some View {
         Group {
             switch upload.extractionStatus {
             case .done:
@@ -58,16 +56,15 @@ struct NotesTimelineRow: View {
                 Label(L10n.t("upload.failed"), systemImage: "exclamationmark.triangle.fill")
             }
         }
-        .font(AppFont.geist(11))
+        .font(.caption)
         .foregroundStyle(color)
-        .labelStyle(.titleAndIcon)
     }
 
     private var color: Color {
         switch upload.extractionStatus {
-        case .done: return theme.colors.success
-        case .running, .pending: return theme.colors.warning
-        case .failed: return theme.colors.destructive
+        case .done: return .green
+        case .running, .pending: return .orange
+        case .failed: return .red
         }
     }
 }
