@@ -319,3 +319,14 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Chinese glyphs fill the whole em box, so the editorial heading style
+   (negative tracking, tight leading, synthetic italics) crowds them. */
+:lang(zh) .font-heading {
+  letter-spacing: 0;
+  font-style: normal;
+}
+
+:lang(zh) h1.font-heading {
+  line-height: 1.2;
+}

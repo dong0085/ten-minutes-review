@@ -1,8 +1,9 @@
 import { en } from "./en";
 import { fr } from "./fr";
+import { zh } from "./zh";
 import type { MessageShape } from "./type";
 
-export const UI_LOCALES = ["en", "fr"] as const;
+export const UI_LOCALES = ["en", "fr", "zh"] as const;
 
 export type UiLocale = (typeof UI_LOCALES)[number];
 
@@ -12,7 +13,7 @@ export type Messages = typeof en;
 
 export type MessagesShape = MessageShape<Messages>;
 
-const catalogs: Record<UiLocale, MessagesShape> = { en, fr };
+const catalogs: Record<UiLocale, MessagesShape> = { en, fr, zh };
 
 export function isUiLocale(value: string): value is UiLocale {
   return UI_LOCALES.some((locale) => locale === value);

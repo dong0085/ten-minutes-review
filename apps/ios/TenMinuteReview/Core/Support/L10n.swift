@@ -1,13 +1,15 @@
 import Foundation
 
-/// App chrome strings in English and French, mirroring the web's message
-/// catalogs (`packages/core/src/messages/{en,fr}`). The active language
+/// App chrome strings in English, French, and Chinese, mirroring the web's
+/// message catalogs (`packages/core/src/messages/{en,fr,zh}`). The active language
 /// follows the signed-in user's `ui_language` and falls back to the device
 /// language before English.
 enum L10n {
     static var uiLanguage: String = {
         let preferred = Locale.preferredLanguages.first ?? "en"
-        return preferred.hasPrefix("fr") ? "fr" : "en"
+        if preferred.hasPrefix("fr") { return "fr" }
+        if preferred.hasPrefix("zh") { return "zh" }
+        return "en"
     }() {
         didSet { current = table(for: uiLanguage) }
     }
@@ -18,10 +20,14 @@ enum L10n {
         current[key] ?? en[key] ?? key
     }
 
-    /// French mirrors the web's `fr` catalog for shared strings, with fresh
+    /// French and Chinese mirror the web's catalogs for shared strings, with fresh
     /// translations for app-only chrome.
     private static func table(for language: String) -> [String: String] {
-        language == "fr" ? fr : en
+        switch language {
+        case "fr": fr
+        case "zh": zh
+        default: en
+        }
     }
 
     private static let en: [String: String] = [
@@ -352,5 +358,170 @@ enum L10n {
         "settings.deleteConfirm.body": "Notes, banque de questions, quiz et historique d'essais sont définitivement supprimés.",
         "settings.deleteConfirm.action": "Supprimer la classe",
         "settings.saved": "Enregistré",
+    ]
+
+    private static let zh: [String: String] = [
+        "app.tagline": "把今天的笔记，变成明天的测验。",
+        "signin.title": "登录",
+        "signin.email": "邮箱",
+        "signin.password": "密码",
+        "signin.busy": "正在登录…",
+        "signin.noMatch": "邮箱和密码不匹配。",
+        "signin.newHere": "第一次来？请先在网站上创建账户。",
+        "signin.openWeb": "打开网站",
+        "signin.forgot": "忘记密码？",
+        "signin.switchToSignUp": "创建账户",
+        "signin.haveAccount": "已有账户？登录",
+        "signup.title": "创建账户",
+        "signup.invite": "邀请码",
+        "signup.submit": "创建账户",
+        "signup.checkEmail": "账户已创建。请查收邮件中的验证链接，然后登录。",
+        "signup.genericError": "注册失败，请重试。",
+        "tabs.classrooms": "课堂",
+        "tabs.account": "账户",
+        "classrooms.title": "课堂",
+        "classrooms.header": "你的课堂",
+        "classrooms.empty.title": "还没有课堂",
+        "classrooms.empty.body": "一个课堂包含一组笔记和它的每日测验。",
+        "classrooms.unavailable": "无法加载课堂",
+        "classrooms.create.title": "新建课堂",
+        "classrooms.create.name": "名称",
+        "classrooms.create.section": "课堂",
+        "classrooms.create.languages": "语言",
+        "classrooms.create.studying": "在学",
+        "classrooms.create.native": "母语",
+        "classrooms.create.submit": "创建",
+        "classrooms.cancel": "取消",
+        "classrooms.retry": "重试",
+        "classrooms.new": "添加",
+        "classroom.status.active": "进行中",
+        "classroom.status.paused": "已暂停",
+        "classroom.status.dormant": "休眠",
+        "detail.today": "今天",
+        "detail.today.ready": "今天的测验已就绪",
+        "detail.today.aboutTen": "%d 道题 · 约十分钟",
+        "detail.today.writing": "正在出题…",
+        "detail.today.queued": "排队中…",
+        "detail.today.requested": "请求于 %@",
+        "detail.today.cancel": "取消",
+        "detail.today.noneYet": "还没有测验",
+        "detail.today.noneHint": "添加笔记——提取后会建立题库，测验随后生成。",
+        "detail.today.readyFor": "可以做今天的测验了",
+        "detail.today.pointsInBank": "题库中有 %d 个知识点。",
+        "detail.today.write": "生成测验",
+        "detail.bank": "题库",
+        "detail.bank.total": "共 %d 个知识点",
+        "detail.bank.empty": "笔记处理后，题库会逐渐充实。",
+        "detail.notes": "笔记",
+        "detail.notes.empty": "添加第一份笔记，开始建立题库。",
+        "detail.notes.add": "添加笔记",
+        "detail.quizzes": "测验",
+        "detail.quizzes.empty": "还没有测验。",
+        "detail.quizzes.onDemand": "随时生成",
+        "detail.quizzes.questions": "%d 道题",
+        "detail.quizzes.best": "最佳 %d/%d · %d 次作答",
+        "detail.quizzes.notAttempted": "未作答",
+        "detail.settings": "设置",
+        "notes.text": "文字笔记",
+        "notes.photos": "照片",
+        "notes.lessonNotes": "上课笔记",
+        "notes.lessonHint": "单词、短语、语法笔记——课上的任何内容都可以。",
+        "notes.pages": "手写页面",
+        "notes.pagesHint": "最多 %d 页，每页不超过 10 MB。照片会按手写文字读取。",
+        "notes.choose": "选择照片",
+        "notes.photo": "照片 %d",
+        "notes.submit": "添加笔记",
+        "notes.tooLarge": "照片 %d 超过 10 MB，请选择较小的版本。",
+        "notes.unreadable": "所选照片都无法读取。",
+        "notes.uploadFailed": "上传失败，请重试。",
+        "upload.processed": "已处理",
+        "upload.processing": "处理中…",
+        "upload.queued": "排队中",
+        "upload.failed": "失败",
+        "upload.photoNote": "照片笔记",
+        "upload.textNote": "文字笔记",
+        "quiz.title": "测验",
+        "quiz.preparing": "正在准备你的测验…",
+        "quiz.scoring": "正在评分…",
+        "quiz.resumed": "已继续——还剩 %d 分钟",
+        "quiz.questionOf": "第 %d 题，共 %d 题",
+        "quiz.answered": "已答 %d 题",
+        "quiz.previous": "上一题",
+        "quiz.next": "下一题",
+        "quiz.submit": "提交",
+        "quiz.blank": "第 %d 空",
+        "quiz.yourAnswer": "你的答案",
+        "quiz.true": "对",
+        "quiz.false": "错",
+        "quiz.expired.title": "此次作答已过期",
+        "quiz.expired.body": "每次作答可保留两小时。请重新开始一次。",
+        "quiz.wentWrong": "出了点问题",
+        "quiz.tryAgain": "重试",
+        "quiz.delete": "删除测验",
+        "quiz.deleteConfirm.title": "删除这份测验？",
+        "quiz.deleteConfirm.body": "测验、题目和所有作答记录都会被删除。删除的每日测验当天不会再出现。",
+        "quiz.deleteConfirm.action": "删除",
+        "quiz.omitKnowledgePoint": "我已经掌握了",
+        "quiz.knowledgePointOmitted": "以后的测验将跳过",
+        "quiz.restoreKnowledgePoint": "继续出现在以后的测验中",
+        "results.title": "成绩",
+        "results.correct": "答对",
+        "results.verdict.great": "太棒了——都记住了。",
+        "results.verdict.solid": "不错。答错的题会出现在明天的测验里。",
+        "results.verdict.half": "完成一半了——多复习几次会更好。",
+        "results.verdict.rough": "这次有点难。看看下面的讲解吧。",
+        "results.correctAnswer": "正确答案：%@",
+        "review.title": "作答回顾",
+        "review.answers": "答案",
+        "review.correctCount": "答对 %d/%d",
+        "review.took": "用时 %@",
+        "review.yourAnswer": "你的答案：%@",
+        "review.unanswered": "未作答",
+        "review.unavailable": "无法查看回顾",
+        "account.profile": "个人资料",
+        "account.email": "邮箱",
+        "account.name": "名字",
+        "account.interfaceLanguage": "界面语言",
+        "account.timezone": "时区",
+        "account.theme": "主题",
+        "account.themeFooter": "配色与网站一致；浅色和深色跟随本设备的外观设置。",
+        "account.emailPrefs": "早间邮件",
+        "account.emailPrefsFooter": "每天早上一封邮件，包含你所有课堂的测验。可随时更改或退订。",
+        "account.dailyEnabled": "每日测验邮件",
+        "account.password": "密码",
+        "account.changePassword": "修改密码",
+        "account.currentPassword": "当前密码",
+        "account.newPassword": "新密码（至少 8 个字符）",
+        "account.passwordUpdated": "密码已更新。",
+        "account.wrongPassword": "当前密码不正确。",
+        "account.referrals": "邀请好友",
+        "account.referralCode": "你的邀请码",
+        "account.referralLink": "分享链接",
+        "account.referralStatus.created": "已邀请",
+        "account.referralStatus.signed_up": "已注册",
+        "account.referralStatus.rewarded": "已奖励——免费一个月",
+        "account.referralsFooter": "每成功邀请一位好友，双方各得一个月免费使用。",
+        "account.export": "你的数据",
+        "account.exportAction": "导出我的数据",
+        "account.delete": "删除账户",
+        "account.deleteConfirm.title": "删除你的账户？",
+        "account.deleteConfirm.body": "所有课堂、笔记、测验和作答记录都将被永久删除，且无法恢复。",
+        "account.deleteConfirm.action": "全部删除",
+        "account.signOut": "退出登录",
+        "account.about": "关于",
+        "account.api": "API",
+        "account.manageWeb": "在网页上管理账户",
+        "settings.classroom": "课堂",
+        "settings.languages": "语言",
+        "settings.autoStop": "自动停止时间",
+        "settings.autoStopFooter": "最后一次活动后经过多少天，定时复习会自动暂停。",
+        "settings.pauseTitle": "每日复习",
+        "settings.pauseFooter": "暂停只会停止这个课堂的定时测验和早间邮件；笔记和随时生成的测验仍然可用。",
+        "settings.pauseToggle": "已暂停",
+        "settings.delete": "删除课堂",
+        "settings.deleteConfirm.title": "删除这个课堂？",
+        "settings.deleteConfirm.body": "笔记、题库、测验和作答记录都将被永久删除。",
+        "settings.deleteConfirm.action": "删除课堂",
+        "settings.saved": "已保存",
     ]
 }
