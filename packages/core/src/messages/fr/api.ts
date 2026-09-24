@@ -7,7 +7,6 @@ export const api: MessageShape<(typeof en)["Api"]> = {
   invalidRequest: "Vérifie le formulaire et réessaie.",
   generic: "Une erreur est survenue. Réessaie.",
   emailRegistered: "Cet e-mail est déjà utilisé",
-  inviteRequired: "Code d'invitation requis",
   invalidToken: "Jeton manquant ou invalide",
   invalidExpiredToken: "Jeton invalide ou expiré",
   freePlanLimit: "Le forfait gratuit est limité à 3 classes",

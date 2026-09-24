@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { SignUpForm } from "@/components/auth/signup-form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,7 +21,6 @@ export default async function SignUpPage({
 }) {
   const params = await searchParams;
   const code = first(params.code) ?? "";
-  const error = first(params.error);
   const t = await getTranslations("Auth.SignUpPage");
 
   return (
@@ -34,12 +32,7 @@ export default async function SignUpPage({
         </h1>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("subtitle")}</p>
       </div>
-      {error === "invite" ? (
-        <Alert variant="destructive">
-          <AlertDescription>{t("inviteError")}</AlertDescription>
-        </Alert>
-      ) : null}
-      <SignUpForm initialCode={code} />
+      <SignUpForm referralCode={code} />
     </div>
   );
 }

@@ -31,18 +31,13 @@ function browserLanguage() {
   return UI_LOCALES.some((locale) => locale === code) ? code : "";
 }
 
-function writeInviteCookie(code: string) {
-  if (code) {
-    document.cookie = `tmr_invite=${encodeURIComponent(code)}; path=/; max-age=3600`;
-  } else {
-    document.cookie = "tmr_invite=; path=/; max-age=0";
-  }
+function writeReferralCookie(code: string) {
+  document.cookie = `tmr_referral=${encodeURIComponent(code)}; path=/; max-age=3600`;
 }
 
-export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
+export function SignUpForm({ referralCode = "" }: { referralCode?: string }) {
   const t = useTranslations("Auth.SignUpForm");
   const locale = useLocale();
-  const [inviteCode, setInviteCode] = useState(initialCode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [languageOverride, setLanguageOverride] = useState<string | null>(null);
@@ -56,10 +51,10 @@ export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
   const timezone = timezoneOverride ?? detectedTimezone;
 
   useEffect(() => {
-    if (initialCode) {
-      writeInviteCookie(initialCode);
+    if (referralCode) {
+      writeReferralCookie(referralCode);
     }
-  }, [initialCode]);
+  }, [referralCode]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -72,7 +67,7 @@ export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
         body: JSON.stringify({
           email,
           password,
-          inviteCode: inviteCode || undefined,
+          referralCode: referralCode || undefined,
           timezone: timezone || undefined,
           uiLanguage: uiLanguage || undefined,
         }),
@@ -82,9 +77,7 @@ export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
         return;
       }
       const body = (await response.json().catch(() => null)) as { error?: string } | null;
-      if (response.status === 403) {
-        setError(t("inviteInvalid"));
-      } else if (response.status === 409) {
+      if (response.status === 409) {
         setError(t("emailTaken"));
       } else if (body?.error) {
         setError(body.error);
@@ -116,19 +109,6 @@ export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
     <Card className="border-primary/10 bg-card/80">
       <CardContent className="space-y-5">
         <form className="space-y-4" onSubmit={onSubmit}>
-          <div>
-            <Label htmlFor="signup-invite">{t("inviteCode")}</Label>
-            <Input
-              id="signup-invite"
-              value={inviteCode}
-              onChange={(event) => {
-                setInviteCode(event.target.value);
-                writeInviteCookie(event.target.value);
-              }}
-              placeholder={t("invitePlaceholder")}
-              autoComplete="off"
-            />
-          </div>
           <div>
             <Label htmlFor="signup-email">{t("email")}</Label>
             <Input

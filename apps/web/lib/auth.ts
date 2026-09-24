@@ -20,7 +20,7 @@ import {
 import { env } from "./env";
 import { verifyCredentials } from "./credentials";
 import { getDb } from "./db";
-import { resolveInviteCode } from "./invite";
+import { REFERRAL_COOKIE_NAME, resolveReferrer } from "./referral";
 import { GUEST_COOKIE_NAME, LINK_GOOGLE_COOKIE_NAME } from "./session";
 
 declare module "next-auth" {
@@ -156,17 +156,8 @@ export const authConfig: NextAuthConfig = {
       if (account?.provider === "credentials") {
         return true;
       }
-      let referrerUserId: string | null = null;
-      let sourceCode: string | null = null;
-      if (env.inviteOnly) {
-        const cookieCode = store.get("tmr_invite")?.value ?? null;
-        const resolved = await resolveInviteCode(db, cookieCode);
-        if (!resolved) {
-          return "/signup?error=invite";
-        }
-        referrerUserId = resolved.referrerUserId;
-        sourceCode = cookieCode;
-      }
+      const sourceCode = store.get(REFERRAL_COOKIE_NAME)?.value ?? null;
+      const referrerUserId = await resolveReferrer(db, sourceCode);
       const created = await createUser(db, {
         email: user.email,
         username: user.name ?? null,

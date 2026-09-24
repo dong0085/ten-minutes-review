@@ -6,16 +6,15 @@ Screen-by-screen behaviour. This is what each screen does, not how it looks.
 
 ## 1. Sign up
 
-**Entry:** the landing page, or an invite link.
-**Gate:** an invite code is required while the product is invite-only.
+**Entry:** the landing page, or a referral link (`/signup?code=…`).
+**Gate:** none. Sign-up is open to everyone.
 
-1. The user enters an invite code, or arrives with one already in the link.
-2. They choose Google or email plus password.
-3. Email sign-up sends a verification link. Google sign-up arrives verified.
-4. First sign-in creates the user row. A referral row is written if the invite code belonged to an existing user.
-5. `ui_language` starts from the browser's `Accept-Language`. `timezone` starts from the browser. Both stay editable in the account center.
+1. The user chooses Google or email plus password.
+2. Email sign-up sends a verification link. Google sign-up arrives verified.
+3. First sign-in creates the user row. A referral row is written when the user arrived through a referral link.
+4. `ui_language` starts from the browser's `Accept-Language`. `timezone` starts from the browser. Both stay editable in the account center.
 
-An invite code that has already been fully redeemed still works — codes are unlimited-use while the product is invite-only. The code exists to gate access, and to credit referrals.
+Referral codes are unlimited-use. They credit the referrer and leave access unchanged.
 
 ## 2. Sign in
 
@@ -187,7 +186,7 @@ Account deletion removes classrooms, uploads, knowledge points, quizzes, attempt
 
 | Flow | Trigger | Ends when |
 |---|---|---|
-| Sign up | Invite code | User row exists, email verified |
+| Sign up | Landing page or referral link | User row exists, email verified |
 | Create classroom | Empty state or account center | Classroom opens |
 | Upload notes | Add notes action | Points appear in the bank |
 | Daily quiz | Morning email, or the site | Attempt recorded |

@@ -22,7 +22,7 @@ curl -s localhost:3000/api/health   # {"status":"ok","service":"ten-minutes-revi
 curl -s localhost:3001/health       # worker health
 ```
 
-Open http://localhost:3000, sign up with the invite code `dev-invite`, create a classroom, and upload an image. The MinIO console at http://localhost:9001 (login `tmr-minio` / `tmr-minio-secret`) shows the object under `tmr-uploads/uploads/…`. The worker runs migrations on boot, picks up the extraction job within seconds, and composes quizzes on its 15-minute scheduler.
+Open http://localhost:3000, sign up, create a classroom, and upload an image. The MinIO console at http://localhost:9001 (login `tmr-minio` / `tmr-minio-secret`) shows the object under `tmr-uploads/uploads/…`. The worker runs migrations on boot, picks up the extraction job within seconds, and composes quizzes on its 15-minute scheduler.
 
 ---
 

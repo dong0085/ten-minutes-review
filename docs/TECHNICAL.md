@@ -331,7 +331,6 @@ Answers and explanations never leave the server before a submission. The quiz pa
 - Image reads use short-lived signed URLs.
 - Upload limits: 10 MB per image, 50 uploads per user per day.
 - LLM calls capped per user per day, so a runaway script cannot drain the DeepSeek balance.
-- Sign-up requires an invite code while the product is invite-only.
 - Passwords hashed with argon2id. Email verification required before the first upload.
 - Session cookies: httpOnly, secure, sameSite lax. API tokens for native clients are stored hashed and revoked on demand.
 - The iOS app keeps its token in the keychain and revokes it on sign-out; every authenticated request carries `Authorization: Bearer`.

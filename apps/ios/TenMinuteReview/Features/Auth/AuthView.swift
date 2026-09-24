@@ -114,14 +114,12 @@ private struct SignUpForm: View {
 
     @State private var email = ""
     @State private var password = ""
-    @State private var inviteCode = ""
     @State private var isBusy = false
     @State private var errorMessage: String?
 
     private var canSubmit: Bool {
         !email.trimmingCharacters(in: .whitespaces).isEmpty
             && password.count >= 8
-            && !inviteCode.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
     var body: some View {
@@ -133,9 +131,6 @@ private struct SignUpForm: View {
                 .autocorrectionDisabled()
             SecureField(L10n.t("signin.password"), text: $password)
                 .textContentType(.newPassword)
-            TextField(L10n.t("signup.invite"), text: $inviteCode)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
         } footer: {
             if let errorMessage {
                 Text(errorMessage).foregroundStyle(.red)
@@ -168,8 +163,7 @@ private struct SignUpForm: View {
             do {
                 try await environment.auth.signUp(
                     email: email.trimmingCharacters(in: .whitespaces),
-                    password: password,
-                    inviteCode: inviteCode.trimmingCharacters(in: .whitespaces)
+                    password: password
                 )
                 Haptics.success()
             } catch let error as APIError {

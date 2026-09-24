@@ -4,7 +4,6 @@ export const api = {
   invalidRequest: "请检查表单后重试。",
   generic: "出了点问题，请重试。",
   emailRegistered: "该邮箱已注册",
-  inviteRequired: "需要邀请码",
   invalidToken: "令牌无效或缺失",
   invalidExpiredToken: "令牌无效或已过期",
   freePlanLimit: "免费版最多可创建 3 个课堂",

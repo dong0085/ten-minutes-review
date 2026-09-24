@@ -41,7 +41,7 @@ git diff render.yaml      # zero lines
 
 Run with local Postgres, `LLM_PROVIDER=mock`, `EMAIL_PROVIDER=console`, `STORAGE_PROVIDER=s3` pointing at a local MinIO (`S3_ENDPOINT=http://127.0.0.1:9000`, `S3_FORCE_PATH_STYLE=true`):
 
-1. Sign up with the invite code, create a classroom, upload a 70-byte PNG.
+1. Sign up, create a classroom, upload a 70-byte PNG.
 2. The object lands in MinIO under `uploads/<classId>/…` (SigV4 signing verified by MinIO itself — unsigned requests get 403, signed get 200).
 3. Upload list returns `imageUrl = /api/files/<key>`; fetching it with a session gives `200 image/png` (70 bytes), without a session gives `401`.
 4. `after()` extraction runs in the web process — meaning the web also read the bytes back from S3 — and produced 3 knowledge points via the mock LLM.

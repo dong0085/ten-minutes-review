@@ -3,7 +3,6 @@ export const auth = {
     title: "登录",
     subtitle: "从上次停下的地方继续。",
     verified: "你的邮箱已验证，请登录继续。",
-    inviteError: "该邀请码无效，请使用有效的邀请码创建账户。",
     signInError: "登录失败，请重试。",
   },
   SignInForm: {
@@ -20,17 +19,13 @@ export const auth = {
   SignUpPage: {
     title: "创建你的账户",
     subtitle: "你的笔记每天早上都会变成一份十分钟测验。",
-    inviteError: "注册需要有效的邀请码。",
   },
   SignUpForm: {
-    inviteCode: "邀请码",
-    invitePlaceholder: "来自你的邀请",
     email: "邮箱",
     password: "密码",
     language: "语言（可选）",
     browserDefault: "浏览器默认",
     timezone: "时区（可选）",
-    inviteInvalid: "该邀请码无效。",
     emailTaken: "该邮箱已有账户。",
     genericError: "出了点问题，请重试。",
     creating: "正在创建账户…",

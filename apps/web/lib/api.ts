@@ -9,7 +9,6 @@ const MESSAGE_KEYS: Record<string, ApiMessageKey> = {
   Unauthorized: "unauthorized",
   "Not found": "notFound",
   "Email already registered": "emailRegistered",
-  "Invite code required": "inviteRequired",
   "Invalid or missing token": "invalidToken",
   "Invalid or expired token": "invalidExpiredToken",
   "Free plan is limited to 3 classrooms": "freePlanLimit",

@@ -6,7 +6,6 @@ export const auth: MessageShape<typeof enAuth> = {
     title: "Se connecter",
     subtitle: "Reprends là où tu en étais.",
     verified: "Ton e-mail est vérifié. Connecte-toi pour continuer.",
-    inviteError: "Ce code d'invitation n'a pas fonctionné. Crée un compte avec un code valide.",
     signInError: "Connexion impossible. Réessaie.",
   },
   SignInForm: {
@@ -23,17 +22,13 @@ export const auth: MessageShape<typeof enAuth> = {
   SignUpPage: {
     title: "Crée ton compte",
     subtitle: "Tes notes deviennent un quiz de dix minutes chaque matin.",
-    inviteError: "Un code d'invitation valide est nécessaire pour t'inscrire.",
   },
   SignUpForm: {
-    inviteCode: "Code d'invitation",
-    invitePlaceholder: "Depuis ton invitation",
     email: "E-mail",
     password: "Mot de passe",
     language: "Langue (facultatif)",
     browserDefault: "Langue du navigateur",
     timezone: "Fuseau horaire (facultatif)",
-    inviteInvalid: "Ce code d'invitation n'est pas valide.",
     emailTaken: "Un compte existe déjà avec cet e-mail.",
     genericError: "Une erreur est survenue. Réessaie.",
     creating: "Création du compte…",

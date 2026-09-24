@@ -17,8 +17,6 @@ export const env = {
   appUrl: normalizeAppUrl(process.env.APP_URL ?? "http://localhost:3000"),
   authSecret: process.env.AUTH_SECRET ?? "dev-insecure-secret-change-me",
   databaseUrl: process.env.DATABASE_URL ?? "",
-  inviteOnly: process.env.INVITE_ONLY !== "false",
-  inviteCode: process.env.INVITE_CODE ?? null,
   llmProvider: provider(process.env.LLM_PROVIDER, "mock", ["mock", "deepseek"] as const),
   emailProvider: provider(process.env.EMAIL_PROVIDER, "console", [
     "console",
