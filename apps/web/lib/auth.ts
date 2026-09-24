@@ -32,7 +32,14 @@ declare module "next-auth" {
 const providers: NextAuthConfig["providers"] = [];
 
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-  providers.push(Google({ allowDangerousEmailAccountLinking: true }));
+  // Auth.js only infers AUTH_GOOGLE_ID/AUTH_GOOGLE_SECRET, so pass ours in.
+  providers.push(
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      allowDangerousEmailAccountLinking: true,
+    }),
+  );
 }
 
 providers.push(
