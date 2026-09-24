@@ -17,6 +17,8 @@ export const api: MessageShape<(typeof en)["Api"]> = {
   attemptRecord: "Impossible d'enregistrer le quiz",
   uploadLimit: "Limite atteinte : 50 envois par jour",
   freeUploadLimit: "Le forfait gratuit est limité à 2 envois de notes par mois",
+  billingUnavailable: "La facturation n'est pas disponible pour le moment",
+  alreadySubscribed: "Tu as déjà un abonnement actif",
   invalidFormData: "Données du formulaire invalides",
   imageCount: "Joins entre 1 et 10 images",
   fileTooLarge: "{name} dépasse 10 Mo",

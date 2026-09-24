@@ -36,4 +36,9 @@ export const env = {
   s3SecretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? "",
   s3Endpoint: process.env.S3_ENDPOINT ?? "",
   s3ForcePathStyle: process.env.S3_FORCE_PATH_STYLE === "true",
+  stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? "",
+  stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
+  stripePriceId: process.env.STRIPE_PRICE_ID ?? "",
+  billingEnabled:
+    process.env.BILLING_ENABLED === "true" || process.env.NODE_ENV !== "production",
 };

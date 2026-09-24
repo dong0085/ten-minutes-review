@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
+import { hasPaidAccess } from "@tmr/core";
 import {
   getActivityStats,
   getLearningStats,
   getOrCreateReferralCode,
+  getSubscription,
   listClassrooms,
   listQuizzesForUser,
   listRecentAttemptScores,
@@ -21,20 +23,35 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AccountStats } from "@/components/account/account-stats";
+import { BillingButton } from "@/components/account/billing-button";
 import { getDb } from "@/lib/db";
 import { env } from "@/lib/env";
 import { languageLabel } from "@/lib/language-label";
 import { requireUser } from "@/lib/session";
 
-export default async function AccountPage() {
+export default async function AccountPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const user = await requireUser();
+  const params = await searchParams;
   const t = await getTranslations("Account");
   const tNav = await getTranslations("Account.Nav");
   const locale = await getLocale();
   const format = await getFormatter();
   const db = getDb();
-  const [referral, referrals, activity, learning, attempts, misses, classrooms, quizzes] =
-    await Promise.all([
+  const [
+    referral,
+    referrals,
+    activity,
+    learning,
+    attempts,
+    misses,
+    classrooms,
+    quizzes,
+    subscription,
+  ] = await Promise.all([
       getOrCreateReferralCode(db, user.id),
       listReferralsByReferrer(db, user.id),
       getActivityStats(db, user.id, user.timezone),
@@ -43,7 +60,11 @@ export default async function AccountPage() {
       listRecentMissesForUser(db, user.id),
       listClassrooms(db, user.id),
       listQuizzesForUser(db, user.id),
+      getSubscription(db, user.id),
     ]);
+  const isPaid = hasPaidAccess(subscription);
+  const paymentIssue =
+    subscription?.status === "past_due" || subscription?.status === "unpaid";
 
   const shareUrl = referral.code ? `${env.appUrl}/signup?code=${referral.code}` : env.appUrl;
 
@@ -209,14 +230,33 @@ export default async function AccountPage() {
         </CardContent>
       </Card>
 
-      {process.env.NODE_ENV !== "production" ? (
+      {env.billingEnabled ? (
         <Card>
-          <CardContent>
-            <h2 className="font-heading text-xl font-semibold">{t("subscriptionSection")}</h2>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <Badge variant="secondary">{t("free")}</Badge>
-              <p className="text-sm text-muted-foreground">{t("billingOff")}</p>
+          <CardContent className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="font-heading text-xl font-semibold">{t("subscriptionSection")}</h2>
+              <Badge variant={isPaid ? "success" : "secondary"}>
+                {isPaid ? t("pro") : t("free")}
+              </Badge>
             </div>
+            {params.billing === "success" && !isPaid ? (
+              <p className="text-sm text-muted-foreground">{t("billingSuccess")}</p>
+            ) : null}
+            <p className="text-sm text-muted-foreground">
+              {isPaid ? t("planProBlurb") : t("planFreeBlurb")}
+              {isPaid && subscription?.currentPeriodEnd ? (
+                <>
+                  {" "}
+                  {t(subscription.cancelAtPeriodEnd ? "endsOn" : "renewsOn", {
+                    date: format.dateTime(subscription.currentPeriodEnd, { dateStyle: "medium" }),
+                  })}
+                </>
+              ) : null}
+            </p>
+            {paymentIssue ? (
+              <p className="text-sm text-destructive">{t("paymentIssue")}</p>
+            ) : null}
+            <BillingButton action={subscription?.stripeCustomerId && (isPaid || paymentIssue) ? "portal" : "checkout"} />
           </CardContent>
         </Card>
       ) : null}
