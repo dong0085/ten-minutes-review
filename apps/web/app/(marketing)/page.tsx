@@ -13,6 +13,7 @@ import {
   Pause,
   Sparkles,
 } from "lucide-react";
+import { CN, ES, FR, GB, IN, JP, KR, PT, RU, VN } from "country-flag-icons/react/3x2";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
 import { QuizFormCards } from "@/components/quiz-form-cards";
@@ -22,16 +23,16 @@ import { getCurrentUserOrGuest } from "@/lib/session";
 
 /* A hello in each language learners bring notes in, shown under the hero. */
 const GREETINGS = [
-  { code: "fr", hello: "Bonjour" },
-  { code: "es", hello: "Hola" },
-  { code: "zh", hello: "你好" },
-  { code: "ja", hello: "こんにちは" },
-  { code: "ko", hello: "안녕하세요" },
-  { code: "pt", hello: "Olá" },
-  { code: "ru", hello: "Привет" },
-  { code: "hi", hello: "नमस्ते" },
-  { code: "vi", hello: "Xin chào" },
-  { code: "en", hello: "Hello" },
+  { code: "fr", hello: "Bonjour", Flag: FR },
+  { code: "es", hello: "Hola", Flag: ES },
+  { code: "zh", hello: "你好", Flag: CN },
+  { code: "ja", hello: "こんにちは", Flag: JP },
+  { code: "ko", hello: "안녕하세요", Flag: KR },
+  { code: "pt", hello: "Olá", Flag: PT },
+  { code: "ru", hello: "Привет", Flag: RU },
+  { code: "hi", hello: "नमस्ते", Flag: IN },
+  { code: "vi", hello: "Xin chào", Flag: VN },
+  { code: "en", hello: "Hello", Flag: GB },
 ];
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -211,14 +212,18 @@ export default async function HomePage() {
             </p>
           </div>
           <ul className="flex flex-wrap gap-2.5">
-            {GREETINGS.map(({ code, hello }, index) => (
+            {GREETINGS.map(({ code, hello, Flag }, index) => (
               <li
                 key={code}
                 lang={code}
-                className={`flex items-baseline gap-2 rounded-full border border-border/80 bg-card/70 px-3.5 py-1.5 ${
+                className={`flex items-center gap-2 rounded-full border border-border/80 bg-card/70 px-3.5 py-1.5 ${
                   index % 3 === 1 ? "-rotate-1" : index % 3 === 2 ? "rotate-1" : ""
                 }`}
               >
+                <Flag
+                  aria-hidden="true"
+                  className="h-3 w-[1.125rem] shrink-0 rounded-[2px] shadow-[0_0_0_0.5px_rgb(0_0_0/0.15)]"
+                />
                 <span className="font-heading text-base font-semibold">{hello}</span>
                 <span className="text-[0.7rem] text-muted-foreground">
                   {languageLabel(code, locale)}
