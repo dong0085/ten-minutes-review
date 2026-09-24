@@ -1,20 +1,11 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-
-async function readError(response: Response): Promise<string | null> {
-  const data: unknown = await response.json().catch(() => null);
-  if (data && typeof data === "object" && "error" in data) {
-    const message = (data as { error?: unknown }).error;
-    if (typeof message === "string") {
-      return message;
-    }
-  }
-  return null;
-}
+import { readError } from "@/lib/read-error";
 
 export function EmailPreferencesForm({
   defaultDailyEnabled,
@@ -31,6 +22,7 @@ export function EmailPreferencesForm({
 }) {
   const t = useTranslations("Account.EmailPreferencesForm");
   const tc = useTranslations("Common");
+  const router = useRouter();
   const [dailyEnabled, setDailyEnabled] = useState(defaultDailyEnabled);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -58,6 +50,7 @@ export function EmailPreferencesForm({
       }
       setSaved(true);
       setEditing(false);
+      router.refresh();
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : t("error"));
     } finally {

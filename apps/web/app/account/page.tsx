@@ -22,12 +22,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { AccountHeader } from "@/components/account/account-header";
 import { AccountStats } from "@/components/account/account-stats";
 import { BillingButton } from "@/components/account/billing-button";
+import { CopyButton } from "@/components/account/copy-button";
 import { getDb } from "@/lib/db";
 import { env } from "@/lib/env";
 import { languageLabel } from "@/lib/language-label";
 import { requireUser } from "@/lib/session";
+
+const RECENT_QUIZ_LIMIT = 10;
 
 export default async function AccountPage({
   searchParams,
@@ -59,7 +63,7 @@ export default async function AccountPage({
       listRecentAttemptScores(db, user.id),
       listRecentMissesForUser(db, user.id),
       listClassrooms(db, user.id),
-      listQuizzesForUser(db, user.id),
+      listQuizzesForUser(db, user.id, RECENT_QUIZ_LIMIT + 1),
       getSubscription(db, user.id),
     ]);
   const isPaid = hasPaidAccess(subscription);
@@ -68,28 +72,11 @@ export default async function AccountPage({
 
   const shareUrl = referral.code ? `${env.appUrl}/signup?code=${referral.code}` : env.appUrl;
 
-  const groupedQuizzes = new Map<string, { classroomName: string; quizzes: typeof quizzes }>();
-  for (const quiz of quizzes) {
-    const group = groupedQuizzes.get(quiz.classroomId);
-    if (group) {
-      group.quizzes.push(quiz);
-    } else {
-      groupedQuizzes.set(quiz.classroomId, {
-        classroomName: quiz.classroomName,
-        quizzes: [quiz],
-      });
-    }
-  }
+  const recentQuizzes = quizzes.slice(0, RECENT_QUIZ_LIMIT);
 
   return (
     <div className="space-y-7">
-      <div className="border-b border-border/70 pb-7">
-        <p className="eyebrow">{t("title")}</p>
-        <h1 className="mt-2 font-heading text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
-          {tNav("overview")}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t("overview")}</p>
-      </div>
+      <AccountHeader title={tNav("overview")} description={t("overview")} />
 
       <AccountStats
         activity={activity}
@@ -114,7 +101,7 @@ export default async function AccountPage({
               <TableHeader>
                 <TableRow>
                   <TableHead>{t("classroomsSection")}</TableHead>
-                  <TableHead>{t("languages")}</TableHead>
+                  <TableHead className="text-right">{t("languages")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -142,7 +129,7 @@ export default async function AccountPage({
       <Card>
         <CardContent>
           <h2 className="font-heading text-xl font-semibold">{t("quizHistorySection")}</h2>
-          {groupedQuizzes.size === 0 ? (
+          {recentQuizzes.length === 0 ? (
             <p className="mt-2 text-sm text-muted-foreground">{t("noQuizzes")}</p>
           ) : (
             <Table className="mt-3">
@@ -154,31 +141,40 @@ export default async function AccountPage({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {Array.from(groupedQuizzes.entries()).flatMap(([classroomId, group]) =>
-                  group.quizzes.map((quiz) => (
-                    <TableRow key={quiz.id}>
-                      <TableCell className="font-medium">{group.classroomName}</TableCell>
-                      <TableCell>
-                        <Link className="text-muted-foreground hover:underline" href={`/classrooms/${classroomId}/quiz/${quiz.id}`}>
-                          {format.dateTime(new Date(`${quiz.quizDate}T00:00:00`), {
-                            weekday: "short",
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="text-right text-xs text-muted-foreground">
-                        {quiz.bestScore !== null
-                          ? t("bestScore", { score: quiz.bestScore, size: quiz.size })
-                          : t("quizQuestions", { count: quiz.size })}{" "}
-                        · {t("attempts", { count: quiz.attemptCount })}
-                      </TableCell>
-                    </TableRow>
-                  )),
-                )}
+                {recentQuizzes.map((quiz) => (
+                  <TableRow key={quiz.id}>
+                    <TableCell>
+                      <Link className="font-medium hover:underline" href={`/classrooms/${quiz.classroomId}/quizzes`}>
+                        {quiz.classroomName}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Link className="text-muted-foreground hover:underline" href={`/classrooms/${quiz.classroomId}/quiz/${quiz.id}`}>
+                        {/* quizDate is a calendar day, so format it in UTC to keep the same day. */}
+                        {format.dateTime(new Date(`${quiz.quizDate}T00:00:00Z`), {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                          timeZone: "UTC",
+                        })}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="text-right text-xs text-muted-foreground">
+                      {quiz.bestScore !== null
+                        ? t("bestScore", { score: quiz.bestScore, size: quiz.size })
+                        : t("quizQuestions", { count: quiz.size })}{" "}
+                      · {t("attempts", { count: quiz.attemptCount })}
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           )}
+          {quizzes.length > RECENT_QUIZ_LIMIT ? (
+            <p className="mt-3 text-xs text-muted-foreground">
+              {t("quizHistoryMore", { count: RECENT_QUIZ_LIMIT })}
+            </p>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -191,6 +187,7 @@ export default async function AccountPage({
               {referral.code ?? t("pending")}
             </code>
             <span className="break-all text-sm text-muted-foreground">{shareUrl}</span>
+            {referral.code ? <CopyButton value={shareUrl} /> : null}
           </div>
           {referrals.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">{t("noSignUps")}</p>

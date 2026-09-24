@@ -18,6 +18,9 @@ export const account = {
   referralDate: "日期",
   referralStatus: "状态",
   quizHistorySection: "测验记录",
+  quizHistoryMore: "这里显示最近 {count} 次测验。打开课堂可以看到全部测验。",
+  copyLink: "复制链接",
+  linkCopied: "已复制",
   referralsSection: "邀请好友",
   dataSection: "数据",
   subscriptionSection: "订阅",
@@ -59,6 +62,7 @@ export const account = {
     saved: "个人资料已保存。",
     error: "无法保存个人资料。",
     save: "保存资料",
+    useDeviceTimezone: "使用本设备的时区（{zone}）",
   },
   EmailPreferencesForm: {
     unsubscribed: "此邮箱已退订所有邮件。",

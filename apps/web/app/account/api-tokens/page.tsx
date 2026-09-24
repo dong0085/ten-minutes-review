@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ApiTokens } from "@/components/account/api-tokens";
 import { getDb } from "@/lib/db";
 import { requireUser } from "@/lib/session";
+import { AccountHeader } from "@/components/account/account-header";
 
 export default async function AccountApiTokensPage() {
   const user = await requireUser();
@@ -13,12 +14,7 @@ export default async function AccountApiTokensPage() {
 
   return (
     <div className="space-y-7">
-      <div className="border-b border-border/70 pb-7">
-        <p className="eyebrow">{t("title")}</p>
-        <h1 className="mt-2 font-heading text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
-          {tNav("apiTokens")}
-        </h1>
-      </div>
+      <AccountHeader title={tNav("apiTokens")} />
 
       <Card>
         <CardContent>

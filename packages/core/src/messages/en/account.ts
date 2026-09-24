@@ -18,6 +18,9 @@ export const account = {
   referralDate: "Date",
   referralStatus: "Status",
   quizHistorySection: "Quiz history",
+  quizHistoryMore: "Showing your {count} most recent quizzes. Open a classroom to see all of its quizzes.",
+  copyLink: "Copy link",
+  linkCopied: "Copied",
   referralsSection: "Referrals",
   dataSection: "Data",
   subscriptionSection: "Subscription",
@@ -60,6 +63,7 @@ export const account = {
     saved: "Profile saved.",
     error: "Could not save your profile.",
     save: "Save profile",
+    useDeviceTimezone: "Use this device's timezone ({zone})",
   },
   EmailPreferencesForm: {
     unsubscribed: "This address is unsubscribed from all emails.",

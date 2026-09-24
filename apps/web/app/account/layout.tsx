@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { hasPaidPlan } from "@tmr/db";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { AccountNav } from "@/components/account/account-nav";
+import { getDb } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 
 export const metadata: Metadata = {
@@ -13,6 +15,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
   const user = await requireUser();
   const t = await getTranslations("Account");
   const format = await getFormatter();
+  const isPaid = await hasPaidPlan(getDb(), user.id);
 
   return (
     <div className="lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-10">
@@ -33,7 +36,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-          <Badge variant="secondary">{t("free")}</Badge>
+          <Badge variant={isPaid ? "success" : "secondary"}>{isPaid ? t("pro") : t("free")}</Badge>
           {user.username ? <span className="break-all text-xs">{user.email}</span> : null}
         </div>
         <AccountNav />
