@@ -39,6 +39,11 @@ export const env = {
   stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? "",
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
   stripePriceId: process.env.STRIPE_PRICE_ID ?? "",
+  // `TEAMID.bundle.id` entries, comma-separated, for iOS password autofill.
+  appleAppIds: (process.env.APPLE_APP_IDS ?? "")
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean),
   billingEnabled:
     process.env.BILLING_ENABLED === "true" || process.env.NODE_ENV !== "production",
 };

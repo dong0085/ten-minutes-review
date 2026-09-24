@@ -50,7 +50,7 @@ private struct SignInForm: View {
     var body: some View {
         Section {
             TextField(L10n.t("signin.email"), text: $email)
-                .textContentType(.emailAddress)
+                .textContentType(.username)
                 .keyboardType(.emailAddress)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
@@ -127,7 +127,7 @@ private struct SignUpForm: View {
     var body: some View {
         Section {
             TextField(L10n.t("signin.email"), text: $email)
-                .textContentType(.emailAddress)
+                .textContentType(.username)
                 .keyboardType(.emailAddress)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()

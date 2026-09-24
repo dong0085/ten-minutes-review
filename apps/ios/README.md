@@ -36,6 +36,20 @@ ID: open the project, select the target, set your team under *Signing &
 Capabilities*, and connect the device. Free provisioning re-signs every
 seven days — rebuild to refresh.
 
+## Password autofill
+
+The sign-in fields carry `username` and `password` content types, so iOS
+offers saved passwords from the keyboard's key button. Linking the app to
+the website — so the site's saved passwords appear as the top suggestion —
+uses Associated Domains, which needs a paid Apple Developer team:
+
+1. Add `apps/ios/TenMinuteReview/TenMinuteReview.entitlements` with
+   `com.apple.developer.associated-domains` = `webcredentials:tenminutesreview.study`,
+   and point the target's `CODE_SIGN_ENTITLEMENTS` at it in `project.yml`.
+2. Set `APPLE_APP_IDS=<TEAMID>.study.tenminutesreview.app` on the web
+   deployment. The site serves it at `/.well-known/apple-app-site-association`.
+3. Regenerate the project and sign with the paid team.
+
 ## Tests
 
 ```sh
