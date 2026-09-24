@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { Globe2, Languages, PencilLine } from "lucide-react";
 import { UI_LOCALES } from "@tmr/core";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { languageLabel } from "@/lib/language-label";
 import { readError } from "@/lib/read-error";
+import { cn } from "@/lib/utils";
 
 const selectClass =
   "h-10 w-full rounded-xl border border-input/90 bg-card/55 px-3 text-sm outline-none transition focus:border-ring focus:ring-3 focus:ring-ring/25 disabled:opacity-50 dark:bg-input/20";
@@ -80,116 +82,140 @@ export function ProfileForm({
     }
   };
 
-  if (!editing) {
-    return (
-      <div className="mt-3 space-y-4">
-        <dl className="grid gap-4 text-sm sm:grid-cols-3">
-          <div>
-            <dt className="text-xs text-muted-foreground">{t("username")}</dt>
-            <dd className="mt-0.5 font-medium">
-              {username.trim() === "" ? t("notSet") : username}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-xs text-muted-foreground">{t("interfaceLanguage")}</dt>
-            <dd className="mt-0.5 font-medium">{languageLabel(uiLanguage, locale)}</dd>
-          </div>
-          <div>
-            <dt className="text-xs text-muted-foreground">{t("timezone")}</dt>
-            <dd className="mt-0.5 font-medium">{timezone}</dd>
-          </div>
-        </dl>
-        {saved ? (
-          <Alert variant="success">
-            <AlertDescription>{t("saved")}</AlertDescription>
-          </Alert>
-        ) : null}
-        <Button
-          variant="outline"
-          onClick={() => {
-            resetFields();
-            setSaved(false);
-            setEditing(true);
-          }}
-        >
-          {tc("edit")}
-        </Button>
-      </div>
-    );
-  }
-
+  // A "Hello, my name is" sticker. The body swaps between the written-in
+  // name and the edit form.
   return (
-    <form onSubmit={handleSubmit} className="mt-3 space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <Label htmlFor="profile-username">{t("username")}</Label>
-          <Input
-            id="profile-username"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-            placeholder={t("usernamePlaceholder")}
-          />
-        </div>
-        <div>
-          <Label htmlFor="profile-language">{t("interfaceLanguage")}</Label>
-          <select
-            id="profile-language"
-            value={uiLanguage}
-            onChange={(event) => setUiLanguage(event.target.value)}
-            className={selectClass}
+    <section className="editorial-surface overflow-hidden rounded-[1.6rem]">
+      <div className="relative bg-primary px-6 pt-5 pb-4 text-center text-primary-foreground sm:px-8">
+        <p className="font-heading text-4xl font-bold tracking-[0.08em] uppercase sm:text-5xl">
+          {t("hello")}
+        </p>
+        <p className="mt-1 text-sm font-medium tracking-[0.12em] uppercase opacity-85">
+          {t("myNameIs")}
+        </p>
+      </div>
+
+      {!editing ? (
+        <div className="px-6 pt-6 pb-6 sm:px-8">
+          <p
+            className={cn(
+              "border-b-2 border-dashed border-border pb-2 text-center font-heading text-4xl font-semibold italic tracking-[-0.02em] sm:text-5xl",
+              username.trim() === "" && "text-muted-foreground/60",
+            )}
           >
-            {UI_LOCALES.map((code) => (
-              <option key={code} value={code}>
-                {languageLabel(code, locale)}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <Label htmlFor="profile-timezone">{t("timezone")}</Label>
-          <select
-            id="profile-timezone"
-            value={timezone}
-            onChange={(event) => setTimezone(event.target.value)}
-            className={selectClass}
-          >
-            {timezoneOptions(timezone).map((zone) => (
-              <option key={zone} value={zone}>
-                {zone}
-              </option>
-            ))}
-          </select>
-          {deviceTimezone && deviceTimezone !== timezone ? (
-            <button
-              type="button"
-              className="mt-1.5 text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
-              onClick={() => setTimezone(deviceTimezone)}
-            >
-              {t("useDeviceTimezone", { zone: deviceTimezone })}
-            </button>
+            {username.trim() === "" ? t("notSet") : username}
+          </p>
+          <dl className="mt-6 grid gap-4 text-sm sm:grid-cols-2">
+            <div className="flex items-center gap-3 rounded-xl bg-muted/45 px-4 py-3">
+              <Languages className="size-4 shrink-0 text-primary" />
+              <div className="min-w-0">
+                <dt className="text-xs text-muted-foreground">{t("interfaceLanguage")}</dt>
+                <dd className="font-medium">{languageLabel(uiLanguage, locale)}</dd>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 rounded-xl bg-muted/45 px-4 py-3">
+              <Globe2 className="size-4 shrink-0 text-primary" />
+              <div className="min-w-0">
+                <dt className="text-xs text-muted-foreground">{t("timezone")}</dt>
+                <dd className="truncate font-medium">{timezone.replace(/_/g, " ")}</dd>
+              </div>
+            </div>
+          </dl>
+          {saved ? (
+            <Alert variant="success" className="mt-4">
+              <AlertDescription>{t("saved")}</AlertDescription>
+            </Alert>
           ) : null}
+          <div className="mt-5 flex justify-center">
+            <Button
+              variant="outline"
+              onClick={() => {
+                resetFields();
+                setSaved(false);
+                setEditing(true);
+              }}
+            >
+              <PencilLine />
+              {tc("edit")}
+            </Button>
+          </div>
         </div>
-      </div>
-      {error ? (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      ) : null}
-      <div className="flex flex-wrap gap-2">
-        <Button type="submit" disabled={saving}>
-          {saving ? tc("saving") : t("save")}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => {
-            resetFields();
-            setEditing(false);
-          }}
-        >
-          {tc("cancel")}
-        </Button>
-      </div>
-    </form>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4 px-6 pt-6 pb-6 sm:px-8">
+          <div>
+            <Label htmlFor="profile-username">{t("username")}</Label>
+            <Input
+              id="profile-username"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              placeholder={t("usernamePlaceholder")}
+              className="h-12 font-heading text-xl italic"
+              autoFocus
+            />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="profile-language">{t("interfaceLanguage")}</Label>
+              <select
+                id="profile-language"
+                value={uiLanguage}
+                onChange={(event) => setUiLanguage(event.target.value)}
+                className={selectClass}
+              >
+                {UI_LOCALES.map((code) => (
+                  <option key={code} value={code}>
+                    {languageLabel(code, locale)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="profile-timezone">{t("timezone")}</Label>
+              <select
+                id="profile-timezone"
+                value={timezone}
+                onChange={(event) => setTimezone(event.target.value)}
+                className={selectClass}
+              >
+                {timezoneOptions(timezone).map((zone) => (
+                  <option key={zone} value={zone}>
+                    {zone}
+                  </option>
+                ))}
+              </select>
+              {deviceTimezone && deviceTimezone !== timezone ? (
+                <button
+                  type="button"
+                  className="mt-1.5 text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+                  onClick={() => setTimezone(deviceTimezone)}
+                >
+                  {t("useDeviceTimezone", { zone: deviceTimezone })}
+                </button>
+              ) : null}
+            </div>
+          </div>
+          {error ? (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          ) : null}
+          <div className="flex flex-wrap justify-center gap-2 pt-1">
+            <Button type="submit" disabled={saving}>
+              {saving ? tc("saving") : t("save")}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                resetFields();
+                setEditing(false);
+              }}
+            >
+              {tc("cancel")}
+            </Button>
+          </div>
+        </form>
+      )}
+    </section>
   );
 }

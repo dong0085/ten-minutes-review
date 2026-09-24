@@ -2,11 +2,13 @@
 
 import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
+import { Check } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { readError } from "@/lib/read-error";
+import { cn } from "@/lib/utils";
 
 export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
   const t = useTranslations("Account.Security");
@@ -51,8 +53,13 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
     }
   }
 
+  const checks = [
+    { label: t("checkLength"), ok: password.length >= 8 },
+    { label: t("checkMatch"), ok: password.length > 0 && password === confirm },
+  ];
+
   return (
-    <form onSubmit={onSubmit} className="mt-3 max-w-sm space-y-4">
+    <form onSubmit={onSubmit} className="space-y-4">
       {hasPassword ? (
         <div>
           <Label htmlFor="password-current">{t("currentPassword")}</Label>
@@ -66,30 +73,54 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
           />
         </div>
       ) : null}
-      <div>
-        <Label htmlFor="password-new">{t("newPassword")}</Label>
-        <Input
-          id="password-new"
-          type="password"
-          required
-          minLength={8}
-          autoComplete="new-password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <Label htmlFor="password-new">{t("newPassword")}</Label>
+          <Input
+            id="password-new"
+            type="password"
+            required
+            minLength={8}
+            autoComplete="new-password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+        </div>
+        <div>
+          <Label htmlFor="password-confirm">{t("confirmPassword")}</Label>
+          <Input
+            id="password-confirm"
+            type="password"
+            required
+            minLength={8}
+            autoComplete="new-password"
+            value={confirm}
+            onChange={(event) => setConfirm(event.target.value)}
+          />
+        </div>
       </div>
-      <div>
-        <Label htmlFor="password-confirm">{t("confirmPassword")}</Label>
-        <Input
-          id="password-confirm"
-          type="password"
-          required
-          minLength={8}
-          autoComplete="new-password"
-          value={confirm}
-          onChange={(event) => setConfirm(event.target.value)}
-        />
-      </div>
+      {/* Checklist that ticks itself off while typing. */}
+      <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+        {checks.map((check) => (
+          <li
+            key={check.label}
+            className={cn(
+              "flex items-center gap-2 transition-colors",
+              check.ok ? "text-success" : "text-muted-foreground",
+            )}
+          >
+            <span
+              className={cn(
+                "grid size-5 place-items-center rounded-full border transition-all duration-200",
+                check.ok ? "scale-110 border-success bg-success text-card" : "border-border",
+              )}
+            >
+              <Check className={cn("size-3 transition-opacity", check.ok ? "opacity-100" : "opacity-0")} />
+            </span>
+            {check.label}
+          </li>
+        ))}
+      </ul>
       {saved ? (
         <Alert variant="success">
           <AlertDescription>{t("saved")}</AlertDescription>
