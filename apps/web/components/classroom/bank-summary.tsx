@@ -1,10 +1,13 @@
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { CATEGORIES, type Category } from "@tmr/core";
 
 export async function BankSummary({
   counts,
+  manageHref,
 }: {
   counts: { category: Category; value: number }[];
+  manageHref?: string;
 }) {
   const t = await getTranslations("Classroom.BankSummary");
   const categoryT = await getTranslations("Category");
@@ -23,6 +26,14 @@ export async function BankSummary({
           <p className="mt-1 text-sm text-muted-foreground">
             {total === 0 ? t("empty") : t("total", { count: total })}
           </p>
+          {manageHref ? (
+            <Link
+              href={manageHref}
+              className="mt-2 inline-flex text-xs font-medium text-primary hover:underline"
+            >
+              {t("manage")}
+            </Link>
+          ) : null}
         </div>
         <strong className="font-heading text-4xl font-semibold tabular-nums text-primary">
           {total}

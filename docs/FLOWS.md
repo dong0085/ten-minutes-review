@@ -81,6 +81,19 @@ One row per upload, newest first: date, kind (text or image), the AI-written sub
 
 This is the classroom's memory. Everything the user ever fed in stays readable here.
 
+## 8b. Question bank
+
+Opened from the Bank tab, or the "Manage the bank" link under the home page's bank summary.
+
+One row per knowledge point, newest first: category, the target text, its meaning, the note, an Inferred badge when the AI filled in the meaning, and how often the learner answered and missed questions built on it. A search box matches target text, meaning, and note. Category chips and an In quizzes / Omitted / All switch narrow the list; it opens on In quizzes.
+
+Each row carries two controls:
+
+- **Omit / Restore** — the same switch as the review screen's omit control. Omitted points stay listed under Omitted and drop out of future composition; Restore brings them back.
+- **Edit** — a dialog for the target text, meaning, and note, with the source excerpt shown for reference. The category stays fixed, since grammar and comprehension points carry structured detail tied to it. Edits reach quizzes composed afterwards; past quizzes keep their wording.
+
+Omit is the removal path. Past quiz questions and attempts hang off each knowledge point, so the bank keeps every point it ever produced.
+
 ## 9. Daily quiz — entry
 
 **Two doors:**
