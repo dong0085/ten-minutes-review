@@ -61,82 +61,74 @@ struct QuizRunnerView: View {
 }
 
 private struct RunningQuizView: View {
-    @Environment(ThemeStore.self) private var theme
     let model: QuizRunnerModel
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
+        List {
+            Section {
+                VStack(alignment: .leading, spacing: 8) {
+                    ProgressView(
+                        value: Double(model.current + 1),
+                        total: Double(max(model.questions.count, 1))
+                    )
+                    HStack {
+                        Text(String(format: L10n.t("quiz.questionOf"), model.current + 1, model.questions.count))
+                            .font(.subheadline.weight(.medium))
+                        Spacer()
+                        Text(String(format: L10n.t("quiz.answered"), model.answeredCount))
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.vertical, 4)
+
                 if model.resumed {
                     Label(
                         String(format: L10n.t("quiz.resumed"), minutesRemaining(model.secondsRemaining)),
                         systemImage: "clock.arrow.circlepath"
                     )
-                    .font(AppFont.geist(12))
-                    .foregroundStyle(theme.colors.warning)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .font(.subheadline)
+                    .foregroundStyle(.orange)
                 }
-
-                ProgressView(
-                    value: Double(model.current + 1),
-                    total: Double(max(model.questions.count, 1))
-                )
-                .tint(theme.colors.primary)
-
-                HStack {
-                    Text(String(format: L10n.t("quiz.questionOf"), model.current + 1, model.questions.count))
-                        .font(AppFont.geist(14, .medium))
-                        .foregroundStyle(theme.colors.foreground)
-                    Spacer()
-                    Text(String(format: L10n.t("quiz.answered"), model.answeredCount))
-                        .font(AppFont.geist(12))
-                        .foregroundStyle(theme.colors.mutedForeground)
-                }
-
-                if let question = model.currentQuestion {
-                    QuestionContainerView(model: model, question: question)
-                }
-
-                controls
             }
-            .padding()
-        }
-        .background(theme.colors.background.ignoresSafeArea())
-        .scrollBounceBehavior(.basedOnSize)
-    }
 
-    private var controls: some View {
-        HStack {
-            Button {
-                model.previous()
-            } label: {
-                Label(L10n.t("quiz.previous"), systemImage: "chevron.left")
-            }
-            .disabled(model.current == 0)
-
-            Spacer()
-
-            if model.current == model.questions.count - 1 {
-                Button {
-                    Task { await model.submit() }
-                } label: {
-                    Text(L10n.t("quiz.submit"))
-                        .font(AppFont.geist(16, .semibold))
-                        .foregroundStyle(theme.colors.primaryForeground)
-                        .labelStyle(.titleAndIcon)
-                }
-                .buttonStyle(.borderedProminent)
-            } else {
-                Button {
-                    model.next()
-                } label: {
-                    Label(L10n.t("quiz.next"), systemImage: "chevron.right")
-                        .font(AppFont.geist(16, .semibold))
-                }
-                .buttonStyle(.borderedProminent)
+            if let question = model.currentQuestion {
+                QuestionSections(model: model, question: question)
+                    .id(question.id)
             }
         }
-        .padding(.top, 8)
+        .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
+        .toolbar(.hidden, for: .tabBar)
+        .toolbar {
+            ToolbarItem(placement: .bottomBar) {
+                Button {
+                    model.previous()
+                } label: {
+                    Label(L10n.t("quiz.previous"), systemImage: "chevron.left")
+                }
+                .disabled(model.current == 0)
+            }
+            ToolbarItem(placement: .bottomBar) {
+                Spacer()
+            }
+            ToolbarItem(placement: .bottomBar) {
+                if model.current == model.questions.count - 1 {
+                    Button(L10n.t("quiz.submit")) {
+                        Task { await model.submit() }
+                    }
+                    .buttonStyle(.borderedProminent)
+                } else {
+                    Button {
+                        model.next()
+                    } label: {
+                        Label(L10n.t("quiz.next"), systemImage: "chevron.right")
+                            .labelStyle(.titleAndIcon)
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+            }
+        }
     }
 
     private func minutesRemaining(_ seconds: Int?) -> Int {
@@ -145,51 +137,44 @@ private struct RunningQuizView: View {
     }
 }
 
-private struct QuestionContainerView: View {
-    @Environment(ThemeStore.self) private var theme
+/// The prompt section and the answer section for one question.
+private struct QuestionSections: View {
     let model: QuizRunnerModel
     let question: QuizQuestion
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        Section {
+            if question.type == .image {
+                RemoteImage(urlString: question.imageUrl ?? "")
+                    .frame(maxWidth: .infinity, maxHeight: 260)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .listRowInsets(EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12))
+            }
+            Text(question.stem)
+                .font(.title3)
+                .padding(.vertical, 4)
+        } header: {
             Text(question.category.rawValue.capitalized)
-                .font(AppFont.geist(11, .semibold))
-                .kerning(2)
-                .textCase(.uppercase)
-                .foregroundStyle(theme.colors.primary)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 3)
-                .background(theme.colors.secondary, in: Capsule())
+        }
 
+        Section {
             switch question.type {
-            case .mcq:
+            case .mcq, .image:
                 MCQQuestionView(
                     question: question,
                     order: model.optionOrder(for: question),
                     selection: selectionBinding
                 )
-            case .image:
-                VStack(alignment: .leading, spacing: 16) {
-                    RemoteImage(urlString: question.imageUrl ?? "")
-                        .frame(maxHeight: 260)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    MCQQuestionView(
-                        question: question,
-                        order: model.optionOrder(for: question),
-                        selection: selectionBinding
-                    )
-                }
             case .trueFalse:
                 TrueFalseQuestionView(selection: boolBinding)
             case .fillBlank:
-                FillBlankQuestionView(question: question, onChange: fillBlankChange)
+                FillBlankQuestionView(
+                    question: question,
+                    initial: model.answer(for: question)?.blanks ?? [],
+                    onChange: fillBlankChange
+                )
             }
-
-            Text(question.stem)
-                .font(AppFont.geist(17))
-                .foregroundStyle(theme.colors.foreground)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var selectionBinding: Binding<Int?> {

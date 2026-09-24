@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ClassroomsView: View {
     @Environment(AppEnvironment.self) private var environment
-    @Environment(ThemeStore.self) private var theme
     @State private var model: ClassroomsModel?
     @State private var showsCreateSheet = false
 
@@ -36,17 +35,12 @@ struct ClassroomsView: View {
                                             ClassroomDetailView(classroom: classroom)
                                         } label: {
                                             ClassroomRow(classroom: classroom)
-                                                .editorialSurface()
                                         }
-                                        .listRowBackground(Color.clear)
-                                        .listRowSeparator(.hidden)
-                                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                                     }
                                 } header: {
-                                    Text(L10n.t("classrooms.header")).eyebrowStyle(theme.colors)
+                                    Text(L10n.t("classrooms.header"))
                                 }
                             }
-                            .paperScreen()
                             .refreshable { await model.load() }
                         }
                     }
@@ -79,58 +73,55 @@ struct ClassroomsView: View {
 }
 
 private struct ClassroomRow: View {
-    @Environment(ThemeStore.self) private var theme
     let classroom: Classroom
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(classroom.name)
-                    .font(AppFont.geist(16, .semibold))
-                    .foregroundStyle(theme.colors.foreground)
-                Spacer()
-                statusBadge
-            }
-            HStack(spacing: 10) {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(classroom.name)
+                .font(.headline)
+            HStack(spacing: 12) {
                 Text("\(classroom.targetLanguage.uppercased()) → \(classroom.nativeLanguage.uppercased())")
-                    .font(AppFont.geist(12))
-                    .foregroundStyle(theme.colors.mutedForeground)
                 if let bankSize = classroom.bankSize {
                     Label("\(bankSize)", systemImage: "square.stack.3d.up")
-                        .font(AppFont.geist(12))
-                        .foregroundStyle(theme.colors.mutedForeground)
                 }
+                Spacer()
+                Label(statusText, systemImage: "circle.fill")
+                    .labelStyle(StatusLabelStyle(color: statusColor))
             }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 2)
     }
 
-    private var statusBadge: some View {
-        Group {
-            if classroom.isPaused {
-                Text(L10n.t("classroom.status.paused"))
-            } else if classroom.isActive ?? false {
-                Text(L10n.t("classroom.status.active"))
-            } else {
-                Text(L10n.t("classroom.status.dormant"))
-            }
-        }
-        .font(AppFont.geist(11, .semibold))
-        .padding(.horizontal, 8)
-        .padding(.vertical, 3)
-        .background(badgeColor.opacity(0.14), in: Capsule())
-        .foregroundStyle(badgeColor)
+    private var statusText: String {
+        if classroom.isPaused { return L10n.t("classroom.status.paused") }
+        if classroom.isActive ?? false { return L10n.t("classroom.status.active") }
+        return L10n.t("classroom.status.dormant")
     }
 
-    private var badgeColor: Color {
-        if classroom.isPaused { return theme.colors.warning }
-        if classroom.isActive ?? false { return theme.colors.success }
-        return theme.colors.mutedForeground
+    private var statusColor: Color {
+        if classroom.isPaused { return .orange }
+        if classroom.isActive ?? false { return .green }
+        return .secondary
+    }
+}
+
+/// A small coloured dot followed by the status text.
+private struct StatusLabelStyle: LabelStyle {
+    let color: Color
+
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 4) {
+            configuration.icon
+                .font(.system(size: 7))
+                .foregroundStyle(color)
+            configuration.title
+        }
     }
 }
 
 private struct CreateClassroomSheet: View {
-    @Environment(ThemeStore.self) private var theme
     @Environment(\.dismiss) private var dismiss
     let model: ClassroomsModel?
 
@@ -150,7 +141,7 @@ private struct CreateClassroomSheet: View {
                 Section {
                     TextField(L10n.t("classrooms.create.name"), text: $name)
                 } header: {
-                    Text(L10n.t("classrooms.create.section")).eyebrowStyle(theme.colors)
+                    Text(L10n.t("classrooms.create.section"))
                 }
                 Section {
                     Picker(L10n.t("classrooms.create.studying"), selection: $targetLanguage) {
@@ -160,14 +151,13 @@ private struct CreateClassroomSheet: View {
                         ForEach(languages, id: \.self) { Text($0.uppercased()) }
                     }
                 } header: {
-                    Text(L10n.t("classrooms.create.languages")).eyebrowStyle(theme.colors)
+                    Text(L10n.t("classrooms.create.languages"))
                 } footer: {
                     if let errorMessage {
-                        Text(errorMessage).foregroundStyle(theme.colors.destructive)
+                        Text(errorMessage).foregroundStyle(.red)
                     }
                 }
             }
-            .paperScreen()
             .navigationTitle(L10n.t("classrooms.create.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

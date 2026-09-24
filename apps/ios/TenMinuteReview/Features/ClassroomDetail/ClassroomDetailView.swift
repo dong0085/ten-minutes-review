@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ClassroomDetailView: View {
     @Environment(AppEnvironment.self) private var environment
-    @Environment(ThemeStore.self) private var theme
     @Environment(\.dismiss) private var dismiss
     @State private var model: ClassroomDetailModel?
     @State private var showsAddNotes = false
@@ -28,43 +27,30 @@ struct ClassroomDetailView: View {
                     List {
                         Section {
                             TodayQuizCardView(model: model)
-                                .editorialSurface()
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
                         } header: {
-                            Text(L10n.t("detail.today")).eyebrowStyle(theme.colors)
+                            Text(L10n.t("detail.today"))
                         }
                         Section {
                             BankCountsView(bank: model.bank)
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
                         } header: {
-                            Text(L10n.t("detail.bank")).eyebrowStyle(theme.colors)
+                            Text(L10n.t("detail.bank"))
                         }
                         Section {
                             if model.uploads.isEmpty {
                                 Text(L10n.t("detail.notes.empty"))
-                                    .font(AppFont.geist(13))
-                                    .foregroundStyle(theme.colors.mutedForeground)
-                                    .listRowBackground(Color.clear)
-                                    .listRowSeparator(.hidden)
+                                    .foregroundStyle(.secondary)
                             } else {
                                 ForEach(model.uploads) { upload in
                                     NotesTimelineRow(upload: upload)
-                                        .listRowBackground(Color.clear)
-                                        .listRowSeparator(.hidden)
                                 }
                             }
                         } header: {
-                            Text(L10n.t("detail.notes")).eyebrowStyle(theme.colors)
+                            Text(L10n.t("detail.notes"))
                         }
                         Section {
                             if model.quizzes.isEmpty {
                                 Text(L10n.t("detail.quizzes.empty"))
-                                    .font(AppFont.geist(13))
-                                    .foregroundStyle(theme.colors.mutedForeground)
-                                    .listRowBackground(Color.clear)
-                                    .listRowSeparator(.hidden)
+                                    .foregroundStyle(.secondary)
                             } else {
                                 ForEach(model.quizzes) { summary in
                                     NavigationLink {
@@ -72,8 +58,6 @@ struct ClassroomDetailView: View {
                                     } label: {
                                         QuizListRow(summary: summary)
                                     }
-                                    .listRowBackground(Color.clear)
-                                    .listRowSeparator(.hidden)
                                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                         Button(role: .destructive) {
                                             quizPendingDelete = summary
@@ -91,10 +75,9 @@ struct ClassroomDetailView: View {
                                 }
                             }
                         } header: {
-                            Text(L10n.t("detail.quizzes")).eyebrowStyle(theme.colors)
+                            Text(L10n.t("detail.quizzes"))
                         }
                     }
-                    .paperScreen()
                     .refreshable { await model.loadAll() }
                 }
             } else {
@@ -124,7 +107,7 @@ struct ClassroomDetailView: View {
                 .accessibilityLabel(Text(L10n.t("detail.settings")))
             }
         }
-        .navigationDestination(isPresented: $showsSettings) {
+        .sheet(isPresented: $showsSettings) {
             if let model {
                 ClassroomSettingsView(model: model) { dismiss() }
             }
@@ -162,44 +145,39 @@ struct ClassroomDetailView: View {
 }
 
 struct QuizListRow: View {
-    @Environment(ThemeStore.self) private var theme
     let summary: QuizSummary
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(alignment: .firstTextBaseline) {
                 Text(DateFormatting.quizDateLabel(summary.quizDate))
-                    .font(AppFont.geist(15, .semibold))
-                    .foregroundStyle(theme.colors.foreground)
+                    .font(.headline)
                 if summary.kind == "manual" {
                     Text(L10n.t("detail.quizzes.onDemand"))
-                        .font(AppFont.geist(11, .semibold))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(theme.colors.secondary, in: Capsule())
-                        .foregroundStyle(theme.colors.secondaryForeground)
+                        .font(.caption)
+                        .foregroundStyle(.tint)
                 }
                 Spacer()
                 Text(String(format: L10n.t("detail.quizzes.questions"), summary.size))
-                    .font(AppFont.geist(12))
-                    .foregroundStyle(theme.colors.mutedForeground)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
-            if summary.attemptCount > 0 {
-                Text(String(
-                    format: L10n.t("detail.quizzes.best"),
-                    summary.bestScore ?? 0,
-                    summary.size,
-                    summary.attemptCount
-                ))
-                .font(AppFont.geist(12))
-                .foregroundStyle(theme.colors.mutedForeground)
-            } else {
-                Text(L10n.t("detail.quizzes.notAttempted"))
-                    .font(AppFont.geist(12))
-                    .foregroundStyle(theme.colors.mutedForeground)
+            Group {
+                if summary.attemptCount > 0 {
+                    Text(String(
+                        format: L10n.t("detail.quizzes.best"),
+                        summary.bestScore ?? 0,
+                        summary.size,
+                        summary.attemptCount
+                    ))
+                } else {
+                    Text(L10n.t("detail.quizzes.notAttempted"))
+                }
             }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 2)
     }
 }
 

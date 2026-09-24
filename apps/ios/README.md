@@ -47,7 +47,7 @@ xcodebuild test \
 
 ## Architecture notes
 
-- `Core/Theme` — the web app's design system, ported: OKLCH colour math resolves the same token values as `apps/web/app/globals.css`, all four palettes (mint, sky, sakura, lavender) switch live from Account, light/dark follows the device, and the bundled Geist + Source Serif 4 faces match the site's typography.
+- `Core/Theme` — the app follows native iOS design: stock `List`/`Form` screens, system fonts with Dynamic Type, system backgrounds and status colours. The web palettes (mint, sky, sakura, lavender) supply the app-wide tint, resolved from the same OKLCH `--primary` values as `apps/web/app/globals.css`, and switch live from Account.
 - `Core/API` — `APIClient` (bearer token, JSON + multipart), stable error
   codes from the server's `{error, code}` envelope.
 - `Core/Auth` — Keychain-stored API token; sign-in mints one via

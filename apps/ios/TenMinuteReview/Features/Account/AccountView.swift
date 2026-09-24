@@ -17,11 +17,16 @@ struct AccountView: View {
                 if let user = environment.auth.user {
                     Section {
                         LabeledContent(L10n.t("account.email"), value: user.email)
-                        Button(L10n.t("account.name")) { editUsername = user.username ?? "" ; showsUsernameSheet = true }
-                            .foregroundStyle(theme.colors.foreground)
+                        Button {
+                            editUsername = user.username ?? ""
+                            showsUsernameSheet = true
+                        } label: {
+                            LabeledContent(L10n.t("account.name"), value: user.username ?? "")
+                        }
+                        .foregroundStyle(.primary)
                         LabeledContent(L10n.t("account.timezone"), value: user.timezone)
                     } header: {
-                        Text(L10n.t("account.profile")).eyebrowStyle(theme.colors)
+                        Text(L10n.t("account.profile"))
                     }
                     Section {
                         Picker(L10n.t("account.interfaceLanguage"), selection: Binding(
@@ -33,7 +38,7 @@ struct AccountView: View {
                             Text("中文").tag("zh")
                         }
                     } header: {
-                        Text(L10n.t("account.interfaceLanguage")).eyebrowStyle(theme.colors)
+                        Text(L10n.t("account.interfaceLanguage"))
                     }
                 }
 
@@ -46,22 +51,19 @@ struct AccountView: View {
                                 Circle()
                                     .fill(palette.swatch)
                                     .frame(width: 18, height: 18)
-                                    .overlay {
-                                        Circle().strokeBorder(theme.colors.border, lineWidth: 1)
-                                    }
                                 Text(palette.label)
-                                    .foregroundStyle(theme.colors.foreground)
+                                    .foregroundStyle(.primary)
                                 Spacer()
                                 if theme.palette == palette {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(theme.colors.primary)
+                                        .foregroundStyle(.tint)
                                 }
                             }
                         }
                         .accessibilityLabel(Text(palette.label))
                     }
                 } header: {
-                    Text(L10n.t("account.theme")).eyebrowStyle(theme.colors)
+                    Text(L10n.t("account.theme"))
                 } footer: {
                     Text(L10n.t("account.themeFooter"))
                 }
@@ -71,9 +73,8 @@ struct AccountView: View {
                         get: { preferences?.dailyEnabled ?? true },
                         set: { setDailyEnabled($0) }
                     ))
-                    .tint(theme.colors.primary)
                 } header: {
-                    Text(L10n.t("account.emailPrefs")).eyebrowStyle(theme.colors)
+                    Text(L10n.t("account.emailPrefs"))
                 } footer: {
                     Text(L10n.t("account.emailPrefsFooter"))
                 }
@@ -82,9 +83,8 @@ struct AccountView: View {
                     Button(L10n.t("account.changePassword")) {
                         showsPasswordSheet = true
                     }
-                    .foregroundStyle(theme.colors.foreground)
                 } header: {
-                    Text(L10n.t("account.password")).eyebrowStyle(theme.colors)
+                    Text(L10n.t("account.password"))
                 }
 
                 if let referrals {
@@ -96,17 +96,16 @@ struct AccountView: View {
                         ForEach(referrals.referrals) { entry in
                             HStack {
                                 Image(systemName: entry.status == "rewarded" ? "gift.fill" : "envelope")
-                                    .foregroundStyle(theme.colors.primary)
+                                    .foregroundStyle(.tint)
                                 Text(statusLabel(entry.status))
-                                    .font(AppFont.geist(14))
                                 Spacer()
                                 Text(DateFormatting.shortDate(DateFormatting.parseISO8601(entry.createdAt)))
-                                    .font(AppFont.geist(12))
-                                    .foregroundStyle(theme.colors.mutedForeground)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                     } header: {
-                        Text(L10n.t("account.referrals")).eyebrowStyle(theme.colors)
+                        Text(L10n.t("account.referrals"))
                     } footer: {
                         Text(L10n.t("account.referralsFooter"))
                     }
@@ -116,9 +115,8 @@ struct AccountView: View {
                     Button(L10n.t("account.exportAction")) {
                         exportData()
                     }
-                    .foregroundStyle(theme.colors.foreground)
                 } header: {
-                    Text(L10n.t("account.export")).eyebrowStyle(theme.colors)
+                    Text(L10n.t("account.export"))
                 }
 
                 Section {
@@ -134,10 +132,9 @@ struct AccountView: View {
                     LabeledContent(L10n.t("account.api"), value: environment.api.baseURL.absoluteString)
                     Link(L10n.t("account.manageWeb"), destination: environment.api.baseURL.appending(path: "account"))
                 } header: {
-                    Text(L10n.t("account.about")).eyebrowStyle(theme.colors)
+                    Text(L10n.t("account.about"))
                 }
             }
-            .paperScreen()
             .navigationTitle(L10n.t("tabs.account"))
             .task { await loadAccountData() }
             .sheet(isPresented: $showsPasswordSheet) {
@@ -244,7 +241,6 @@ extension URL: Identifiable {
 
 private struct UsernameSheet: View {
     @Environment(AppEnvironment.self) private var environment
-    @Environment(ThemeStore.self) private var theme
     @Environment(\.dismiss) private var dismiss
     let initial: String
 
@@ -256,7 +252,6 @@ private struct UsernameSheet: View {
             Form {
                 TextField(L10n.t("account.name"), text: $name)
             }
-            .paperScreen()
             .navigationTitle(L10n.t("account.name"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -282,7 +277,6 @@ private struct UsernameSheet: View {
 
 private struct ChangePasswordSheet: View {
     @Environment(AppEnvironment.self) private var environment
-    @Environment(ThemeStore.self) private var theme
     @Environment(\.dismiss) private var dismiss
 
     @State private var current = ""
@@ -301,11 +295,10 @@ private struct ChangePasswordSheet: View {
                         .textContentType(.newPassword)
                 } footer: {
                     if let message {
-                        Text(message).foregroundStyle(isError ? theme.colors.destructive : theme.colors.success)
+                        Text(message).foregroundStyle(isError ? .red : .green)
                     }
                 }
             }
-            .paperScreen()
             .navigationTitle(L10n.t("account.changePassword"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

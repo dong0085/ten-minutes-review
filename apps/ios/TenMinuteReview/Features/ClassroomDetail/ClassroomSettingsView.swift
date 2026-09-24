@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct ClassroomSettingsView: View {
-    @Environment(ThemeStore.self) private var theme
     @Environment(\.dismiss) private var dismiss
     let model: ClassroomDetailModel
     var onDeleted: () -> Void
@@ -23,7 +22,7 @@ struct ClassroomSettingsView: View {
                 Section {
                     TextField(L10n.t("classrooms.create.name"), text: $name)
                 } header: {
-                    Text(L10n.t("settings.classroom")).eyebrowStyle(theme.colors)
+                    Text(L10n.t("settings.classroom"))
                 }
                 Section {
                     Picker(L10n.t("classrooms.create.studying"), selection: $targetLanguage) {
@@ -33,26 +32,24 @@ struct ClassroomSettingsView: View {
                         ForEach(languages, id: \.self) { Text($0.uppercased()) }
                     }
                 } header: {
-                    Text(L10n.t("settings.languages")).eyebrowStyle(theme.colors)
+                    Text(L10n.t("settings.languages"))
                 }
                 Section {
                     Stepper(value: $autoStopDays, in: 1...90) {
                         Text("\(autoStopDays) d")
-                            .font(AppFont.geist(15))
                     }
                 } header: {
-                    Text(L10n.t("settings.autoStop")).eyebrowStyle(theme.colors)
+                    Text(L10n.t("settings.autoStop"))
                 } footer: {
                     Text(L10n.t("settings.autoStopFooter"))
                 }
                 Section {
                     Toggle(L10n.t("settings.pauseToggle"), isOn: $isPaused)
-                        .tint(theme.colors.primary)
                         .onChange(of: isPaused) { _, paused in
                             setPaused(paused)
                         }
                 } header: {
-                    Text(L10n.t("settings.pauseTitle")).eyebrowStyle(theme.colors)
+                    Text(L10n.t("settings.pauseTitle"))
                 } footer: {
                     Text(L10n.t("settings.pauseFooter"))
                 }
@@ -64,12 +61,11 @@ struct ClassroomSettingsView: View {
                 if let errorMessage {
                     Section {
                         Text(errorMessage)
-                            .font(AppFont.geist(13))
-                            .foregroundStyle(theme.colors.destructive)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
                     }
                 }
             }
-            .paperScreen()
             .navigationTitle(L10n.t("detail.settings"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
