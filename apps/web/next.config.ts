@@ -13,7 +13,11 @@ const standalone = process.env.NEXT_OUTPUT === "standalone";
 // host, its pages redirect there, while /api keeps answering in place for
 // clients built against it (published extension, Stripe webhook).
 const LEGACY_HOST = "ten-minutes-review.vercel.app";
-const appUrl = (process.env.APP_URL ?? "").replace(/\/+$/, "");
+// Mirrors normalizeAppUrl in @tmr/core: APP_URL may omit the scheme.
+const rawAppUrl = process.env.APP_URL ?? "";
+const appUrl = rawAppUrl
+  ? (/^https?:\/\//i.test(rawAppUrl) ? rawAppUrl : `https://${rawAppUrl}`).replace(/\/+$/, "")
+  : "";
 const redirectLegacyHost = appUrl !== "" && new URL(appUrl).host !== LEGACY_HOST;
 
 const nextConfig: NextConfig = {
