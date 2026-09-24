@@ -369,6 +369,108 @@
     mask-image: radial-gradient(ellipse 70% 90% at 50% 100%, black 20%, transparent 75%);
   }
 
+  /* Account stationery. Each account section is drawn as a paper object:
+     a library card, a report card, a logbook, a postcard, ticket stubs. */
+
+  /* Library card: a coloured spine on the left and a faint dotted field. */
+  .library-card {
+    background-image:
+      linear-gradient(
+        to right,
+        color-mix(in oklch, var(--primary), transparent 12%) 0 0.4rem,
+        transparent 0.4rem
+      ),
+      radial-gradient(color-mix(in oklch, var(--foreground), transparent 90%) 1px, transparent 1.4px),
+      var(--paper-grain);
+    background-size: 100% 100%, 18px 18px, auto;
+  }
+
+  /* Ink stamp: a double ring in the accent colour, tilted like it was
+     pressed by hand. */
+  .ink-stamp {
+    border: 2px solid currentColor;
+    outline: 1px solid currentColor;
+    outline-offset: 2px;
+    rotate: -7deg;
+    mix-blend-mode: multiply;
+  }
+
+  .dark .ink-stamp {
+    mix-blend-mode: screen;
+  }
+
+  /* Dotted tear line between a ticket and its stub. */
+  .perforation {
+    background-image: linear-gradient(
+      to bottom,
+      color-mix(in oklch, var(--foreground), transparent 75%) 50%,
+      transparent 50%
+    );
+    background-size: 1px 8px;
+    width: 1px;
+  }
+
+  /* Graph paper for charts. */
+  .graph-paper {
+    background-image:
+      linear-gradient(color-mix(in oklch, var(--primary), transparent 90%) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in oklch, var(--primary), transparent 90%) 1px, transparent 1px);
+    background-size: 14px 14px;
+    background-position: -1px -1px;
+  }
+
+  /* Logbook: ruled rows with a red double margin. */
+  .logbook {
+    --margin-ink: color-mix(in oklch, var(--destructive), transparent 62%);
+    background-image:
+      linear-gradient(
+        to right,
+        transparent 4.25rem,
+        var(--margin-ink) 4.25rem calc(4.25rem + 1px),
+        transparent calc(4.25rem + 1px) calc(4.25rem + 4px),
+        var(--margin-ink) calc(4.25rem + 4px) calc(4.25rem + 5px),
+        transparent calc(4.25rem + 5px)
+      ),
+      var(--paper-grain);
+  }
+
+  /* Postcard with an airmail border. */
+  .airmail-border {
+    border: 7px solid transparent;
+    border-image: repeating-linear-gradient(
+        -45deg,
+        color-mix(in oklch, var(--destructive), transparent 35%) 0 12px,
+        var(--card) 12px 18px,
+        color-mix(in oklch, var(--primary), transparent 30%) 18px 30px,
+        var(--card) 30px 36px
+      )
+      7;
+  }
+
+  /* Highlighter bar for category accuracy. */
+  .highlighter {
+    border-radius: 999px 40% 999px 55%;
+    background: color-mix(in oklch, var(--primary), transparent 55%);
+  }
+
+  /* Index-card tab sitting on top of a classroom card. */
+  .index-tab {
+    border-radius: 0.6rem 0.6rem 0 0;
+    clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%);
+  }
+
+  /* Dashed "cut here" edge for the danger zone. */
+  .cut-line {
+    background-image: linear-gradient(
+      to right,
+      color-mix(in oklch, var(--destructive), transparent 45%) 55%,
+      transparent 55%
+    );
+    background-size: 12px 1.5px;
+    background-repeat: repeat-x;
+    background-position: left center;
+  }
+
   /* Homepage dealt quiz cards. components/quiz-form-cards.tsx flips
      data-dealt when the cluster enters the viewport; the deal is CSS. */
   .deal-inner {

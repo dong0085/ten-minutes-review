@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
+import { Check, Copy, Plus, Ticket } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -88,16 +89,22 @@ export function ApiTokens({ initialTokens }: { initialTokens: TokenRow[] }) {
   }
 
   return (
-    <div className="mt-3 space-y-5">
+    <div className="space-y-8">
       {created ? (
-        <div className="rounded-lg border border-border bg-muted/40 p-3">
-          <p className="text-sm font-medium">{created.name}</p>
-          <code className="mt-2 block overflow-x-auto rounded bg-card px-2 py-1.5 text-xs">
+        // The fresh token: a highlighted ticket with a "shown once" stamp.
+        <div className="relative overflow-hidden rounded-2xl border-2 border-primary/40 bg-primary/[0.05] p-5 sm:p-6">
+          <span className="ink-stamp absolute top-4 right-4 rounded-md px-2 py-0.5 text-[0.62rem] font-bold tracking-[0.16em] text-destructive uppercase">
+            {t("once")}
+          </span>
+          <p className="eyebrow">{t("newToken")}</p>
+          <p className="mt-1 font-heading text-xl font-semibold">{created.name}</p>
+          <code className="mt-4 block overflow-x-auto rounded-xl border border-border bg-card px-3 py-2.5 font-mono text-sm">
             {created.token}
           </code>
           <p className="mt-2 text-xs text-destructive">{t("revealWarning")}</p>
-          <div className="mt-3 flex gap-2">
+          <div className="mt-4 flex gap-2">
             <Button variant="outline" size="sm" onClick={() => void onCopy()}>
+              {copied ? <Check /> : <Copy />}
               {copied ? t("copied") : t("copy")}
             </Button>
             <Button size="sm" onClick={onDone}>
@@ -106,7 +113,10 @@ export function ApiTokens({ initialTokens }: { initialTokens: TokenRow[] }) {
           </div>
         </div>
       ) : (
-        <form onSubmit={onCreate} className="flex max-w-sm items-end gap-2">
+        <form
+          onSubmit={onCreate}
+          className="flex flex-col gap-3 rounded-2xl border border-dashed border-border p-4 sm:flex-row sm:items-end"
+        >
           <div className="flex-1">
             <Label htmlFor="token-name">{t("nameLabel")}</Label>
             <Input
@@ -118,41 +128,54 @@ export function ApiTokens({ initialTokens }: { initialTokens: TokenRow[] }) {
             />
           </div>
           <Button type="submit" disabled={creating}>
+            <Plus />
             {creating ? tc("saving") : t("create")}
           </Button>
         </form>
       )}
 
       {initialTokens.length > 0 ? (
-        <ul className="divide-y divide-border/70">
+        <ul className="grid gap-4 md:grid-cols-2">
           {initialTokens.map((token) => (
             <li
               key={token.id}
-              className="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0"
+              className="flex rounded-2xl border border-border/80 bg-card shadow-[0_1px_2px_rgb(var(--shadow-colour)/0.06)] transition-transform duration-200 hover:-translate-y-0.5"
             >
-              <div>
-                <p className="text-sm font-medium">{token.name}</p>
-                <code className="text-xs text-muted-foreground">{token.prefix}…</code>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {t("created", { date: dateText(token.createdAt) })} ·{" "}
-                  {token.lastUsedAt
-                    ? t("lastUsed", { date: dateText(token.lastUsedAt) })
-                    : t("never")}
+              <div className="min-w-0 flex-1 px-5 py-4">
+                <p className="truncate font-medium">{token.name}</p>
+                <code className="mt-1 block font-mono text-xs text-primary">{token.prefix}••••••</code>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {t("created", { date: dateText(token.createdAt) })}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {token.lastUsedAt ? t("lastUsed", { date: dateText(token.lastUsedAt) }) : t("never")}
                 </p>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => void onRevoke(token.id)}
-                disabled={revokingId === token.id}
-              >
-                {t("revoke")}
-              </Button>
+              {/* Tear line with a notch punched at each end. */}
+              <span aria-hidden="true" className="relative flex w-px self-stretch">
+                <span className="absolute -top-px left-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border border-border/80 bg-background [clip-path:inset(50%_0_0_0)]" />
+                <span className="perforation my-3 flex-1" />
+                <span className="absolute -bottom-px left-1/2 size-4 -translate-x-1/2 translate-y-1/2 rounded-full border border-border/80 bg-background [clip-path:inset(0_0_50%_0)]" />
+              </span>
+              <div className="grid place-items-center px-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  onClick={() => void onRevoke(token.id)}
+                  disabled={revokingId === token.id}
+                >
+                  {t("revoke")}
+                </Button>
+              </div>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-muted-foreground">{t("empty")}</p>
+        <div className="rounded-2xl border border-dashed border-border px-6 py-10 text-center">
+          <Ticket className="mx-auto size-8 -rotate-12 text-muted-foreground/60" strokeWidth={1.5} />
+          <p className="mt-3 text-sm text-muted-foreground">{t("empty")}</p>
+        </div>
       )}
 
       {error ? (
