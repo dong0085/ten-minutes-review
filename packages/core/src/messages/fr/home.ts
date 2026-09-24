@@ -1,16 +1,16 @@
 export const home = {
-  eyebrow: "Une façon plus sereine de continuer à apprendre",
-  title: "Tes notes deviennent un <highlight>quiz de dix minutes</highlight>",
+  eyebrow: "Pour celles et ceux qui apprennent une langue avec un tuteur ou en classe",
+  title: "Garde chaque cours de langue grâce à un <highlight>quiz de dix minutes</highlight>",
   description:
-    "Colle tes notes de cours ou photographie ton écriture. Chaque matin, tu reçois un quiz tiré de ce que tu as vraiment étudié : vocabulaire, expressions, grammaire, idées et compréhension.",
+    "Colle les notes de ton tuteur ou photographie ton cahier. Chaque matin, tu reçois un court quiz sur les mots, les expressions et la grammaire de tes propres cours, pour qu'ils restent au-delà de la semaine prochaine.",
   goToClassrooms: "Voir mes classes",
   createAccount: "Créer un compte",
   signIn: "Se connecter",
   tryAsGuest: "Essayer sans compte",
   proof: {
-    handwriting: "Texte ou notes manuscrites",
-    fresh: "De nouvelles questions chaque jour",
-    tenMinutes: "Pensé pour dix minutes",
+    handwriting: "Notes tapées ou manuscrites",
+    fresh: "Tiré de tes propres cours",
+    tenMinutes: "Dix minutes chaque matin",
   },
   preview: {
     kicker: "À partir de ton dernier cours",
@@ -21,19 +21,24 @@ export const home = {
     question: "Question 3 sur 8",
     ready: "Prêt",
   },
-  howItWorksKicker: "Un rythme simple",
-  howItWorksTitle: "Révise ce que tu as vraiment appris.",
+  languagesKicker: "Quelle que soit la langue",
+  languagesCopy:
+    "Français, espagnol, mandarin, japonais, coréen et bien d'autres. Ton quiz suit la langue de tes notes.",
+  howItWorksKicker: "Entre deux cours",
+  howItWorksTitle: "Ne laisse pas les mots du dernier cours s'effacer.",
   steps: {
-    addTitle: "Ajoute tes notes",
-    addCopy: "Colle le résumé du cours ou photographie une page manuscrite.",
-    shapeTitle: "Nous structurons le contenu",
-    shapeCopy: "Le vocabulaire, la grammaire, les expressions, les idées et les textes forment une banque de questions.",
-    reviewTitle: "Révise chaque matin",
-    reviewCopy: "Ouvre un nouveau quiz conçu pour tenir confortablement en dix minutes.",
+    addTitle: "Ajoute tes notes de cours",
+    addCopy: "Colle le résumé de ton tuteur ou photographie une page de ton cahier.",
+    shapeTitle: "Nous repérons ce qu'il faut retenir",
+    shapeCopy:
+      "Les nouveaux mots, les expressions toutes faites, les points de grammaire et les courts textes forment ta propre banque de questions.",
+    reviewTitle: "Révise avant le prochain cours",
+    reviewCopy:
+      "Un nouveau quiz chaque matin, prévu pour dix minutes, garde le cours bien vivant jusqu'à ta prochaine séance.",
   },
-  categoriesTitle: "Bien plus qu'un <highlight>exercice de vocabulaire.</highlight>",
+  categoriesTitle: "Bien plus qu'un <highlight>paquet de cartes mémoire.</highlight>",
   categoriesCopy:
-    "Chaque révision alterne mémorisation, production, structure et compréhension pour garder le cours cohérent.",
+    "Reconnaître un mot, l'employer dans une phrase, appliquer la grammaire, lire un court texte. Chaque révision fait travailler la langue comme un bon cours.",
   forms: {
     mcq: "Choix multiple",
     fillBlank: "Texte à trous",
@@ -42,23 +47,28 @@ export const home = {
     blankLabel: "Trou 1",
     true: "Vrai",
     false: "Faux",
+    stems: {
+      mcq: "Quel mot veut dire « confidence » ?",
+      trueFalse: "Dans le texte, Marie prend le train avant le déjeuner.",
+      photo: "Quelle expression ton tuteur a-t-il entourée ?",
+    },
   },
   highlights: {
-    kicker: "Pensé pour toi",
-    title: "Apprends à ta façon.",
+    kicker: "Pensé pour les apprenants",
+    title: "S'adapte à tes cours.",
     noPressure: {
-      title: "Pas de points. Pas de pression.",
-      copy: "Pas de séries à maintenir, de classements ni de badges à collectionner — seulement une courte révision de ce que tu as vraiment appris.",
+      title: "Aucune série à protéger.",
+      copy: "Pas de points, pas de classements, pas de rappels culpabilisants. Juste une révision calme de ce que tu as appris cette semaine.",
     },
     pause: {
-      title: "Fais une pause sans perdre le fil.",
-      copy: "Mets les révisions quotidiennes en pause quand tu en as besoin. Ta classe sera prête à ton retour.",
+      title: "Fais une pause entre deux sessions.",
+      copy: "Mets les révisions en pause pendant les vacances ou une pause dans tes cours. Tes mots t'attendront à ton retour.",
     },
     notes: {
-      title: "Tes notes restent à portée de main.",
-      copy: "Tous tes textes et toutes tes photos restent dans l'historique de ta classe, prêts à être consultés quand tu le souhaites.",
+      title: "Chaque cours, conservé.",
+      copy: "Tes notes et tes photos restent dans ta classe, un historique de tout ce que tu as vu.",
     },
   },
-  closingKicker: "La révision de demain commence aujourd'hui",
-  closingTitle: "Accorde <highlight>dix minutes de plus</highlight> au cours avant qu'il ne s'efface.",
+  closingKicker: "Ton prochain cours commence ici",
+  closingTitle: "Accorde <highlight>dix minutes de plus</highlight> au cours d'aujourd'hui avant qu'il ne s'efface.",
 } as const;

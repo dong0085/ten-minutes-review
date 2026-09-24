@@ -1,9 +1,9 @@
 export const seo = {
   homeTitle:
-    "Ten Minutes Review — un quiz de dix minutes chaque jour, à partir de tes notes de cours",
+    "Ten Minutes Review — un quiz de dix minutes chaque jour, à partir de tes cours de langue",
   homeDescription:
-    "Colle tes notes de cours ou photographie ton écriture. Chaque matin, un quiz tiré de ce que tu as vraiment étudié.",
-  ogImageTitle: "Tes notes deviennent un quiz de dix minutes",
+    "Pour apprendre une langue : colle les notes de ton tuteur ou photographie ton cahier, et reçois chaque matin un court quiz sur les mots, les expressions et la grammaire étudiés.",
+  ogImageTitle: "Tes cours de langue deviennent un quiz de dix minutes",
   ogImageTagline: "Ten Minutes Review",
   aboutTitle: "À propos",
   aboutDescription:

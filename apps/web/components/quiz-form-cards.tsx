@@ -84,7 +84,7 @@ function SampleCardView({ card, index }: { card: { form: FormKey; category: Cate
 
       {card.form === "mcq" ? (
         <>
-          <Stem>Which word means «&nbsp;confidence&nbsp;»?</Stem>
+          <Stem>{t("stems.mcq")}</Stem>
           <OptionList
             options={[
               { label: "la confiance", selected: true },
@@ -111,7 +111,7 @@ function SampleCardView({ card, index }: { card: { form: FormKey; category: Cate
 
       {card.form === "trueFalse" ? (
         <>
-          <Stem>In the passage, Marie takes the train before lunch.</Stem>
+          <Stem>{t("stems.trueFalse")}</Stem>
           <div className="mt-4 grid grid-cols-2 gap-2 text-sm font-medium">
             <span className="flex h-10 items-center justify-center rounded-lg border border-primary bg-primary text-primary-foreground">
               {t("true")}
@@ -125,7 +125,7 @@ function SampleCardView({ card, index }: { card: { form: FormKey; category: Cate
 
       {card.form === "photo" ? (
         <>
-          <Stem>Which expression did the tutor circle?</Stem>
+          <Stem>{t("stems.photo")}</Stem>
           <div className="mt-3 -rotate-1 rounded-xl border border-border/70 bg-muted/30 px-3.5 py-3 font-heading text-sm leading-7 italic text-foreground/85 paper-lines">
             <p>il faut + infinitif</p>
             <p>

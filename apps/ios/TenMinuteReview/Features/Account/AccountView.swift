@@ -30,6 +30,7 @@ struct AccountView: View {
                         )) {
                             Text("English").tag("en")
                             Text("Français").tag("fr")
+                            Text("中文").tag("zh")
                         }
                     } header: {
                         Text(L10n.t("account.interfaceLanguage")).eyebrowStyle(theme.colors)

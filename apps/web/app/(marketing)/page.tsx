@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import {
   ArrowRight,
   BookOpenCheck,
@@ -17,7 +17,22 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
 import { QuizFormCards } from "@/components/quiz-form-cards";
 import { env } from "@/lib/env";
+import { languageLabel } from "@/lib/language-label";
 import { getCurrentUserOrGuest } from "@/lib/session";
+
+/* A hello in each language learners bring notes in, shown under the hero. */
+const GREETINGS = [
+  { code: "fr", hello: "Bonjour" },
+  { code: "es", hello: "Hola" },
+  { code: "zh", hello: "你好" },
+  { code: "ja", hello: "こんにちは" },
+  { code: "ko", hello: "안녕하세요" },
+  { code: "pt", hello: "Olá" },
+  { code: "ru", hello: "Привет" },
+  { code: "hi", hello: "नमस्ते" },
+  { code: "vi", hello: "Xin chào" },
+  { code: "en", hello: "Hello" },
+];
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Seo");
@@ -39,6 +54,7 @@ export default async function HomePage() {
   const user = current?.user ?? null;
   const t = await getTranslations("Home");
   const seo = await getTranslations("Seo");
+  const locale = await getLocale();
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -183,6 +199,33 @@ export default async function HomePage() {
               </div>
             </div>
           </div>
+        </Reveal>
+      </section>
+
+      <section className="border-t border-border/70 py-12 sm:py-14">
+        <Reveal className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-16">
+          <div>
+            <p className="eyebrow">{t("languagesKicker")}</p>
+            <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground">
+              {t("languagesCopy")}
+            </p>
+          </div>
+          <ul className="flex flex-wrap gap-2.5">
+            {GREETINGS.map(({ code, hello }, index) => (
+              <li
+                key={code}
+                lang={code}
+                className={`flex items-baseline gap-2 rounded-full border border-border/80 bg-card/70 px-3.5 py-1.5 ${
+                  index % 3 === 1 ? "-rotate-1" : index % 3 === 2 ? "rotate-1" : ""
+                }`}
+              >
+                <span className="font-heading text-base font-semibold">{hello}</span>
+                <span className="text-[0.7rem] text-muted-foreground">
+                  {languageLabel(code, locale)}
+                </span>
+              </li>
+            ))}
+          </ul>
         </Reveal>
       </section>
 

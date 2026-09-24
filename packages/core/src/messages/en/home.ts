@@ -1,16 +1,16 @@
 export const home = {
-  eyebrow: "A quieter way to keep learning",
-  title: "Your notes become a <highlight>ten-minute quiz</highlight>",
+  eyebrow: "For language learners with a tutor or class",
+  title: "Keep every language lesson with a <highlight>ten-minute quiz</highlight>",
   description:
-    "Paste your tutoring notes or photograph your handwriting. Every morning you get a quiz drawn from what you actually studied — vocabulary, phrases, grammar, ideas, and comprehension.",
+    "Paste your tutor's notes or photograph your notebook. Every morning you get a short quiz on the words, phrases, and grammar from your own lessons, so they stick past next week.",
   goToClassrooms: "Go to my classrooms",
   createAccount: "Create account",
   signIn: "Sign in",
   tryAsGuest: "Try without an account",
   proof: {
-    handwriting: "Text or handwriting",
-    fresh: "Fresh questions each day",
-    tenMinutes: "Made for ten minutes",
+    handwriting: "Typed or handwritten notes",
+    fresh: "Built from your own lessons",
+    tenMinutes: "Ten minutes a morning",
   },
   preview: {
     kicker: "From your last lesson",
@@ -21,19 +21,24 @@ export const home = {
     question: "Question 3 of 8",
     ready: "Ready",
   },
-  howItWorksKicker: "A simple rhythm",
-  howItWorksTitle: "Study what was actually taught.",
+  languagesKicker: "Whatever you're learning",
+  languagesCopy:
+    "French, Spanish, Mandarin, Japanese, Korean, and more. Your quiz follows the language in your notes.",
+  howItWorksKicker: "Between lessons",
+  howItWorksTitle: "Keep last lesson's words from fading.",
   steps: {
-    addTitle: "Add your notes",
-    addCopy: "Paste the session recap or photograph a handwritten page.",
-    shapeTitle: "We shape the material",
-    shapeCopy: "Useful vocabulary, grammar, phrases, ideas, and passages become a question bank.",
-    reviewTitle: "Review each morning",
-    reviewCopy: "Open a fresh quiz sized to fit comfortably inside ten minutes.",
+    addTitle: "Add your lesson notes",
+    addCopy: "Paste your tutor's recap or photograph a page from your notebook.",
+    shapeTitle: "We pick out what to remember",
+    shapeCopy:
+      "New words, set phrases, grammar points, and short passages become your own question bank.",
+    reviewTitle: "Review before the next lesson",
+    reviewCopy:
+      "A fresh quiz each morning, sized for ten minutes, keeps the lesson alive until you see your tutor again.",
   },
-  categoriesTitle: "More than a <highlight>vocabulary drill.</highlight>",
+  categoriesTitle: "More than a <highlight>flashcard deck.</highlight>",
   categoriesCopy:
-    "Each review moves between recall, production, structure, and comprehension so the lesson stays connected.",
+    "Recognize a word, use it in a sentence, apply the grammar, read a short passage. Each review works the language the way a good lesson does.",
   forms: {
     mcq: "Multiple choice",
     fillBlank: "Fill the blank",
@@ -42,23 +47,28 @@ export const home = {
     blankLabel: "Blank 1",
     true: "True",
     false: "False",
+    stems: {
+      mcq: "Which word means “confidence”?",
+      trueFalse: "In the passage, Marie takes the train before lunch.",
+      photo: "Which expression did your tutor circle?",
+    },
   },
   highlights: {
-    kicker: "Designed around you",
-    title: "Learn on your terms.",
+    kicker: "Made for learners",
+    title: "Fits around your lessons.",
     noPressure: {
-      title: "No points. No pressure.",
-      copy: "No streaks, leaderboards, or badges to chase—just a short review of what you actually learned.",
+      title: "No streaks to protect.",
+      copy: "No points, leaderboards, or guilt-trip reminders. Just a calm review of what you learned this week.",
     },
     pause: {
-      title: "Pause without losing your place.",
-      copy: "Pause daily reviews when life gets busy. Your classroom will be ready when you return.",
+      title: "Take a break between terms.",
+      copy: "Pause daily reviews for holidays or time off from lessons. Your words will be waiting when you return.",
     },
     notes: {
-      title: "Your notes stay with you.",
-      copy: "Every text and photo remains in your classroom history, ready whenever you want to revisit it.",
+      title: "Every lesson, kept.",
+      copy: "Your notes and photos stay in your classroom, a running record of everything you have covered.",
     },
   },
-  closingKicker: "Tomorrow's review starts today",
-  closingTitle: "Give the lesson <highlight>ten more minutes</highlight> before it slips away.",
+  closingKicker: "Your next lesson starts here",
+  closingTitle: "Give today's lesson <highlight>ten more minutes</highlight> before it fades.",
 } as const;
