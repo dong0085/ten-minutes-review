@@ -29,7 +29,7 @@ if (targets.length === 0) {
 // development), otherwise the production site. It feeds both the manifest's
 // host permissions and the code's base URL via --define, so they can't drift.
 // --store drops the localhost permission (dev-only) to keep store reviews clean.
-const PRODUCTION_ORIGIN = "https://ten-minutes-review.vercel.app";
+const PRODUCTION_ORIGIN = "https://tenminutesreview.study";
 const origin = process.env.EXT_API_ORIGIN?.replace(/\/+$/, "");
 const defaultOrigin = origin ?? PRODUCTION_ORIGIN;
 if (store && defaultOrigin === "http://localhost:3000") {

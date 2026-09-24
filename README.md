@@ -133,6 +133,7 @@ pnpm docs:render
 - Deploy `apps/web` to Vercel with files outside its root directory included.
 - Deploy the repository's `render.yaml` blueprint to Render for the worker.
 - Give both services `DATABASE_URL`, `AUTH_SECRET`, `APP_URL`, and the selected provider credentials.
+- Production lives at `https://tenminutesreview.study`. When `APP_URL` names that domain, pages on `ten-minutes-review.vercel.app` redirect to it and `/api` there keeps serving older extension builds and webhooks.
 - Connect Vercel Blob for production image uploads and set the repository `WORKER_URL` variable for the morning keep-alive workflow.
 - Self-host on AWS with Docker Compose: see [`docs/DEPLOY-AWS.md`](docs/DEPLOY-AWS.md).
 
