@@ -6,6 +6,7 @@ import { ProfileForm } from "@/components/account/profile-form";
 import { getDb } from "@/lib/db";
 import { formatResetTime } from "@/lib/send-time";
 import { requireUser } from "@/lib/session";
+import { AccountHeader } from "@/components/account/account-header";
 
 export default async function AccountProfilePage() {
   const user = await requireUser();
@@ -17,12 +18,7 @@ export default async function AccountProfilePage() {
 
   return (
     <div className="space-y-7">
-      <div className="border-b border-border/70 pb-7">
-        <p className="eyebrow">{t("title")}</p>
-        <h1 className="mt-2 font-heading text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
-          {tNav("profile")}
-        </h1>
-      </div>
+      <AccountHeader title={tNav("profile")} />
 
       <Card>
         <CardContent>

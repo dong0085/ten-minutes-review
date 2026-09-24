@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { readError } from "@/lib/read-error";
 
 const MAX_FILES = 10;
 
@@ -46,17 +47,6 @@ type UploadRow = {
   createdAt: string;
   imageUrl: string | null;
 };
-
-async function readError(response: Response): Promise<string | null> {
-  const data: unknown = await response.json().catch(() => null);
-  if (data && typeof data === "object" && "error" in data) {
-    const message = (data as { error?: unknown }).error;
-    if (typeof message === "string") {
-      return message;
-    }
-  }
-  return null;
-}
 
 function firstLine(value: string | null, fallback: string): string {
   const line = (value ?? "").split("\n").find((entry) => entry.trim() !== "");

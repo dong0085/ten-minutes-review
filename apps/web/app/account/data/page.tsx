@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DeleteAccount } from "@/components/account/delete-account";
 import { requireUser } from "@/lib/session";
+import { AccountHeader } from "@/components/account/account-header";
 
 export default async function AccountDataPage() {
   await requireUser();
@@ -11,12 +12,7 @@ export default async function AccountDataPage() {
 
   return (
     <div className="space-y-7">
-      <div className="border-b border-border/70 pb-7">
-        <p className="eyebrow">{t("title")}</p>
-        <h1 className="mt-2 font-heading text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
-          {tNav("data")}
-        </h1>
-      </div>
+      <AccountHeader title={tNav("data")} />
 
       <Card>
         <CardContent>

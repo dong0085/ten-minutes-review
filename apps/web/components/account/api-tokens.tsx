@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { readError } from "@/lib/read-error";
 
 type TokenRow = {
   id: string;
@@ -17,17 +18,6 @@ type TokenRow = {
 };
 
 type CreatedToken = { token: string; name: string; prefix: string };
-
-async function readError(response: Response): Promise<string | null> {
-  const data: unknown = await response.json().catch(() => null);
-  if (data && typeof data === "object" && "error" in data) {
-    const message = (data as { error?: unknown }).error;
-    if (typeof message === "string") {
-      return message;
-    }
-  }
-  return null;
-}
 
 export function ApiTokens({ initialTokens }: { initialTokens: TokenRow[] }) {
   const t = useTranslations("Account.ApiTokens");

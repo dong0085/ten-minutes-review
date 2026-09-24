@@ -4,17 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-
-async function readError(response: Response): Promise<string | null> {
-  const data: unknown = await response.json().catch(() => null);
-  if (data && typeof data === "object" && "error" in data) {
-    const message = (data as { error?: unknown }).error;
-    if (typeof message === "string") {
-      return message;
-    }
-  }
-  return null;
-}
+import { readError } from "@/lib/read-error";
 
 export function BillingButton({ action }: { action: "checkout" | "portal" }) {
   const t = useTranslations("Account");

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { languageLabel } from "@/lib/language-label";
+import { readError } from "@/lib/read-error";
 
 const selectClass =
   "h-10 w-full rounded-xl border border-input/90 bg-card/55 px-3 text-sm outline-none transition focus:border-ring focus:ring-3 focus:ring-ring/25 disabled:opacity-50 dark:bg-input/20";
@@ -18,17 +19,6 @@ function timezoneOptions(current: string): string[] {
     .supportedValuesOf;
   const zones = supported ? supported("timeZone") : [];
   return zones.includes(current) ? zones : [current, ...zones];
-}
-
-async function readError(response: Response): Promise<string | null> {
-  const data: unknown = await response.json().catch(() => null);
-  if (data && typeof data === "object" && "error" in data) {
-    const message = (data as { error?: unknown }).error;
-    if (typeof message === "string") {
-      return message;
-    }
-  }
-  return null;
 }
 
 export function ProfileForm({
@@ -51,6 +41,9 @@ export function ProfileForm({
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // The form only renders its fields after the user clicks Edit, so reading the
+  // browser's timezone here never runs during server rendering.
+  const deviceTimezone = editing ? Intl.DateTimeFormat().resolvedOptions().timeZone : null;
 
   const resetFields = () => {
     setUsername(defaultUsername ?? "");
@@ -166,6 +159,15 @@ export function ProfileForm({
               </option>
             ))}
           </select>
+          {deviceTimezone && deviceTimezone !== timezone ? (
+            <button
+              type="button"
+              className="mt-1.5 text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+              onClick={() => setTimezone(deviceTimezone)}
+            >
+              {t("useDeviceTimezone", { zone: deviceTimezone })}
+            </button>
+          ) : null}
         </div>
       </div>
       {error ? (

@@ -6,6 +6,7 @@ import { GoogleConnection } from "@/components/account/google-connection";
 import { PasswordForm } from "@/components/account/password-form";
 import { getDb } from "@/lib/db";
 import { requireUser } from "@/lib/session";
+import { AccountHeader } from "@/components/account/account-header";
 
 export default async function AccountSecurityPage({
   searchParams,
@@ -21,12 +22,7 @@ export default async function AccountSecurityPage({
 
   return (
     <div className="space-y-7">
-      <div className="border-b border-border/70 pb-7">
-        <p className="eyebrow">{t("title")}</p>
-        <h1 className="mt-2 font-heading text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
-          {tNav("security")}
-        </h1>
-      </div>
+      <AccountHeader title={tNav("security")} />
 
       {linkError ? (
         <Alert variant="destructive">

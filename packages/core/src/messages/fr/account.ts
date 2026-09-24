@@ -21,6 +21,9 @@ export const account: MessageShape<(typeof en)["Account"]> = {
   referralDate: "Date",
   referralStatus: "Statut",
   quizHistorySection: "Historique des quiz",
+  quizHistoryMore: "Tes {count} quiz les plus récents. Ouvre une classe pour voir tous ses quiz.",
+  copyLink: "Copier le lien",
+  linkCopied: "Copié",
   referralsSection: "Parrainages",
   dataSection: "Données",
   subscriptionSection: "Abonnement",
@@ -63,6 +66,7 @@ export const account: MessageShape<(typeof en)["Account"]> = {
     saved: "Profil enregistré.",
     error: "Impossible d'enregistrer ton profil.",
     save: "Enregistrer le profil",
+    useDeviceTimezone: "Utiliser le fuseau horaire de cet appareil ({zone})",
   },
   EmailPreferencesForm: {
     unsubscribed: "Cette adresse est désabonnée de tous les e-mails.",

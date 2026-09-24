@@ -51,6 +51,11 @@ export async function PATCH(request: Request) {
     const patch: EmailPreferencesInput = {};
     if (body.dailyEnabled !== undefined) {
       patch.dailyEnabled = body.dailyEnabled;
+      // Turning the daily email back on also lifts an email-link unsubscribe,
+      // which the worker would otherwise keep honouring.
+      if (body.dailyEnabled) {
+        patch.unsubscribedAt = null;
+      }
     }
     if (body.unsubscribedAt !== undefined) {
       patch.unsubscribedAt =
