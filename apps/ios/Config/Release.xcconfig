@@ -1,3 +1,0 @@
-// Production API origin.
-// "/$()/" keeps xcconfig from reading "//" as a comment.
-API_BASE_URL = https:/$()/tenminutesreview.study
