@@ -101,6 +101,7 @@ Bearer tokens for native clients. `id` uuid pk, `user_id` fk → users, `token_h
 | `target_language` | text | ISO 639-1, auto-detected from notes, editable |
 | `native_language` | text | ISO 639-1 |
 | `auto_stop_days` | int | Default 7; the classroom-settings override |
+| `quiz_length` | int | Default 0; −2 to 2, scales the quiz budget by 0.5, 0.75, 1, 1.5, or 2 |
 | `active_until` | timestamptz | Extended by every upload **and** every login |
 | `paused_at` | timestamptz | Nullable; an explicit per-classroom pause of scheduled daily reviews |
 | `daily_resumed_at` | timestamptz | Nullable; the last explicit resume, used for the morning cutoff |
@@ -143,7 +144,7 @@ The bank. One row per studyable item.
 | `source_excerpt` | text | The note fragment it came from |
 | `prompt_version` | text | |
 | `retired_at` | timestamptz | Null while in play |
-| `created_at` | timestamptz | Drives "newest material first" |
+| `created_at` | timestamptz | Marks a point as recent for composition selection |
 
 Index: `(classroom_id, created_at desc)`.
 

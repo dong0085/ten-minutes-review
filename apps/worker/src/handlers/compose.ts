@@ -1,13 +1,16 @@
 import {
-  COMPOSITION_PROMPT_V2,
+  COMPOSITION_PROMPT_V3,
   COMPOSITION_PROMPT_VERSION,
   MIN_USABLE_QUESTIONS,
   dailySendAt,
+  fitToBudget,
   isClassroomEligibleForDailySend,
   parseCompositionResponse,
   parseCompositionResult,
-  quizSize,
+  quizBudget,
   sanitizeCompositionQuestions,
+  selectCompositionPoints,
+  shuffleQuizQuestions,
 } from "@tmr/core";
 import type { KnowledgePointDetail } from "@tmr/core";
 import {
@@ -18,6 +21,7 @@ import {
   getJobById,
   hasDeletedDailyQuiz,
   listKnowledgePointsForComposition,
+  listLastQuizzedByPoint,
   listRecentMisses,
   listWeekQuestionStems,
   markJobCancelled,
@@ -120,50 +124,70 @@ export async function handleComposeJob(
     console.log(`[worker] compose ${classroomId} ${localDate}: empty bank, nothing to compose`);
     return;
   }
-  const size = quizSize(bank.length);
+  const budget = quizBudget(bank.length, classroom.quizLength);
+  const now = new Date();
+  const recentMisses = await listRecentMisses(
+    db,
+    userId,
+    classroomId,
+    new Date(now.getTime() - 30 * DAY_MS),
+  );
+  const { chosen, spares } = selectCompositionPoints(bank, {
+    budget,
+    now,
+    lastQuizzedAt: await listLastQuizzedByPoint(db, classroomId),
+    missedIds: recentMisses.map((miss) => miss.knowledgePointId),
+  });
+  const selected = [...chosen, ...spares];
+  const selectedIds = new Set(selected.map((point) => point.id));
 
   const compositionPayload = {
     targetLanguage: classroom.targetLanguage,
     nativeLanguage: classroom.nativeLanguage,
-    size,
-    knowledgePoints: bank.map((point) => ({
+    size: chosen.length,
+    knowledgePoints: selected.map((point) => ({
       id: point.id,
       category: point.category,
       target: point.targetText,
       native: point.nativeText,
       detail: point.detail,
     })),
-    alreadyAskedStems: await listWeekQuestionStems(db, classroomId, new Date(Date.now() - 7 * DAY_MS)),
-    recentMisses: await listRecentMisses(db, userId, classroomId, new Date(Date.now() - 30 * DAY_MS)),
+    alreadyAskedStems: await listWeekQuestionStems(db, classroomId, new Date(now.getTime() - 7 * DAY_MS)),
+    recentMisses: recentMisses.filter((miss) => selectedIds.has(miss.knowledgePointId)),
   };
 
   const provider = getLlmProvider();
   const raw = await provider.compose({
-    systemPrompt: COMPOSITION_PROMPT_V2,
+    systemPrompt: COMPOSITION_PROMPT_V3,
     payload: compositionPayload,
   });
   const parsed = typeof raw === "string" ? parseCompositionResponse(raw) : parseCompositionResult(raw);
 
-  const validIds = new Set(bank.map((point) => point.id));
-  const { kept: usable, dropped } = sanitizeCompositionQuestions(parsed.questions, validIds);
-  const kept = usable.slice(0, size);
+  const { kept: usable, dropped } = sanitizeCompositionQuestions(parsed.questions, selectedIds);
+  const categoryById = new Map(selected.map((point) => [point.id, point.category]));
+  const kept = fitToBudget(
+    usable,
+    budget,
+    (question) => categoryById.get(question.knowledge_point_id) ?? question.category,
+  );
   if (kept.length < MIN_USABLE_QUESTIONS) {
     throw new Error(`only ${kept.length} usable questions`);
   }
 
   const detailById = new Map(bank.map((point) => [point.id, point.detail]));
-  const questions: Omit<NewQuestion, "quizId">[] = kept.map((question, index) => ({
-    knowledgePointId: question.knowledge_point_id,
-    passageId: passageIdFromDetail(detailById.get(question.knowledge_point_id) ?? null),
-    position: index,
-    category: question.category,
-    type: question.type,
-    stem: question.stem,
-    options: question.options,
-    answer: question.answer,
-    explanation: question.explanation,
-    promptVersion: COMPOSITION_PROMPT_VERSION,
-  }));
+  const questions: Omit<NewQuestion, "quizId">[] = shuffleQuizQuestions(
+    kept.map((question) => ({
+      knowledgePointId: question.knowledge_point_id,
+      passageId: passageIdFromDetail(detailById.get(question.knowledge_point_id) ?? null),
+      category: question.category,
+      type: question.type,
+      stem: question.stem,
+      options: question.options,
+      answer: question.answer,
+      explanation: question.explanation,
+      promptVersion: COMPOSITION_PROMPT_VERSION,
+    })),
+  ).map((question, index) => ({ ...question, position: index }));
 
   if (await cancelIfRequested(db, jobId)) {
     console.log(`[worker] compose ${classroomId} ${localDate}: cancelled before save`);

@@ -130,6 +130,19 @@ export async function listKnowledgePointsForComposition(db: Db, classroomId: str
     .orderBy(desc(knowledgePoints.createdAt));
 }
 
+export async function listLastQuizzedByPoint(db: Db, classroomId: string) {
+  const rows = await db
+    .select({
+      knowledgePointId: questions.knowledgePointId,
+      lastQuizzedAt: sql<string>`max(${quizzes.composedAt})`,
+    })
+    .from(questions)
+    .innerJoin(quizzes, eq(questions.quizId, quizzes.id))
+    .where(eq(quizzes.classroomId, classroomId))
+    .groupBy(questions.knowledgePointId);
+  return new Map(rows.map((row) => [row.knowledgePointId, new Date(row.lastQuizzedAt)]));
+}
+
 export async function bankSize(db: Db, classroomId: string) {
   const [row] = await db
     .select({ value: count() })

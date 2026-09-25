@@ -156,8 +156,8 @@ Taken from the trial run in `TRIAL-RUN.md`:
 ## 2. Composition
 
 **Runs:** once per classroom per day, before the email goes out.
-**Input:** the classroom's knowledge points, the questions already asked this week, the recent wrong answers, and the day's target size.
-**Output:** one ordered quiz.
+**Input:** the knowledge points chosen for the day (see Point selection), the questions already asked this week, the misses on those points, and the day's target size.
+**Output:** one question per point. The worker shuffles them into the final order.
 
 ### System prompt
 
@@ -165,20 +165,21 @@ Taken from the trial run in `TRIAL-RUN.md`:
 You write one day's quiz for a language learner, drawn from their own session
 notes.
 
-You receive their knowledge points, the questions they have already seen this
-week, and the points they answered wrong. Write a quiz they can finish in about
-ten minutes.
+You receive the knowledge points already chosen for today, the questions the
+learner has already seen this week, and the questions they answered wrong on
+some of today's points. Write a quiz they can finish in about ten minutes.
 
 Rules:
 
-1. Prefer the newest material. Within the 7-day window, weight toward knowledge
-   points from the most recent uploads.
+1. Write exactly one question for each knowledge point you receive, in the order
+   you receive them. The list runs a few points past the quiz size on purpose;
+   write a question for every point anyway.
 
 2. Never repeat a question the learner has already seen this week. Re-testing a
    knowledge point is good. Reusing the wording is not. Reword it.
 
-3. Include one or two re-tests of points the learner answered wrong, reworded as
-   a new question.
+3. When a point has a question the learner answered wrong, test the same point
+   with a new question. Reword it; never reuse the missed stem.
 
 4. Vocabulary runs both directions. Ask production (native → target) more often
    than recognition (target → native). Recognition is easier and flatters the
@@ -201,9 +202,7 @@ Rules:
 
 7. Every question carries a one-sentence explanation of why the answer is right.
 
-8. Spread the categories. One category never fills the whole quiz.
-
-9. Output JSON only, matching the schema below. No prose, no markdown fence.
+8. Output JSON only, matching the schema below. No prose, no markdown fence.
 
 Schema:
 <schema>
@@ -257,18 +256,20 @@ Schema:
 
 Text blanks compare case-insensitively and ignore accents, so `etendoir` marks correct against `étendoir`.
 
-### Selection inputs
+### Point selection
 
-Composition reads four things:
+Code picks the points, and the model only writes questions. `selectCompositionPoints` in `packages/core/src/composition-selection.ts` builds the list in priority order:
 
-1. **The bank** — every knowledge point in the classroom, with its `created_at`.
-2. **The week's questions** — stems asked in the last 7 days, to honour rule 2.
-3. **The misses** — questions answered incorrectly, to honour rule 3.
-4. **The size** — `min(20, max(8, floor(bank_size / 8)))`, with the ten-minute budget overriding it.
+1. **Misses** — up to 2 points answered wrong in the last 30 days, picked at random.
+2. **Recent** — points added in the last 7 days, picked at random, up to half the budget.
+3. **Due** — older points ranked by how long since they were last in a quiz, never-quizzed first. The pick is random among the top 2× needed, so two days in a row differ.
+4. **Backfill** — any remaining points, at random, when a group runs short.
+
+Points fill a time budget of `min(20, max(8, floor(bank_size / 8)))` standard questions, multiplied by the classroom's quiz length setting (`quizBudget`). A vocabulary point counts as half a standard question and every other category as one (`CATEGORY_WEIGHTS` in `packages/core/src/quiz-size.ts`), so a vocabulary-heavy day holds more questions. The list ends with 3 spare points, so questions dropped as invalid still leave a full quiz. The model sees only the chosen points, the stems asked in the last 7 days (rule 2), and the misses on the chosen points (rule 3). The worker keeps usable questions in list order while they fit the budget, then shuffles them, keeping questions about one passage together.
 
 ### Failure handling
 
-- A question referencing an unknown `knowledge_point_id` is dropped and backfilled from the next-best point.
+- A question referencing a point outside the chosen list is dropped; the spare points fill the gap.
 - An `mcq` whose `answer.index` falls outside `options` is dropped.
 - Fewer than 5 usable questions → the quiz is not sent; the classroom is flagged for review. For an on-demand quiz the compose job fails and the user can retry.
 - A daily quiz is composed once per classroom per day. The partial unique index on `(classroom_id, quiz_date) WHERE kind = 'daily'` makes a retry safe. On-demand quizzes share the same prompt and selection rules and can be composed at any time.
@@ -277,6 +278,6 @@ Composition reads four things:
 
 ## 3. Versioning
 
-- Both prompts live in code as named constants: `EXTRACTION_PROMPT_V2`, `COMPOSITION_PROMPT_V2`.
+- Both prompts live in code as named constants: `EXTRACTION_PROMPT_V2`, `COMPOSITION_PROMPT_V3`.
 - Every `knowledge_point` and every `question` row stores the version that produced it.
 - Bumping a version affects new work only. Existing rows keep their original version, so old and new output can be compared side by side.

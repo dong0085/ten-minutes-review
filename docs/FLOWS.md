@@ -52,7 +52,7 @@ The default screen once a classroom exists. It answers one question — what do 
   - **Notes** — uploads so far and when the last one arrived, plus a badge while notes are being read.
   - **Question bank** — knowledge points currently in quizzes.
   - **Quizzes** — quizzes so far.
-  - **Settings** — name, languages, the auto-stop window, and Daily reviews.
+  - **Settings** — name, languages, the auto-stop window, quiz length, and Daily reviews. Quiz length is a row of five steps (`<<` `<` `*` `>` `>>`, about 5 to 20 minutes) that saves on click or arrow key and applies to quizzes composed afterwards.
 
 A dormant classroom shows a note under the header: emails have stopped, add notes or open the classroom to resume them. A manually paused classroom instead shows a paused note and keeps that status even when the classroom is opened or notes are uploaded.
 

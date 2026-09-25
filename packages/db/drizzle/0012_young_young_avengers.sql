@@ -1,0 +1,1 @@
+ALTER TABLE "classrooms" ADD COLUMN "quiz_length" integer DEFAULT 0 NOT NULL;

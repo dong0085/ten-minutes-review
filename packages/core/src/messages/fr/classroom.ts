@@ -75,6 +75,17 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     saveChanges: "Enregistrer les modifications",
     error: "Une erreur est survenue. Réessaie.",
   },
+  QuizLength: {
+    title: "Durée des quiz",
+    help: "Règle la durée de chaque quiz. Les questions de vocabulaire sont rapides, donc les jours riches en vocabulaire en comptent davantage. S'applique aux quiz composés à partir de maintenant.",
+    levelMuchShorter: "Beaucoup plus court",
+    levelShorter: "Plus court",
+    levelStandard: "Standard",
+    levelLonger: "Plus long",
+    levelMuchLonger: "Beaucoup plus long",
+    minutes: "environ {minutes} minutes",
+    error: "Impossible de modifier la durée des quiz. Veuillez réessayer.",
+  },
   DailyReviews: {
     title: "Révisions quotidiennes",
     activeExplanation:

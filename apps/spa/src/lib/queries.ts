@@ -29,6 +29,7 @@ export type Classroom = {
   targetLanguage: string;
   nativeLanguage: string;
   autoStopDays: number;
+  quizLength: number;
   activeUntil: string;
   pausedAt: string | null;
   includeAnswersInEmail: boolean;

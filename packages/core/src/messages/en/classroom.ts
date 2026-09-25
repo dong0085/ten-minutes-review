@@ -70,6 +70,17 @@ export const classroom = {
     saveChanges: "Save changes",
     error: "Something went wrong. Please try again.",
   },
+  QuizLength: {
+    title: "Quiz length",
+    help: "Sets how long each quiz runs. Vocabulary questions are quick, so vocabulary-heavy days get more of them. Applies to quizzes composed from now on.",
+    levelMuchShorter: "Much shorter",
+    levelShorter: "Shorter",
+    levelStandard: "Standard",
+    levelLonger: "Longer",
+    levelMuchLonger: "Much longer",
+    minutes: "about {minutes} minutes",
+    error: "Could not update quiz length. Please try again.",
+  },
   DailyReviews: {
     title: "Daily reviews",
     activeExplanation:

@@ -16,6 +16,7 @@ export type UpdateClassroomInput = {
   targetLanguage?: string;
   nativeLanguage?: string;
   autoStopDays?: number;
+  quizLength?: number;
   includeAnswersInEmail?: boolean;
 };
 

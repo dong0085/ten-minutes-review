@@ -1,7 +1,7 @@
 import { parseCompositionResult } from "./schemas";
 import type { CompositionResult } from "../types";
 
-export const COMPOSITION_PROMPT_VERSION = "v2";
+export const COMPOSITION_PROMPT_VERSION = "v3";
 
 const COMPOSITION_SCHEMA = `{
   "quiz_date": "YYYY-MM-DD",
@@ -21,20 +21,21 @@ const COMPOSITION_SCHEMA = `{
 const COMPOSITION_PROMPT_BODY = `You write one day's quiz for a language learner, drawn from their own session
 notes.
 
-You receive their knowledge points, the questions they have already seen this
-week, and the points they answered wrong. Write a quiz they can finish in about
-ten minutes.
+You receive the knowledge points already chosen for today, the questions the
+learner has already seen this week, and the questions they answered wrong on
+some of today's points. Write a quiz they can finish in about ten minutes.
 
 Rules:
 
-1. Prefer the newest material. Within the 7-day window, weight toward knowledge
-   points from the most recent uploads.
+1. Write exactly one question for each knowledge point you receive, in the order
+   you receive them. The list runs a few points past the quiz size on purpose;
+   write a question for every point anyway.
 
 2. Never repeat a question the learner has already seen this week. Re-testing a
    knowledge point is good. Reusing the wording is not. Reword it.
 
-3. Include one or two re-tests of points the learner answered wrong, reworded as
-   a new question.
+3. When a point has a question the learner answered wrong, test the same point
+   with a new question. Reword it; never reuse the missed stem.
 
 4. Vocabulary runs both directions. Ask production (native → target) more often
    than recognition (target → native). Recognition is easier and flatters the
@@ -57,14 +58,12 @@ Rules:
 
 7. Every question carries a one-sentence explanation of why the answer is right.
 
-8. Spread the categories. One category never fills the whole quiz.
-
-9. Output JSON only, matching the schema below. No prose, no markdown fence.
+8. Output JSON only, matching the schema below. No prose, no markdown fence.
 
 Schema:
 ${COMPOSITION_SCHEMA}`;
 
-export const COMPOSITION_PROMPT_V2 = COMPOSITION_PROMPT_BODY;
+export const COMPOSITION_PROMPT_V3 = COMPOSITION_PROMPT_BODY;
 
 export function parseCompositionResponse(text: string): CompositionResult {
   return parseCompositionResult(JSON.parse(text));

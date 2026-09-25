@@ -9,6 +9,7 @@ const dbMocks = vi.hoisted(() => ({
   getJobById: vi.fn(),
   hasDeletedDailyQuiz: vi.fn(),
   listKnowledgePointsForComposition: vi.fn(),
+  listLastQuizzedByPoint: vi.fn(),
   listRecentMisses: vi.fn(),
   listWeekQuestionStems: vi.fn(),
   markJobCancelled: vi.fn(),
@@ -42,6 +43,7 @@ const activePoint = {
   targetText: "bonjour",
   nativeText: "hello",
   detail: null,
+  createdAt: new Date("2026-09-20T12:00:00.000Z"),
 };
 
 const questions = Array.from({ length: 5 }, (_, index) => ({
@@ -59,6 +61,7 @@ beforeEach(() => {
   dbMocks.getClassroom.mockResolvedValue(classroom);
   dbMocks.getDailyQuizByClassroomAndDate.mockResolvedValue(null);
   dbMocks.hasDeletedDailyQuiz.mockResolvedValue(false);
+  dbMocks.listLastQuizzedByPoint.mockResolvedValue(new Map());
   dbMocks.listRecentMisses.mockResolvedValue([]);
   dbMocks.listWeekQuestionStems.mockResolvedValue([]);
   dbMocks.createQuizWithQuestions.mockResolvedValue({

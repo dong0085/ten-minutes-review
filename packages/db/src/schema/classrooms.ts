@@ -22,6 +22,7 @@ export const classrooms = pgTable(
     targetLanguage: text("target_language").notNull(),
     nativeLanguage: text("native_language").notNull(),
     autoStopDays: integer("auto_stop_days").notNull().default(7),
+    quizLength: integer("quiz_length").notNull().default(0),
     includeAnswersInEmail: boolean("include_answers_in_email").notNull().default(false),
     activeUntil: timestamp("active_until", { withTimezone: true }).notNull().defaultNow(),
     pausedAt: timestamp("paused_at", { withTimezone: true }),

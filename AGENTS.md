@@ -7,7 +7,7 @@ Specs live in `docs/`: `SCOPE.md` (every product decision), `PROMPTS.md` (the tw
 - `apps/web` — Next.js 16 API routes plus the server-rendered landing, auth, and unsubscribe pages; deploys to Vercel together with the SPA build.
 - `apps/spa` — Vite + React Router single-page app for every screen under `/classrooms` and `/account`. It builds into `apps/web/public/_spa/`, and Next rewrites those paths to its shell. Navigation drills down with breadcrumbs, one job per screen.
 - `apps/worker` — job loop (`extract`, `compose`, `send_email`) plus the 15-minute scheduler and a `/health` HTTP server, runs on Render with `tsx`, applies migrations on boot.
-- `packages/core` — domain types, prompt constants (`EXTRACTION_PROMPT_V2`, `COMPOSITION_PROMPT_V2`), grading, quiz sizing.
+- `packages/core` — domain types, prompt constants (`EXTRACTION_PROMPT_V2`, `COMPOSITION_PROMPT_V3`), grading, quiz sizing.
 - `packages/db` — Drizzle schema, SQL migrations in `drizzle/`, repositories.
 - `packages/email` — React Email templates, localized HTML/text rendering, and browser previews.
 - `packages/ui` — shadcn components, `cn`, and `globals.css`, shared by `apps/web` and `apps/spa`.

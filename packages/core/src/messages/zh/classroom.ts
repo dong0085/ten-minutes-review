@@ -67,6 +67,17 @@ export const classroom = {
     saveChanges: "保存更改",
     error: "出了点问题，请重试。",
   },
+  QuizLength: {
+    title: "测验长度",
+    help: "设置每次测验的时长。词汇题答得快，所以词汇较多的日子题目会更多。从现在起生成的测验生效。",
+    levelMuchShorter: "短得多",
+    levelShorter: "较短",
+    levelStandard: "标准",
+    levelLonger: "较长",
+    levelMuchLonger: "长得多",
+    minutes: "约 {minutes} 分钟",
+    error: "无法更新测验长度，请重试。",
+  },
   DailyReviews: {
     title: "每日复习",
     activeExplanation: "需要休息一下？暂停定时测验和邮件，笔记和记录都会保留。",

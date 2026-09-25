@@ -4,7 +4,7 @@ export {
   parseExtractionResponse,
 } from "./extraction";
 export {
-  COMPOSITION_PROMPT_V2,
+  COMPOSITION_PROMPT_V3,
   COMPOSITION_PROMPT_VERSION,
   parseCompositionResponse,
 } from "./composition";
