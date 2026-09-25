@@ -20,9 +20,37 @@ const appUrl = rawAppUrl
   : "";
 const redirectLegacyHost = appUrl !== "" && new URL(appUrl).host !== LEGACY_HOST;
 
+// The signed-in app is a single-page app built by apps/spa into public/_spa.
+// Every address under these prefixes serves its shell; its router takes over.
+const SPA_SHELL = "/_spa/index.html";
+const SPA_PREFIXES = ["/classrooms", "/account"];
+
 const nextConfig: NextConfig = {
-  transpilePackages: ["@tmr/core", "@tmr/db", "@tmr/email"],
+  transpilePackages: ["@tmr/core", "@tmr/db", "@tmr/email", "@tmr/ui"],
   serverExternalPackages: ["@node-rs/argon2", "postgres"],
+  async rewrites() {
+    return SPA_PREFIXES.flatMap((prefix) => [
+      { source: prefix, destination: SPA_SHELL },
+      { source: `${prefix}/:path*`, destination: SPA_SHELL },
+    ]);
+  },
+  async headers() {
+    return [
+      {
+        // Vite fingerprints these file names, so they never change in place.
+        source: "/_spa/assets/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+      {
+        // The shell must be re-read on every visit to pick up a new build.
+        source: "/_spa/index.html",
+        headers: [
+          { key: "Cache-Control", value: "no-cache" },
+          { key: "X-Robots-Tag", value: "noindex" },
+        ],
+      },
+    ];
+  },
   async redirects() {
     if (!redirectLegacyHost) {
       return [];

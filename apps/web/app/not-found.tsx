@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Check, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@tmr/ui/components/button";
 
 export default async function NotFound() {
   const t = await getTranslations("NotFound");
@@ -51,7 +51,7 @@ export default async function NotFound() {
           <Link href="/">{t("backHome")}</Link>
         </Button>
         <Button asChild variant="outline">
-          <Link href="/classrooms">{t("goToClassrooms")}</Link>
+          <a href="/classrooms">{t("goToClassrooms")}</a>
         </Button>
       </div>
     </div>

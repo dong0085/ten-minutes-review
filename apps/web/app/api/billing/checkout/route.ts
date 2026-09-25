@@ -28,8 +28,8 @@ export async function POST() {
       ...(subscription?.stripeCustomerId
         ? { customer: subscription.stripeCustomerId }
         : { customer_email: user.email }),
-      success_url: `${env.appUrl}/account?billing=success`,
-      cancel_url: `${env.appUrl}/account`,
+      success_url: `${env.appUrl}/account/plan?billing=success`,
+      cancel_url: `${env.appUrl}/account/plan`,
     });
     if (!session.url) {
       return jsonError("Billing is not available right now", 503);

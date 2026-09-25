@@ -1,8 +1,14 @@
 import { z } from "zod";
-import { FREE_TIER } from "@tmr/core";
+import {
+  FREE_TIER,
+  classroomDailyStatus,
+  classroomQuizDaysRemaining,
+  startOfMonthAt,
+} from "@tmr/core";
 import {
   bankSize,
   countClassrooms,
+  countUploadsSince,
   createClassroom,
   createGuestUser,
   hasPaidPlan,
@@ -26,9 +32,10 @@ export async function GET() {
     if (!current) {
       return jsonError("Unauthorized", 401);
     }
-    const { user } = current;
+    const { user, isGuest } = current;
     const db = getDb();
     const classrooms = await listClassrooms(db, user.id);
+    const isPaid = !isGuest && (await hasPaidPlan(db, user.id));
     const today = localDateFor(user.timezone);
     const todaysQuizzes = await listQuizzesForUserOnDate(db, user.id, today);
     const quizByClassroom = new Map(
@@ -48,9 +55,20 @@ export async function GET() {
         isActive: classroom.pausedAt === null && classroom.activeUntil.getTime() > Date.now(),
         bankSize: await bankSize(db, classroom.id),
         todayQuizId: quizByClassroom.get(classroom.id) ?? null,
+        status: classroomDailyStatus(classroom),
+        quizDaysRemaining: classroomQuizDaysRemaining(classroom, user.timezone),
       })),
     );
-    return jsonOk({ classrooms: payload });
+    // Free accounts see how much of the monthly allowance is left.
+    const limits =
+      isPaid || isGuest
+        ? null
+        : {
+            classrooms: FREE_TIER.classrooms,
+            uploadsPerMonth: FREE_TIER.notesUploadsPerMonth,
+            uploadsThisMonth: await countUploadsSince(db, user.id, startOfMonthAt(user.timezone)),
+          };
+    return jsonOk({ classrooms: payload, limits });
   } catch (error) {
     return handleRouteError(error);
   }

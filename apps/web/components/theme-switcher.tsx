@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { Check, Monitor, Moon, Palette, Sun } from "lucide-react";
 import { THEME_SWATCHES, UI_THEMES, type UiTheme } from "@tmr/core";
-import { Button } from "@/components/ui/button";
+import { Button } from "@tmr/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +16,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@tmr/ui/components/dropdown-menu";
 import { UI_THEME_COOKIE } from "@/lib/theme";
 
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;

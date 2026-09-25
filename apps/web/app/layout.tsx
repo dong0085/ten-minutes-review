@@ -2,20 +2,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
-import "./globals.css";
-import { Button } from "@/components/ui/button";
-import { Toaster } from "@/components/ui/sonner";
+import "@tmr/ui/globals.css";
+import { Button } from "@tmr/ui/components/button";
+import { Toaster } from "@tmr/ui/components/sonner";
 import {
   Avatar,
   AvatarFallback,
-} from "@/components/ui/avatar";
+} from "@tmr/ui/components/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@tmr/ui/components/dropdown-menu";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -26,7 +26,7 @@ import { SITE_NAME } from "@/lib/seo";
 import { getCurrentUserOrGuest } from "@/lib/session";
 import { getTheme } from "@/lib/theme-server";
 import { Geist, Source_Serif_4 } from "next/font/google";
-import { cn } from "@/lib/utils";
+import { cn } from "@tmr/ui/utils";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 const sourceSerif = Source_Serif_4({
@@ -75,7 +75,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
               <div className="flex items-center gap-2 text-sm">
                 {user ? (
                   <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-                    <Link href="/classrooms">{t("classrooms")}</Link>
+                    <a href="/classrooms">{t("classrooms")}</a>
                   </Button>
                 ) : null}
                 <LanguageSwitcher signedIn={signedIn} />
@@ -101,10 +101,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                       </div>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link href="/classrooms">{t("classrooms")}</Link>
+                        <a href="/classrooms">{t("classrooms")}</a>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/account">{t("account")}</Link>
+                        <a href="/account">{t("account")}</a>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <form

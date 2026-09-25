@@ -107,6 +107,14 @@ export async function reapStaleJobs(db: Db) {
   return { retried: Array.from(retried).length, failed: Array.from(failed).length };
 }
 
+/** Merges what a job produced into its payload, so a client polling the job can find it. */
+export async function recordJobResult(db: Db, jobId: string, result: Record<string, unknown>) {
+  await db
+    .update(jobs)
+    .set({ payload: sql`${jobs.payload} || ${JSON.stringify(result)}::jsonb` })
+    .where(eq(jobs.id, jobId));
+}
+
 export async function getJobById(db: Db, jobId: string) {
   const [job] = await db.select().from(jobs).where(eq(jobs.id, jobId)).limit(1);
   return job ?? null;

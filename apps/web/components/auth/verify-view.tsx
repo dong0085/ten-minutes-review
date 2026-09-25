@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@tmr/ui/components/alert";
+import { Card, CardContent } from "@tmr/ui/components/card";
 
 type VerifyResult = "loading" | "success" | "invalid";
 

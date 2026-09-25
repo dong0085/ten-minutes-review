@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Built by apps/spa.
+    "public/_spa/**",
   ]),
 ]);
 

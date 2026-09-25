@@ -1,12 +1,4 @@
 export const classroom = {
-  Tabs: {
-    home: "主页",
-    upload: "上传",
-    history: "记录",
-    bank: "题库",
-    quizzes: "测验",
-    settings: "设置",
-  },
   Card: {
     number: "第 {index} 册",
     active: "进行中",

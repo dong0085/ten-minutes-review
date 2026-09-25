@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@tmr/ui/components/button";
 
 function GoogleIcon(props: React.ComponentProps<"svg">) {
   return (
@@ -28,7 +28,13 @@ function GoogleIcon(props: React.ComponentProps<"svg">) {
   );
 }
 
-export function GoogleButton({ label = "Continue with Google" }: { label?: string }) {
+export function GoogleButton({
+  label = "Continue with Google",
+  callbackUrl = "/classrooms",
+}: {
+  label?: string;
+  callbackUrl?: string;
+}) {
   const [pending, setPending] = useState(false);
 
   return (
@@ -39,7 +45,7 @@ export function GoogleButton({ label = "Continue with Google" }: { label?: strin
       disabled={pending}
       onClick={() => {
         setPending(true);
-        void signIn("google", { callbackUrl: "/classrooms" });
+        void signIn("google", { callbackUrl });
       }}
     >
       {pending ? (

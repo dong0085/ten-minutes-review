@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@tmr/ui/components/alert";
 import { SignInForm } from "@/components/auth/signin-form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,6 +15,13 @@ function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+// Only same-site paths, so a crafted link cannot send the learner elsewhere.
+function safeCallbackPath(value: string | undefined): string {
+  return value && value.startsWith("/") && !value.startsWith("//") && !value.startsWith("/\\")
+    ? value
+    : "/classrooms";
+}
+
 export default async function SignInPage({
   searchParams,
 }: {
@@ -23,6 +30,7 @@ export default async function SignInPage({
   const params = await searchParams;
   const verified = first(params.verified) === "1";
   const error = first(params.error);
+  const callbackUrl = safeCallbackPath(first(params.callbackUrl));
   const t = await getTranslations("Auth.SignInPage");
 
   return (
@@ -44,7 +52,7 @@ export default async function SignInPage({
           <AlertDescription>{t("signInError")}</AlertDescription>
         </Alert>
       ) : null}
-      <SignInForm />
+      <SignInForm callbackUrl={callbackUrl} />
     </div>
   );
 }

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "pnpm --filter spa build && next build",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit"
@@ -15,6 +15,7 @@
     "@tmr/core": "workspace:*",
     "@tmr/db": "workspace:*",
     "@tmr/email": "workspace:*",
+    "@tmr/ui": "workspace:*",
     "@vercel/blob": "^2.8.0",
     "aws4fetch": "^1.0.20",
     "class-variance-authority": "^0.7.1",
@@ -44,6 +45,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
     "shadcn": "^4.21.0",
+    "spa": "workspace:*",
     "tailwindcss": "^4",
     "typescript": "^5"
   },

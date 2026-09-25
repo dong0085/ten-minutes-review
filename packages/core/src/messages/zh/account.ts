@@ -1,13 +1,6 @@
 export const account = {
   overview: "你的学习记录",
   title: "账户",
-  Nav: {
-    overview: "概览",
-    profile: "个人资料",
-    security: "安全",
-    apiTokens: "API 令牌",
-    data: "数据",
-  },
   classroomsSection: "课堂",
   quizHistorySection: "测验记录",
   quizHistoryMore: "这里显示最近 {count} 次测验。打开课堂可以看到全部测验。",

@@ -26,7 +26,7 @@ export async function GET(_request: Request, context: RouteContext) {
       const job = await getLatestComposeJob(db, id, REHYDRATE_WINDOW_MS);
       return jsonOk({
         quiz: null,
-        job: job ? { status: job.status, requestedAt: job.createdAt } : null,
+        job: job ? { id: job.id, status: job.status, requestedAt: job.createdAt } : null,
       });
     }
     const payload = await buildQuizPayload(user.id, quiz.id);

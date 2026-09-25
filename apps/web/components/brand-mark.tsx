@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import appIcon from "@/assets/appIcon/ten-minutes-review_icon.png";
-import { cn } from "@/lib/utils";
+import { cn } from "@tmr/ui/utils";
 
 export function BrandMark({ className }: { className?: string }) {
   return (

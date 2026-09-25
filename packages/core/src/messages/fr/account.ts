@@ -4,13 +4,6 @@ import type { MessageShape } from "../type";
 export const account: MessageShape<(typeof en)["Account"]> = {
   overview: "Ton parcours d'apprentissage",
   title: "Compte",
-  Nav: {
-    overview: "Aperçu",
-    profile: "Profil",
-    security: "Sécurité",
-    apiTokens: "Jetons d'API",
-    data: "Données",
-  },
   classroomsSection: "Classes",
   quizHistorySection: "Historique des quiz",
   quizHistoryMore: "Tes {count} quiz les plus récents. Ouvre une classe pour voir tous ses quiz.",

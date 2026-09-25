@@ -1,6 +1,7 @@
 import { about } from "./about";
 import { account } from "./account";
 import { api } from "./api";
+import { app } from "./app";
 import { auth } from "./auth";
 import { email } from "./email";
 import { category } from "./category";
@@ -17,6 +18,7 @@ import { upload } from "./upload";
 
 export const en = {
   Common: common,
+  App: app,
   Layout: layout,
   Home: home,
   Seo: seo,

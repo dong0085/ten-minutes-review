@@ -48,10 +48,12 @@ export async function POST(_request: Request, context: RouteContext) {
     if ((await bankSize(db, id)) === 0) {
       return jsonError("Add notes to create a quiz", 409, "empty_bank");
     }
-    if (await getActiveComposeJob(db, id)) {
-      return jsonOk({ status: "pending" }, 202);
+    // The caller polls this job to learn which quiz it produced.
+    const active = await getActiveComposeJob(db, id);
+    if (active) {
+      return jsonOk({ status: "pending", jobId: active.id }, 202);
     }
-    await enqueueJob(db, {
+    const job = await enqueueJob(db, {
       kind: "compose",
       payload: {
         classroomId: id,
@@ -61,7 +63,7 @@ export async function POST(_request: Request, context: RouteContext) {
         sendEmail: false,
       },
     });
-    return jsonOk({ status: "pending" }, 202);
+    return jsonOk({ status: "pending", jobId: job?.id ?? null }, 202);
   } catch (error) {
     return handleRouteError(error);
   }
