@@ -2,20 +2,15 @@ import type { Metadata } from "next";
 import { Check } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Reveal } from "@/components/reveal";
+import { pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Seo");
-  return {
+  return pageMetadata({
     title: t("aboutTitle"),
     description: t("aboutDescription"),
-    alternates: { canonical: "/about" },
-    openGraph: {
-      title: t("aboutTitle"),
-      description: t("aboutDescription"),
-      url: "/about",
-      type: "website",
-    },
-  };
+    path: "/about",
+  });
 }
 
 export default async function AboutPage() {

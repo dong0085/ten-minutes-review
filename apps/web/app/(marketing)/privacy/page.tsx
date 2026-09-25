@@ -1,19 +1,14 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Seo");
-  return {
+  return pageMetadata({
     title: t("privacyTitle"),
     description: t("privacyDescription"),
-    alternates: { canonical: "/privacy" },
-    openGraph: {
-      title: t("privacyTitle"),
-      description: t("privacyDescription"),
-      url: "/privacy",
-      type: "website",
-    },
-  };
+    path: "/privacy",
+  });
 }
 
 export default async function PrivacyPage() {
