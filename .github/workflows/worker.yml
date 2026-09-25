@@ -1,0 +1,82 @@
+name: Worker
+
+# Builds the worker image on every change to its code. On main, once the
+# WORKER_HOST variable is set, it also ships the image to the Lightsail VM over
+# SSH and swaps the running container. See docs/DEPLOY-AWS.md → "Worker on Lightsail".
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - apps/worker/**
+      - packages/core/**
+      - packages/db/**
+      - packages/email/**
+      - Dockerfile
+      - pnpm-lock.yaml
+      - deploy/worker/**
+      - .github/workflows/worker.yml
+  pull_request:
+    paths:
+      - apps/worker/**
+      - packages/core/**
+      - packages/db/**
+      - packages/email/**
+      - Dockerfile
+      - pnpm-lock.yaml
+      - deploy/worker/**
+      - .github/workflows/worker.yml
+  workflow_dispatch:
+
+concurrency:
+  group: worker-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build worker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: worker
+          platforms: linux/amd64
+          tags: tmr-worker:${{ github.sha }}
+          outputs: type=docker,dest=${{ runner.temp }}/worker.tar
+          cache-from: type=gha,scope=worker
+          cache-to: type=gha,scope=worker,mode=max
+
+      - name: Smoke-test the image
+        env:
+          IMAGE: tmr-worker:${{ github.sha }}
+        run: |
+          docker load --input "$RUNNER_TEMP/worker.tar"
+          docker image ls "$IMAGE" --format 'image size: {{.Size}}'
+          docker run --rm --entrypoint test "$IMAGE" -d ../../packages/db/drizzle
+          docker run --rm --entrypoint ./node_modules/.bin/tsx "$IMAGE" \
+            --eval 'import("./src/runner.ts").then(() => console.log("worker modules load"))'
+
+      - name: Deploy to the worker VM
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.WORKER_HOST != ''
+        env:
+          WORKER_HOST: ${{ vars.WORKER_HOST }}
+          WORKER_KNOWN_HOSTS: ${{ vars.WORKER_KNOWN_HOSTS }}
+          WORKER_SSH_KEY: ${{ secrets.WORKER_SSH_KEY }}
+          TAG: ${{ github.sha }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$WORKER_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          install -m 600 /dev/null ~/.ssh/worker
+          printf '%s\n' "$WORKER_SSH_KEY" > ~/.ssh/worker
+          ssh_worker() { ssh -i ~/.ssh/worker -o BatchMode=yes "ubuntu@${WORKER_HOST}" "$@"; }
+          gzip -c "$RUNNER_TEMP/worker.tar" | ssh_worker 'gunzip | sudo docker load'
+          ssh_worker "sudo bash -s -- ${TAG}" < deploy/worker/restart.sh

@@ -120,25 +120,7 @@ pg_dump "postgres://…@…neon.tech/…" -Fc -f plan-a.dump
 docker compose --env-file .env.aws exec -T postgres pg_restore -U tmr -d ten_minute_review --clean --if-exists < plan-a.dump
 ```
 
-The `uploads.storage_key` column holds relative keys (`uploads/<classId>/…`), so the schema and rows need zero changes for S3. Existing images still sit in Vercel Blob; copy them once if you want history preserved:
-
-```ts
-// scripts-level sketch — run with tsx, needs BLOB_READ_WRITE_TOKEN in env
-import { list } from "@vercel/blob";
-import { AwsClient } from "aws4fetch";
-const s3 = new AwsClient({ accessKeyId: process.env.S3_ACCESS_KEY_ID!, secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!, service: "s3", region: "us-east-1" });
-let cursor: string | undefined;
-do {
-  const page = await list({ cursor, token: process.env.BLOB_READ_WRITE_TOKEN });
-  for (const blob of page.blobs) {
-    const key = blob.pathname.replace(/^\//, "");
-    if (!key.startsWith("uploads/")) continue;
-    const bytes = new Uint8Array(await (await fetch(blob.url)).arrayBuffer());
-    await s3.fetch(`https://${process.env.S3_BUCKET}.s3.${process.env.S3_REGION}.amazonaws.com/${key}`, { method: "PUT", body: bytes });
-  }
-  cursor = page.cursor;
-} while (cursor);
-```
+The `uploads.storage_key` column holds relative keys (`uploads/<classId>/…`), so the schema and rows need zero changes for S3. Existing images still sit in Vercel Blob; copy them once with `apps/web/scripts/copy-blobs-to-s3.mjs` (usage in its header comment) to keep history.
 
 DeepSeek, Brevo/Resend, and Stripe credentials carry over unchanged. When both plans run in parallel, point only one of them at a given database.
 
@@ -173,3 +155,59 @@ App Runner rebuilds and redeploys when you push a new image tag.
 | **Total** | **~$12–20** | **~$30** |
 
 New AWS accounts start with free credits, which usually covers the first months. Set a billing alarm (AWS Budgets) at a threshold you pick so surprises announce themselves.
+
+---
+
+## 7. Worker on Lightsail (web stays on Vercel)
+
+A smaller move than the paths above: the web app and SPA stay on Vercel and Postgres stays on Neon. Only the worker moves, onto a $5 Lightsail VM, and note images move to S3. Everything sits in `us-east-2`, the Neon region.
+
+| Piece | Name | Notes |
+|---|---|---|
+| Bucket | `tmr-notes-513329232738` | Private, public access blocked, SSE-S3 |
+| IAM user | `tmr-storage` | `s3:GetObject` and `s3:PutObject` on `uploads/*` only; its key pair goes into Vercel and the worker env |
+| VM | `tmr-worker` | Ubuntu 24.04, `nano_3_0` (512 MB + 1 GB swap), static IP, port 22 only |
+
+**Deploys.** `.github/workflows/worker.yml` builds the Dockerfile's `worker` target (production dependencies only, about 110 MB of `node_modules`) and smoke-tests it on every PR and push that touches worker code. On `main`, once the repository variable `WORKER_HOST` exists, it streams the image to the VM over SSH (`docker load`) and runs `deploy/worker/restart.sh`, which stops the old container with a 120-second grace period, starts the new one, and waits for its health check. The workflow reads:
+
+- variable `WORKER_HOST` — the static IP
+- variable `WORKER_KNOWN_HOSTS` — the VM's `ssh-keyscan` line, so the runner pins the host key
+- secret `WORKER_SSH_KEY` — the private deploy key
+
+**Create the VM** (this step starts billing):
+
+```sh
+ssh-keygen -t ed25519 -f ~/.ssh/tmr-worker -N "" -C tmr-worker-deploy
+aws lightsail import-key-pair --key-pair-name tmr-worker --public-key-base64 "$(base64 < ~/.ssh/tmr-worker.pub)"
+aws lightsail create-instances --instance-names tmr-worker --availability-zone us-east-2a \
+  --blueprint-id ubuntu_24_04 --bundle-id nano_3_0 --key-pair-name tmr-worker \
+  --user-data file://deploy/worker/launch.sh
+aws lightsail allocate-static-ip --static-ip-name tmr-worker-ip
+aws lightsail attach-static-ip --static-ip-name tmr-worker-ip --instance-name tmr-worker
+aws lightsail put-instance-public-ports --instance-name tmr-worker \
+  --port-infos fromPort=22,toPort=22,protocol=tcp
+```
+
+**Fill the env and wire up GitHub.** Copy `deploy/worker/worker.env.example`, fill it from the Render dashboard plus the `tmr-storage` key, then:
+
+```sh
+IP=$(aws lightsail get-static-ip --static-ip-name tmr-worker-ip --query staticIp.ipAddress --output text)
+ssh -i ~/.ssh/tmr-worker ubuntu@$IP 'sudo tee /etc/tmr/worker.env > /dev/null' < worker.env
+gh variable set WORKER_HOST --body "$IP"
+gh variable set WORKER_KNOWN_HOSTS --body "$(ssh-keyscan -t ed25519 $IP 2>/dev/null)"
+gh secret set WORKER_SSH_KEY < ~/.ssh/tmr-worker
+gh workflow run worker.yml --ref main
+```
+
+**Cut over** outside the send window (10:00–12:30 UTC):
+
+1. Copy existing images: `node scripts/copy-blobs-to-s3.mjs --dry-run`, then without `--dry-run` (from `apps/web`).
+2. In Vercel, set `STORAGE_PROVIDER=s3` and the four `S3_*` variables, redeploy, then re-run the copy to catch uploads made in between.
+3. Deploy the Lightsail worker. A short overlap with the Render worker is safe: jobs are claimed with `FOR UPDATE SKIP LOCKED` and email sends are deduplicated by `email_sends`.
+4. Suspend the Render service. After one morning send goes out from Lightsail, delete the Render service and `render.yaml`, and update [TECHNICAL.md](TECHNICAL.md#6-deployment).
+
+**Day to day.**
+
+- Logs: `ssh -i ~/.ssh/tmr-worker ubuntu@$IP sudo docker logs --tail 100 -f tmr-worker`
+- Roll back: list tags with `sudo docker images tmr-worker`, then `ssh … "sudo bash -s -- <tag>" < deploy/worker/restart.sh`
+- Security updates install on their own; a reboot, when needed, happens at 04:00 UTC and the container comes back with Docker.
