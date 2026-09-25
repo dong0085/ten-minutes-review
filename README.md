@@ -71,7 +71,7 @@ Each external service sits behind a single adapter selected from the root `.env`
 | Concern | Local default | Production option |
 |---|---|---|
 | Language model | `LLM_PROVIDER=mock` | `deepseek` |
-| Email | `EMAIL_PROVIDER=console` | `brevo` or `resend` |
+| Email | `EMAIL_PROVIDER=console` | `resend` or `brevo` |
 | Image storage | `STORAGE_PROVIDER=local` | `vercel` |
 | Database | Local Postgres | Neon Postgres |
 

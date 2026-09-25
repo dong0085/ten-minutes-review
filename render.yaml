@@ -15,7 +15,7 @@ services:
       - key: LLM_PROVIDER
         value: deepseek
       - key: EMAIL_PROVIDER
-        value: brevo
+        value: resend
       - key: STORAGE_PROVIDER
         value: vercel
       - key: DATABASE_URL
@@ -26,7 +26,7 @@ services:
         sync: false
       - key: DEEPSEEK_API_KEY
         sync: false
-      - key: BREVO_API_KEY
+      - key: RESEND_API_KEY
         sync: false
       - key: EMAIL_FROM
         sync: false

@@ -86,7 +86,7 @@ A web app (a single-page app for everything after sign-in) that turns a tutoring
 ## Stack & infrastructure
 
 - **Next.js + TypeScript + Postgres**, Auth.js for auth, Stripe for billing. The signed-in app is a Vite + React Router single-page app served by the same Next deployment. The web is the only client besides the browser extension. Confirmed, no constraints. *(my call: Auth.js — it covers Google OAuth natively, with our own token flows for verification and reset.)*
-- *(my call)* **Hosting:** Vercel for the app, managed Postgres (Neon), a small worker service for scheduled jobs, Brevo (or Resend) for email, domain purchased at deploy. Full detail in `TECHNICAL.md`.
+- *(my call)* **Hosting:** Vercel for the app, managed Postgres (Neon), a small worker service for scheduled jobs, Resend (or Brevo) for email, domain purchased at deploy. Full detail in `TECHNICAL.md`.
 - *(my call)* **Email scheduling:** one fixed send instant (7:00 AM Eastern) for everyone; a scheduler runs frequently, picks classrooms due that day, and enqueues the send — idempotent per user per day, with same-day catch-up when the worker wakes late.
 
 ## MVP vs deferred
@@ -99,7 +99,7 @@ A web app (a single-page app for everything after sign-in) that turns a tutoring
 ## My calls — override any
 
 1. Question bank built at upload, daily quiz composed fresh from it.
-2. Hosting: Vercel + Postgres (Neon) + worker + Brevo (or Resend).
+2. Hosting: Vercel + Postgres (Neon) + worker + Resend (or Brevo).
 3. Auth.js as the auth library.
 4. Referral is reciprocal: both sides get one free month.
 5. Free-tier "5 attempts" means 5 per quiz per day.
