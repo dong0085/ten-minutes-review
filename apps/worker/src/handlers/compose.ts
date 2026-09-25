@@ -21,6 +21,7 @@ import {
   listRecentMisses,
   listWeekQuestionStems,
   markJobCancelled,
+  recordJobResult,
 } from "@tmr/db";
 import type { Db, NewQuestion } from "@tmr/db";
 import { getLlmProvider } from "../llm";
@@ -196,6 +197,9 @@ export async function handleComposeJob(
   }
 
   if (kind === "manual") {
+    if (jobId) {
+      await recordJobResult(db, jobId, { quizId: quiz.id });
+    }
     await enqueueJob(db, {
       kind: "send_email",
       payload: { userId, quizDate: localDate, kind, quizId: quiz.id },

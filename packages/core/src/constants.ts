@@ -27,3 +27,6 @@ export const JOB_STALE_MINUTES = 10;
 export const JOB_MAX_ATTEMPTS = 3;
 
 export const MIN_USABLE_QUESTIONS = 5;
+
+/** How long an unsubmitted attempt token, and the browser draft behind it, stays valid. */
+export const ATTEMPT_TTL_MS = 2 * 60 * 60 * 1000;

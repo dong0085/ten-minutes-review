@@ -170,7 +170,7 @@ describe("send email helpers", () => {
     ]);
 
     expect(entries[0]?.quizUrl).toBe(
-      "http://localhost:3000/classrooms/class-1/quiz/quiz-1",
+      "http://localhost:3000/classrooms/class-1/quizzes/quiz-1/take",
     );
     expect(entries[0]?.questions[0]).toEqual({
       position: 0,

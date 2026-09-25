@@ -1,12 +1,4 @@
 export const classroom = {
-  Tabs: {
-    home: "Home",
-    upload: "Upload",
-    history: "History",
-    bank: "Bank",
-    quizzes: "Quizzes",
-    settings: "Settings",
-  },
   Card: {
     number: "No. {index}",
     active: "Active",

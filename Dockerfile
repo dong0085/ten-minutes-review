@@ -8,10 +8,12 @@ RUN corepack enable && corepack prepare pnpm@10.15.0 --activate
 FROM base AS deps
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY apps/web/package.json apps/web/
+COPY apps/spa/package.json apps/spa/
 COPY apps/worker/package.json apps/worker/
 COPY packages/core/package.json packages/core/
 COPY packages/db/package.json packages/db/
 COPY packages/email/package.json packages/email/
+COPY packages/ui/package.json packages/ui/
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile
 

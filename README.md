@@ -19,13 +19,14 @@ pnpm db:migrate
 pnpm dev:web
 ```
 
-In a second terminal, start the job worker:
+In a second terminal, start the signed-in web app, and in a third, the job worker:
 
 ```sh
+pnpm dev:spa
 pnpm dev:worker
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and sign up. The defaults in `.env.example` provide fixture extraction and quiz composition, print email to the worker log, and store uploaded images in `.uploads/`.
+Open [http://localhost:5173](http://localhost:5173) and sign up. Vite serves the signed-in screens and forwards the API and the other pages to Next on port 3000. The defaults in `.env.example` provide fixture extraction and quiz composition, print email to the worker log, and store uploaded images in `.uploads/`.
 
 ## Architecture
 
@@ -35,11 +36,13 @@ The web app never waits for the language model. It writes an `extract`, `compose
 
 | Layer | Responsibility |
 |---|---|
-| `apps/web` | Next.js 16 App Router UI, Auth.js sessions, and session-scoped API routes |
+| `apps/web` | Next.js 16: API routes, Auth.js sessions, and the landing, sign-in, and unsubscribe pages |
+| `apps/spa` | Vite + React Router single-page app for every signed-in screen, served by the Next deployment |
 | `apps/worker` | Extraction, quiz composition, scheduled delivery, retries, and health server |
 | `packages/core` | Domain types, prompts, grading, quiz sizing, and localization |
 | `packages/db` | Drizzle schema, migrations, and user-scoped repositories |
 | `packages/email` | React Email templates, localized rendering, and browser previews |
+| `packages/ui` | Shared shadcn components and the global stylesheet |
 
 ## The learning loop
 
@@ -59,7 +62,7 @@ One lesson becomes a reusable memory instead of a one-off worksheet.
 3. Each morning—or on demand—the worker composes a new quiz from recent material and light retests.
 4. The learner answers on the web or reads the questions inline in email; submitted attempts retain scores, timing, answers, and explanations.
 
-The interface and transactional email support English and French. Quiz content stays in the language being studied, with eleven target languages supported.
+The interface and transactional email support English, French, and Chinese. Quiz content stays in the language being studied, with eleven target languages supported.
 
 ## Providers
 
@@ -73,17 +76,6 @@ Each external service sits behind a single adapter selected from the root `.env`
 | Database | Local Postgres | Neon Postgres |
 
 Copy `.env.example`, keep the defaults for local work, and add provider credentials only when switching an adapter to a real service.
-
-## iOS app
-
-`apps/ios` holds a native SwiftUI client — sign in, classrooms, notes (typed text or photos), and the daily quiz. Generate the Xcode project with XcodeGen and open it:
-
-```sh
-brew install xcodegen
-pnpm ios:generate
-```
-
-The Debug configuration talks to `http://localhost:3000`; see [`apps/ios/README.md`](apps/ios/README.md) for simulator and device setup.
 
 ## Browser extension
 

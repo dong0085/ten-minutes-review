@@ -3,8 +3,8 @@
 import type { Category } from "@tmr/core";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { Badge } from "@tmr/ui/components/badge";
+import { cn } from "@tmr/ui/utils";
 
 /* The question-form cluster on the homepage: one sample quiz card per
    question form, lying on the page with a slight editorial tilt. When the

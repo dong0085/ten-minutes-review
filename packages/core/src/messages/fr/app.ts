@@ -1,0 +1,72 @@
+import type { en } from "../en";
+import type { MessageShape } from "../type";
+
+export const app: MessageShape<(typeof en)["App"]> = {
+  Shell: {
+    breadcrumb: "Fil d'Ariane",
+    back: "Retour",
+    closeQuiz: "Fermer le quiz",
+    errorTitle: "Un problème est survenu",
+    errorBlurb: "Cette page n'a pas pu se charger. Vérifiez votre connexion et réessayez.",
+    retry: "Réessayer",
+    toClassrooms: "Aller aux classes",
+  },
+  Crumbs: {
+    classrooms: "Classes",
+    newClassroom: "Nouvelle classe",
+    notes: "Notes",
+    addNotes: "Ajouter des notes",
+    bank: "Banque de questions",
+    quizzes: "Quiz",
+    settings: "Réglages",
+    attempt: "Résultats",
+    account: "Compte",
+    profile: "Profil",
+    security: "Connexion et sécurité",
+    email: "E-mail",
+    plan: "Formule et utilisation",
+    referrals: "Parrainage",
+    tokens: "Jetons d'API",
+    data: "Vos données",
+  },
+  Hub: {
+    addNotesBlurb:
+      "Collez vos notes ou ajoutez des photos. Le nouveau contenu rejoint la banque de questions.",
+    inside: "Dans cette classe",
+    notes: "Notes",
+    notesMeta: "{count, plural, one {# import} other {# imports}} · dernier ajout {when}",
+    reading: "{count, plural, one {# en lecture} other {# en lecture}}",
+    bank: "Banque de questions",
+    bankMeta:
+      "{count, plural, =0 {Vide jusqu'à la lecture de vos premières notes} one {# point de connaissance dans les quiz} other {# points de connaissance dans les quiz}}",
+    quizzes: "Quiz",
+    quizzesMeta: "{count, plural, one {# quiz} other {# quiz}}, avec chaque tentative",
+    settings: "Réglages",
+    settingsMeta: "Nom, langues et révisions quotidiennes",
+  },
+  QuizDetail: {
+    take: "Faire le quiz",
+    retake: "Refaire",
+    covers: "Ce qu'il couvre",
+    attempts: "Tentatives",
+    noAttempts:
+      "Aucune tentative pour l'instant. Les réponses et les explications s'affichent après l'envoi.",
+  },
+  AccountHub: {
+    settings: "Réglages",
+    profile: "Profil",
+    profileMeta: "Nom, langue de l'interface et fuseau horaire",
+    security: "Connexion et sécurité",
+    securityMeta: "Mot de passe et comptes associés",
+    email: "E-mail",
+    emailMeta: "L'e-mail du quiz quotidien",
+    plan: "Formule et utilisation",
+    planMeta: "Votre abonnement et l'utilisation de ce mois-ci",
+    referrals: "Parrainage",
+    referralsMeta: "Invitez un ami, vous recevez chacun un mois offert",
+    tokens: "Jetons d'API",
+    tokensMeta: "Connecter l'extension de navigateur",
+    data: "Vos données",
+    dataMeta: "Tout exporter, ou supprimer votre compte",
+  },
+};

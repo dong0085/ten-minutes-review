@@ -2,14 +2,6 @@ import type { en } from "../en";
 import type { MessageShape } from "../type";
 
 export const classroom: MessageShape<(typeof en)["Classroom"]> = {
-  Tabs: {
-    home: "Accueil",
-    upload: "Importer",
-    history: "Historique",
-    bank: "Banque",
-    quizzes: "Quiz",
-    settings: "Réglages",
-  },
   Card: {
     number: "N° {index}",
     active: "Active",

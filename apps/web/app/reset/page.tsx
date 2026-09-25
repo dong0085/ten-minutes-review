@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@tmr/ui/components/alert";
 import { ResetForm } from "@/components/auth/reset-form";
 
 export async function generateMetadata(): Promise<Metadata> {

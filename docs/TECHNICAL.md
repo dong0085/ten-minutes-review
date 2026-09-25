@@ -8,8 +8,8 @@ The build blueprint. The data model is the centerpiece — it is the one part th
 
 | Piece | Choice | Job |
 |---|---|---|
-| Web | Next.js (App Router) on Vercel | UI and API route handlers |
-| iOS | SwiftUI app in `apps/ios` (XcodeGen project) | Thin client over the API |
+| Web | Next.js (App Router) on Vercel | API route handlers, plus the server-rendered marketing, sign-in, and unsubscribe pages |
+| Web app | Vite + React Router single-page app in `apps/spa`, served by the Next deployment | Every signed-in screen, over the API |
 | Extension | Chrome/Firefox MV3 in `apps/extension` | Context-menu note capture over the API |
 | Database | Postgres on Neon | All state, plus the job queue |
 | Worker | Node service on Render (free web service, health-check pinged) | Extraction, composition, email sends |
@@ -19,17 +19,47 @@ The build blueprint. The data model is the centerpiece — it is the one part th
 | Email | React Email templates; Brevo (or Resend) delivery adapter | Transactional and quiz email |
 | Billing | Stripe | Modeled now, inactive |
 
-The web app never calls the LLM inline. It writes a row and returns. The worker picks it up. That keeps request latency predictable and lets a slow extraction retry without the user waiting.
+The web never calls the LLM inline. It writes a row and returns. The worker picks it up. That keeps request latency predictable and lets a slow extraction retry without the user waiting.
+
+### The signed-in web app
+
+`apps/spa` is a single-page app. It holds every screen under `/classrooms` and `/account`; Next.js keeps the API, the landing, about, and privacy pages, the auth pages (`/signin`, `/signup`, `/forgot`, `/reset`, `/verify`), and `/unsubscribe`.
+
+- **Serving.** `vite build` writes to `apps/web/public/_spa/` (gitignored), and the web `build` script runs it before `next build`, so one deploy ships both. `next.config.ts` rewrites `/classrooms/:path*` and `/account/:path*` to `/_spa/index.html`; the SPA router takes over from there. Hashed assets under `/_spa/assets/` are cached as immutable, and the shell is `no-cache`.
+- **Same origin.** The SPA and the API share one origin, so the Auth.js cookie, Google OAuth, and Stripe redirects work unchanged. In dev, `pnpm dev:spa` runs Vite on 5173 and proxies `/api` and the Next pages to `pnpm dev:web` on 3000.
+- **Session.** The SPA boots from `GET /api/me`, which also resolves guests and reports the plan, feature flags, and sign-in methods. A 401 on a screen that needs an account sends the browser to `/signin?callbackUrl=<path>`, and sign-in returns there.
+- **Data.** TanStack Query fetches from `/api`; mutations update or invalidate the cached queries. Screens load lazily per route.
+- **Shared UI.** The shadcn primitives, `cn`, and `globals.css` live in `packages/ui`, imported by both apps.
+
+#### Information architecture
+
+Navigation drills down: each screen does one job, a breadcrumb trail in the top bar leads back up, and phones show a back arrow to the parent. There are no tab strips.
+
+```
+/classrooms                              classroom list
+  /new                                   create a classroom
+  /:id                                   classroom hub: today's quiz, add notes, rows to each section
+    /notes  /notes/new  /notes/:uploadId upload timeline, add notes, one upload in full
+    /bank   /bank/:pointId               question bank (filters in the URL), one knowledge point
+    /quizzes  /quizzes/:quizId           quiz list, one quiz with every attempt
+    /quizzes/:quizId/take                quiz runner, full screen with no top bar
+    /quizzes/:quizId/attempts/:attemptId results and review
+    /settings                            name, languages, daily reviews, archive or delete
+/account                                 stats, recent quizzes, rows to each settings screen
+  /profile  /security  /email  /plan  /referrals  /tokens  /data
+```
+
+Earlier addresses redirect in the SPA router: `/classrooms/:id/quiz/:quizId` (links in sent emails) goes to `…/quizzes/:quizId/take`, `/upload` to `/notes/new`, `/history` to `/notes`, `/attempts/:attemptId` to its nested results page, and `/account/api-tokens` to `/account/tokens`.
 
 ### Localization
 
-The UI ships in English and French. `apps/web/i18n/request.ts` resolves the locale per request: a signed-in user's `ui_language`, otherwise the `NEXT_LOCALE` cookie (set by the header language switch for signed-out visitors), otherwise the `Accept-Language` header, falling back to `en`. There is no locale segment in the URL — next-intl runs without i18n routing, so every route keeps its current path.
+The UI ships in English, French, and Chinese. `apps/web/i18n/request.ts` resolves the locale per request for the Next pages, and the SPA applies the same order on boot: a signed-in user's `ui_language`, otherwise the `NEXT_LOCALE` cookie (set by the header language switch for signed-out visitors), otherwise the `Accept-Language` header, falling back to `en`. There is no locale segment in the URL — next-intl runs without i18n routing, so every route keeps its current path.
 
-Message catalogs live in `packages/core/src/messages` (`en/` and `fr/`, namespaces `Common`, `Layout`, `Home`, `Auth`, `Account`, `Classroom`, `Quiz`, `Category`, `Upload`, `Email`, `Api`). `getMessages`, `formatMessage`, and `toUiLocale` are shared by the web app and the worker.
+Message catalogs live in `packages/core/src/messages` (`en/`, `fr/`, `zh/`; namespaces include `Common`, `App`, `Layout`, `Home`, `Auth`, `Account`, `Classroom`, `Quiz`, `Category`, `Upload`, `Email`, `Api`). `getMessages`, `formatMessage`, and `toUiLocale` are shared by the Next pages (next-intl), the SPA (use-intl), and the worker.
 
 - API error messages are localized centrally in `apps/web/lib/api.ts`: routes keep their English literals, which map to `Api` catalog keys before the response leaves the server.
 - Transactional emails (`packages/email`) take a `UiLocale`; call sites pass the recipient's `ui_language`. React Email renders the localized components to HTML and plain text before the existing provider adapter sends them.
-- The colour palette follows the same order: a signed-in user's `ui_theme`, otherwise the `UI_THEME` cookie, falling back to `mint`. The header switch saves to the account through `PATCH /api/me` and also sets the cookie, so the palette survives sign-out. iOS reads `uiTheme` from `/api/me` and saves through the same route.
+- The colour palette follows the same order: a signed-in user's `ui_theme`, otherwise the `UI_THEME` cookie, falling back to `mint`. The header switch saves to the account through `PATCH /api/me` and also sets the cookie, so the palette survives sign-out.
 - Quiz stems, options, and explanations are generated in the target language and stored as content. Only UI chrome is translated; a question authored in French stays French in an English interface. A production fill_blank also carries the native cue in parentheses — see `PROMPTS.md`.
 
 ---
@@ -268,11 +298,11 @@ WHERE c.archived_at IS NULL
 
 Each match gets a `compose` job. The worker writes the quiz and its questions, then enqueues one `send_email` job per **user** — not per classroom, because the email is a single menu.
 
-On-demand quizzes use the same compose job and the same selection rules, enqueued directly by `POST /api/classrooms/:id/quizzes` with `source: "manual"`. They skip the daily existence check.
+On-demand quizzes use the same compose job and the same selection rules, enqueued directly by `POST /api/classrooms/:id/quizzes` with `source: "manual"`. They skip the daily existence check. The worker records the new quiz's id on the job's payload, and the classroom hub polls that job, so it opens the quiz it asked for even when a daily quiz already exists for the day.
 
 ### Email
 
-The worker builds one email per user per day containing every eligible classroom quiz composed that morning, questions inline, each with a link to the web quiz. When a queued email runs, its quiz query re-applies `paused_at IS NULL` and the resume cutoff, so a pause or late resume after queuing removes only that classroom while other active classrooms remain. The daily email goes out at the fixed 7:00 AM Eastern instant for every user; the account page and classroom home show the next send in the reader's own timezone, with UTC in parentheses. Sends through Brevo (or Resend), then writes `email_sends`. The unique constraint absorbs a duplicate run.
+The worker builds one email per user per day containing every eligible classroom quiz composed that morning, questions inline, each with a link to the web quiz. When a queued email runs, its quiz query re-applies `paused_at IS NULL` and the resume cutoff, so a pause or late resume after queuing removes only that classroom while other active classrooms remain. The daily email goes out at the fixed 7:00 AM Eastern instant for every user; Account → Email and the classroom hub show the next send in the reader's own timezone, with UTC in parentheses. Sends through Brevo (or Resend), then writes `email_sends`. The unique constraint absorbs a duplicate run.
 
 On-demand composition enqueues its own `send_email` job carrying `kind: "manual"` and the new `quizId`. That email contains just that quiz and dedupes per quiz, so it can be sent the same day the morning email already went out. Per-classroom pause does not block this path. Both kinds respect the existing account-wide `email_preferences` and unsubscribe state; pause/resume never modifies them.
 
@@ -289,29 +319,32 @@ On-demand composition enqueues its own `send_email` job carrying `kind: "manual"
 
 ## 4. API surface
 
-Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve the caller from an `Authorization: Bearer tmr_…` header when one is present — the header's verdict is final — and fall back to the Auth.js session cookie otherwise, so every route below serves the web app, the iOS client, and the browser extension.
+Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve the caller from an `Authorization: Bearer tmr_…` header when one is present — the header's verdict is final — and fall back to the Auth.js session cookie otherwise, so every route below serves the web app and the browser extension.
 
 | Method | Path | Job |
 |---|---|---|
 | `*` | `/api/auth/[...nextauth]` | Auth.js |
 | `POST` | `/api/auth/token` | Issue an API token (email + password → `tmr_…` bearer) |
 | `POST` | `/api/auth/token/revoke` | Revoke the presented token |
-| `GET` `POST` | `/api/classrooms` | List, create |
+| `GET` `POST` | `/api/classrooms` | List (with daily status and free-plan limits), create |
 | `GET` `PATCH` `DELETE` | `/api/classrooms/:id` | Read, rename/settings (including the dedicated `paused` transition), delete |
 | `POST` | `/api/classrooms/:id/uploads` | Text body or multipart image |
 | `GET` | `/api/classrooms/:id/uploads` | Timeline |
+| `GET` | `/api/classrooms/:id/overview` | Classroom hub: today's daily quiz id, an in-flight compose job, and counts of uploads, bank points, and quizzes |
 | `GET` | `/api/classrooms/:id/bank` | Counts per category |
 | `GET` | `/api/classrooms/:id/knowledge-points` | Every knowledge point, omitted ones included, with answered/missed counts |
 | `PATCH` | `/api/knowledge-points/:id` | Edit target text, meaning, or note |
 | `POST` | `/api/knowledge-points/:id/omit` | Omit from (`{ omit: true }`) or restore to future quizzes |
 | `GET` | `/api/classrooms/:id/quizzes/today` | Today's daily quiz plus any in-flight compose job, answers withheld |
-| `POST` | `/api/classrooms/:id/quizzes` | Create an on-demand quiz (enqueues a compose job) |
+| `POST` | `/api/classrooms/:id/quizzes` | Create an on-demand quiz (enqueues a compose job, or reuses the one in flight, and returns its `jobId`) |
+| `GET` | `/api/classrooms/:id/quizzes/jobs/:jobId` | Status of one compose job; once `done`, `quizId` names the on-demand quiz it wrote |
 | `POST` | `/api/classrooms/:id/quizzes/cancel` | Cancel the in-flight compose job |
-| `GET` `DELETE` | `/api/quizzes/:id` | Read the quiz (answers withheld) or delete it with its attempts and answers |
+| `GET` `DELETE` | `/api/quizzes/:id` | Read the quiz (answers withheld; `?includeAttempts=1` adds attempt summaries) or delete it with its attempts and answers |
 | `POST` | `/api/quizzes/:id/attempts` | Start an attempt |
 | `POST` | `/api/attempts/submit` | Submit answers, receive correctness and explanations |
 | `GET` | `/api/attempts/:id` | Full review |
-| `GET` `PATCH` | `/api/me` | Profile |
+| `GET` `PATCH` | `/api/me` | Profile. `GET` also resolves guests and returns `isGuest`, `hasPassword`, `googleLinked`, the plan, and feature flags |
+| `GET` | `/api/me/overview` | Account hub: activity and learning stats, recent quizzes, membership, and this month's usage |
 | `GET` `PATCH` | `/api/me/email-preferences` | |
 | `GET` | `/api/me/export` | Data export |
 | `DELETE` | `/api/me` | Account deletion |
@@ -333,7 +366,6 @@ Answers and explanations never leave the server before a submission. The quiz pa
 - LLM calls capped per user per day, so a runaway script cannot drain the DeepSeek balance.
 - Passwords hashed with argon2id. Email verification required before the first upload.
 - Session cookies: httpOnly, secure, sameSite lax. API tokens for native clients are stored hashed and revoked on demand.
-- The iOS app keeps its token in the keychain and revokes it on sign-out; every authenticated request carries `Authorization: Bearer`.
 - The browser extension keeps its token in `browser.storage.local` and revokes it on sign-out. Tokens are created and inspected at Account → API tokens, which also serves Google-only accounts that cannot use the password-based `/api/auth/token`.
 
 ---
@@ -342,7 +374,7 @@ Answers and explanations never leave the server before a submission. The quiz pa
 
 | Concern | Where |
 |---|---|
-| Web | Vercel |
+| Web and SPA | Vercel (one project; the build runs `vite build`, then `next build`) |
 | Postgres | Neon |
 | Worker | Render free web service, kept awake through the 7:00 AM Eastern send by a GitHub Actions keep-alive |
 | Images | Vercel Blob |

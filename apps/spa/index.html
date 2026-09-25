@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Ten Minutes Review</title>
+    <link rel="icon" href="/icon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap"
+    />
+    <script>
+      // Paint the saved palette before React boots, matching the server-rendered pages.
+      (function () {
+        var match = document.cookie.match(/(?:^|; )UI_THEME=([^;]+)/);
+        document.documentElement.dataset.theme = match ? decodeURIComponent(match[1]) : "mint";
+        var locale = document.cookie.match(/(?:^|; )NEXT_LOCALE=([^;]+)/);
+        if (locale) document.documentElement.lang = decodeURIComponent(locale[1]);
+      })();
+    </script>
+  </head>
+  <body class="flex min-h-screen flex-col bg-background text-foreground antialiased">
+    <div id="root" class="flex min-h-screen flex-col"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

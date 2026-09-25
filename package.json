@@ -8,9 +8,9 @@
   "scripts": {
     "dev:email": "pnpm --filter @tmr/email dev",
     "dev:web": "pnpm --filter web dev",
+    "dev:spa": "pnpm --filter spa dev",
     "dev:worker": "pnpm --filter worker dev",
     "docs:render": "sh docs/readme/render.sh",
-    "ios:generate": "xcodegen generate --spec apps/ios/project.yml",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "build": "pnpm --filter web build",

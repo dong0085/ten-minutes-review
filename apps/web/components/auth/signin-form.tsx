@@ -2,20 +2,18 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@tmr/ui/components/alert";
+import { Button } from "@tmr/ui/components/button";
+import { Card, CardContent } from "@tmr/ui/components/card";
+import { Input } from "@tmr/ui/components/input";
+import { Label } from "@tmr/ui/components/label";
 import { GoogleButton } from "./google-button";
 
-export function SignInForm() {
+export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
   const t = useTranslations("Auth.SignInForm");
   const tc = useTranslations("Common");
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -35,8 +33,8 @@ export function SignInForm() {
         setError(t("invalid"));
         return;
       }
-      router.push("/classrooms");
-      router.refresh();
+      // The signed-in app is a separate single-page app, so load it fresh.
+      window.location.assign(callbackUrl);
     } catch {
       setError(tc("genericError"));
     } finally {
@@ -83,7 +81,7 @@ export function SignInForm() {
           {t("or")}
           <span className="h-px flex-1 bg-border" />
         </div>
-        <GoogleButton label={t("google")} />
+        <GoogleButton label={t("google")} callbackUrl={callbackUrl} />
         <div className="flex justify-between text-sm text-muted-foreground">
           <Link className="underline" href="/forgot">
             {t("forgot")}

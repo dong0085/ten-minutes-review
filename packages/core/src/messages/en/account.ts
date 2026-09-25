@@ -1,13 +1,6 @@
 export const account = {
   overview: "Your learning record",
   title: "Account",
-  Nav: {
-    overview: "Overview",
-    profile: "Profile",
-    security: "Security",
-    apiTokens: "API tokens",
-    data: "Data",
-  },
   classroomsSection: "Classrooms",
   quizHistorySection: "Quiz history",
   quizHistoryMore: "Showing your {count} most recent quizzes. Open a classroom to see all of its quizzes.",

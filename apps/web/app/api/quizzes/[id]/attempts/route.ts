@@ -2,7 +2,7 @@ import { getQuizForUser } from "@tmr/db";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/api";
 import { getDb } from "@/lib/db";
 import { env } from "@/lib/env";
-import { ATTEMPT_TTL_MS } from "@/lib/quiz-draft";
+import { ATTEMPT_TTL_MS } from "@tmr/core";
 import { getSessionUser } from "@/lib/session";
 import { createAttemptToken } from "@/lib/tokens";
 import { buildQuizPayload } from "@/app/api/_lib/quiz";

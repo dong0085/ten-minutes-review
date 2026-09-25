@@ -2,11 +2,11 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@tmr/ui/components/alert";
+import { Button } from "@tmr/ui/components/button";
+import { Card, CardContent } from "@tmr/ui/components/card";
+import { Input } from "@tmr/ui/components/input";
+import { Label } from "@tmr/ui/components/label";
 
 export function ResetForm({ token }: { token: string }) {
   const [password, setPassword] = useState("");

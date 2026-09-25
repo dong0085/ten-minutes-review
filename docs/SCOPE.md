@@ -5,7 +5,7 @@
 
 ## What it is
 
-A web app that turns a tutoring session's notes — text or images — into a daily quiz that takes under 10 minutes. The user answers on the site, and can optionally receive the quiz by email every morning. Every quiz belongs to a classroom.
+A web app (a single-page app for everything after sign-in) that turns a tutoring session's notes — text or images — into a daily quiz that takes under 10 minutes. The user answers on the site, and can optionally receive the quiz by email every morning. Every quiz belongs to a classroom.
 
 ## Classrooms
 
@@ -51,7 +51,7 @@ A web app that turns a tutoring session's notes — text or images — into a da
 - **Attempts:** unlimited for now. Every attempt is recorded — answers, correctness, time taken. The answer and explanation are revealed after submit.
 - **Deleting a quiz:** the quizzes list carries a Delete control. Confirming removes the quiz, its questions, and every attempt against it. A deleted daily quiz stays gone for that day; the scheduler does not compose a replacement.
 - On the web, quizzes stay available on demand after a classroom goes dormant or is manually paused. Scheduled emails stop; access continues. On-demand quizzes are unlimited for now. Each creation is counted over rolling 24-hour, 7-day, and 30-day windows so fair-use limits can be introduced later.
-- **On-demand quizzes** are created from the classroom home: a button opens a small progress modal (Queued → Writing your quiz → Ready) that can be minimized into the card or cancelled. Cancelling never counts and writes no quiz. Each generated on-demand quiz sends its own email with just that quiz, subject to the same email preferences. It appears in the quizzes list tagged "On demand".
+- **On-demand quizzes** are created from the classroom hub: a button opens a small progress modal (Queued → Writing your quiz → Ready) that can be minimized into the card or cancelled. Cancelling never counts and writes no quiz. Each generated on-demand quiz sends its own email with just that quiz, subject to the same email preferences. It appears in the quizzes list tagged "On demand".
 - **Validated:** one real session yields roughly 110–150 knowledge points and questions — comfortably 7 days of quizzes. The 7-day window matches one session per week. Evidence in `TRIAL-RUN.md`.
 
 ## Emails
@@ -85,13 +85,13 @@ A web app that turns a tutoring session's notes — text or images — into a da
 
 ## Stack & infrastructure
 
-- **Next.js + TypeScript + Postgres**, Auth.js for auth, Stripe for billing. Confirmed, no constraints. *(my call: Auth.js — it covers Google OAuth natively, with our own token flows for verification and reset.)*
+- **Next.js + TypeScript + Postgres**, Auth.js for auth, Stripe for billing. The signed-in app is a Vite + React Router single-page app served by the same Next deployment. The web is the only client besides the browser extension. Confirmed, no constraints. *(my call: Auth.js — it covers Google OAuth natively, with our own token flows for verification and reset.)*
 - *(my call)* **Hosting:** Vercel for the app, managed Postgres (Neon), a small worker service for scheduled jobs, Brevo (or Resend) for email, domain purchased at deploy. Full detail in `TECHNICAL.md`.
 - *(my call)* **Email scheduling:** one fixed send instant (7:00 AM Eastern) for everyone; a scheduler runs frequently, picks classrooms due that day, and enqueues the send — idempotent per user per day, with same-day catch-up when the worker wakes late.
 
 ## MVP vs deferred
 
-- **MVP:** auth, classrooms, note upload (text + images), question bank + generation, daily quiz on web and by email, on-demand quizzes from the classroom home, attempt recording, answer review, upload history.
+- **MVP:** auth, classrooms, note upload (text + images), question bank + generation, daily quiz on web and by email, on-demand quizzes from the classroom hub, attempt recording, answer review, upload history.
 - **Deferred, modeled but unbuilt:** payment UI, referral UI, tier-cap enforcement, quiz-type selection, full spaced repetition.
 
 ---

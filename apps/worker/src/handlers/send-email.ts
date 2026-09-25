@@ -44,7 +44,7 @@ export function buildEmailEntries(
     const includeAnswers = entry.includeAnswers ?? false;
     return {
       classroomName: entry.classroomName,
-      quizUrl: `${appUrl}/classrooms/${entry.quiz.classroomId}/quiz/${entry.quiz.id}`,
+      quizUrl: `${appUrl}/classrooms/${entry.quiz.classroomId}/quizzes/${entry.quiz.id}/take`,
       includeAnswers,
       questions: entry.questions.map((question) => ({
         position: question.position,

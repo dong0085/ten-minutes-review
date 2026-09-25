@@ -1,0 +1,10 @@
+@import "@tmr/ui/globals.css";
+
+@source "./";
+
+/* Next sets these through next/font; the SPA loads the same families from Google Fonts. */
+html {
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-editorial: "Source Serif 4", ui-serif, Georgia, serif;
+  font-family: var(--font-sans);
+}

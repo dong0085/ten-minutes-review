@@ -14,7 +14,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { CN, ES, FR, GB, IN, JP, KR, PT, RU, VN } from "country-flag-icons/react/3x2";
-import { Button } from "@/components/ui/button";
+import { Button } from "@tmr/ui/components/button";
 import { Reveal } from "@/components/reveal";
 import { QuizFormCards } from "@/components/quiz-form-cards";
 import { env } from "@/lib/env";
@@ -131,18 +131,18 @@ export default async function HomePage() {
           <div className="mt-8 flex flex-wrap gap-3">
             {user ? (
               <Button asChild size="lg">
-                <Link href="/classrooms">
+                <a href="/classrooms">
                   {t("goToClassrooms")}
                   <ArrowRight />
-                </Link>
+                </a>
               </Button>
             ) : (
               <>
                 <Button asChild size="lg">
-                  <Link href="/classrooms/new">
+                  <a href="/classrooms/new">
                     {t("tryAsGuest")}
                     <ArrowRight />
-                  </Link>
+                  </a>
                 </Button>
                 <Button asChild size="lg" variant="outline">
                   <Link href="/signup">{t("createAccount")}</Link>
@@ -343,10 +343,10 @@ export default async function HomePage() {
           })}
         </h2>
         <Button asChild size="lg" className="mt-7">
-          <Link href={user ? "/classrooms" : "/signup"}>
+          <a href={user ? "/classrooms" : "/signup"}>
             {user ? t("goToClassrooms") : t("createAccount")}
             <ArrowRight />
-          </Link>
+          </a>
         </Button>
       </Reveal>
     </div>
