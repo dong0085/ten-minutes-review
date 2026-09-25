@@ -1,10 +1,8 @@
 # Ten Minutes Review
 
-![Ten Minutes Review project card](docs/readme/generated/thumbnail.png)
-
 Turns tutoring notes—typed text or photos of handwriting—into a fresh daily quiz that fits inside ten minutes.
 
-![Notes flow through a question bank into a focused daily quiz](docs/readme/generated/hero.svg)
+![Landing page hero: keep every language lesson with a ten-minute quiz](docs/readme/product-hunt-screenshots/01-hero.png)
 
 **Status:** built and runnable locally. The default development setup uses deterministic mock AI, console email, and local image storage, so no vendor accounts are needed.
 
@@ -30,7 +28,16 @@ Open [http://localhost:5173](http://localhost:5173) and sign up. Vite serves the
 
 ## Architecture
 
-![Architecture showing the Next.js web app handing queued work through Postgres to a separate worker and provider adapters](docs/readme/generated/architecture.svg)
+```mermaid
+flowchart LR
+  SPA[apps/spa] -->|/api| Web[apps/web · Next.js]
+  Ext[Browser extension] -->|Bearer token| Web
+  Web -->|writes jobs| PG[(Postgres)]
+  Worker[apps/worker] -->|claims jobs| PG
+  Worker --> LLM[LLM adapter]
+  Worker --> Mail[Email adapter]
+  Web --> Store[Storage adapter]
+```
 
 The web app never waits for the language model. It writes an `extract`, `compose`, or `send_email` job to Postgres and returns; the worker claims that work, retries it safely, and records the result. Answers and explanations remain server-side until an attempt is submitted.
 
@@ -48,12 +55,14 @@ The web app never waits for the language model. It writes an `extract`, `compose
 
 One lesson becomes a reusable memory instead of a one-off worksheet.
 
-![Four-step learning loop: capture lesson notes, distill them into categorized study points, review for ten minutes, and retain feedback for the next attempt](docs/readme/generated/learning-loop.svg)
+![How it works: add lesson notes, pick out what to remember, review before the next lesson](docs/readme/product-hunt-screenshots/02-how-it-works.png)
 
 1. **Capture:** paste a lesson recap or photograph handwritten notes.
 2. **Distill:** the worker extracts reusable vocabulary, phrases, grammar, ideas, and comprehension passages.
 3. **Review:** each quiz favors recent material while mixing in light retests from the question bank.
 4. **Remember:** submission reveals answers and explanations; attempt history is retained and retakes reshuffle multiple-choice options.
+
+![Quiz types: multiple choice, fill in the blank, true or false, and questions built from note photos](docs/readme/product-hunt-screenshots/03-quiz-types.png)
 
 ## What the product does
 
@@ -63,6 +72,8 @@ One lesson becomes a reusable memory instead of a one-off worksheet.
 4. The learner answers on the web or reads the questions inline in email; submitted attempts retain scores, timing, answers, and explanations.
 
 The interface and transactional email support English, French, and Chinese. Quiz content stays in the language being studied, with eleven target languages supported.
+
+![Made for learners: no streaks, pause between terms, every lesson kept](docs/readme/product-hunt-screenshots/04-made-for-learners.png)
 
 ## Providers
 
@@ -113,12 +124,9 @@ pnpm --filter web lint
 pnpm build
 pnpm build:extension
 pnpm dev:email
-pnpm docs:render
 ```
 
 `pnpm dev:email` opens the localized React Email previews at [http://localhost:3001](http://localhost:3001).
-
-`pnpm docs:render` rebuilds the committed README artwork from the Typst sources in `docs/readme/`. It requires Typst 0.15 or newer and no Typst packages or network access.
 
 ## Deployment
 
