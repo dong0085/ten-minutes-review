@@ -140,7 +140,7 @@ do {
 } while (cursor);
 ```
 
-DeepSeek, Brevo/Resend, and Stripe credentials carry over unchanged. When both plans run in parallel, point only one of them at a given database.
+DeepSeek, Resend/Brevo, and Stripe credentials carry over unchanged. When both plans run in parallel, point only one of them at a given database.
 
 ## 5. Managed alternative: App Runner + RDS + S3
 

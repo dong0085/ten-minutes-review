@@ -16,7 +16,7 @@ The build blueprint. The data model is the centerpiece — it is the one part th
 | Queue | `jobs` table in Postgres | Work handoff, no Redis needed |
 | Images | Vercel Blob | Uploaded note images |
 | LLM | DeepSeek, behind one adapter module | Extraction and composition |
-| Email | React Email templates; Brevo (or Resend) delivery adapter | Transactional and quiz email |
+| Email | React Email templates; Resend (or Brevo) delivery adapter | Transactional and quiz email |
 | Billing | Stripe | Modeled now, inactive |
 
 The web never calls the LLM inline. It writes a row and returns. The worker picks it up. That keeps request latency predictable and lets a slow extraction retry without the user waiting.
@@ -303,7 +303,7 @@ On-demand quizzes use the same compose job and the same selection rules, enqueue
 
 ### Email
 
-The worker builds one email per user per day containing every eligible classroom quiz composed that morning, questions inline, each with a link to the web quiz. When a queued email runs, its quiz query re-applies `paused_at IS NULL` and the resume cutoff, so a pause or late resume after queuing removes only that classroom while other active classrooms remain. The daily email goes out at the fixed 7:00 AM Eastern instant for every user; Account → Email and the classroom hub show the next send in the reader's own timezone, with UTC in parentheses. Sends through Brevo (or Resend), then writes `email_sends`. The unique constraint absorbs a duplicate run.
+The worker builds one email per user per day containing every eligible classroom quiz composed that morning, questions inline, each with a link to the web quiz. When a queued email runs, its quiz query re-applies `paused_at IS NULL` and the resume cutoff, so a pause or late resume after queuing removes only that classroom while other active classrooms remain. The daily email goes out at the fixed 7:00 AM Eastern instant for every user; Account → Email and the classroom hub show the next send in the reader's own timezone, with UTC in parentheses. Sends through Resend (or Brevo), then writes `email_sends`. The unique constraint absorbs a duplicate run.
 
 On-demand composition enqueues its own `send_email` job carrying `kind: "manual"` and the new `quizId`. That email contains just that quiz and dedupes per quiz, so it can be sent the same day the morning email already went out. Per-classroom pause does not block this path. Both kinds respect the existing account-wide `email_preferences` and unsubscribe state; pause/resume never modifies them.
 
@@ -379,8 +379,8 @@ Answers and explanations never leave the server before a submission. The quiz pa
 | Postgres | Neon |
 | Worker | Render free web service, kept awake through the 7:00 AM Eastern send by a GitHub Actions keep-alive |
 | Images | Vercel Blob |
-| Email | Brevo (or Resend) |
-| Domain | Purchased at deploy |
+| Email | Resend (or Brevo), from `contact.tenminutesreview.study`: Vercel sends account email as `no-reply@`, the worker sends the daily quiz as `quiz@` (each deploy sets its own `EMAIL_FROM`) |
+| Domain | `tenminutesreview.study`, registered and DNS at Namecheap |
 
 Environment variables:
 
