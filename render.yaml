@@ -28,5 +28,7 @@ services:
         sync: false
       - key: RESEND_API_KEY
         sync: false
+      # Quiz sender, e.g. Ten Minutes Review <quiz@contact.tenminutesreview.study>.
+      # Vercel's EMAIL_FROM is the account-email sender (no-reply@).
       - key: EMAIL_FROM
         sync: false

@@ -379,8 +379,8 @@ Answers and explanations never leave the server before a submission. The quiz pa
 | Postgres | Neon |
 | Worker | Render free web service, kept awake through the 7:00 AM Eastern send by a GitHub Actions keep-alive |
 | Images | Vercel Blob |
-| Email | Resend (or Brevo), from `contact.tenminutesreview.study` |
-| Domain | Purchased at deploy |
+| Email | Resend (or Brevo), from `contact.tenminutesreview.study`: Vercel sends account email as `no-reply@`, the worker sends the daily quiz as `quiz@` (each deploy sets its own `EMAIL_FROM`) |
+| Domain | `tenminutesreview.study`, registered and DNS at Namecheap |
 
 Environment variables:
 
