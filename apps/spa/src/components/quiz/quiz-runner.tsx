@@ -147,6 +147,7 @@ export function QuizRunner({
   const hasStarted = useRef(false);
   const blankRefs = useRef<(HTMLInputElement | null)[]>([]);
   const optionRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const trueFalseRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const focusFirstBlank = useRef(false);
 
   const handleToggleOmit = useCallback((pointId: string, omitted: boolean) => {
@@ -289,6 +290,10 @@ export function QuizRunner({
       return;
     }
     const question = questions[current];
+    if (question?.type === "true_false") {
+      trueFalseRefs.current[responses[question.id]?.value === false ? 1 : 0]?.focus();
+      return;
+    }
     if (!question || (question.type !== "mcq" && question.type !== "image")) {
       return;
     }
@@ -666,12 +671,16 @@ export function QuizRunner({
           ) : null}
           {currentQuestion.type === "true_false" ? (
             <div className="grid grid-cols-2 gap-3">
-              {[true, false].map((value) => {
+              {[true, false].map((value, index) => {
                 const selected = response?.value === value;
                 return (
                   <Button
                     key={String(value)}
+                    ref={(element) => {
+                      trueFalseRefs.current[index] = element;
+                    }}
                     type="button"
+                    aria-pressed={selected}
                     variant={selected ? "default" : "outline"}
                     className="h-12"
                     onClick={() => setAnswer(currentQuestion.id, { value })}
@@ -679,6 +688,19 @@ export function QuizRunner({
                       if (event.key === "Enter" && !event.repeat) {
                         event.preventDefault();
                         goNext();
+                        return;
+                      }
+                      if (
+                        event.key === "ArrowLeft" ||
+                        event.key === "ArrowRight" ||
+                        event.key === "ArrowUp" ||
+                        event.key === "ArrowDown"
+                      ) {
+                        event.preventDefault();
+                        const nextValue =
+                          typeof response?.value === "boolean" ? !response.value : true;
+                        setAnswer(currentQuestion.id, { value: nextValue });
+                        trueFalseRefs.current[nextValue ? 0 : 1]?.focus();
                       }
                     }}
                   >
