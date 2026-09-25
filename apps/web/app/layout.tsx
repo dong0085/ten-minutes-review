@@ -22,6 +22,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { BrandMark } from "@/components/brand-mark";
 import { signOut } from "@/lib/auth";
 import { env } from "@/lib/env";
+import { SITE_NAME } from "@/lib/seo";
 import { getCurrentUserOrGuest } from "@/lib/session";
 import { getTheme } from "@/lib/theme-server";
 import { Geist, Source_Serif_4 } from "next/font/google";
@@ -44,6 +45,8 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s · ${t("title")}`,
     },
     description: t("description"),
+    applicationName: SITE_NAME,
+    openGraph: { siteName: SITE_NAME, type: "website" },
     twitter: { card: "summary_large_image" },
   };
 }

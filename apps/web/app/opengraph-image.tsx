@@ -1,7 +1,10 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { getTranslations } from "next-intl/server";
+import { SITE_NAME } from "@/lib/seo";
 
-export const alt = "Ten Minutes Review";
+export const alt = SITE_NAME;
 export const size = {
   width: 1200,
   height: 630,
@@ -11,6 +14,8 @@ export const contentType = "image/png";
 
 export default async function Image() {
   const t = await getTranslations("Seo");
+  const icon = await readFile(join(process.cwd(), "app/icon.png"));
+  const iconSrc = `data:image/png;base64,${icon.toString("base64")}`;
   return new ImageResponse(
     (
       <div
@@ -25,22 +30,7 @@ export default async function Image() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 64,
-              height: 64,
-              borderRadius: 18,
-              backgroundColor: "#2b654e",
-              color: "#f9f6f1",
-              fontSize: 30,
-              fontWeight: 600,
-            }}
-          >
-            10′
-          </div>
+          <img src={iconSrc} alt="" width={64} height={64} style={{ borderRadius: 18 }} />
           <div style={{ display: "flex", fontSize: 30, fontWeight: 600, color: "#23352d" }}>
             {t("ogImageTagline")}
           </div>

@@ -19,6 +19,7 @@ import { Reveal } from "@/components/reveal";
 import { QuizFormCards } from "@/components/quiz-form-cards";
 import { env } from "@/lib/env";
 import { languageLabel } from "@/lib/language-label";
+import { pageMetadata, SITE_NAME } from "@/lib/seo";
 import { getCurrentUserOrGuest } from "@/lib/session";
 
 /* A hello in each language learners bring notes in, shown under the hero. */
@@ -37,17 +38,12 @@ const GREETINGS = [
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Seo");
-  return {
-    title: { absolute: t("homeTitle") },
+  return pageMetadata({
+    title: t("homeTitle"),
     description: t("homeDescription"),
-    alternates: { canonical: "/" },
-    openGraph: {
-      title: t("homeTitle"),
-      description: t("homeDescription"),
-      url: "/",
-      type: "website",
-    },
-  };
+    path: "/",
+    absoluteTitle: true,
+  });
 }
 
 export default async function HomePage() {
@@ -58,12 +54,39 @@ export default async function HomePage() {
   const locale = await getLocale();
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    name: "Ten Minutes Review",
-    description: seo("homeDescription"),
-    url: env.appUrl,
-    applicationCategory: "EducationalApplication",
-    operatingSystem: "Web",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        name: SITE_NAME,
+        url: env.appUrl,
+        inLanguage: locale,
+      },
+      {
+        "@type": "WebApplication",
+        name: SITE_NAME,
+        description: seo("homeDescription"),
+        url: env.appUrl,
+        image: `${env.appUrl}/opengraph-image`,
+        applicationCategory: "EducationalApplication",
+        operatingSystem: "Web, iOS",
+        inLanguage: locale,
+        offers: [
+          { "@type": "Offer", name: "Free", price: "0", priceCurrency: "USD" },
+          {
+            "@type": "Offer",
+            name: "Pro",
+            price: "2.99",
+            priceCurrency: "USD",
+            priceSpecification: {
+              "@type": "UnitPriceSpecification",
+              price: "2.99",
+              priceCurrency: "USD",
+              billingDuration: "P1M",
+            },
+          },
+        ],
+      },
+    ],
   };
   const steps = [
     { icon: FileText, number: "01", title: t("steps.addTitle"), copy: t("steps.addCopy") },
