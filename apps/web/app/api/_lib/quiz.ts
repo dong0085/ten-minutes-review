@@ -1,5 +1,5 @@
 import { eq, inArray } from "drizzle-orm";
-import type { Category, QuestionType } from "@tmr/core";
+import type { Category, QuestionType, QuizKind } from "@tmr/core";
 import {
   getClassroom,
   getQuizWithQuestionsForUser,
@@ -25,6 +25,7 @@ export type QuizQuestionPayload = {
 export type QuizPayload = {
   id: string;
   quizDate: string;
+  kind: QuizKind;
   size: number;
   classroomId: string;
   classroomName: string;
@@ -115,6 +116,7 @@ export async function buildQuizPayload(
   return {
     id: row.quiz.id,
     quizDate: row.quiz.quizDate,
+    kind: row.quiz.kind,
     size: row.quiz.size,
     classroomId: row.quiz.classroomId,
     classroomName: classroom.name,

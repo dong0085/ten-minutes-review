@@ -38,6 +38,8 @@ export type CompositionKnowledgePoint = {
   target: string;
   native: string | null;
   detail: unknown;
+  /** Set on exam points: the question type the point must be tested with. */
+  type?: "mcq" | "true_false" | "fill_blank";
 };
 
 export type CompositionMiss = {
@@ -447,21 +449,74 @@ function mockExtraction(input: ExtractInput): ExtractionResult {
   };
 }
 
+// Exam points arrive with the type they must be tested with.
+function buildTypedQuestion(
+  point: CompositionKnowledgePoint,
+  payload: CompositionPayload,
+  rotation: number,
+): CompositionQuestion | null {
+  const target = point.target.trim();
+  const native = point.native?.trim() || null;
+  if (!target) {
+    return null;
+  }
+  if (point.type === "fill_blank") {
+    return {
+      knowledge_point_id: point.id,
+      category: point.category,
+      type: "fill_blank",
+      stem: `Complétez : ___ (${native ?? target})`,
+      options: null,
+      answer: { blanks: [target] },
+      explanation: `La réponse attendue est « ${target} ».`,
+    };
+  }
+  if (point.type === "true_false") {
+    const isTrue = rotation % 2 === 0 || !native;
+    const shown = isTrue ? native ?? target : chooseDistractors(payload, point, "native", 1)[0] ?? "rien";
+    return {
+      knowledge_point_id: point.id,
+      category: point.category,
+      type: "true_false",
+      stem: `Vrai ou faux : « ${target} » veut dire « ${shown} ».`,
+      options: null,
+      answer: { value: isTrue },
+      explanation: native ? `« ${target} » veut dire « ${native} ».` : `« ${target} » est correct.`,
+    };
+  }
+  const built = buildQuestion(point, payload, rotation);
+  if (built?.type === "mcq") {
+    return built;
+  }
+  return buildMcq({
+    point,
+    payload,
+    rotation,
+    stem: `Quelle forme correspond à « ${native ?? target} » ?`,
+    correct: target,
+    distractorKey: "target",
+    explanation: `La bonne réponse est « ${target} ».`,
+  });
+}
+
 function mockComposition(payload: CompositionPayload): CompositionResult {
   const asked = new Set(payload.alreadyAskedStems.map(normalizeStem));
   const used = new Set<string>();
   const questions: CompositionQuestion[] = [];
-  const points = payload.knowledgePoints.slice(0, 12);
+  const isExam = payload.knowledgePoints.some((point) => point.type);
+  const points = isExam ? payload.knowledgePoints : payload.knowledgePoints.slice(0, 12);
 
   for (const [index, point] of points.entries()) {
-    const question = buildQuestion(point, payload, index);
+    const question = isExam
+      ? buildTypedQuestion(point, payload, index)
+      : buildQuestion(point, payload, index);
     if (!question) {
       continue;
     }
     questions.push({ ...question, stem: uniqueStem(question.stem, asked, used) });
   }
 
-  for (const miss of payload.recentMisses.slice(0, 2)) {
+  for (const miss of isExam ? [] : payload.recentMisses.slice(0, 2)) {
     const point = payload.knowledgePoints.find(
       (candidate) => candidate.id === miss.knowledgePointId,
     );

@@ -276,8 +276,16 @@ Points fill a time budget of `min(20, max(8, floor(bank_size / 8)))` standard qu
 
 ---
 
+## 2b. Exam
+
+**Runs:** when a Pro member starts an exam.
+**Input:** the composition payload, except each knowledge point carries the `type` it must be tested with (`mcq`, `true_false`, or `fill_blank`).
+**Output:** the composition schema, one question per point, in the given type.
+
+`EXAM_PROMPT_V1` (`packages/core/src/prompts/exam.ts`) keeps the composition rules on rewording, misses, production cues, and target-language output, and adds: never change the type; test use rather than recall of the notes; four options with plausible distractors for mcq; true_false statements clearly true or false, mixed evenly. The worker drops any question whose type differs from its point's, then fills 20 / 10 / 10 in part order; a short part fails the job.
+
 ## 3. Versioning
 
-- Both prompts live in code as named constants: `EXTRACTION_PROMPT_V2`, `COMPOSITION_PROMPT_V3`.
+- The prompts live in code as named constants: `EXTRACTION_PROMPT_V2`, `COMPOSITION_PROMPT_V3`, `EXAM_PROMPT_V1`.
 - Every `knowledge_point` and every `question` row stores the version that produced it.
 - Bumping a version affects new work only. Existing rows keep their original version, so old and new output can be compared side by side.

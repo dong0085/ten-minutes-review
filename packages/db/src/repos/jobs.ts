@@ -179,7 +179,18 @@ export async function hasActiveDailyEmailJob(
   return Boolean(row);
 }
 
-export async function getActiveComposeJob(db: Db, classroomId: string) {
+// Exams run on their own compose jobs; quiz screens never see them and the exam card sees only them.
+function composeSource(source: "quiz" | "exam") {
+  return source === "exam"
+    ? sql`${jobs.payload}->>'source' = 'exam'`
+    : sql`${jobs.payload}->>'source' IS DISTINCT FROM 'exam'`;
+}
+
+export async function getActiveComposeJob(
+  db: Db,
+  classroomId: string,
+  source: "quiz" | "exam" = "quiz",
+) {
   const [job] = await db
     .select()
     .from(jobs)
@@ -189,6 +200,7 @@ export async function getActiveComposeJob(db: Db, classroomId: string) {
         inArray(jobs.status, ["pending", "running"]),
         sql`${jobs.payload}->>'classroomId' = ${classroomId}`,
         sql`${jobs.payload}->>'cancelRequested' IS DISTINCT FROM 'true'`,
+        composeSource(source),
       ),
     )
     .orderBy(sql`${jobs.createdAt} desc`)
@@ -196,7 +208,12 @@ export async function getActiveComposeJob(db: Db, classroomId: string) {
   return job ?? null;
 }
 
-export async function getLatestComposeJob(db: Db, classroomId: string, windowMs: number) {
+export async function getLatestComposeJob(
+  db: Db,
+  classroomId: string,
+  windowMs: number,
+  source: "quiz" | "exam" = "quiz",
+) {
   const since = new Date(Date.now() - windowMs);
   const [job] = await db
     .select()
@@ -207,6 +224,7 @@ export async function getLatestComposeJob(db: Db, classroomId: string, windowMs:
         inArray(jobs.status, ["pending", "running"]),
         sql`${jobs.payload}->>'classroomId' = ${classroomId}`,
         sql`${jobs.payload}->>'cancelRequested' IS DISTINCT FROM 'true'`,
+        composeSource(source),
         gte(jobs.createdAt, since),
       ),
     )

@@ -160,7 +160,7 @@ Long text that several questions can hang off: `id`, `classroom_id`, `source_upl
 | `classroom_id` | uuid fk | |
 | `user_id` | uuid fk | |
 | `quiz_date` | date | The user's local date |
-| `kind` | text | `daily` or `manual` (default `daily`) |
+| `kind` | text | `daily`, `manual`, or `exam` (default `daily`) |
 | `size` | int | |
 | `prompt_version` | text | |
 | `composed_at` | timestamptz | |
@@ -247,7 +247,7 @@ RETURNING *;
 
 A job that has been `running` for over 10 minutes returns to `pending`, up to 3 attempts, then lands in `failed` with the error stored.
 
-Compose jobs carry `classroomId`, `userId`, `localDate`, and `source` (`daily` or `manual`); daily jobs also carry the exact `sendAt` cutoff used by the scheduler. Cancelling a `pending` job sets its status to `cancelled`; cancelling a `running` job adds `cancelRequested: true` to the payload, and the worker re-reads that flag just before saving the quiz. Pausing performs those transitions for daily compose jobs only. The daily save path also locks and rechecks the classroom pause/resume eligibility, closing the race with a concurrent pause. Manual jobs are not cancelled or blocked.
+Compose jobs carry `classroomId`, `userId`, `localDate`, and `source` (`daily`, `manual`, or `exam`); exam jobs are looked up apart from quiz jobs, so an exam in flight never shows as today's quiz being written; daily jobs also carry the exact `sendAt` cutoff used by the scheduler. Cancelling a `pending` job sets its status to `cancelled`; cancelling a `running` job adds `cancelRequested: true` to the payload, and the worker re-reads that flag just before saving the quiz. Pausing performs those transitions for daily compose jobs only. The daily save path also locks and rechecks the classroom pause/resume eligibility, closing the race with a concurrent pause. Manual jobs are not cancelled or blocked.
 
 ---
 
@@ -299,6 +299,8 @@ WHERE c.archived_at IS NULL
 
 Each match gets a `compose` job. The worker writes the quiz and its questions, then enqueues one `send_email` job per **user** — not per classroom, because the email is a single menu.
 
+Exams use the same compose job with `source: "exam"`. `selectExamPoints` (`packages/core/src/exam.ts`) picks up to 8 recent misses, then the points longest without a quiz, and assigns each a type — 20 mcq, 10 true_false, 10 fill_blank, plus 4 spares each — matching categories to the types they suit. The worker writes them with `EXAM_PROMPT_V1`, keeps only questions in their assigned type, fills the blueprint in part order, and fails the job for a retry if a part comes up short. An exam sends no email; the job records `quizId` for the hub to poll.
+
 On-demand quizzes use the same compose job and the same selection rules, enqueued directly by `POST /api/classrooms/:id/quizzes` with `source: "manual"`. They skip the daily existence check. The worker records the new quiz's id on the job's payload, and the classroom hub polls that job, so it opens the quiz it asked for even when a daily quiz already exists for the day.
 
 ### Email
@@ -340,6 +342,8 @@ Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve t
 | `POST` | `/api/classrooms/:id/quizzes` | Create an on-demand quiz (enqueues a compose job, or reuses the one in flight, and returns its `jobId`) |
 | `GET` | `/api/classrooms/:id/quizzes/jobs/:jobId` | Status of one compose job; once `done`, `quizId` names the on-demand quiz it wrote |
 | `POST` | `/api/classrooms/:id/quizzes/cancel` | Cancel the in-flight compose job |
+| `POST` | `/api/classrooms/:id/exams` | Start writing an exam (Pro, 80+ active points); returns the compose `jobId` to poll |
+| `POST` | `/api/classrooms/:id/exams/cancel` | Cancel the exam being written |
 | `GET` `DELETE` | `/api/quizzes/:id` | Read the quiz (answers withheld; `?includeAttempts=1` adds attempt summaries) or delete it with its attempts and answers |
 | `POST` | `/api/quizzes/:id/attempts` | Start an attempt |
 | `POST` | `/api/attempts/submit` | Submit answers, receive correctness and explanations |
