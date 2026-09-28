@@ -13,6 +13,8 @@ export type QuizDraft = {
   current: number;
   durations: Record<string, number>;
   optionOrders?: QuizOptionOrders;
+  /** Pencil marks rubbed out on an exam's answer sheet, as "questionId:choice". */
+  erased?: string[];
   savedAt: number;
 };
 
@@ -51,7 +53,9 @@ function isQuizDraft(value: unknown): value is QuizDraft {
     draft.responses !== null &&
     typeof draft.durations === "object" &&
     draft.durations !== null &&
-    (draft.optionOrders === undefined || isQuizOptionOrders(draft.optionOrders))
+    (draft.optionOrders === undefined || isQuizOptionOrders(draft.optionOrders)) &&
+    (draft.erased === undefined ||
+      (Array.isArray(draft.erased) && draft.erased.every((mark) => typeof mark === "string")))
   );
 }
 

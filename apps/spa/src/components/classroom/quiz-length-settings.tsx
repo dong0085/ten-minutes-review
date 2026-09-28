@@ -8,7 +8,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "use-intl";
-import { QUIZ_LENGTHS, type QuizLength } from "@tmr/core";
+import { QUIZ_LENGTH_MINUTES, QUIZ_LENGTHS, type QuizLength } from "@tmr/core";
 import { Alert, AlertDescription } from "@tmr/ui/components/alert";
 import { Card, CardContent } from "@tmr/ui/components/card";
 import { cn } from "@tmr/ui/utils";
@@ -19,14 +19,13 @@ const LEVELS: Record<
   {
     icon: LucideIcon;
     label: "levelMuchShorter" | "levelShorter" | "levelStandard" | "levelLonger" | "levelMuchLonger";
-    minutes: number;
   }
 > = {
-  [-2]: { icon: ChevronsLeft, label: "levelMuchShorter", minutes: 5 },
-  [-1]: { icon: ChevronLeft, label: "levelShorter", minutes: 8 },
-  0: { icon: Dot, label: "levelStandard", minutes: 10 },
-  1: { icon: ChevronRight, label: "levelLonger", minutes: 15 },
-  2: { icon: ChevronsRight, label: "levelMuchLonger", minutes: 20 },
+  [-2]: { icon: ChevronsLeft, label: "levelMuchShorter" },
+  [-1]: { icon: ChevronLeft, label: "levelShorter" },
+  0: { icon: Dot, label: "levelStandard" },
+  1: { icon: ChevronRight, label: "levelLonger" },
+  2: { icon: ChevronsRight, label: "levelMuchLonger" },
 };
 
 export function QuizLengthSettings({
@@ -136,7 +135,7 @@ export function QuizLengthSettings({
           })}
         </div>
         <p className="text-sm font-medium" aria-live="polite">
-          {t(LEVELS[length].label)} · {t("minutes", { minutes: LEVELS[length].minutes })}
+          {t(LEVELS[length].label)} · {t("minutes", { minutes: QUIZ_LENGTH_MINUTES[length] })}
         </p>
         {error ? (
           <Alert variant="destructive">

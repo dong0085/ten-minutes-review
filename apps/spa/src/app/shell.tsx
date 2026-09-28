@@ -134,7 +134,7 @@ export function AppShell() {
 /** No top bar: the quiz runner takes the whole screen. */
 export function FocusShell() {
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
+    <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6 has-[[data-wide]]:max-w-6xl sm:px-6 sm:py-10">
       <SessionGate>
         <Outlet />
       </SessionGate>

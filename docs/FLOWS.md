@@ -110,22 +110,23 @@ Omit is the removal path. Past quiz questions and attempts hang off each knowled
 ## 10. Taking the quiz
 
 - The quiz runner fills the screen: no top bar, one close control back to the quiz.
-- Questions are presented one at a time, with progress shown.
+- The quiz is one exam paper: every question sits on the page, numbered, so the learner can read the whole quiz first and answer in any order. The paper carries the product name, the classroom, the date, the instructions, and an empty Score box. Questions are grouped into parts by type — I. Multiple choice (image questions included), II. True or false, III. Fill in the blanks — keeping their order inside each part and numbered straight through the paper; a part with no questions is left out. Each part is worth fixed points per question — multiple choice 2, true or false 1, fill in the blanks 3 — shown beside each part and each question, with the paper's full marks in the header. Points live on the paper only; the attempt score everywhere else stays correct out of total. The header also carries the suggested time from the classroom's quiz length and an empty score table (one column per part, plus the total). The attempt review and the quiz email use the same parts and numbers. A Print button in the bar prints the paper alone, blank or graded. Choices are answer bubbles, and fill-in blanks are written on the line inside the sentence. Each question keeps its category and "I've got this down" control. A sticky bar below the paper shows how many are answered and holds Submit.
 - Each question is answerable and changeable until the whole quiz is submitted. Nothing is revealed along the way.
-- **Submit** is the commit point. An attempt row is created, answers are written, and grading runs server-side.
-- The timer records how long the attempt took, per question and overall. A refresh keeps it running.
-- Answers and the current question live in a local draft, so a refresh or a same-browser reopen resumes where the quiz left off.
-- Enter advances on every question type: in fill-in-the-blank questions it moves to the next blank first, then to the next question; on the last question it submits the quiz. Multiple-choice options receive focus when their question opens, and Up/Down selects through them without requiring a click.
+- **Submit** is the commit point. The sheet flies up off the screen while grading runs. An attempt row is created, answers are written, and grading runs server-side.
+- The timer records how long the attempt took, per question and overall. Time counts toward the question the learner last touched. A refresh keeps it running.
+- Answers and the last-touched question live in a local draft, so a refresh or a same-browser reopen scrolls back to where the quiz left off.
+- Enter advances on every question type: in fill-in-the-blank questions it moves to the next blank first, then to the next question, scrolling it into view; on the last question it moves to Submit, so a second Enter submits. Up/Down selects through multiple-choice options without requiring a click.
 - Multiple-choice options are shuffled for each attempt, remain stable when an in-progress draft is restored, and never repeat the immediately previous attempt's order when at least two options exist.
 
 Attempts are unlimited. The server records an attempt only at submit, so a quiz is never half-recorded; the local draft expires two hours after it starts.
 
 ## 11. Results and review
 
-After submit:
+After submit, the same sheet drops back down graded, with the marks written on it in red pen:
 
-- **Score** — correct out of total.
-- **Per question:** the user's answer, the correct answer, and a one-sentence explanation of why. Wrong answers are marked plainly, without scolding.
+- **Score** — the teacher fills in the score table in red: points earned per part and in total, the same number beside each part heading, and the time taken next to full marks. The bar keeps correct out of total.
+- **Deductions** — each wrong question shows the points lost (−2, −3) under its cross.
+- **Per question:** a tick or a cross beside the question, the correct option or True/False circled, a wrong choice struck through, the correct fill-in written under the blank, and a one-sentence explanation of why. Wrong answers are marked plainly, without scolding.
 - **Retake** — starts a fresh attempt on the same quiz. The previous attempt stays in history.
 - Every attempt is kept, so the same quiz can show three attempts with three scores.
 
@@ -136,6 +137,17 @@ Opened from the Quizzes row on the classroom hub. Past quizzes by date, each tag
 Tapping one opens the quiz on its own screen: its date and size, the categories it covers, a Take quiz (or Retake) button, and every attempt made against it with score, duration, and submission time. Tapping an attempt opens its full review. This is where a learner sees a category they keep missing.
 
 The quiz screen also carries a **Delete** control. Confirming removes the quiz, its questions, and every attempt made against it, and returns to the list. A deleted daily quiz stays gone for that day — no replacement is composed.
+
+## 12b. Exam
+
+A longer paper that checks what has stuck, for Pro members.
+
+- **Unlock.** The classroom hub carries an Exam card. Below 80 active knowledge points it shows progress toward 80; at 80 it says the bank is ready. That card is the reminder — nothing is sent.
+- **Pro only.** A free member sees the Start button locked with the Pro badge; tapping it explains what Pro adds and offers checkout.
+- **Writing.** Start an exam writes one in the background (about a minute) with Cancel; the card turns into Take the exam when it is ready. An untaken exam keeps offering Take the exam.
+- **The paper.** Always 40 questions worth 100 points: I. Multiple choice, 20 × 2; II. True or false, 10 × 2; III. Fill in the blanks, 10 × 4. Suggested time 30 minutes. It covers the whole bank, recent misses first. No email is sent.
+- **Answer sheet.** Beside the paper sits an optical answer card printed in the theme's ink: name, subject, date, a candidate-number grid, pencil rules with correct and incorrect mark samples, a barcode, and timing marks down the edge. Choice and true-or-false rows come in blocks of five; fill-in answers show in written boxes. Marking a bubble answers the question on the paper, answering on the paper fills the bubble in pencil, and changing an answer leaves a faint eraser smudge. Tapping a row number jumps to that question. On a phone the card opens from the bar. After grading, the card shows the score, circles each right answer, and flags each wrong row.
+- An exam is taken, graded, retaken, and reviewed like any quiz, and appears in the quizzes list tagged Exam.
 
 ## 13. Dormant classroom
 
