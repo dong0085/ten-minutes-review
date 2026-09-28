@@ -150,11 +150,11 @@ A longer paper that checks what has stuck, for Pro members.
 - **AI review.** When the graded paper drops back with mistakes on it, a comment slip clipped under the header reads "Reading your mistakes…" for about half a minute, then shows the AI's review: a short overview, one to four patterns across the wrong answers — each quoting what the learner wrote, the rule behind it, and the question numbers it covers, which jump to those questions — and what to practise next. The red-pen notes on each question stay as they are. The same slip heads the full review. If writing fails, the slip offers Try again. A perfect paper gets no slip.
 - An exam is taken, graded, retaken, and reviewed like any quiz, and appears in the quizzes list tagged Exam.
 
-## 12c. Mistake book
+## 12c. Corrections
 
 A Pro member's running list of what they got wrong, per classroom.
 
-- **Where.** The classroom hub lists Mistake book under "In this classroom", with the number of questions left to correct. A free member sees the row with a Pro badge; the page explains Pro and offers checkout.
+- **Where.** The classroom hub lists Corrections (错题本, carnet d'erreurs) under "In this classroom", with the number of questions left to correct. A free member sees the row with a Pro badge; the page explains Pro and offers checkout.
 - **What is in it.** Every question missed in a quiz or exam over the last 30 days, oldest first, shown exactly as it was asked, with where it came from (date and quiz, daily quiz, or exam) and how many times it has been missed. Options come in a fresh order.
 - **Correcting.** The page is a ruled exercise book with a red margin. Each question has a Check button; Enter checks too. A right answer gets a red tick and a Corrected stamp and leaves the book. A wrong one gets the usual red-pen marks — the right option circled, the wrong answer struck through, the explanation — and a Try again button. A progress bar counts the corrections.
 - **Coming back.** A corrected question returns if a later quiz misses it again. Getting a question right on a retake also clears it. Anything whose last miss is older than 30 days drops out.
