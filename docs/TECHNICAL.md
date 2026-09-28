@@ -192,7 +192,7 @@ Deleting a quiz removes its questions, attempts, and attempt answers by cascade.
 
 ### attempts / attempt_answers
 
-`attempts`: `id`, `quiz_id`, `user_id`, `started_at`, `submitted_at`, `duration_ms`, `correct_count`, `question_count`.
+`attempts`: `id`, `quiz_id`, `user_id`, `started_at`, `submitted_at`, `duration_ms`, `correct_count`, `question_count`, `review` jsonb (the AI review of an exam's mistakes: `overview`, `patterns[]` with `title`, `detail`, `questions`, and `nextSteps[]`), `review_prompt_version`.
 
 `attempt_answers`: `id`, `attempt_id`, `question_id`, `response` jsonb, `is_correct`, `duration_ms`, `created_at`.
 
@@ -219,7 +219,7 @@ Usage stats are computed live from `attempts` and `attempt_answers` in `packages
 | Column | Type | Note |
 |---|---|---|
 | `id` | uuid pk | |
-| `kind` | text | `extract`, `compose`, `send_email` |
+| `kind` | text | `extract`, `compose`, `send_email`, `summarize` |
 | `payload` | jsonb | |
 | `run_at` | timestamptz | |
 | `status` | text | `pending`, `running`, `done`, `failed`, `cancelled` |
@@ -301,6 +301,8 @@ Each match gets a `compose` job. The worker writes the quiz and its questions, t
 
 Exams use the same compose job with `source: "exam"`. `selectExamPoints` (`packages/core/src/exam.ts`) picks up to 8 recent misses, then the points longest without a quiz, and assigns each a type — 20 mcq, 10 true_false, 10 fill_blank, plus 4 spares each — matching categories to the types they suit. The worker writes them with `EXAM_PROMPT_V1`, keeps only questions in their assigned type, fills the blueprint in part order, and fails the job for a retry if a part comes up short. An exam sends no email; the job records `quizId` for the hub to poll.
 
+Submitting a Pro exam with at least one miss enqueues a `summarize` job carrying `attemptId`. The worker numbers the answers as the paper does, sends the misses — the learner's answer and the right one as text, the knowledge point, the printed explanation — with the score by part to `EXAM_REVIEW_PROMPT_V1`, and saves the parsed review on the attempt, keeping only question numbers that were missed. The review is written in the learner's interface language. The SPA polls `/api/attempts/:id/review` until it is ready.
+
 On-demand quizzes use the same compose job and the same selection rules, enqueued directly by `POST /api/classrooms/:id/quizzes` with `source: "manual"`. They skip the daily existence check. The worker records the new quiz's id on the job's payload, and the classroom hub polls that job, so it opens the quiz it asked for even when a daily quiz already exists for the day.
 
 ### Email
@@ -348,6 +350,7 @@ Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve t
 | `POST` | `/api/quizzes/:id/attempts` | Start an attempt |
 | `POST` | `/api/attempts/submit` | Submit answers, receive correctness and explanations |
 | `GET` | `/api/attempts/:id` | Full review |
+| `GET` `POST` | `/api/attempts/:id/review` | The AI review of an exam attempt (`none`, `writing`, `ready`, or `failed`); `POST` writes it again after a failure (Pro) |
 | `GET` `PATCH` | `/api/me` | Profile. `GET` also resolves guests and returns `isGuest`, `hasPassword`, `googleLinked`, the plan, and feature flags |
 | `GET` | `/api/me/overview` | Account hub: activity and learning stats, recent quizzes, membership, and this month's usage |
 | `GET` `PATCH` | `/api/me/email-preferences` | |

@@ -5,6 +5,8 @@ Two prompts carry the product.
 - **Extraction** turns a session's notes into knowledge points.
 - **Composition** turns knowledge points into one day's quiz.
 
+Two more serve exams: **Exam** writes the 40-question paper, and **Exam review** reads its mistakes for patterns.
+
 Both are versioned. Every question row stores the `prompt_version` that produced it, so a quality regression traces back to a prompt change.
 
 ---
@@ -284,8 +286,16 @@ Points fill a time budget of `min(20, max(8, floor(bank_size / 8)))` standard qu
 
 `EXAM_PROMPT_V1` (`packages/core/src/prompts/exam.ts`) keeps the composition rules on rewording, misses, production cues, and target-language output, and adds: never change the type; test use rather than recall of the notes; four options with plausible distractors for mcq; true_false statements clearly true or false, mixed evenly. The worker drops any question whose type differs from its point's, then fills 20 / 10 / 10 in part order; a short part fails the job.
 
+## 2c. Exam review
+
+**Runs:** after a Pro member submits an exam with at least one miss.
+**Input:** `writeIn` (the learner's interface language), the target and native languages, the score and per-part tallies, and each missed question with its paper number, type, knowledge point, stem, options, the learner's answer, the right answer, and the printed explanation.
+**Output:** `{ overview, patterns: [{ title, detail, questions }], next_steps }`.
+
+`EXAM_REVIEW_PROMPT_V1` (`packages/core/src/prompts/exam-review.ts`) asks for one to four patterns — habits that show in more than one answer — ordered by points lost, each grounded in quotes of the learner's own answers and the rule that fixes it, plus one to three concrete next steps. The learner has already read each question's explanation, so the review stays at the level of what the mistakes share. `parseExamReview` drops question numbers outside the missed set and caps the lists.
+
 ## 3. Versioning
 
-- The prompts live in code as named constants: `EXTRACTION_PROMPT_V2`, `COMPOSITION_PROMPT_V3`, `EXAM_PROMPT_V1`.
-- Every `knowledge_point` and every `question` row stores the version that produced it.
+- The prompts live in code as named constants: `EXTRACTION_PROMPT_V2`, `COMPOSITION_PROMPT_V3`, `EXAM_PROMPT_V1`, `EXAM_REVIEW_PROMPT_V1`.
+- Every `knowledge_point` and every `question` row stores the version that produced it, and an attempt's review stores its own in `review_prompt_version`.
 - Bumping a version affects new work only. Existing rows keep their original version, so old and new output can be compared side by side.

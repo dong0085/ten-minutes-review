@@ -5,7 +5,9 @@ import type { QuestionResponse } from "@tmr/core";
 import {
   attempts,
   createAttemptWithAnswers,
+  enqueueJob,
   getQuizWithQuestionsForUser,
+  hasPaidPlan,
   knowledgePoints,
 } from "@tmr/db";
 import { handleRouteError, jsonError, jsonOk, readJson } from "@/lib/api";
@@ -93,6 +95,15 @@ export async function POST(request: Request) {
       return jsonError("Could not record the attempt", 500);
     }
 
+    // A Pro exam with mistakes gets an AI review of their patterns, written by the worker.
+    const wantsReview =
+      row.quiz.kind === "exam" &&
+      graded.correctCount < graded.questionCount &&
+      (await hasPaidPlan(db, user.id));
+    if (wantsReview) {
+      await enqueueJob(db, { kind: "summarize", payload: { attemptId: attempt.id } });
+    }
+
     const pointIds = Array.from(new Set(row.questions.map((q) => q.knowledgePointId)));
     const pointRows =
       pointIds.length > 0
@@ -110,6 +121,7 @@ export async function POST(request: Request) {
 
     return jsonOk({
       attemptId: attempt.id,
+      reviewPending: wantsReview,
       correctCount: graded.correctCount,
       questionCount: graded.questionCount,
       results: row.questions.map((question) => ({

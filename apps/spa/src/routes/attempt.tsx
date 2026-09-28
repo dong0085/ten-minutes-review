@@ -4,6 +4,7 @@ import { paperParts, partNumeral } from "@tmr/core";
 import { Badge } from "@tmr/ui/components/badge";
 import { Button } from "@tmr/ui/components/button";
 import { Card, CardContent } from "@tmr/ui/components/card";
+import { ExamReviewPanel } from "@/components/quiz/exam-review";
 import { QuestionReviewCard } from "@/components/quiz/question-review";
 import { FullPageSpinner } from "@/app/shell";
 import { isNotFound } from "@/lib/api";
@@ -77,6 +78,16 @@ export function AttemptPage() {
           </div>
         </CardContent>
       </Card>
+      {quizData?.quiz.kind === "exam" ? (
+        <ExamReviewPanel
+          attemptId={attemptId}
+          onJump={(number) =>
+            document
+              .getElementById(`question-${number}`)
+              ?.scrollIntoView({ block: "start", behavior: "smooth" })
+          }
+        />
+      ) : null}
       {paperParts(review.answers).map((part) => (
         <section key={part.section} className="space-y-4">
           <h2 className="flex flex-wrap items-baseline gap-x-2 pt-3 font-heading text-lg font-semibold">
@@ -89,22 +100,23 @@ export function AttemptPage() {
             </span>
           </h2>
           {part.questions.map(({ question: answer, number }) => (
-            <QuestionReviewCard
-              key={answer.questionId}
-              question={{
-                position: number,
-                category: answer.category,
-                type: answer.type,
-                stem: answer.stem,
-                options: answer.options,
-                knowledgePointId: answer.knowledgePointId,
-                isKnowledgePointRetired: answer.isKnowledgePointRetired,
-              }}
-              response={answer.response}
-              correctAnswer={answer.correctAnswer}
-              isCorrect={answer.isCorrect}
-              explanation={answer.explanation}
-            />
+            <div key={answer.questionId} id={`question-${number}`} className="scroll-mt-6">
+              <QuestionReviewCard
+                question={{
+                  position: number,
+                  category: answer.category,
+                  type: answer.type,
+                  stem: answer.stem,
+                  options: answer.options,
+                  knowledgePointId: answer.knowledgePointId,
+                  isKnowledgePointRetired: answer.isKnowledgePointRetired,
+                }}
+                response={answer.response}
+                correctAnswer={answer.correctAnswer}
+                isCorrect={answer.isCorrect}
+                explanation={answer.explanation}
+              />
+            </div>
           ))}
         </section>
       ))}
