@@ -26,7 +26,7 @@ export const auth: MessageShape<typeof enAuth> = {
   SignUpForm: {
     email: "E-mail",
     password: "Mot de passe",
-    language: "Langue (facultatif)",
+    language: "Langue de l'interface (facultatif)",
     browserDefault: "Langue du navigateur",
     timezone: "Fuseau horaire (facultatif)",
     emailTaken: "Un compte existe déjà avec cet e-mail.",

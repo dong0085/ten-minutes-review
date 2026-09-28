@@ -16,11 +16,11 @@ export const email: MessageShape<(typeof en)["Email"]> = {
   dailySubjectOne: "Le quiz du jour : {classroom}",
   dailySubjectMany: "Les quiz du jour ({count} classes)",
   dailyIntro:
-    "Voici le quiz du jour. Tu peux répondre de tête ici même, ou ouvrir le site pour le score et les explications.",
+    "Voici ton quiz du jour. Tu peux réfléchir aux réponses dans cet e-mail ou ouvrir le site pour répondre, voir ton score et lire les explications.",
   dailyIntroMany:
-    "Voici le menu des quiz du jour. Tu peux répondre de tête ici même, ou ouvrir le site pour le score et les explications.",
-  answerOnWeb: "Répondre sur le site",
+    "Voici les quiz du jour. Tu peux réfléchir aux réponses dans cet e-mail ou ouvrir le site pour répondre, voir ton score et lire les explications.",
+  answerOnWeb: "Ouvrir le quiz et répondre",
   answersHeading: "Réponses",
   unsubscribeWhy: "Tu reçois cet e-mail parce que les quiz quotidiens sont activés.",
-  unsubscribeAction: "Se désinscrire",
+  unsubscribeAction: "Se désabonner",
 };
