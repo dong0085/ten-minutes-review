@@ -60,7 +60,8 @@ function Bubble({
 /**
  * The answer sheet beside an exam: an optical-mark card printed in the theme's
  * ink and filled in pencil. It mirrors the paper both ways — marking a bubble
- * answers the question, and answering on the paper fills the bubble.
+ * answers the question, marking it again erases it, and answering on the paper
+ * fills the bubble.
  */
 export function Scantron({
   seed,
@@ -291,7 +292,14 @@ export function Scantron({
                                   number,
                                   option: tfMarks[index] ?? "",
                                 })}
-                                onClick={locked ? undefined : () => onAnswer(question.id, { value })}
+                                onClick={
+                                  locked
+                                    ? undefined
+                                    : () =>
+                                        onAnswer(question.id, {
+                                          value: response?.value === value ? null : value,
+                                        })
+                                }
                               />
                             );
                           }),
@@ -325,7 +333,12 @@ export function Scantron({
                               }
                               ariaLabel={t("optionLabel", { number, option: letter })}
                               onClick={
-                                locked ? undefined : () => onAnswer(question.id, { index: optionIndex })
+                                locked
+                                  ? undefined
+                                  : () =>
+                                      onAnswer(question.id, {
+                                        index: response?.index === optionIndex ? null : optionIndex,
+                                      })
                               }
                             />
                           );
