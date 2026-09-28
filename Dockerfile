@@ -8,6 +8,7 @@ RUN corepack enable && corepack prepare pnpm@10.15.0 --activate
 FROM base AS deps
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY apps/web/package.json apps/web/
+COPY apps/extension/package.json apps/extension/
 COPY apps/spa/package.json apps/spa/
 COPY apps/worker/package.json apps/worker/
 COPY packages/core/package.json packages/core/
@@ -33,10 +34,27 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s \
   CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 CMD ["node", "apps/web/server.js"]
 
-FROM deps AS worker
+# The worker installs only its own dependency tree, which keeps the image small
+# enough to ship to the worker VM on every deploy.
+FROM base AS worker-deps
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY apps/web/package.json apps/web/
+COPY apps/extension/package.json apps/extension/
+COPY apps/spa/package.json apps/spa/
+COPY apps/worker/package.json apps/worker/
+COPY packages/core/package.json packages/core/
+COPY packages/db/package.json packages/db/
+COPY packages/email/package.json packages/email/
+COPY packages/ui/package.json packages/ui/
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --prod --filter "worker..."
+
+FROM worker-deps AS worker
 COPY tsconfig.base.json ./
-COPY apps ./apps
-COPY packages ./packages
+COPY apps/worker ./apps/worker
+COPY packages/core ./packages/core
+COPY packages/db ./packages/db
+COPY packages/email ./packages/email
 ENV NODE_ENV=production
 WORKDIR /app/apps/worker
 EXPOSE 3000

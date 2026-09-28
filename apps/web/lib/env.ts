@@ -7,9 +7,12 @@ const provider = <T extends string>(
 ): T => (value && allowed.includes(value as T) ? (value as T) : fallback);
 
 // `STRIPE_MODE=sandbox` swaps in the `STRIPE_SANDBOX_*` keys for local testing.
-// Vercel production always uses the live keys.
+// Production always uses the live keys: Vercel marks it with VERCEL_ENV, and the
+// Docker deployment (deploy/compose.yaml) with APP_ENV.
 const stripeSandbox =
-  process.env.STRIPE_MODE === "sandbox" && process.env.VERCEL_ENV !== "production";
+  process.env.STRIPE_MODE === "sandbox" &&
+  process.env.VERCEL_ENV !== "production" &&
+  process.env.APP_ENV !== "production";
 const stripeVar = (name: string) =>
   process.env[stripeSandbox ? `STRIPE_SANDBOX_${name}` : `STRIPE_${name}`] ?? "";
 

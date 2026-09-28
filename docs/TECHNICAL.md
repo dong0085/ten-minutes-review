@@ -382,6 +382,8 @@ Answers and explanations never leave the server before a submission. The quiz pa
 | Email | Resend (or Brevo), from `contact.tenminutesreview.study`: Vercel sends account email as `no-reply@`, the worker sends the daily quiz as `quiz@` (each deploy sets its own `EMAIL_FROM`) |
 | Domain | `tenminutesreview.study`, registered and DNS at Namecheap |
 
+The same app also runs as Docker images on any server; [SELF-HOSTING.md](SELF-HOSTING.md) covers that path.
+
 Environment variables:
 
 ```

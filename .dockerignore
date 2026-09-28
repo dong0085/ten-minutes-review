@@ -12,13 +12,13 @@ coverage
 .vercel
 .turbo
 
-.env
-.env.aws
-.env.*
+**/.env
+**/.env.*
 !.env.example
-!.env.aws.example
 
 .uploads
+deploy/backups
+.claude
 .DS_Store
 *.log
 docs/readme

@@ -1,0 +1,139 @@
+# The whole app on one Docker host. See docs/SELF-HOSTING.md.
+#
+# Default:   caddy (HTTPS) + web + worker, with Postgres and S3 storage outside the box.
+# Profiles:  --profile db       adds Postgres and a nightly backup job on this host
+#            --profile storage  adds MinIO as the S3 store on this host
+#
+# Servers pull the published images (`docker compose pull`); `docker compose build`
+# builds the same images from this checkout instead.
+
+name: tmr
+
+x-app: &app
+  env_file: .env
+  restart: unless-stopped
+  logging:
+    driver: local
+    options:
+      max-size: 10m
+      max-file: "5"
+
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - web
+
+  web:
+    <<: *app
+    image: ${IMAGE_PREFIX:-ghcr.io/dong0085/ten-minutes-review}-web:${TAG:-latest}
+    build:
+      context: ..
+      target: web
+    environment:
+      PORT: 3000
+      APP_ENV: ${APP_ENV:-production}
+      EMAIL_FROM: ${WEB_EMAIL_FROM:?set WEB_EMAIL_FROM in .env}
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: false
+
+  worker:
+    <<: *app
+    image: ${IMAGE_PREFIX:-ghcr.io/dong0085/ten-minutes-review}-worker:${TAG:-latest}
+    build:
+      context: ..
+      target: worker
+    environment:
+      PORT: 3000
+      EMAIL_FROM: ${WORKER_EMAIL_FROM:?set WORKER_EMAIL_FROM in .env}
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: false
+    # The worker stops between jobs on SIGTERM; give a running job time to finish.
+    stop_grace_period: 2m
+
+  postgres:
+    profiles: [db]
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-tmr}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+      POSTGRES_DB: ${POSTGRES_DB:-ten_minutes_review}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Dumps the database every night into ./backups and keeps the last 14.
+  # Copy that folder off the host; a dump on the same disk is not a backup.
+  backup:
+    profiles: [db]
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      PGHOST: postgres
+      PGUSER: ${POSTGRES_USER:-tmr}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-}
+      PGDATABASE: ${POSTGRES_DB:-ten_minutes_review}
+    volumes:
+      - ./backups:/backups
+      - ./backup.sh:/backup.sh:ro
+    entrypoint: ["sh", "/backup.sh"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  minio:
+    profiles: [storage]
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY_ID:-}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_ACCESS_KEY:-}
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio-init:
+    profiles: [storage]
+    image: minio/mc:latest
+    restart: "no"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY_ID}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_ACCESS_KEY}
+      S3_BUCKET: ${S3_BUCKET:-tmr-uploads}
+    entrypoint: >
+      sh -c "mc alias set local http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD &&
+      mc mb --ignore-existing local/$$S3_BUCKET"
+    depends_on:
+      minio:
+        condition: service_healthy
+
+volumes:
+  caddy-data:
+  caddy-config:
+  pgdata:
+  miniodata:
