@@ -15,7 +15,7 @@ Specs live in `docs/`: `SCOPE.md` (every product decision), `PROMPTS.md` (the tw
 
 ## Commands
 
-- `pnpm dev:web`, `pnpm dev:spa`, `pnpm dev:worker`, `pnpm dev:email` — open the app at `localhost:5173`; Vite proxies the API and Next pages to `localhost:3000`.
+- `pnpm dev` starts Next (3000) and Vite (5173) together; open the app at `localhost:5173`, where Vite proxies the API and Next pages to 3000. Next on its own serves the last `vite build` from `apps/web/public/_spa/`. `pnpm dev:web`, `pnpm dev:spa`, `pnpm dev:worker`, `pnpm dev:email` start one app each.
 - `pnpm typecheck`, `pnpm test`, `pnpm --filter web lint`, `pnpm --filter spa lint`, `pnpm build`
 - `pnpm db:generate` after a schema edit; `pnpm db:migrate` to apply
 - Keep `CREATE EXTENSION IF NOT EXISTS citext;` at the top of the first migration file when it is regenerated.

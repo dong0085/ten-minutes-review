@@ -1,4 +1,5 @@
 import { Link, useParams, useSearchParams } from "react-router";
+import { motion } from "motion/react";
 import { useFormatter, useLocale, useTranslations } from "use-intl";
 import {
   ArrowRight,
@@ -19,6 +20,7 @@ import { Button } from "@tmr/ui/components/button";
 import { cn } from "@tmr/ui/utils";
 import { STATUS_STAMP } from "@/components/classroom/classroom-card";
 import { ExamCard } from "@/components/classroom/exam-card";
+import { QuizMailbox } from "@/components/classroom/quiz-mailbox";
 import { TodayQuizAction } from "@/components/classroom/today-quiz-action";
 import { GuestBanner } from "@/components/guest-banner";
 import { DrillList, SectionTitle } from "@/components/page";
@@ -29,6 +31,7 @@ import { languageLabel } from "@/lib/language-label";
 import { useClassroom, useOverview } from "@/lib/queries";
 import { formatResetTime } from "@/lib/send-time";
 import { useSession } from "@/lib/session";
+import { usePeek } from "@/lib/use-peek";
 import { ErrorPanel } from "./errors";
 
 /**
@@ -45,6 +48,7 @@ export function ClassroomHubPage() {
   const locale = useLocale();
   const format = useFormatter();
   const { data: session } = useSession();
+  const mailPeek = usePeek();
   const { data: classroom } = useClassroom(id);
   const { data: overview, dataUpdatedAt, error, isPending, refetch } = useOverview(id);
 
@@ -105,24 +109,13 @@ export function ClassroomHubPage() {
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_17rem]">
-        {/* Today's quiz on a tear-off desk calendar. */}
-        <section className="editorial-surface grid overflow-hidden rounded-[1.6rem] sm:grid-cols-[9rem_minmax(0,1fr)]">
-          <div className="relative hidden items-center justify-center border-r border-border/70 bg-muted/40 px-5 py-7 sm:flex">
-            <div className="relative w-24 rotate-[-2deg] rounded-xl bg-card text-center shadow-[0_2px_4px_rgb(var(--shadow-colour)/0.06),0_12px_24px_rgb(var(--shadow-colour)/0.1)] transition-transform duration-300 hover:rotate-0">
-              <span aria-hidden="true" className="absolute -top-2 left-0 flex w-full justify-around px-4">
-                <span className="h-4 w-1.5 rounded-full border border-foreground/25 bg-background" />
-                <span className="h-4 w-1.5 rounded-full border border-foreground/25 bg-background" />
-              </span>
-              <p className="rounded-t-xl bg-primary py-1.5 text-[0.68rem] font-bold tracking-[0.18em] text-primary-foreground uppercase">
-                {format.dateTime(leaf, { month: "short", timeZone: "UTC" })}
-              </p>
-              <p className="pt-1 font-heading text-4xl leading-tight font-semibold tabular-nums">
-                {format.dateTime(leaf, { day: "numeric", timeZone: "UTC" })}
-              </p>
-              <p className="border-t border-dashed border-border pt-1 pb-2 text-xs font-medium text-muted-foreground">
-                {format.dateTime(leaf, { weekday: "short", timeZone: "UTC" })}
-              </p>
-            </div>
+        {/* Today's quiz waits in a letterbox; hovering the card slides the sheet out. */}
+        <motion.section
+          {...mailPeek}
+          className="editorial-surface grid overflow-hidden rounded-[1.6rem] sm:grid-cols-[9rem_minmax(0,1fr)]"
+        >
+          <div className="relative hidden items-end justify-center border-r border-border/70 bg-muted/40 px-5 pt-6 pb-7 sm:flex">
+            <QuizMailbox date={leaf} />
           </div>
           <div className="px-6 py-6 sm:px-8">
             {isGuest ? (
@@ -163,7 +156,7 @@ export function ClassroomHubPage() {
               />
             )}
           </div>
-        </section>
+        </motion.section>
 
         {/* Add notes on a torn-off legal pad. */}
         <Link

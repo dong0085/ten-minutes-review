@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router";
+import { motion } from "motion/react";
 import { useLocale, useTranslations } from "use-intl";
 import { ArrowRight, Loader2, Lock, ScrollText } from "lucide-react";
 import { EXAM_MINUTES, EXAM_QUESTION_COUNT } from "@tmr/core";
@@ -21,6 +22,7 @@ import { ApiError, api } from "@/lib/api";
 import { formatQuizDate } from "@/lib/format";
 import type { ClassroomOverview } from "@/lib/queries";
 import { useRouter } from "@/lib/router";
+import { PEEK_SPRING, usePeek } from "@/lib/use-peek";
 
 const POLL_MS = 2500;
 
@@ -50,6 +52,7 @@ export function ExamCard({
   const [jobId, setJobId] = useState<string | null>(exam.composeJob?.id ?? null);
   const [readyId, setReadyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const peek = usePeek();
   const unlocked = bankSize >= exam.requiredPoints;
   const untakenId =
     readyId ?? (exam.latest && exam.latest.attemptCount === 0 ? exam.latest.id : null);
@@ -100,7 +103,11 @@ export function ExamCard({
   }, [classroomId]);
 
   return (
-    <section className="editorial-surface flex flex-col gap-5 rounded-[1.6rem] px-6 py-6 sm:flex-row sm:items-center sm:px-8">
+    <motion.section
+      {...peek}
+      className="editorial-surface flex flex-col gap-5 rounded-[1.6rem] px-6 py-6 sm:flex-row sm:items-center sm:gap-7 sm:px-8"
+    >
+      <ExamStack unlocked={unlocked} label={t("kicker")} />
       <div className="min-w-0 flex-1">
         <p className="eyebrow flex items-center gap-1.5">
           <ScrollText className="size-3" />
@@ -190,6 +197,48 @@ export function ExamCard({
           )}
         </div>
       ) : null}
-    </section>
+    </motion.section>
+  );
+}
+
+/** A stack of exam papers that fans out while the card is hovered or focused. */
+function ExamStack({ unlocked, label }: { unlocked: boolean; label: string }) {
+  const sheet =
+    "absolute inset-0 origin-bottom rounded-sm border border-border/70 bg-card shadow-[0_1px_2px_rgb(var(--shadow-colour)/0.08)]";
+  return (
+    <div aria-hidden="true" className="relative hidden h-28 w-22 shrink-0 sm:block">
+      <motion.div
+        variants={{ rest: { x: 0, rotate: -5 }, open: { x: -4, rotate: -13 } }}
+        transition={PEEK_SPRING}
+        className={sheet}
+      />
+      <motion.div
+        variants={{ rest: { rotate: -2 }, open: { rotate: -6 } }}
+        transition={{ ...PEEK_SPRING, delay: 0.03 }}
+        className={sheet}
+      />
+      <motion.div
+        variants={{ rest: { y: 0, rotate: 1 }, open: { y: -8, rotate: 3 } }}
+        transition={{ ...PEEK_SPRING, delay: 0.06 }}
+        className={`${sheet} shadow-[0_2px_4px_rgb(var(--shadow-colour)/0.08),0_12px_24px_rgb(var(--shadow-colour)/0.12)]`}
+      >
+        <p className="border-b border-dashed border-border px-2 pt-2 pb-1 text-[0.55rem] font-bold tracking-[0.18em] text-primary uppercase">
+          {label}
+        </p>
+        <div className="space-y-1.5 px-2 pt-2">
+          <span className="block h-1 w-4/5 rounded-full bg-foreground/15" />
+          <span className="block h-1 w-3/5 rounded-full bg-foreground/10" />
+          <span className="block h-1 w-2/3 rounded-full bg-foreground/10" />
+          <span className="block h-1 w-1/2 rounded-full bg-foreground/10" />
+        </div>
+        {/* Binder clip on the top edge. */}
+        <span className="absolute -top-1.5 left-1/2 h-3 w-7 -translate-x-1/2 rounded-sm bg-foreground/70" />
+        {unlocked ? null : (
+          <span className="absolute right-1.5 bottom-1.5 flex size-5 items-center justify-center rounded-full bg-muted text-muted-foreground">
+            <Lock className="size-3" />
+          </span>
+        )}
+      </motion.div>
+    </div>
   );
 }

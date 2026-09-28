@@ -14,13 +14,12 @@ Prerequisites: Node 22+, pnpm 10+, and Postgres 15+.
 pnpm install
 cp .env.example .env
 pnpm db:migrate
-pnpm dev:web
+pnpm dev
 ```
 
-In a second terminal, start the signed-in web app, and in a third, the job worker:
+`pnpm dev` starts Next on port 3000 and Vite on port 5173 together. In a second terminal, start the job worker:
 
 ```sh
-pnpm dev:spa
 pnpm dev:worker
 ```
 
