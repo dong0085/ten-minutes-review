@@ -31,6 +31,27 @@ export type LlmProvider = {
   extract(input: ExtractInput): Promise<unknown>;
   compose(input: ComposeInput): Promise<unknown>;
   summarize(input: ComposeInput): Promise<unknown>;
+  tutor(input: ComposeInput): Promise<unknown>;
+};
+
+export type TutorPayload = {
+  mode: "hint" | "analysis";
+  targetLanguage: string;
+  nativeLanguage: string;
+  writeIn: string;
+  question: {
+    type: string;
+    category: string;
+    stem: string;
+    options: string[] | null;
+    explanation: string;
+    rightAnswer: string;
+  };
+  knowledgePoint: { target: string | null; native: string | null };
+  level?: number;
+  earlierHints?: string[];
+  learnerAnswer?: string;
+  missCount?: number;
 };
 
 export type ExamReviewMiss = {
@@ -577,6 +598,24 @@ function mockExamReview(payload: ExamReviewPayload) {
   };
 }
 
+// Canned tutor replies, so local runs exercise the whole flow.
+function mockTutor(payload: TutorPayload) {
+  if (payload.mode === "hint") {
+    const hints = [
+      `Look closely at the ${payload.question.category} this question tests. Which clue in the sentence decides it?`,
+      `Recall the rule behind « ${payload.knowledgePoint.native ?? "this point"} ». How does it apply here?`,
+      "Rule out the option that breaks that rule first. What is left?",
+    ];
+    return { hint: hints[Math.min((payload.level ?? 1) - 1, hints.length - 1)] };
+  }
+  return {
+    diagnosis: `You answered « ${payload.learnerAnswer ?? ""} », which suggests the two forms feel interchangeable.`,
+    rule: payload.question.explanation,
+    examples: [{ target: payload.knowledgePoint.target ?? "", translation: payload.knowledgePoint.native ?? "" }],
+    tip: "Say the whole phrase aloud with its article before you choose.",
+  };
+}
+
 export function createMockProvider(): LlmProvider {
   return {
     async extract(input) {
@@ -602,6 +641,9 @@ export function createMockProvider(): LlmProvider {
     },
     async summarize(input) {
       return mockExamReview(input.payload as ExamReviewPayload);
+    },
+    async tutor(input) {
+      return mockTutor(input.payload as TutorPayload);
     },
   };
 }
@@ -661,6 +703,9 @@ function createDeepseekProvider(): LlmProvider {
       return chat(input.systemPrompt, JSON.stringify(input.payload));
     },
     summarize(input) {
+      return chat(input.systemPrompt, JSON.stringify(input.payload));
+    },
+    tutor(input) {
       return chat(input.systemPrompt, JSON.stringify(input.payload));
     },
   };

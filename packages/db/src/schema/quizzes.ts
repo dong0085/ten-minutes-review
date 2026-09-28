@@ -18,6 +18,8 @@ import type {
   QuestionResponse,
   QuestionType,
   QuizKind,
+  TutorContent,
+  TutorMode,
 } from "@tmr/core";
 import { users } from "./users";
 import { classrooms } from "./classrooms";
@@ -148,6 +150,43 @@ export const mistakePractice = pgTable(
   ],
 );
 
+/**
+ * A request to the AI tutor on a Corrections question: a hint before
+ * answering, or an analysis after a wrong answer. The worker fills `content`.
+ */
+export const tutorRequests = pgTable(
+  "tutor_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    classroomId: uuid("classroom_id")
+      .notNull()
+      .references(() => classrooms.id, { onDelete: "cascade" }),
+    questionId: uuid("question_id")
+      .notNull()
+      .references(() => questions.id, { onDelete: "cascade" }),
+    mode: text("mode").$type<TutorMode>().notNull(),
+    /** Hints count up from 1; analyses carry 0. */
+    level: integer("level").notNull().default(0),
+    /** The wrong answer an analysis explains. */
+    response: jsonb("response").$type<QuestionResponse>(),
+    status: text("status").$type<"pending" | "done" | "failed">().notNull().default("pending"),
+    content: jsonb("content").$type<TutorContent>(),
+    promptVersion: text("prompt_version"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+  },
+  (table) => [
+    index("tutor_requests_classroom_user_idx").on(
+      table.classroomId,
+      table.userId,
+      table.createdAt,
+    ),
+  ],
+);
+
 export const deletedDailyQuizzes = pgTable(
   "deleted_daily_quizzes",
   {
@@ -179,5 +218,6 @@ export type NewAttempt = typeof attempts.$inferInsert;
 export type AttemptAnswer = typeof attemptAnswers.$inferSelect;
 export type NewAttemptAnswer = typeof attemptAnswers.$inferInsert;
 export type MistakePractice = typeof mistakePractice.$inferSelect;
+export type TutorRequest = typeof tutorRequests.$inferSelect;
 export type DeletedDailyQuiz = typeof deletedDailyQuizzes.$inferSelect;
 export type NewDeletedDailyQuiz = typeof deletedDailyQuizzes.$inferInsert;

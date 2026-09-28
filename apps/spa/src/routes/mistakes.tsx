@@ -22,6 +22,7 @@ import {
   QuestionSheetItem,
   type QuestionGrade,
 } from "@/components/quiz/question-sheet-item";
+import { TutorPanel } from "@/components/quiz/tutor-panel";
 import type { LocalResponse, QuizQuestion } from "@/components/quiz/types";
 import { FullPageSpinner } from "@/app/shell";
 import { api } from "@/lib/api";
@@ -33,11 +34,18 @@ import { ErrorPanel } from "./errors";
 type Entry = {
   response: LocalResponse | undefined;
   grade: QuestionGrade | undefined;
+  gradedAt: string | null;
   checking: boolean;
   error: boolean;
 };
 
-const EMPTY_ENTRY: Entry = { response: undefined, grade: undefined, checking: false, error: false };
+const EMPTY_ENTRY: Entry = {
+  response: undefined,
+  grade: undefined,
+  gradedAt: null,
+  checking: false,
+  error: false,
+};
 
 /**
  * The classroom's mistake book: every question missed in the window, oldest
@@ -129,7 +137,11 @@ function MistakeSheet({
         `/api/classrooms/${classroomId}/mistakes/${questionId}`,
         { response: response ?? {} },
       );
-      update(questionId, { checking: false, grade: { questionId, ...result } });
+      update(questionId, {
+        checking: false,
+        grade: { questionId, ...result },
+        gradedAt: new Date().toISOString(),
+      });
       if (result.isCorrect) {
         void queryClient.invalidateQueries({ queryKey: keys.overview(classroomId) });
       }
@@ -250,6 +262,14 @@ function MistakeSheet({
                     </span>
                   ) : null}
                 </div>
+                <TutorPanel
+                  classroomId={classroomId}
+                  questionId={questionId}
+                  initial={mistake.tutor}
+                  wrongResponse={entry.grade && !right ? (entry.response ?? {}) : null}
+                  wrongAt={entry.grade && !right ? entry.gradedAt : null}
+                  corrected={right}
+                />
               </QuestionSheetItem>
             );
           })}

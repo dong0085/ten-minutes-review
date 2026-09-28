@@ -1,8 +1,19 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import { MISTAKE_WINDOW_DAYS } from "@tmr/core";
-import type { Category, QuestionAnswer, QuestionResponse, QuestionType, QuizKind } from "@tmr/core";
+import type {
+  Category,
+  QuestionAnswer,
+  QuestionResponse,
+  QuestionType,
+  QuizKind,
+  TutorContent,
+  TutorMode,
+} from "@tmr/core";
 import type { Db } from "../client";
-import { mistakePractice, questions, quizzes } from "../schema/quizzes";
+import { knowledgePoints } from "../schema/bank";
+import { classrooms } from "../schema/classrooms";
+import { mistakePractice, questions, quizzes, tutorRequests } from "../schema/quizzes";
+import { users } from "../schema/users";
 
 export type MistakeRow = {
   questionId: string;
@@ -155,4 +166,134 @@ export async function recordMistakePractice(
   },
 ) {
   await db.insert(mistakePractice).values(input);
+}
+
+export async function createTutorRequest(
+  db: Db,
+  input: {
+    userId: string;
+    classroomId: string;
+    questionId: string;
+    mode: TutorMode;
+    level: number;
+    response?: QuestionResponse | null;
+  },
+) {
+  const [row] = await db.insert(tutorRequests).values(input).returning();
+  return row ?? null;
+}
+
+export async function getTutorRequestForUser(db: Db, userId: string, requestId: string) {
+  const [row] = await db
+    .select()
+    .from(tutorRequests)
+    .where(and(eq(tutorRequests.id, requestId), eq(tutorRequests.userId, userId)))
+    .limit(1);
+  return row ?? null;
+}
+
+/** A question's tutor requests in the window, oldest first. */
+export async function listTutorRequestsForQuestion(db: Db, userId: string, questionId: string) {
+  return db
+    .select()
+    .from(tutorRequests)
+    .where(
+      and(
+        eq(tutorRequests.userId, userId),
+        eq(tutorRequests.questionId, questionId),
+        sql`${tutorRequests.createdAt} >= now() - (${MISTAKE_WINDOW_DAYS} * interval '1 day')`,
+      ),
+    )
+    .orderBy(asc(tutorRequests.createdAt));
+}
+
+/** Every tutor request in a classroom's window, so Corrections can show past hints on load. */
+export async function listTutorRequestsForClassroom(db: Db, userId: string, classroomId: string) {
+  return db
+    .select()
+    .from(tutorRequests)
+    .where(
+      and(
+        eq(tutorRequests.userId, userId),
+        eq(tutorRequests.classroomId, classroomId),
+        sql`${tutorRequests.createdAt} >= now() - (${MISTAKE_WINDOW_DAYS} * interval '1 day')`,
+      ),
+    )
+    .orderBy(asc(tutorRequests.createdAt));
+}
+
+/** Everything the `tutor` job needs: the request, its question with the answer, and languages. */
+export async function getTutorInput(db: Db, requestId: string) {
+  const [row] = await db
+    .select({
+      request: tutorRequests,
+      question: {
+        id: questions.id,
+        category: questions.category,
+        type: questions.type,
+        stem: questions.stem,
+        options: questions.options,
+        answer: questions.answer,
+        explanation: questions.explanation,
+      },
+      pointTarget: knowledgePoints.targetText,
+      pointNative: knowledgePoints.nativeText,
+      targetLanguage: classrooms.targetLanguage,
+      nativeLanguage: classrooms.nativeLanguage,
+      uiLanguage: users.uiLanguage,
+    })
+    .from(tutorRequests)
+    .innerJoin(questions, eq(tutorRequests.questionId, questions.id))
+    .leftJoin(knowledgePoints, eq(questions.knowledgePointId, knowledgePoints.id))
+    .innerJoin(classrooms, eq(tutorRequests.classroomId, classrooms.id))
+    .innerJoin(users, eq(tutorRequests.userId, users.id))
+    .where(eq(tutorRequests.id, requestId))
+    .limit(1);
+  if (!row) {
+    return null;
+  }
+  const earlier = await listTutorRequestsForQuestion(db, row.request.userId, row.question.id);
+  const [misses] = await db.execute<{ value: number }>(sql`
+    SELECT (
+      (SELECT count(*) FROM attempt_answers aa JOIN attempts a ON a.id = aa.attempt_id
+        WHERE a.user_id = ${row.request.userId} AND aa.question_id = ${row.question.id}
+          AND NOT aa.is_correct
+          AND a.submitted_at >= now() - (${MISTAKE_WINDOW_DAYS} * interval '1 day'))
+      + (SELECT count(*) FROM mistake_practice mp
+        WHERE mp.user_id = ${row.request.userId} AND mp.question_id = ${row.question.id}
+          AND NOT mp.is_correct
+          AND mp.created_at >= now() - (${MISTAKE_WINDOW_DAYS} * interval '1 day'))
+    )::int AS value
+  `);
+  return {
+    ...row,
+    question: row.question as typeof row.question & {
+      type: QuestionType;
+      answer: QuestionAnswer;
+    },
+    earlierHints: earlier
+      .filter((request) => request.mode === "hint" && request.status === "done" && request.id !== requestId)
+      .map((request) => (request.content as { hint?: string } | null)?.hint ?? "")
+      .filter(Boolean),
+    missCount: Number(misses?.value ?? 0),
+  };
+}
+
+export async function completeTutorRequest(
+  db: Db,
+  requestId: string,
+  content: TutorContent,
+  promptVersion: string,
+) {
+  await db
+    .update(tutorRequests)
+    .set({ status: "done", content, promptVersion, finishedAt: new Date() })
+    .where(eq(tutorRequests.id, requestId));
+}
+
+export async function failTutorRequest(db: Db, requestId: string) {
+  await db
+    .update(tutorRequests)
+    .set({ status: "failed", finishedAt: new Date() })
+    .where(eq(tutorRequests.id, requestId));
 }

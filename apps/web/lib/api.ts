@@ -16,6 +16,8 @@ const MESSAGE_KEYS: Record<string, ApiMessageKey> = {
   "Exams are a Pro feature": "examProRequired",
   "Add more notes to unlock the exam": "examLocked",
   "Corrections are a Pro feature": "mistakeBookProRequired",
+  "No more hints for this question": "tutorLimit",
+  "Could not ask the tutor": "tutorFailed",
   "Attempt token is invalid or expired": "attemptInvalid",
   "This attempt was already submitted": "attemptSubmitted",
   "Could not record the attempt": "attemptRecord",

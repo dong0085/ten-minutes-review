@@ -1,5 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import type { Category, ClassroomDailyStatus, ExamReview, QuestionType } from "@tmr/core";
+import type {
+  Category,
+  ClassroomDailyStatus,
+  ExamReview,
+  QuestionType,
+  TutorAnalysis,
+  TutorHint,
+} from "@tmr/core";
 import type { AnswerShape } from "@/components/quiz/question-review";
 import { api } from "./api";
 
@@ -248,6 +255,17 @@ export type Mistake = {
   source: { quizId: string; kind: QuizListItem["kind"]; quizDate: string };
   firstMissedAt: string;
   missCount: number;
+  tutor: TutorNote[];
+};
+
+export type TutorNote = {
+  id: string;
+  questionId: string;
+  mode: "hint" | "analysis";
+  level: number;
+  status: "pending" | "done" | "failed";
+  content: TutorHint | TutorAnalysis | null;
+  createdAt: string;
 };
 
 export function useMistakes(id: string, enabled = true) {
