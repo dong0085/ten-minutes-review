@@ -162,7 +162,7 @@ function MistakeSheet({
   return (
     <div className="space-y-6">
       <PageHeader title={t("title")} description={t("blurb", { days: windowDays })} />
-      <div className="sticky top-3 z-10 flex items-center gap-3 rounded-2xl border border-border/75 bg-background/85 px-4 py-2.5 shadow-[0_10px_36px_rgb(var(--shadow-colour)/0.08)] backdrop-blur-xl">
+      <div className="sticky top-17 z-10 flex items-center gap-3 rounded-2xl border border-border/75 bg-background/85 px-4 py-2.5 shadow-[0_10px_36px_rgb(var(--shadow-colour)/0.08)] backdrop-blur-xl sm:top-19">
         <p className="shrink-0 text-sm font-medium tabular-nums">
           {t("progress", { done: corrected, total: mistakes.length })}
         </p>

@@ -202,6 +202,12 @@ An attempt row is written at submit. Until then, answers and progress live in a 
 
 Usage stats are computed live from `attempts` and `attempt_answers` in `packages/db/src/repos/stats.ts` (`getActivityStats`, `getLearningStats`, `listRecentAttemptScores`, `listRecentMissesForUser`). Nothing is denormalized or stored, and no API route or schema change is involved: the account server component calls the repository directly.
 
+### mistake_practice
+
+`mistake_practice`: `id`, `user_id`, `classroom_id`, `question_id`, `response` jsonb, `is_correct`, `created_at`. One row per answer given in the mistake book.
+
+The mistake book itself is derived, not stored. `listOpenMistakes` (`packages/db/src/repos/mistakes.ts`) gathers the classroom's answers from the last `MISTAKE_WINDOW_DAYS` (30) — attempt answers and mistake-book answers alike — and keeps each question that a submitted quiz or exam missed in the window and whose latest answer anywhere is still wrong. A right answer clears it, in the book or on a retake; a later miss brings it back. It is ordered by the first miss in the window, then paper position. The grading route reveals a question's answer only while it is open, so an untaken quiz's answers stay server-side.
+
 ### email_preferences, email_sends
 
 `email_preferences`: `user_id` pk, `daily_enabled` (default true), `send_hour_local` (retained for compatibility; the daily send time is fixed, so nothing reads it), `unsubscribed_at`.
@@ -350,6 +356,8 @@ Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve t
 | `POST` | `/api/quizzes/:id/attempts` | Start an attempt |
 | `POST` | `/api/attempts/submit` | Submit answers, receive correctness and explanations |
 | `GET` | `/api/attempts/:id` | Full review |
+| `GET` | `/api/classrooms/:id/mistakes` | The mistake book (Pro): open mistakes with their source quiz, answers withheld |
+| `POST` | `/api/classrooms/:id/mistakes/:questionId` | Grade one mistake-book answer (Pro, open mistakes only); returns correctness, the answer, and the explanation |
 | `GET` `POST` | `/api/attempts/:id/review` | The AI review of an exam attempt (`none`, `writing`, `ready`, or `failed`); `POST` writes it again after a failure (Pro) |
 | `GET` `PATCH` | `/api/me` | Profile. `GET` also resolves guests and returns `isGuest`, `hasPassword`, `googleLinked`, the plan, and feature flags |
 | `GET` | `/api/me/overview` | Account hub: activity and learning stats, recent quizzes, membership, and this month's usage |
