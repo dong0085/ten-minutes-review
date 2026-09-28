@@ -55,6 +55,7 @@ export type ClassroomOverview = {
   bankByCategory: Record<Category, number>;
   lastUploadAt: string | null;
   unfinished: Array<Omit<QuizListItem, "bestScore" | "attemptCount">>;
+  mistakes: number;
   exam: {
     requiredPoints: number;
     composeJob: { id: string; status: "pending" | "running"; requestedAt: string } | null;
@@ -148,6 +149,7 @@ export const keys = {
   quiz: (quizId: string) => ["quiz", quizId] as const,
   attempt: (attemptId: string) => ["attempt", attemptId] as const,
   attemptReview: (attemptId: string) => ["attempt", attemptId, "review"] as const,
+  mistakes: (id: string) => ["classroom", id, "mistakes"] as const,
 };
 
 export function useClassrooms(enabled = true) {
@@ -231,6 +233,28 @@ export function useAttemptReview(attemptId: string, enabled = true) {
     enabled,
     refetchInterval: (query) =>
       query.state.data?.status === "writing" ? REVIEW_POLL_MS : false,
+  });
+}
+
+export type Mistake = {
+  question: {
+    id: string;
+    knowledgePointId: string;
+    category: Category;
+    type: QuestionType;
+    stem: string;
+    options: string[] | null;
+  };
+  source: { quizId: string; kind: QuizListItem["kind"]; quizDate: string };
+  firstMissedAt: string;
+  missCount: number;
+};
+
+export function useMistakes(id: string, enabled = true) {
+  return useQuery({
+    queryKey: keys.mistakes(id),
+    queryFn: () => api.get<{ windowDays: number; mistakes: Mistake[] }>(`/api/classrooms/${id}/mistakes`),
+    enabled,
   });
 }
 

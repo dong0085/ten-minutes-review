@@ -90,6 +90,8 @@ export const quiz: MessageShape<(typeof en)["Quiz"]> = {
     submit: "Soumettre mes réponses",
     print: "Imprimer",
     answerSheet: "Feuille de réponses",
+    collapseAnswerSheet: "Réduire la feuille de réponses",
+    expandAnswerSheet: "Déployer la feuille de réponses",
     omitKnowledgePoint: "C'est acquis",
     omitKnowledgePointHint: "Ne plus inclure dans les futurs quiz",
     knowledgePointOmitted: "Exclu des prochains quiz",

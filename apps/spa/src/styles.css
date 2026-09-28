@@ -136,6 +136,52 @@ button.exam-review-chip:focus-visible {
   outline-offset: 1px;
 }
 
+/* The mistake book: a ruled exercise book with a red margin, corrected in red pen. */
+.mistake-book {
+  --margin-ink: color-mix(in oklch, var(--destructive) 45%, transparent);
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  background-color: var(--card);
+  background-image:
+    linear-gradient(
+      to right,
+      transparent 2.9rem,
+      var(--margin-ink) 2.9rem calc(2.9rem + 1px),
+      transparent calc(2.9rem + 1px) calc(2.9rem + 4px),
+      var(--margin-ink) calc(2.9rem + 4px) calc(2.9rem + 5px),
+      transparent calc(2.9rem + 5px)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 calc(2rem - 1px),
+      color-mix(in oklch, var(--primary) 9%, transparent) calc(2rem - 1px) 2rem
+    );
+  padding: 2.5rem 1.25rem 2.5rem 0.5rem;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.05),
+    0 18px 40px -18px rgb(var(--shadow-colour) / 0.22);
+}
+
+@media (min-width: 40rem) {
+  .mistake-book {
+    padding-right: 3rem;
+  }
+}
+
+/* The teacher's "corrected" stamp. */
+.mistake-stamp {
+  display: inline-block;
+  rotate: -6deg;
+  border: 2px solid color-mix(in oklch, var(--destructive) 80%, transparent);
+  border-radius: 0.3rem;
+  padding: 0.1rem 0.6rem;
+  color: var(--destructive);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
 /* Printing the quiz gives just the paper, marks and all. */
 @media print {
   @page {
