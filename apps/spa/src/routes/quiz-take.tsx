@@ -3,11 +3,12 @@ import { Link, useParams } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "use-intl";
 import { X } from "lucide-react";
+import { EXAM_MINUTES, isQuizLength, QUIZ_LENGTH_MINUTES } from "@tmr/core";
 import { QuizRunner } from "@/components/quiz/quiz-runner";
 import { FullPageSpinner } from "@/app/shell";
 import { isNotFound } from "@/lib/api";
 import { formatQuizDate } from "@/lib/format";
-import { keys, useQuiz } from "@/lib/queries";
+import { keys, useClassroom, useQuiz } from "@/lib/queries";
 import { useSession } from "@/lib/session";
 import { NotFoundPage } from "./not-found";
 
@@ -16,10 +17,12 @@ export function TakeQuizPage() {
   const { id, quizId } = useParams() as { id: string; quizId: string };
   const t = useTranslations("Classroom.QuizPage");
   const tShell = useTranslations("App.Shell");
+  const tPaper = useTranslations("Quiz.Paper");
   const locale = useLocale();
   const queryClient = useQueryClient();
   const { data: session } = useSession();
   const { data, isPending, error } = useQuiz(quizId);
+  const { data: classroom } = useClassroom(id);
 
   // A submitted attempt changes scores on the quiz, the list, and the hub.
   useEffect(
@@ -39,15 +42,8 @@ export function TakeQuizPage() {
   }
 
   return (
-    <div className="space-y-7">
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="eyebrow truncate">{data.quiz.classroomName}</p>
-          <h1 className="mt-2 font-heading text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
-            {formatQuizDate(data.quiz.quizDate, locale)}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t("note", { count: data.quiz.size })}</p>
-        </div>
+    <div className="space-y-4">
+      <div className="flex justify-end print:hidden">
         <Link
           to={`/classrooms/${id}/quizzes/${quizId}`}
           aria-label={tShell("closeQuiz")}
@@ -56,7 +52,27 @@ export function TakeQuizPage() {
           <X className="size-4" />
         </Link>
       </div>
-      <QuizRunner quizId={quizId} classroomId={id} userId={session.user.id} />
+      <QuizRunner
+        quizId={quizId}
+        classroomId={id}
+        userId={session.user.id}
+        title={data.quiz.classroomName}
+        subtitle={
+          data.quiz.kind === "exam"
+            ? tPaper("examSubtitle", { date: formatQuizDate(data.quiz.quizDate, locale) })
+            : formatQuizDate(data.quiz.quizDate, locale)
+        }
+        kind={data.quiz.kind}
+        candidateName={session.user.username ?? session.user.email.split("@")[0] ?? ""}
+        instructions={t("note", { count: data.quiz.size })}
+        suggestedMinutes={
+          data.quiz.kind === "exam"
+            ? EXAM_MINUTES
+            : classroom && isQuizLength(classroom.quizLength)
+              ? QUIZ_LENGTH_MINUTES[classroom.quizLength]
+              : undefined
+        }
+      />
     </div>
   );
 }

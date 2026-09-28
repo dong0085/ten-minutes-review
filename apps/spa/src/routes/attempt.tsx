@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router";
 import { useFormatter, useLocale, useTranslations } from "use-intl";
+import { paperParts, partNumeral } from "@tmr/core";
 import { Badge } from "@tmr/ui/components/badge";
 import { Button } from "@tmr/ui/components/button";
 import { Card, CardContent } from "@tmr/ui/components/card";
@@ -18,6 +19,7 @@ export function AttemptPage() {
     attemptId: string;
   };
   const t = useTranslations("Classroom.AttemptPage");
+  const tPaper = useTranslations("Quiz.Paper");
   const locale = useLocale();
   const format = useFormatter();
   const { data: quizData } = useQuiz(quizId);
@@ -75,23 +77,36 @@ export function AttemptPage() {
           </div>
         </CardContent>
       </Card>
-      {review.answers.map((answer) => (
-        <QuestionReviewCard
-          key={answer.questionId}
-          question={{
-            position: answer.position,
-            category: answer.category,
-            type: answer.type,
-            stem: answer.stem,
-            options: answer.options,
-            knowledgePointId: answer.knowledgePointId,
-            isKnowledgePointRetired: answer.isKnowledgePointRetired,
-          }}
-          response={answer.response}
-          correctAnswer={answer.correctAnswer}
-          isCorrect={answer.isCorrect}
-          explanation={answer.explanation}
-        />
+      {paperParts(review.answers).map((part) => (
+        <section key={part.section} className="space-y-4">
+          <h2 className="flex flex-wrap items-baseline gap-x-2 pt-3 font-heading text-lg font-semibold">
+            {tPaper("part", {
+              numeral: partNumeral(tPaper("numerals"), part.partNumber),
+              title: tPaper(part.section),
+            })}
+            <span className="text-sm font-normal text-muted-foreground">
+              {tPaper("partCount", { count: part.questions.length })}
+            </span>
+          </h2>
+          {part.questions.map(({ question: answer, number }) => (
+            <QuestionReviewCard
+              key={answer.questionId}
+              question={{
+                position: number,
+                category: answer.category,
+                type: answer.type,
+                stem: answer.stem,
+                options: answer.options,
+                knowledgePointId: answer.knowledgePointId,
+                isKnowledgePointRetired: answer.isKnowledgePointRetired,
+              }}
+              response={answer.response}
+              correctAnswer={answer.correctAnswer}
+              isCorrect={answer.isCorrect}
+              explanation={answer.explanation}
+            />
+          ))}
+        </section>
       ))}
     </div>
   );
