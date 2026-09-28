@@ -11,6 +11,8 @@ export const api: MessageShape<(typeof en)["Api"]> = {
   invalidExpiredToken: "Jeton invalide ou expiré",
   freePlanLimit: "Le forfait gratuit est limité à 3 classes",
   emptyBank: "Ajoute des notes pour créer un quiz",
+  examProRequired: "Les examens sont réservés à Pro",
+  examLocked: "Ajoute des notes pour débloquer l'examen",
   attemptInvalid: "La session du quiz a expiré",
   attemptSubmitted: "Ce quiz a déjà été envoyé",
   attemptRecord: "Impossible d'enregistrer le quiz",

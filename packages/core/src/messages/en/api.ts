@@ -8,6 +8,8 @@ export const api = {
   invalidExpiredToken: "Invalid or expired token",
   freePlanLimit: "Free plan is limited to 3 classrooms",
   emptyBank: "Add notes to create a quiz",
+  examProRequired: "Exams are a Pro feature",
+  examLocked: "Add more notes to unlock the exam",
   attemptInvalid: "Attempt token is invalid or expired",
   attemptSubmitted: "This attempt was already submitted",
   attemptRecord: "Could not record the attempt",

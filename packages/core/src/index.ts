@@ -7,6 +7,8 @@ export * from "./schedule";
 export * from "./plan";
 export * from "./quiz-size";
 export * from "./option-order";
+export * from "./paper-sections";
+export * from "./exam";
 export * from "./composition-selection";
 export * from "./grading";
 export * from "./llm-json";

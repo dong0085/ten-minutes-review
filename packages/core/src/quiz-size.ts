@@ -22,6 +22,15 @@ export const QUIZ_LENGTH_MULTIPLIERS: Record<QuizLength, number> = {
   2: 2,
 };
 
+// About how long a quiz at each length setting takes.
+export const QUIZ_LENGTH_MINUTES: Record<QuizLength, number> = {
+  [-2]: 5,
+  [-1]: 8,
+  0: 10,
+  1: 15,
+  2: 20,
+};
+
 export function isQuizLength(value: unknown): value is QuizLength {
   return QUIZ_LENGTHS.includes(value as QuizLength);
 }

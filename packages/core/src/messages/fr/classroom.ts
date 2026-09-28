@@ -250,6 +250,30 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     targetRequired: "Saisis le mot ou l'expression.",
     showMore: "Afficher {count} de plus",
   },
+  ExamCard: {
+    kicker: "Examen",
+    lockedTitle: "L'examen se débloque avec une banque plus fournie",
+    lockedBlurb:
+      "À {required} points de connaissance, tu pourras passer un examen de {count} questions sur 100 points.",
+    progress: "{count} sur {required} points de connaissance",
+    readyTitle: "Ta banque est prête pour un examen",
+    readyBlurb:
+      "{count} questions sur toute la banque, notées sur 100, environ {minutes} minutes. Les erreurs récentes passent en premier.",
+    start: "Commencer un examen",
+    retry: "Réessayer",
+    take: "Passer l'examen",
+    writing: "Rédaction de ton examen…",
+    writingHint: "Environ une minute. Tu peux quitter cette page.",
+    cancel: "Annuler",
+    failed: "Impossible de rédiger l'examen. Réessaie.",
+    latest: "Dernier examen {date}",
+    viewLatest: "Voir",
+    proBadge: "Pro",
+    proTitle: "Les examens font partie de Pro",
+    proBody:
+      "Pro débloque l'examen sur 100 points, son bilan écrit de tes erreurs récurrentes et le carnet d'erreurs avec indices.",
+    close: "Plus tard",
+  },
   QuizzesPage: {
     title: "Quiz",
     blurb:
@@ -259,6 +283,7 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     addNotes: "Ajouter des notes",
     onDemand: "À la demande",
     daily: "Quotidien",
+    exam: "Examen",
     questions: "{count, plural, one {# question} other {# questions}}",
     best: "Meilleur : {score} / {size}",
     notAttempted: "Pas encore fait",
