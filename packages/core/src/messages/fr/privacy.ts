@@ -4,17 +4,17 @@ export const privacy = {
   store: {
     title: "Ce que nous conservons",
     lede: "Quand tu utilises Ten Minutes Review, nous conservons :",
-    email: "Ton adresse courriel",
+    email: "Ton adresse e-mail",
     quizzes: "Les quiz que tu crées",
-    names: "Les noms de classes et d'élèves que tu saisis",
-    files: "Les fichiers que tu téléverses",
+    names: "Les noms de tes classes et ton nom affiché",
+    files: "Les fichiers que tu ajoutes",
   },
   use: {
     title: "Ce que nous en faisons",
-    copy: "Nous utilisons ces données pour générer tes quiz et te les envoyer par courriel. C'est tout. Tes données ne sont jamais vendues, jamais partagées et jamais utilisées à des fins publicitaires.",
+    copy: "Nous utilisons ces données pour générer tes quiz et te les envoyer par e-mail. C'est tout. Tes données ne sont jamais vendues, jamais partagées et jamais utilisées à des fins publicitaires.",
   },
   email: {
-    title: "Courriels",
+    title: "E-mails",
     copy: "Nous t'envoyons tes quiz et les avis liés à ton compte, comme les réinitialisations de mot de passe et la vérification. Rien d'autre — jamais de marketing.",
   },
   deletion: {
