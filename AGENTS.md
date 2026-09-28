@@ -1,6 +1,6 @@
 # ten-minutes-review — agent notes
 
-Specs live in `docs/`: `SCOPE.md` (every product decision), `PROMPTS.md` (the two prompts), `TECHNICAL.md` (architecture, data model, API, pipelines), `FLOWS.md` (screen behaviour), `TRIAL-RUN.md` (field notes). Read `docs/TECHNICAL.md` before changing architecture.
+Specs live in `docs/`: `SCOPE.md` (every product decision), `PROMPTS.md` (the two prompts), `TECHNICAL.md` (architecture, data model, API, pipelines), `FLOWS.md` (screen behaviour), `TRIAL-RUN.md` (field notes), `SELF-HOSTING.md` (Docker deployment). Read `docs/TECHNICAL.md` before changing architecture.
 
 ## Layout
 
@@ -11,6 +11,7 @@ Specs live in `docs/`: `SCOPE.md` (every product decision), `PROMPTS.md` (the tw
 - `packages/db` — Drizzle schema, SQL migrations in `drizzle/`, repositories.
 - `packages/email` — React Email templates, localized HTML/text rendering, and browser previews.
 - `packages/ui` — shadcn components, `cn`, and `globals.css`, shared by `apps/web` and `apps/spa`.
+- `deploy/` — Docker Compose stack (Caddy, web, worker, optional Postgres and MinIO) that pulls the images `.github/workflows/images.yml` publishes to GHCR.
 
 ## Commands
 
