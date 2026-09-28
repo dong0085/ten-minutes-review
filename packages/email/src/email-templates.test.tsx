@@ -73,7 +73,7 @@ describe("email templates", () => {
     expect(message.html).toContain("https://example.com/unsubscribe?token=abc");
     expect(message.html).toContain("Marie &lt;script&gt;alert(1)&lt;/script&gt;");
     expect(message.html).not.toContain("Marie <script>");
-    expect(message.text).toContain("Répondre sur le site");
+    expect(message.text).toContain("Ouvrir le quiz et répondre");
     expect(message.text).toContain("https://example.com/quiz/1");
     expect(message.text).toContain("https://example.com/unsubscribe?token=abc");
     expect(message.text.match(/LE QUIZ DU JOUR/g)).toHaveLength(1);

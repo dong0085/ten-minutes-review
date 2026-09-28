@@ -13,6 +13,7 @@ export const api: MessageShape<(typeof en)["Api"]> = {
   emptyBank: "Ajoute des notes pour créer un quiz",
   examProRequired: "Les examens sont réservés à Pro",
   examLocked: "Ajoute des notes pour débloquer l'examen",
+  mistakeBookProRequired: "Le carnet d'erreurs est réservé à Pro",
   attemptInvalid: "Cette tentative est invalide ou a expiré. Recommence le quiz",
   attemptSubmitted: "Ce quiz a déjà été envoyé",
   attemptRecord: "Impossible d'enregistrer le quiz",

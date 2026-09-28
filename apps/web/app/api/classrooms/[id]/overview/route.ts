@@ -1,6 +1,7 @@
 import { EXAM_MIN_POINTS, type Category } from "@tmr/core";
 import {
   countBankByCategory,
+  countOpenMistakes,
   getClassroom,
   getDailyQuizByClassroomAndDate,
   getLatestComposeJob,
@@ -33,15 +34,17 @@ export async function GET(_request: Request, context: RouteContext) {
       return jsonError("Not found", 404);
     }
     const today = localDateFor(user.timezone);
-    const [categoryRows, dailyQuiz, uploads, quizzes, unfinished, composeJob, examJob] = await Promise.all([
-      countBankByCategory(db, user.id, id),
-      getDailyQuizByClassroomAndDate(db, id, today),
-      listUploadsForUser(db, user.id, id),
-      listQuizzesForClassroom(db, user.id, id),
-      listUntakenOnDemandQuizzes(db, id, 3),
-      getLatestComposeJob(db, id, REHYDRATE_WINDOW_MS),
-      getLatestComposeJob(db, id, REHYDRATE_WINDOW_MS, "exam"),
-    ]);
+    const [categoryRows, dailyQuiz, uploads, quizzes, unfinished, composeJob, examJob, mistakes] =
+      await Promise.all([
+        countBankByCategory(db, user.id, id),
+        getDailyQuizByClassroomAndDate(db, id, today),
+        listUploadsForUser(db, user.id, id),
+        listQuizzesForClassroom(db, user.id, id),
+        listUntakenOnDemandQuizzes(db, id, 3),
+        getLatestComposeJob(db, id, REHYDRATE_WINDOW_MS),
+        getLatestComposeJob(db, id, REHYDRATE_WINDOW_MS, "exam"),
+        countOpenMistakes(db, user.id, id),
+      ]);
     const latestExam = quizzes.find((quiz) => quiz.kind === "exam");
     const bankByCategory: Record<Category, number> = {
       vocabulary: 0,
@@ -70,6 +73,7 @@ export async function GET(_request: Request, context: RouteContext) {
       },
       bankByCategory,
       lastUploadAt: uploads[0]?.upload.createdAt ?? null,
+      mistakes,
       exam: {
         requiredPoints: EXAM_MIN_POINTS,
         composeJob: examJob

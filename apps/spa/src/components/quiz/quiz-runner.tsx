@@ -2,7 +2,7 @@
 import { Link } from "react-router";
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useTranslations } from "use-intl";
-import { Check, Loader2, Printer, ScanLine, X } from "lucide-react";
+import { Check, Loader2, PanelLeftClose, PanelLeftOpen, Printer, ScanLine, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   CATEGORIES,
@@ -174,6 +174,7 @@ export function QuizRunner({
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SubmitResult | null>(null);
   const [handedBack, setHandedBack] = useState(false);
+  const [showAnswerSheet, setShowAnswerSheet] = useState(true);
   const [elapsedMs, setElapsedMs] = useState(0);
   const [omittedPointIds, setOmittedPointIds] = useState<Set<string>>(new Set());
   // Pencil marks rubbed out on the answer sheet, as "questionId:choice".
@@ -511,7 +512,12 @@ export function QuizRunner({
       className={cn(
         "relative mx-auto",
         isExam
-          ? "grid max-w-6xl gap-8 lg:grid-cols-[23rem_minmax(0,1fr)] lg:items-start"
+          ? cn(
+              "grid gap-8 lg:items-start",
+              showAnswerSheet
+                ? "max-w-6xl lg:grid-cols-[23rem_minmax(0,1fr)]"
+                : "max-w-[61rem] lg:grid-cols-[12rem_minmax(0,1fr)] lg:gap-4",
+            )
           : "max-w-3xl",
       )}
     >
@@ -519,14 +525,30 @@ export function QuizRunner({
         <aside
           key={graded ? `${graded.attemptId}-card` : "card"}
           className={cn(
-            "hidden lg:sticky lg:top-6 lg:block lg:max-h-[calc(100dvh-3rem)] lg:overflow-y-auto lg:p-1 print:hidden",
-            sheetMotion,
+            "hidden lg:sticky lg:block print:hidden",
+            showAnswerSheet
+              ? "lg:top-6 lg:max-h-[calc(100dvh-3rem)]"
+              : "lg:top-[40dvh]",
           )}
         >
-          {scantron}
+          <Button
+            type="button"
+            variant="ghost"
+            className="h-8 w-full gap-2 rounded-lg border border-border/60 bg-card/90 px-3 text-xs text-muted-foreground shadow-sm backdrop-blur-sm hover:bg-accent/80 hover:text-foreground"
+            aria-expanded={showAnswerSheet}
+            onClick={() => setShowAnswerSheet((visible) => !visible)}
+          >
+            {showAnswerSheet ? <PanelLeftClose className="size-4" /> : <PanelLeftOpen className="size-4" />}
+            {t(showAnswerSheet ? "collapseAnswerSheet" : "expandAnswerSheet")}
+          </Button>
+          {showAnswerSheet ? (
+            <div className={cn("mt-2 max-h-[calc(100dvh-5.5rem)] overflow-y-auto p-1", sheetMotion)}>
+              {scantron}
+            </div>
+          ) : null}
         </aside>
       ) : null}
-      <div className="relative min-w-0 space-y-5">
+      <div className={cn("relative min-w-0 space-y-5", isExam && !showAnswerSheet && "lg:mx-auto lg:w-full lg:max-w-3xl")}>
       {phase === "submitting" ? (
         <div
           role="status"

@@ -29,6 +29,7 @@ const screens = {
   quiz: page(() => import("@/routes/quiz-detail"), "QuizDetailPage"),
   takeQuiz: page(() => import("@/routes/quiz-take"), "TakeQuizPage"),
   attempt: page(() => import("@/routes/attempt"), "AttemptPage"),
+  mistakes: page(() => import("@/routes/mistakes"), "MistakeBookPage"),
   classroomSettings: page(() => import("@/routes/classroom-settings"), "ClassroomSettingsPage"),
   accountHub: page(() => import("@/routes/account-hub"), "AccountHubPage"),
 };
@@ -78,6 +79,7 @@ const classroomChildren: RouteObject[] = [
       },
     ],
   },
+  { path: "mistakes", handle: label("mistakes"), lazy: screens.mistakes },
   { path: "settings", handle: label("settings"), lazy: screens.classroomSettings },
   // Addresses from before the drill-down layout; morning emails still link to /quiz/:quizId.
   { path: "quiz/:quizId", element: <LegacyRedirect to="quizzes/:quizId/take" /> },

@@ -10,6 +10,7 @@ export const api = {
   emptyBank: "Add notes to create a quiz",
   examProRequired: "Exams are a Pro feature",
   examLocked: "Add more notes to unlock the exam",
+  mistakeBookProRequired: "The mistake book is a Pro feature",
   attemptInvalid: "Attempt token is invalid or expired",
   attemptSubmitted: "This attempt was already submitted",
   attemptRecord: "Could not record the attempt",

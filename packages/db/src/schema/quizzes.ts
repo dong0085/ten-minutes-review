@@ -118,6 +118,36 @@ export const attemptAnswers = pgTable(
   (table) => [index("attempt_answers_attempt_idx").on(table.attemptId)],
 );
 
+/**
+ * Answers given in a classroom's mistake book. A right answer here clears the
+ * question from the book until it is missed again.
+ */
+export const mistakePractice = pgTable(
+  "mistake_practice",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    classroomId: uuid("classroom_id")
+      .notNull()
+      .references(() => classrooms.id, { onDelete: "cascade" }),
+    questionId: uuid("question_id")
+      .notNull()
+      .references(() => questions.id, { onDelete: "cascade" }),
+    response: jsonb("response").$type<QuestionResponse>(),
+    isCorrect: boolean("is_correct").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("mistake_practice_classroom_user_idx").on(
+      table.classroomId,
+      table.userId,
+      table.createdAt,
+    ),
+  ],
+);
+
 export const deletedDailyQuizzes = pgTable(
   "deleted_daily_quizzes",
   {
@@ -148,5 +178,6 @@ export type Attempt = typeof attempts.$inferSelect;
 export type NewAttempt = typeof attempts.$inferInsert;
 export type AttemptAnswer = typeof attemptAnswers.$inferSelect;
 export type NewAttemptAnswer = typeof attemptAnswers.$inferInsert;
+export type MistakePractice = typeof mistakePractice.$inferSelect;
 export type DeletedDailyQuiz = typeof deletedDailyQuizzes.$inferSelect;
 export type NewDeletedDailyQuiz = typeof deletedDailyQuizzes.$inferInsert;

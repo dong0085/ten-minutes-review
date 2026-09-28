@@ -99,6 +99,13 @@
       "when": 1790624214682,
       "tag": "0013_black_natasha_romanoff",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1790624734239,
+      "tag": "0014_big_black_queen",
+      "breakpoints": true
     }
   ]
 }

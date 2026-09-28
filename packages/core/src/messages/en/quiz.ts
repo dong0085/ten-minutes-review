@@ -87,6 +87,8 @@ export const quiz = {
     submit: "Submit quiz",
     print: "Print",
     answerSheet: "Answer sheet",
+    collapseAnswerSheet: "Collapse answer sheet",
+    expandAnswerSheet: "Expand answer sheet",
     omitKnowledgePoint: "I've got this down",
     omitKnowledgePointHint: "Omit from future quizzes",
     knowledgePointOmitted: "Omitted from future quizzes",

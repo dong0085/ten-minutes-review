@@ -9,6 +9,7 @@ import {
   Library,
   Moon,
   NotebookPen,
+  NotebookText,
   PauseCircle,
   Settings2,
 } from "lucide-react";
@@ -40,6 +41,7 @@ export function ClassroomHubPage() {
   const t = useTranslations("Classroom.HomePage");
   const tLayout = useTranslations("Classroom.Layout");
   const tHub = useTranslations("App.Hub");
+  const tExam = useTranslations("Classroom.ExamCard");
   const locale = useLocale();
   const format = useFormatter();
   const { data: session } = useSession();
@@ -255,6 +257,21 @@ export function ClassroomHubPage() {
                   ? t("noQuizzes")
                   : tHub("quizzesMeta", { count: counts.quizzes }),
             },
+            ...(isGuest
+              ? []
+              : [
+                  {
+                    to: `${base}/mistakes`,
+                    icon: NotebookText,
+                    title: tHub("mistakes"),
+                    meta: session.plan.isPaid ? tHub("mistakesMeta", { count: overview.mistakes }) : null,
+                    badge: !session.plan.isPaid ? (
+                      <Badge>{tExam("proBadge")}</Badge>
+                    ) : overview.mistakes > 0 ? (
+                      <Badge variant="destructive">{overview.mistakes}</Badge>
+                    ) : null,
+                  },
+                ]),
             {
               to: `${base}/settings`,
               icon: Settings2,
