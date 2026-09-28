@@ -14,6 +14,8 @@ export const api: MessageShape<(typeof en)["Api"]> = {
   examProRequired: "Les examens sont réservés à Pro",
   examLocked: "Ajoute des notes pour débloquer l'examen",
   mistakeBookProRequired: "Le carnet d'erreurs est réservé à Pro",
+  tutorLimit: "Plus d'indices pour cette question",
+  tutorFailed: "Impossible d'interroger le tuteur",
   attemptInvalid: "Cette tentative est invalide ou a expiré. Recommence le quiz",
   attemptSubmitted: "Ce quiz a déjà été envoyé",
   attemptRecord: "Impossible d'enregistrer le quiz",

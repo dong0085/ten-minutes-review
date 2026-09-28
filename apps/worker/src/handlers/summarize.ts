@@ -7,59 +7,13 @@ import {
   parseExamReview,
   toUiLocale,
 } from "@tmr/core";
-import type { QuestionAnswer, QuestionResponse, UiLocale } from "@tmr/core";
 import { getExamReviewInput, saveAttemptReview } from "@tmr/db";
 import type { Db } from "@tmr/db";
 import { getLlmProvider } from "../llm";
 import type { ExamReviewMiss, ExamReviewPayload } from "../llm";
-
-const WRITE_IN: Record<UiLocale, string> = {
-  en: "English",
-  fr: "French",
-  zh: "Simplified Chinese",
-};
+import { describeAnswer, describeResponse, WRITE_IN } from "./answer-text";
 
 type SummarizePayload = { attemptId?: unknown };
-
-function optionText(options: string[] | null, index: number | null | undefined): string | null {
-  if (index === null || index === undefined) {
-    return null;
-  }
-  return options?.[index] ?? null;
-}
-
-/** The learner's answer as plain text, or "(blank)" when they left it. */
-export function describeResponse(
-  type: ExamReviewMiss["type"],
-  options: string[] | null,
-  response: QuestionResponse | null,
-): string {
-  if (type === "mcq") {
-    return optionText(options, response?.index) ?? "(blank)";
-  }
-  if (type === "true_false") {
-    return typeof response?.value === "boolean" ? String(response.value) : "(blank)";
-  }
-  const blanks = (response?.blanks ?? []).map((blank) => blank?.trim() || "(blank)");
-  return blanks.length > 0 ? blanks.join(" / ") : "(blank)";
-}
-
-export function describeAnswer(
-  type: ExamReviewMiss["type"],
-  options: string[] | null,
-  answer: QuestionAnswer,
-): string {
-  if (type === "mcq" && "index" in answer) {
-    return optionText(options, answer.index) ?? String(answer.index);
-  }
-  if (type === "true_false" && "value" in answer) {
-    return String(answer.value);
-  }
-  if ("blanks" in answer) {
-    return answer.blanks.join(" / ");
-  }
-  return JSON.stringify(answer);
-}
 
 export async function handleSummarizeJob(db: Db, payload: SummarizePayload): Promise<void> {
   const attemptId = typeof payload.attemptId === "string" ? payload.attemptId : null;

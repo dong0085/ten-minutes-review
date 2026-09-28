@@ -1,8 +1,14 @@
 import { MISTAKE_WINDOW_DAYS } from "@tmr/core";
-import { getClassroom, hasPaidPlan, listOpenMistakes } from "@tmr/db";
+import {
+  getClassroom,
+  hasPaidPlan,
+  listOpenMistakes,
+  listTutorRequestsForClassroom,
+} from "@tmr/db";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/api";
 import { getDb } from "@/lib/db";
 import { getSessionUser } from "@/lib/session";
+import { tutorPayload } from "@/app/api/_lib/tutor";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -23,7 +29,10 @@ export async function GET(_request: Request, context: RouteContext) {
     if (!(await hasPaidPlan(db, user.id))) {
       return jsonError("Corrections are a Pro feature", 403, "pro_required");
     }
-    const rows = await listOpenMistakes(db, user.id, id);
+    const [rows, tutorRequests] = await Promise.all([
+      listOpenMistakes(db, user.id, id),
+      listTutorRequestsForClassroom(db, user.id, id),
+    ]);
     return jsonOk({
       windowDays: MISTAKE_WINDOW_DAYS,
       mistakes: rows.map((row) => ({
@@ -38,6 +47,10 @@ export async function GET(_request: Request, context: RouteContext) {
         source: { quizId: row.quizId, kind: row.quizKind, quizDate: row.quizDate },
         firstMissedAt: row.firstMissedAt,
         missCount: row.missCount,
+        tutor: tutorRequests
+          .filter((request) => request.questionId === row.questionId)
+          .map(tutorPayload)
+          .filter((request) => request.status !== "failed"),
       })),
     });
   } catch (error) {

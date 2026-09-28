@@ -20,7 +20,7 @@ export const EXTRACTION_STATUSES = ["pending", "running", "done", "failed"] as c
 
 export type ExtractionStatus = (typeof EXTRACTION_STATUSES)[number];
 
-export const JOB_KINDS = ["extract", "compose", "send_email", "summarize"] as const;
+export const JOB_KINDS = ["extract", "compose", "send_email", "summarize", "tutor"] as const;
 
 export type JobKind = (typeof JOB_KINDS)[number];
 

@@ -11,6 +11,8 @@ export const api = {
   examProRequired: "Exams are a Pro feature",
   examLocked: "Add more notes to unlock the exam",
   mistakeBookProRequired: "Corrections are a Pro feature",
+  tutorLimit: "No more hints for this question",
+  tutorFailed: "Could not ask the tutor",
   attemptInvalid: "Attempt token is invalid or expired",
   attemptSubmitted: "This attempt was already submitted",
   attemptRecord: "Could not record the attempt",

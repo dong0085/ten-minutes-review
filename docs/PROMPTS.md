@@ -5,7 +5,7 @@ Two prompts carry the product.
 - **Extraction** turns a session's notes into knowledge points.
 - **Composition** turns knowledge points into one day's quiz.
 
-Two more serve exams: **Exam** writes the 40-question paper, and **Exam review** reads its mistakes for patterns.
+Two more serve exams: **Exam** writes the 40-question paper, and **Exam review** reads its mistakes for patterns. **Tutor** gives hints and explains wrong answers on Corrections.
 
 Both are versioned. Every question row stores the `prompt_version` that produced it, so a quality regression traces back to a prompt change.
 
@@ -294,8 +294,16 @@ Points fill a time budget of `min(20, max(8, floor(bank_size / 8)))` standard qu
 
 `EXAM_REVIEW_PROMPT_V1` (`packages/core/src/prompts/exam-review.ts`) asks for one to four patterns — habits that show in more than one answer — ordered by points lost, each grounded in quotes of the learner's own answers and the rule that fixes it, plus one to three concrete next steps. The learner has already read each question's explanation, so the review stays at the level of what the mistakes share. `parseExamReview` drops question numbers outside the missed set and caps the lists.
 
+## 2d. Tutor
+
+**Runs:** when a Pro member asks the tutor about a Corrections question.
+**Input:** the question (stem, type, options, explanation, right answer), the knowledge point, `writeIn`, and either `level` with `earlierHints` (hint) or `learnerAnswer` with `missCount` (analysis).
+**Output:** `{ hint }`, or `{ diagnosis, rule, examples: [{ target, translation }], tip }`.
+
+`TUTOR_HINT_PROMPT_V1` (`packages/core/src/prompts/tutor.ts`) gives one hint that moves the learner a step closer: level 1 points at what to notice, level 2 recalls the rule with a different example, level 3 walks the reasoning to the last step and may rule out one option. It never states the right option, word, letter, or true/false, and never repeats an earlier hint. `parseTutorHint` rejects any hint containing the right option text or a blank of three or more letters, so the job retries. `TUTOR_ANALYSIS_PROMPT_V1` runs after a wrong answer, when the right answer is already on screen: it names the belief behind the learner's answer, explains the rule, gives one or two fresh examples, and one check for next time.
+
 ## 3. Versioning
 
-- The prompts live in code as named constants: `EXTRACTION_PROMPT_V2`, `COMPOSITION_PROMPT_V3`, `EXAM_PROMPT_V1`, `EXAM_REVIEW_PROMPT_V1`.
+- The prompts live in code as named constants: `EXTRACTION_PROMPT_V2`, `COMPOSITION_PROMPT_V3`, `EXAM_PROMPT_V1`, `EXAM_REVIEW_PROMPT_V1`, `TUTOR_HINT_PROMPT_V1`, `TUTOR_ANALYSIS_PROMPT_V1` (both `tutor-v1`).
 - Every `knowledge_point` and every `question` row stores the version that produced it, and an attempt's review stores its own in `review_prompt_version`.
 - Bumping a version affects new work only. Existing rows keep their original version, so old and new output can be compared side by side.

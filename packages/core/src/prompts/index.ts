@@ -24,3 +24,13 @@ export {
   parseExamReview,
 } from "./exam-review";
 export type { ExamReview } from "./exam-review";
+export {
+  TUTOR_ANALYSIS_PROMPT_V1,
+  TUTOR_HINT_PROMPT_V1,
+  TUTOR_PROMPT_VERSION,
+  answerGiveaways,
+  leaksAnswer,
+  parseTutorAnalysis,
+  parseTutorHint,
+} from "./tutor";
+export type { TutorAnalysis, TutorContent, TutorHint } from "./tutor";

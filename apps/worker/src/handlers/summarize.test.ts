@@ -17,7 +17,8 @@ vi.mock("../llm", () => ({
   getLlmProvider: () => ({ summarize: llmMocks.summarize }),
 }));
 
-import { describeResponse, handleSummarizeJob } from "./summarize";
+import { describeResponse } from "./answer-text";
+import { handleSummarizeJob } from "./summarize";
 
 function answer(position: number, type: string, isCorrect: boolean, extra: object = {}) {
   return {
