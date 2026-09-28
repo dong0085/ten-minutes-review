@@ -241,13 +241,13 @@ export const classroom = {
     showMore: "Show {count} more",
   },
   MistakeBook: {
-    title: "Mistake book",
-    blurb: "Every question you missed in a quiz or exam over the last {days} days, oldest first. Answer one right and it leaves the book; miss it again later and it comes back.",
+    title: "Corrections",
+    blurb: "Every question you missed in a quiz or exam over the last {days} days, oldest first. Answer one right and it drops off the list; miss it again later and it comes back.",
     progress: "{done} of {total} corrected",
     emptyTitle: "Nothing to correct",
-    emptyBlurb: "No open mistakes from the last {days} days. Take a quiz and anything you miss lands here.",
+    emptyBlurb: "Nothing missed in the last {days} days. Take a quiz and anything you miss lands here.",
     allDoneTitle: "All corrected",
-    allDoneBlurb: "Every mistake in the book is put right. New ones will show up after your next quiz.",
+    allDoneBlurb: "Every missed question is put right. New ones will show up after your next quiz.",
     source: "{date} · {kind}",
     kindDaily: "Daily quiz",
     kindManual: "Quiz",
@@ -259,8 +259,8 @@ export const classroom = {
     corrected: "Corrected",
     stillWrong: "Not yet. Read the note, then try again.",
     checkError: "Could not check this answer.",
-    proTitle: "The mistake book is part of Pro",
-    proBlurb: "Pro keeps a rolling {days}-day book of every question you missed, so you can correct them one by one.",
+    proTitle: "Corrections are part of Pro",
+    proBlurb: "Pro keeps every question you missed in the last {days} days, so you can correct them one by one.",
     upgrade: "Upgrade to Pro",
   },
   ExamCard: {
@@ -284,7 +284,7 @@ export const classroom = {
     proBadge: "Pro",
     proTitle: "Exams are part of Pro",
     proBody:
-      "Pro unlocks the 100-point exam, its written summary of what you keep missing, and the mistake book with hints.",
+      "Pro unlocks the 100-point exam, its written summary of what you keep missing, and corrections with hints.",
     close: "Not now",
   },
   QuizzesPage: {

@@ -21,7 +21,7 @@ export async function POST(request: Request, context: RouteContext) {
     const body = await readJson(request, answerSchema);
     const db = getDb();
     if (!(await hasPaidPlan(db, user.id))) {
-      return jsonError("The mistake book is a Pro feature", 403, "pro_required");
+      return jsonError("Corrections are a Pro feature", 403, "pro_required");
     }
     if (!(await isOpenMistake(db, user.id, id, questionId))) {
       return jsonError("Not found", 404);

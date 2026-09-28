@@ -21,7 +21,7 @@ export async function GET(_request: Request, context: RouteContext) {
       return jsonError("Not found", 404);
     }
     if (!(await hasPaidPlan(db, user.id))) {
-      return jsonError("The mistake book is a Pro feature", 403, "pro_required");
+      return jsonError("Corrections are a Pro feature", 403, "pro_required");
     }
     const rows = await listOpenMistakes(db, user.id, id);
     return jsonOk({
