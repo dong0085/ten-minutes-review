@@ -6,7 +6,7 @@ export const privacy = {
     lede: "当你使用 Ten Minutes Review 时，我们会存储：",
     email: "你的邮箱地址",
     quizzes: "你创建的测验",
-    names: "你输入的课堂名称和学生姓名",
+    names: "你填写的课堂名称和显示名称",
     files: "你上传的文件",
   },
   use: {
