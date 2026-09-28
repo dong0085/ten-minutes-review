@@ -13,7 +13,7 @@ import {
   Section,
   Text,
 } from "react-email";
-import { formatMessage, getMessages } from "@tmr/core";
+import { formatMessage, getMessages, paperParts, partNumeral } from "@tmr/core";
 import type { Category, QuestionAnswer, QuestionType, UiLocale } from "@tmr/core";
 
 const colours = {
@@ -366,51 +366,68 @@ export function DailyQuizEmailTemplate(input: DailyQuizEmailTemplateProps) {
             {entry.classroomName}
           </Heading>
 
-          {entry.questions.map((question, questionIndex) => {
-            const options = resolveEmailOptions(question, allMessages);
-
-            return (
-              <Section
-                key={`${question.position}-${questionIndex}`}
+          {paperParts(entry.questions).map((part) => (
+            <Section key={part.section}>
+              <Text
                 style={{
-                  borderTop: questionIndex === 0 ? undefined : `1px solid ${colours.border}`,
-                  padding: questionIndex === 0 ? "0 0 20px" : "20px 0",
+                  color: colours.ink,
+                  fontFamily: "Georgia, 'Times New Roman', serif",
+                  fontSize: "15px",
+                  fontWeight: 700,
+                  margin: part.partNumber === 1 ? "0 0 14px" : "8px 0 14px",
                 }}
               >
-                <Text
-                  style={{
-                    color: colours.mintDeep,
-                    fontSize: "10px",
-                    fontWeight: 700,
-                    letterSpacing: "0.08em",
-                    margin: "0 0 8px",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {String(question.position + 1).padStart(2, "0")} ·{" "}
-                  {allMessages.Category[question.category]}
-                </Text>
-                <Text
-                  style={{
-                    color: colours.ink,
-                    fontFamily: "Georgia, 'Times New Roman', serif",
-                    fontSize: "17px",
-                    fontWeight: 700,
-                    lineHeight: "1.45",
-                    margin: options.length > 0 ? "0 0 11px" : 0,
-                    whiteSpace: "pre-wrap",
-                  }}
-                >
-                  {question.stem}
-                </Text>
-                {options.map((option, optionIndex) => (
-                  <Option key={`${optionIndex}-${option}`} index={optionIndex}>
-                    {option}
-                  </Option>
-                ))}
-              </Section>
-            );
-          })}
+                {formatMessage(allMessages.Quiz.Paper.part, {
+                  numeral: partNumeral(allMessages.Quiz.Paper.numerals, part.partNumber),
+                  title: allMessages.Quiz.Paper[part.section],
+                })}
+              </Text>
+              {part.questions.map(({ question, number }, questionIndex) => {
+                const options = resolveEmailOptions(question, allMessages);
+
+                return (
+                  <Section
+                    key={`${question.position}-${number}`}
+                    style={{
+                      borderTop: questionIndex === 0 ? undefined : `1px solid ${colours.border}`,
+                      padding: questionIndex === 0 ? "0 0 20px" : "20px 0",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: colours.mintDeep,
+                        fontSize: "10px",
+                        fontWeight: 700,
+                        letterSpacing: "0.08em",
+                        margin: "0 0 8px",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {String(number).padStart(2, "0")} · {allMessages.Category[question.category]}
+                    </Text>
+                    <Text
+                      style={{
+                        color: colours.ink,
+                        fontFamily: "Georgia, 'Times New Roman', serif",
+                        fontSize: "17px",
+                        fontWeight: 700,
+                        lineHeight: "1.45",
+                        margin: options.length > 0 ? "0 0 11px" : 0,
+                        whiteSpace: "pre-wrap",
+                      }}
+                    >
+                      {question.stem}
+                    </Text>
+                    {options.map((option, optionIndex) => (
+                      <Option key={`${optionIndex}-${option}`} index={optionIndex}>
+                        {option}
+                      </Option>
+                    ))}
+                  </Section>
+                );
+              })}
+            </Section>
+          ))}
 
           {entry.includeAnswers ? (
             <Section
@@ -431,29 +448,30 @@ export function DailyQuizEmailTemplate(input: DailyQuizEmailTemplateProps) {
               >
                 {messages.answersHeading}
               </Text>
-              {entry.questions.map((question, questionIndex) => (
-                <Section
-                  key={`answer-${question.position}-${questionIndex}`}
-                  style={{ margin: "0 0 10px" }}
-                >
-                  <Text style={{ color: colours.ink, fontSize: "14px", lineHeight: "1.5", margin: 0 }}>
-                    {String(question.position + 1).padStart(2, "0")} ·{" "}
-                    {formatEmailAnswer(question, allMessages)}
-                  </Text>
-                  {question.explanation ? (
-                    <Text
-                      style={{
-                        color: colours.muted,
-                        fontSize: "12px",
-                        lineHeight: "1.55",
-                        margin: "4px 0 0",
-                      }}
-                    >
-                      {question.explanation}
+              {paperParts(entry.questions)
+                .flatMap((part) => part.questions)
+                .map(({ question, number }) => (
+                  <Section
+                    key={`answer-${question.position}-${number}`}
+                    style={{ margin: "0 0 10px" }}
+                  >
+                    <Text style={{ color: colours.ink, fontSize: "14px", lineHeight: "1.5", margin: 0 }}>
+                      {String(number).padStart(2, "0")} · {formatEmailAnswer(question, allMessages)}
                     </Text>
-                  ) : null}
-                </Section>
-              ))}
+                    {question.explanation ? (
+                      <Text
+                        style={{
+                          color: colours.muted,
+                          fontSize: "12px",
+                          lineHeight: "1.55",
+                          margin: "4px 0 0",
+                        }}
+                      >
+                        {question.explanation}
+                      </Text>
+                    ) : null}
+                  </Section>
+                ))}
             </Section>
           ) : null}
 
