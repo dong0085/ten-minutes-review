@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Alert, AlertDescription } from "@tmr/ui/components/alert";
 import { Button } from "@tmr/ui/components/button";
 import { Card, CardContent } from "@tmr/ui/components/card";
@@ -9,6 +10,8 @@ import { Input } from "@tmr/ui/components/input";
 import { Label } from "@tmr/ui/components/label";
 
 export function ResetForm({ token }: { token: string }) {
+  const t = useTranslations("Auth.ResetForm");
+  const tc = useTranslations("Common");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [pending, setPending] = useState(false);
@@ -18,7 +21,7 @@ export function ResetForm({ token }: { token: string }) {
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (password !== confirm) {
-      setError("The two passwords do not match.");
+      setError(t("mismatch"));
       return;
     }
     setPending(true);
@@ -34,9 +37,9 @@ export function ResetForm({ token }: { token: string }) {
         return;
       }
       const body = (await response.json().catch(() => null)) as { error?: string } | null;
-      setError(body?.error ?? "This reset link is invalid or has expired.");
+      setError(body?.error ?? t("invalidLink"));
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(tc("genericError"));
     } finally {
       setPending(false);
     }
@@ -47,10 +50,10 @@ export function ResetForm({ token }: { token: string }) {
       <Card>
         <CardContent className="space-y-3">
           <Alert variant="success">
-            <AlertDescription>Your password has been updated.</AlertDescription>
+            <AlertDescription>{t("updated")}</AlertDescription>
           </Alert>
           <Link className="text-sm font-medium underline" href="/signin">
-            Sign in
+            {t("signIn")}
           </Link>
         </CardContent>
       </Card>
@@ -62,7 +65,7 @@ export function ResetForm({ token }: { token: string }) {
       <CardContent>
         <form className="space-y-4" onSubmit={onSubmit}>
           <div>
-            <Label htmlFor="reset-password">New password</Label>
+            <Label htmlFor="reset-password">{t("password")}</Label>
             <Input
               id="reset-password"
               type="password"
@@ -73,7 +76,7 @@ export function ResetForm({ token }: { token: string }) {
             />
           </div>
           <div>
-            <Label htmlFor="reset-confirm">Confirm password</Label>
+            <Label htmlFor="reset-confirm">{t("confirm")}</Label>
             <Input
               id="reset-confirm"
               type="password"
@@ -89,7 +92,7 @@ export function ResetForm({ token }: { token: string }) {
             </Alert>
           ) : null}
           <Button type="submit" className="w-full" disabled={pending}>
-            {pending ? "Saving..." : "Set new password"}
+            {pending ? t("saving") : t("submit")}
           </Button>
         </form>
       </CardContent>

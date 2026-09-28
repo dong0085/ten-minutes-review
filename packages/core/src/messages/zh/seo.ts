@@ -1,8 +1,8 @@
 export const seo = {
-  homeTitle: "Ten Minutes Review — 用你的语言课笔记，每天做一份十分钟测验",
+  homeTitle: "Ten Minutes Review — 把语言课笔记变成每天十分钟的小测",
   homeDescription:
-    "为外语学习者设计：粘贴老师的笔记或拍下你的笔记本，每天早上收到一份小测验，复习你学过的单词、短语和语法。",
-  ogImageTitle: "你的语言课，变成十分钟测验",
+    "粘贴老师的课后笔记，或拍下自己的手写笔记。每天早上用十分钟，复习课上学过的词汇、表达和语法。",
+  ogImageTitle: "课上学的，每天花十分钟记牢",
   ogImageTagline: "Ten Minutes Review",
   aboutTitle: "关于",
   aboutDescription: "Ten Minutes Review 为什么存在、为谁而做，以及背后的那个人。",

@@ -18,13 +18,13 @@ export const auth = {
   },
   SignUpPage: {
     title: "创建你的账户",
-    subtitle: "你的笔记每天早上都会变成一份十分钟测验。",
+    subtitle: "把上课笔记变成每天十分钟的小测验。",
   },
   SignUpForm: {
     email: "邮箱",
     password: "密码",
-    language: "语言（可选）",
-    browserDefault: "浏览器默认",
+    language: "界面语言（可选）",
+    browserDefault: "跟随浏览器",
     timezone: "时区（可选）",
     emailTaken: "该邮箱已有账户。",
     genericError: "出了点问题，请重试。",
@@ -35,7 +35,7 @@ export const auth = {
     alreadyHave: "已有账户？",
     signIn: "登录",
     checkEmailTitle: "请查收邮件",
-    checkEmailBody: "我们已向 {email} 发送验证链接。打开链接即可完成账户设置。",
+    checkEmailBody: "验证链接已发到 {email}。打开邮件，点击链接就能完成注册。",
     goToSignIn: "前往登录",
   },
   ForgotPage: {
@@ -44,7 +44,7 @@ export const auth = {
   },
   ForgotForm: {
     intro: "输入你的邮箱，我们会发送重置密码的链接。",
-    sent: "如果该邮箱存在账户，我们已发送重置链接。",
+    sent: "如果这个邮箱已注册，你会收到重置密码的邮件。",
     back: "返回登录",
     sending: "正在发送…",
     submit: "发送重置链接",
@@ -70,7 +70,7 @@ export const auth = {
   VerifyView: {
     verifying: "正在验证你的邮箱…",
     invalid: "此验证链接无效或已过期。",
-    invalidHelp: "请登录后重新申请链接，或重新创建账户。",
+    invalidHelp: "请先登录以申请新链接，或重新注册。",
     success: "你的邮箱已验证。",
     signIn: "登录",
     createAccount: "创建账户",

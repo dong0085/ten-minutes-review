@@ -3,7 +3,7 @@ import type { MessageShape } from "../type";
 
 export const app: MessageShape<(typeof en)["App"]> = {
   Shell: {
-    breadcrumb: "页面路径",
+    breadcrumb: "当前位置",
     back: "返回",
     closeQuiz: "关闭测验",
     errorTitle: "出了点问题",
@@ -33,13 +33,13 @@ export const app: MessageShape<(typeof en)["App"]> = {
     addNotesBlurb: "粘贴笔记或添加照片。新内容会加入题库。",
     inside: "课堂内容",
     notes: "笔记",
-    notesMeta: "{count, plural, other {# 次上传}} · 最近添加于{when}",
-    reading: "{count, plural, other {# 份正在读取}}",
+    notesMeta: "{count, plural, other {共添加 # 次}} · 最近添加：{when}",
+    reading: "{count, plural, other {# 份正在整理}}",
     bank: "题库",
     bankMeta:
-      "{count, plural, =0 {读取第一份笔记后才会有内容} other {测验中有 # 个知识点}}",
+      "{count, plural, =0 {添加笔记后就会开始建题库} other {# 个知识点可参与出题}}",
     quizzes: "测验",
-    quizzesMeta: "{count, plural, other {# 次测验}}，含每次作答记录",
+    quizzesMeta: "{count, plural, other {# 份测验}} · 保留每次作答记录",
     settings: "设置",
     settingsMeta: "名称、语言和每日复习",
   },
@@ -48,7 +48,7 @@ export const app: MessageShape<(typeof en)["App"]> = {
     retake: "重做",
     covers: "涵盖内容",
     attempts: "作答记录",
-    noAttempts: "还没有作答记录。提交后会显示答案和解析。",
+    noAttempts: "你还没做过这份测验。提交后可查看答案和解析。",
   },
   AccountHub: {
     settings: "设置",
@@ -61,7 +61,7 @@ export const app: MessageShape<(typeof en)["App"]> = {
     plan: "方案与用量",
     planMeta: "你的会员方案和本月用量",
     referrals: "邀请好友",
-    referralsMeta: "邀请好友，双方各得一个月免费",
+    referralsMeta: "邀请好友，双方各得一个月免费使用",
     tokens: "API 令牌",
     tokensMeta: "登录浏览器扩展",
     data: "你的数据",

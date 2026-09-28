@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { Button } from "@tmr/ui/components/button";
 
@@ -29,13 +30,14 @@ function GoogleIcon(props: React.ComponentProps<"svg">) {
 }
 
 export function GoogleButton({
-  label = "Continue with Google",
+  label,
   callbackUrl = "/classrooms",
 }: {
   label?: string;
   callbackUrl?: string;
 }) {
   const [pending, setPending] = useState(false);
+  const t = useTranslations("Auth.GoogleButton");
 
   return (
     <Button
@@ -51,15 +53,14 @@ export function GoogleButton({
       {pending ? (
         <>
           <Loader2 className="size-4 animate-spin" />
-          <span>Redirecting...</span>
+          <span>{t("redirecting")}</span>
         </>
       ) : (
         <>
           <GoogleIcon className="size-4" />
-          <span>{label}</span>
+          <span>{label ?? t("default")}</span>
         </>
       )}
     </Button>
   );
 }
-

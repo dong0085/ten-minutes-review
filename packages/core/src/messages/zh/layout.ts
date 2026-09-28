@@ -1,6 +1,6 @@
 export const layout = {
   title: "Ten Minutes Review",
-  description: "你的语言课，每天早上变成一份十分钟测验。",
+  description: "把语言课笔记变成每天十分钟的小测验。",
   language: "语言",
   theme: "主题",
   themePalette: "配色",

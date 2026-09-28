@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Alert, AlertDescription } from "@tmr/ui/components/alert";
 import { Card, CardContent } from "@tmr/ui/components/card";
 
@@ -10,6 +11,7 @@ type VerifyResult = "loading" | "success" | "invalid";
 const subscribe = () => () => {};
 
 export function VerifyView() {
+  const t = useTranslations("Auth.VerifyView");
   const search = useSyncExternalStore(
     subscribe,
     () => window.location.search,
@@ -46,7 +48,7 @@ export function VerifyView() {
     return (
       <Card>
         <CardContent>
-          <p className="text-sm text-muted-foreground">Verifying your email...</p>
+          <p className="text-sm text-muted-foreground">{t("verifying")}</p>
         </CardContent>
       </Card>
     );
@@ -58,18 +60,18 @@ export function VerifyView() {
         <CardContent className="space-y-3">
           <Alert variant="destructive">
             <AlertDescription>
-              This verification link is invalid or has expired.
+              {t("invalid")}
             </AlertDescription>
           </Alert>
           <p className="text-sm text-muted-foreground">
-            Sign in to request a new link, or create an account again.
+            {t("invalidHelp")}
           </p>
           <div className="flex gap-4 text-sm">
             <Link className="font-medium underline" href="/signin">
-              Sign in
+              {t("signIn")}
             </Link>
             <Link className="underline" href="/signup">
-              Create account
+              {t("createAccount")}
             </Link>
           </div>
         </CardContent>
@@ -81,10 +83,10 @@ export function VerifyView() {
     <Card>
       <CardContent className="space-y-3">
         <Alert variant="success">
-          <AlertDescription>Your email is verified.</AlertDescription>
+          <AlertDescription>{t("success")}</AlertDescription>
         </Alert>
         <Link className="text-sm font-medium underline" href="/signin">
-          Sign in
+          {t("signIn")}
         </Link>
       </CardContent>
     </Card>
