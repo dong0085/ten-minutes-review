@@ -92,6 +92,7 @@ export const quiz: MessageShape<(typeof en)["Quiz"]> = {
     answerSheet: "Feuille de réponses",
     collapseAnswerSheet: "Réduire la feuille de réponses",
     expandAnswerSheet: "Déployer la feuille de réponses",
+    floatAnswerSheet: "Afficher au survol",
     omitKnowledgePoint: "C'est acquis",
     omitKnowledgePointHint: "Ne plus inclure dans les futurs quiz",
     knowledgePointOmitted: "Exclu des prochains quiz",

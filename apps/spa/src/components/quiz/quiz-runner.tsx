@@ -62,6 +62,24 @@ function emptyResponse(question: QuizQuestion): LocalResponse {
   return { index: null };
 }
 
+const FLOAT_ANSWER_SHEET_KEY = "tmr:float-answer-sheet";
+
+function readFloatAnswerSheet(): boolean {
+  try {
+    return window.localStorage.getItem(FLOAT_ANSWER_SHEET_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function writeFloatAnswerSheet(float: boolean) {
+  try {
+    window.localStorage.setItem(FLOAT_ANSWER_SHEET_KEY, float ? "1" : "0");
+  } catch {
+    // The choice just won't outlive the page.
+  }
+}
+
 function buildOptionOrders(
   questions: QuizQuestion[],
   restored: QuizOptionOrders = {},
@@ -144,6 +162,10 @@ export function QuizRunner({
   const [result, setResult] = useState<SubmitResult | null>(null);
   const [handedBack, setHandedBack] = useState(false);
   const [showAnswerSheet, setShowAnswerSheet] = useState(true);
+  // Floating keeps the sheet folded to its tab and lays it over the paper on hover.
+  const [floatAnswerSheet, setFloatAnswerSheet] = useState(readFloatAnswerSheet);
+  const [peekAnswerSheet, setPeekAnswerSheet] = useState(false);
+  const [peekLeft, setPeekLeft] = useState(16);
   const [elapsedMs, setElapsedMs] = useState(0);
   const [omittedPointIds, setOmittedPointIds] = useState<Set<string>>(new Set());
   // Pencil marks rubbed out on the answer sheet, as "questionId:choice".
@@ -152,6 +174,9 @@ export function QuizRunner({
   const questionStartedAt = useRef(0);
   const durations = useRef<Record<string, number>>({});
   const hasStarted = useRef(false);
+  const layoutRef = useRef<HTMLDivElement | null>(null);
+  const paperColumnRef = useRef<HTMLDivElement | null>(null);
+  const peekRef = useRef<HTMLDivElement | null>(null);
   const questionRefs = useRef<Record<string, HTMLElement | null>>({});
   const submitRef = useRef<HTMLButtonElement | null>(null);
   const scrollToRestored = useRef(false);
@@ -315,6 +340,41 @@ export function QuizRunner({
     }
   }, [current, phase, questions]);
 
+  // A floating answer sheet opens while the pointer is in the margin left of the paper,
+  // and sits where the docked sheet would, without moving the paper over.
+  useEffect(() => {
+    if (!isExam || !floatAnswerSheet) {
+      return;
+    }
+    const onMove = (event: MouseEvent) => {
+      const paper = paperColumnRef.current?.getBoundingClientRect();
+      const layout = layoutRef.current?.getBoundingClientRect();
+      if (!paper || !layout) {
+        return;
+      }
+      const inMargin = event.clientX < paper.left && event.clientY > Math.max(0, layout.top);
+      const inSheet = peekRef.current?.contains(event.target as Node) ?? false;
+      if (inMargin) {
+        setPeekLeft(Math.max(16, paper.left - 32 - 368));
+      }
+      setPeekAnswerSheet(inMargin || inSheet);
+    };
+    const onLeave = () => setPeekAnswerSheet(false);
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setPeekAnswerSheet(false);
+      }
+    };
+    window.addEventListener("mousemove", onMove);
+    document.documentElement.addEventListener("mouseleave", onLeave);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      document.documentElement.removeEventListener("mouseleave", onLeave);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [isExam, floatAnswerSheet]);
+
   const submit = useCallback(async () => {
     if (!attemptToken || questions.length === 0) {
       return;
@@ -475,49 +535,128 @@ export function QuizRunner({
     />
   ) : null;
 
+  const docked = showAnswerSheet && !floatAnswerSheet;
+  const setFloat = (float: boolean) => {
+    setFloatAnswerSheet(float);
+    writeFloatAnswerSheet(float);
+    setPeekAnswerSheet(float);
+    if (!float) {
+      setShowAnswerSheet(true);
+    }
+  };
+  const sheetHeader = (
+    <div className="flex items-center justify-between gap-2 pb-1.5 pl-1">
+      <p className="text-xs text-muted-foreground tabular-nums">
+        {graded
+          ? t("score", { correct: graded.correctCount, total: graded.questionCount })
+          : t("answeredProgress", { answered: answeredCount, total: questions.length })}
+      </p>
+      {docked ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-7 text-muted-foreground hover:text-foreground"
+          aria-label={t("collapseAnswerSheet")}
+          title={t("collapseAnswerSheet")}
+          aria-expanded
+          onClick={() => setShowAnswerSheet(false)}
+        >
+          <PanelLeftClose className="size-4" />
+        </Button>
+      ) : null}
+    </div>
+  );
+  const floatToggle = (
+    <label className="flex w-fit cursor-pointer items-center gap-2 px-1 pt-2 text-xs text-muted-foreground select-none hover:text-foreground">
+      <input
+        type="checkbox"
+        className="size-3.5 cursor-pointer accent-primary"
+        checked={floatAnswerSheet}
+        onChange={(event) => setFloat(event.target.checked)}
+      />
+      {t("floatAnswerSheet")}
+    </label>
+  );
+  const sheetTab = (
+    <button
+      type="button"
+      className="hidden w-10 flex-col items-center gap-3 rounded-lg border border-border/70 bg-card py-3 text-muted-foreground shadow-sm transition-colors hover:border-primary/40 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none lg:flex motion-safe:animate-in motion-safe:fade-in"
+      aria-label={t("expandAnswerSheet")}
+      title={t("expandAnswerSheet")}
+      aria-expanded={floatAnswerSheet ? peekAnswerSheet : false}
+      onClick={() => {
+        if (!floatAnswerSheet) {
+          setShowAnswerSheet(true);
+          return;
+        }
+        const paper = paperColumnRef.current?.getBoundingClientRect();
+        if (paper) {
+          setPeekLeft(Math.max(16, paper.left - 32 - 368));
+        }
+        setPeekAnswerSheet((open) => !open);
+      }}
+    >
+      <PanelLeftOpen className="size-4" />
+      <span className="text-xs font-medium tracking-wide [writing-mode:vertical-rl]">
+        {t("answerSheet")}
+      </span>
+      <span
+        className={cn(
+          "text-[0.65rem] leading-tight tabular-nums",
+          graded ? "quiz-mark font-heading font-semibold text-destructive" : "",
+        )}
+      >
+        {graded ? graded.correctCount : answeredCount}
+        <span className="block border-t border-current/40">
+          {graded ? graded.questionCount : questions.length}
+        </span>
+      </span>
+    </button>
+  );
+
   return (
     <div
+      ref={layoutRef}
       data-wide={isExam || undefined}
       className={cn(
         "relative mx-auto",
         isExam
           ? cn(
               "grid gap-8 lg:items-start",
-              showAnswerSheet
+              docked
                 ? "max-w-6xl lg:grid-cols-[23rem_minmax(0,1fr)]"
-                : "max-w-[61rem] lg:grid-cols-[12rem_minmax(0,1fr)] lg:gap-4",
+                : "max-w-[58rem] lg:grid-cols-[2.5rem_minmax(0,1fr)_2.5rem] lg:gap-10",
             )
           : "max-w-3xl",
       )}
     >
-      {scantron ? (
+      {scantron && docked ? (
         <aside
           key={graded ? `${graded.attemptId}-card` : "card"}
-          className={cn(
-            "hidden lg:sticky lg:block print:hidden",
-            showAnswerSheet
-              ? "lg:top-6 lg:max-h-[calc(100dvh-3rem)]"
-              : "lg:top-[40dvh]",
-          )}
+          className="hidden lg:sticky lg:top-6 lg:flex lg:max-h-[calc(100dvh-3rem)] lg:flex-col print:hidden motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-left-4"
         >
-          <Button
-            type="button"
-            variant="ghost"
-            className="h-8 w-full gap-2 rounded-lg border border-border/60 bg-card/90 px-3 text-xs text-muted-foreground shadow-sm backdrop-blur-sm hover:bg-accent/80 hover:text-foreground"
-            aria-expanded={showAnswerSheet}
-            onClick={() => setShowAnswerSheet((visible) => !visible)}
-          >
-            {showAnswerSheet ? <PanelLeftClose className="size-4" /> : <PanelLeftOpen className="size-4" />}
-            {t(showAnswerSheet ? "collapseAnswerSheet" : "expandAnswerSheet")}
-          </Button>
-          {showAnswerSheet ? (
-            <div className={cn("mt-2 max-h-[calc(100dvh-5.5rem)] overflow-y-auto p-1", sheetMotion)}>
-              {scantron}
-            </div>
-          ) : null}
+          {sheetHeader}
+          <div className={cn("min-h-0 overflow-y-auto p-1", sheetMotion)}>{scantron}</div>
+          {floatToggle}
         </aside>
       ) : null}
-      <div className={cn("relative min-w-0 space-y-5", isExam && !showAnswerSheet && "lg:mx-auto lg:w-full lg:max-w-3xl")}>
+      {scantron && !docked ? (
+        <div className="hidden lg:sticky lg:top-6 lg:block print:hidden">{sheetTab}</div>
+      ) : null}
+      {scantron && floatAnswerSheet && peekAnswerSheet ? (
+        <div
+          ref={peekRef}
+          key={graded ? `${graded.attemptId}-card` : "card"}
+          style={{ left: peekLeft }}
+          className="fixed top-6 z-40 hidden max-h-[calc(100dvh-3rem)] w-[23rem] flex-col rounded-xl border border-border/70 bg-background/95 p-2 shadow-[0_18px_48px_rgb(var(--shadow-colour)/0.22)] backdrop-blur-xl lg:flex print:hidden motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-left-2"
+        >
+          {sheetHeader}
+          <div className={cn("min-h-0 overflow-y-auto p-1", sheetMotion)}>{scantron}</div>
+          {floatToggle}
+        </div>
+      ) : null}
+      <div ref={paperColumnRef} className="relative min-w-0 space-y-5">
       {phase === "submitting" ? (
         <div
           role="status"

@@ -89,6 +89,7 @@ export const quiz = {
     answerSheet: "Answer sheet",
     collapseAnswerSheet: "Collapse answer sheet",
     expandAnswerSheet: "Expand answer sheet",
+    floatAnswerSheet: "Show on hover",
     omitKnowledgePoint: "I've got this down",
     omitKnowledgePointHint: "Omit from future quizzes",
     knowledgePointOmitted: "Omitted from future quizzes",
