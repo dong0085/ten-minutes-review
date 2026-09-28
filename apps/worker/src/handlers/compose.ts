@@ -1,6 +1,10 @@
 import {
   COMPOSITION_PROMPT_V3,
   COMPOSITION_PROMPT_VERSION,
+  EXAM_PROMPT_V1,
+  EXAM_PROMPT_VERSION,
+  fillExamBlueprint,
+  selectExamPoints,
   MIN_USABLE_QUESTIONS,
   dailySendAt,
   fitToBudget,
@@ -91,6 +95,10 @@ export async function handleComposeJob(
   const classroomId = requireString(payload, "classroomId");
   const userId = requireString(payload, "userId");
   const localDate = requireString(payload, "localDate");
+  if (payload.source === "exam") {
+    await composeExam(db, { classroomId, userId, localDate }, jobId);
+    return;
+  }
   const kind = payload.source === "manual" ? "manual" : "daily";
   const sendAt = kind === "daily" ? dailyCutoff(payload) : null;
 
@@ -231,5 +239,104 @@ export async function handleComposeJob(
   }
   console.log(
     `[worker] compose ${kind} ${classroomId} ${localDate}: ${kept.length} questions (${dropped.length} dropped)`,
+  );
+}
+
+// An exam follows a fixed blueprint worth 100 points. It sends no email; the
+// classroom hub polls the job and opens the paper when it is ready.
+async function composeExam(
+  db: Db,
+  { classroomId, userId, localDate }: { classroomId: string; userId: string; localDate: string },
+  jobId?: string,
+): Promise<void> {
+  if (await cancelIfRequested(db, jobId)) {
+    console.log(`[worker] compose exam ${classroomId}: cancelled before start`);
+    return;
+  }
+  const classroom = await getClassroom(db, userId, classroomId);
+  if (!classroom) {
+    throw new Error(`classroom ${classroomId} not found for user ${userId}`);
+  }
+  const bank = await listKnowledgePointsForComposition(db, classroomId);
+  const now = new Date();
+  const recentMisses = await listRecentMisses(
+    db,
+    userId,
+    classroomId,
+    new Date(now.getTime() - 30 * DAY_MS),
+  );
+  const selected = selectExamPoints(bank, {
+    lastQuizzedAt: await listLastQuizzedByPoint(db, classroomId),
+    missedIds: recentMisses.map((miss) => miss.knowledgePointId),
+  });
+  const selectedIds = new Set(selected.map(({ point }) => point.id));
+  const typeById = new Map(selected.map(({ point, type }) => [point.id, type]));
+
+  const provider = getLlmProvider();
+  const raw = await provider.compose({
+    systemPrompt: EXAM_PROMPT_V1,
+    payload: {
+      targetLanguage: classroom.targetLanguage,
+      nativeLanguage: classroom.nativeLanguage,
+      size: selected.length,
+      knowledgePoints: selected.map(({ point, type }) => ({
+        id: point.id,
+        category: point.category,
+        type,
+        target: point.targetText,
+        native: point.nativeText,
+        detail: point.detail,
+      })),
+      alreadyAskedStems: await listWeekQuestionStems(
+        db,
+        classroomId,
+        new Date(now.getTime() - 7 * DAY_MS),
+      ),
+      recentMisses: recentMisses.filter((miss) => selectedIds.has(miss.knowledgePointId)),
+    },
+  });
+  const parsed = typeof raw === "string" ? parseCompositionResponse(raw) : parseCompositionResult(raw);
+  const { kept: usable, dropped } = sanitizeCompositionQuestions(parsed.questions, selectedIds);
+  // A question in a type other than the one its point was given would unbalance the paper.
+  const paper = fillExamBlueprint(
+    usable.filter((question) => typeById.get(question.knowledge_point_id) === question.type),
+  );
+  if (!paper) {
+    throw new Error(`exam blueprint not filled from ${usable.length} usable questions`);
+  }
+
+  if (await cancelIfRequested(db, jobId)) {
+    console.log(`[worker] compose exam ${classroomId}: cancelled before save`);
+    return;
+  }
+  const detailById = new Map(bank.map((point) => [point.id, point.detail]));
+  const { quiz } = await createQuizWithQuestions(db, {
+    classroomId,
+    userId,
+    quizDate: localDate,
+    kind: "exam",
+    size: paper.length,
+    promptVersion: EXAM_PROMPT_VERSION,
+    questions: paper.map((question, index) => ({
+      knowledgePointId: question.knowledge_point_id,
+      passageId: passageIdFromDetail(detailById.get(question.knowledge_point_id) ?? null),
+      category: question.category,
+      type: question.type,
+      stem: question.stem,
+      options: question.options,
+      answer: question.answer,
+      explanation: question.explanation,
+      promptVersion: EXAM_PROMPT_VERSION,
+      position: index,
+    })),
+  });
+  if (!quiz) {
+    throw new Error(`failed to create exam for classroom ${classroomId}`);
+  }
+  if (jobId) {
+    await recordJobResult(db, jobId, { quizId: quiz.id });
+  }
+  console.log(
+    `[worker] compose exam ${classroomId}: ${paper.length} questions (${dropped.length} dropped)`,
   );
 }

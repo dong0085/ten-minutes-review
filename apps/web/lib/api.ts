@@ -13,6 +13,8 @@ const MESSAGE_KEYS: Record<string, ApiMessageKey> = {
   "Invalid or expired token": "invalidExpiredToken",
   "Free plan is limited to 3 classrooms": "freePlanLimit",
   "Add notes to create a quiz": "emptyBank",
+  "Exams are a Pro feature": "examProRequired",
+  "Add more notes to unlock the exam": "examLocked",
   "Attempt token is invalid or expired": "attemptInvalid",
   "This attempt was already submitted": "attemptSubmitted",
   "Could not record the attempt": "attemptRecord",

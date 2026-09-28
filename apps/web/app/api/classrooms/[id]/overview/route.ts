@@ -1,4 +1,4 @@
-import type { Category } from "@tmr/core";
+import { EXAM_MIN_POINTS, type Category } from "@tmr/core";
 import {
   countBankByCategory,
   getClassroom,
@@ -33,14 +33,16 @@ export async function GET(_request: Request, context: RouteContext) {
       return jsonError("Not found", 404);
     }
     const today = localDateFor(user.timezone);
-    const [categoryRows, dailyQuiz, uploads, quizzes, unfinished, composeJob] = await Promise.all([
+    const [categoryRows, dailyQuiz, uploads, quizzes, unfinished, composeJob, examJob] = await Promise.all([
       countBankByCategory(db, user.id, id),
       getDailyQuizByClassroomAndDate(db, id, today),
       listUploadsForUser(db, user.id, id),
       listQuizzesForClassroom(db, user.id, id),
       listUntakenOnDemandQuizzes(db, id, 3),
       getLatestComposeJob(db, id, REHYDRATE_WINDOW_MS),
+      getLatestComposeJob(db, id, REHYDRATE_WINDOW_MS, "exam"),
     ]);
+    const latestExam = quizzes.find((quiz) => quiz.kind === "exam");
     const bankByCategory: Record<Category, number> = {
       vocabulary: 0,
       phrase: 0,
@@ -68,6 +70,20 @@ export async function GET(_request: Request, context: RouteContext) {
       },
       bankByCategory,
       lastUploadAt: uploads[0]?.upload.createdAt ?? null,
+      exam: {
+        requiredPoints: EXAM_MIN_POINTS,
+        composeJob: examJob
+          ? { id: examJob.id, status: examJob.status, requestedAt: examJob.createdAt }
+          : null,
+        latest: latestExam
+          ? {
+              id: latestExam.id,
+              quizDate: latestExam.quizDate,
+              attemptCount: latestExam.attemptCount,
+              bestScore: latestExam.bestScore,
+            }
+          : null,
+      },
       unfinished,
     });
   } catch (error) {
