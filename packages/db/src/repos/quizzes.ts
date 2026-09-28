@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, gte, isNull, sql } from "drizzle-orm";
 import type {
   Category,
+  ExamReview,
   QuestionAnswer,
   QuestionResponse,
   QuestionType,
@@ -9,6 +10,7 @@ import type {
 import type { Db } from "../client";
 import { knowledgePoints } from "../schema/bank";
 import { classrooms } from "../schema/classrooms";
+import { users } from "../schema/users";
 import {
   attempts,
   attemptAnswers,
@@ -358,6 +360,60 @@ export async function getAttemptReview(db: Db, userId: string, attemptId: string
     .where(eq(attemptAnswers.attemptId, attemptId))
     .orderBy(asc(questions.position));
   return { attempt, answers: rows as ReviewAnswer[] };
+}
+
+/** Everything the `summarize` job needs to review one exam attempt, answers in paper order. */
+export async function getExamReviewInput(db: Db, attemptId: string) {
+  const [head] = await db
+    .select({
+      attempt: attempts,
+      quizKind: quizzes.kind,
+      targetLanguage: classrooms.targetLanguage,
+      nativeLanguage: classrooms.nativeLanguage,
+      uiLanguage: users.uiLanguage,
+    })
+    .from(attempts)
+    .innerJoin(quizzes, eq(attempts.quizId, quizzes.id))
+    .innerJoin(classrooms, eq(quizzes.classroomId, classrooms.id))
+    .innerJoin(users, eq(attempts.userId, users.id))
+    .where(eq(attempts.id, attemptId))
+    .limit(1);
+  if (!head) {
+    return null;
+  }
+  const answers = await db
+    .select({
+      questionId: questions.id,
+      position: questions.position,
+      category: questions.category,
+      type: questions.type,
+      stem: questions.stem,
+      options: questions.options,
+      answer: questions.answer,
+      explanation: questions.explanation,
+      response: attemptAnswers.response,
+      isCorrect: attemptAnswers.isCorrect,
+      pointTarget: knowledgePoints.targetText,
+      pointNative: knowledgePoints.nativeText,
+    })
+    .from(attemptAnswers)
+    .innerJoin(questions, eq(attemptAnswers.questionId, questions.id))
+    .leftJoin(knowledgePoints, eq(questions.knowledgePointId, knowledgePoints.id))
+    .where(eq(attemptAnswers.attemptId, attemptId))
+    .orderBy(asc(questions.position));
+  return { ...head, answers };
+}
+
+export async function saveAttemptReview(
+  db: Db,
+  attemptId: string,
+  review: ExamReview,
+  promptVersion: string,
+) {
+  await db
+    .update(attempts)
+    .set({ review, reviewPromptVersion: promptVersion })
+    .where(eq(attempts.id, attemptId));
 }
 
 export async function listAttemptsForQuiz(db: Db, userId: string, quizId: string) {

@@ -55,6 +55,18 @@ export const quiz = {
     optionLabel: "Question {number}, {option}",
     footer: "Do not write in this area",
   },
+  ExamReview: {
+    title: "AI review of your mistakes",
+    note: "Written by AI from your wrong answers. The red-pen notes on each question still stand.",
+    writing: "Reading your mistakes…",
+    writingHint: "This takes about half a minute. You can keep checking the paper meanwhile.",
+    failed: "The review could not be written.",
+    retry: "Try again",
+    patterns: "Patterns",
+    nextSteps: "What to practise next",
+    questions: "Questions",
+    jump: "Go to question {number}",
+  },
   Runner: {
     loading: "Preparing your quiz…",
     startError: "Could not start the quiz.",

@@ -13,6 +13,7 @@ import {
 } from "drizzle-orm/pg-core";
 import type {
   Category,
+  ExamReview,
   QuestionAnswer,
   QuestionResponse,
   QuestionType,
@@ -89,6 +90,9 @@ export const attempts = pgTable(
     durationMs: integer("duration_ms").notNull(),
     correctCount: integer("correct_count").notNull(),
     questionCount: integer("question_count").notNull(),
+    /** The AI review of an exam's mistakes, written by a `summarize` job after submit. */
+    review: jsonb("review").$type<ExamReview>(),
+    reviewPromptVersion: text("review_prompt_version"),
   },
   (table) => [
     index("attempts_quiz_idx").on(table.quizId),

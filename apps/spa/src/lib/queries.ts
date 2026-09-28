@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { Category, ClassroomDailyStatus, QuestionType } from "@tmr/core";
+import type { Category, ClassroomDailyStatus, ExamReview, QuestionType } from "@tmr/core";
 import type { AnswerShape } from "@/components/quiz/question-review";
 import { api } from "./api";
 
@@ -147,6 +147,7 @@ export const keys = {
   quizzes: (id: string) => ["classroom", id, "quizzes"] as const,
   quiz: (quizId: string) => ["quiz", quizId] as const,
   attempt: (attemptId: string) => ["attempt", attemptId] as const,
+  attemptReview: (attemptId: string) => ["attempt", attemptId, "review"] as const,
 };
 
 export function useClassrooms(enabled = true) {
@@ -212,6 +213,24 @@ export function useQuiz(quizId: string) {
       api.get<{ quiz: Quiz; attempts: AttemptSummary[] }>(
         `/api/quizzes/${quizId}?includeAttempts=1`,
       ),
+  });
+}
+
+export type AttemptReviewState = {
+  status: "none" | "writing" | "ready" | "failed";
+  review: ExamReview | null;
+};
+
+const REVIEW_POLL_MS = 2500;
+
+/** The AI review of an exam attempt, polled while the worker writes it. */
+export function useAttemptReview(attemptId: string, enabled = true) {
+  return useQuery({
+    queryKey: keys.attemptReview(attemptId),
+    queryFn: () => api.get<AttemptReviewState>(`/api/attempts/${attemptId}/review`),
+    enabled,
+    refetchInterval: (query) =>
+      query.state.data?.status === "writing" ? REVIEW_POLL_MS : false,
   });
 }
 

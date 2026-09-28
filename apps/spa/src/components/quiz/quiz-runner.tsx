@@ -40,6 +40,7 @@ import {
 } from "@/lib/quiz-draft";
 import type { AnswerShape } from "./question-review";
 import { OmitKnowledgePointButton } from "./omit-knowledge-point-button";
+import { ExamReviewPanel } from "./exam-review";
 import { Scantron } from "./scantron";
 import type { LocalResponse, QuizQuestion } from "./types";
 
@@ -54,6 +55,8 @@ type QuestionGrade = {
 
 type SubmitResult = {
   attemptId: string;
+  /** Set when the worker is writing an AI review of this exam's mistakes. */
+  reviewPending?: boolean;
   correctCount: number;
   questionCount: number;
   results: QuestionGrade[];
@@ -625,6 +628,21 @@ export function QuizRunner({
               </table>
             </div>
           </header>
+          {graded && isExam ? (
+            <ExamReviewPanel
+              attemptId={graded.attemptId}
+              initiallyWriting={graded.reviewPending}
+              onJump={(number) => {
+                const target = parts
+                  .flatMap((part) => part.questions)
+                  .find((entry) => entry.number === number);
+                if (target) {
+                  focusQuestion(target.question.id);
+                }
+              }}
+              className="mx-6 mt-8 sm:mx-12"
+            />
+          ) : null}
           <div className="space-y-10 px-6 pt-8 pb-10 sm:px-12">
             {parts.map((part) => (
               <section key={part.section} aria-labelledby={`part-${part.section}`}>

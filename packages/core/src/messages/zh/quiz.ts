@@ -55,6 +55,18 @@ export const quiz = {
     optionLabel: "第 {number} 题，{option}",
     footer: "检查完毕后，在试卷下方提交",
   },
+  ExamReview: {
+    title: "AI 错题分析",
+    note: "由 AI 根据你的错题生成，每道题下的红笔批注依然有效。",
+    writing: "正在分析你的错题…",
+    writingHint: "大约需要半分钟，你可以先看看试卷上的批改。",
+    failed: "分析暂时没能生成。",
+    retry: "重试",
+    patterns: "错误规律",
+    nextSteps: "接下来练什么",
+    questions: "涉及题目",
+    jump: "跳到第 {number} 题",
+  },
   Runner: {
     loading: "正在准备你的测验…",
     startError: "无法开始测验。",

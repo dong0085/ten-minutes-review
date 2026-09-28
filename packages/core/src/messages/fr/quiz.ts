@@ -58,6 +58,18 @@ export const quiz: MessageShape<(typeof en)["Quiz"]> = {
     optionLabel: "Question {number}, {option}",
     footer: "Ne rien écrire dans cette zone",
   },
+  ExamReview: {
+    title: "Analyse IA de tes erreurs",
+    note: "Rédigée par l'IA à partir de tes mauvaises réponses. Les corrections en rouge de chaque question restent valables.",
+    writing: "Lecture de tes erreurs…",
+    writingHint: "Cela prend environ une demi-minute. Tu peux relire la copie en attendant.",
+    failed: "L'analyse n'a pas pu être rédigée.",
+    retry: "Réessayer",
+    patterns: "Tendances",
+    nextSteps: "À travailler ensuite",
+    questions: "Questions",
+    jump: "Aller à la question {number}",
+  },
   Runner: {
     loading: "Préparation de ton quiz…",
     startError: "Impossible de démarrer le quiz.",

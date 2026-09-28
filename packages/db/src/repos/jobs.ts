@@ -254,3 +254,14 @@ export async function requestJobCancel(db: Db, jobId: string) {
     })
     .where(eq(jobs.id, jobId));
 }
+
+/** The newest `summarize` job for an attempt, so the review screen can tell writing from failed. */
+export async function getLatestSummarizeJob(db: Db, attemptId: string) {
+  const [job] = await db
+    .select()
+    .from(jobs)
+    .where(and(eq(jobs.kind, "summarize"), sql`${jobs.payload}->>'attemptId' = ${attemptId}`))
+    .orderBy(sql`${jobs.createdAt} desc`)
+    .limit(1);
+  return job ?? null;
+}

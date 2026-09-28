@@ -30,6 +30,28 @@ export type ComposeInput = {
 export type LlmProvider = {
   extract(input: ExtractInput): Promise<unknown>;
   compose(input: ComposeInput): Promise<unknown>;
+  summarize(input: ComposeInput): Promise<unknown>;
+};
+
+export type ExamReviewMiss = {
+  number: number;
+  type: "mcq" | "true_false" | "fill_blank";
+  category: Category;
+  knowledgePoint: { target: string | null; native: string | null };
+  stem: string;
+  options: string[] | null;
+  learnerAnswer: string;
+  rightAnswer: string;
+  explanation: string;
+};
+
+export type ExamReviewPayload = {
+  targetLanguage: string;
+  nativeLanguage: string;
+  writeIn: string;
+  score: { earned: number; total: number };
+  parts: { type: string; correct: number; count: number }[];
+  misses: ExamReviewMiss[];
 };
 
 export type CompositionKnowledgePoint = {
@@ -534,6 +556,27 @@ function mockComposition(payload: CompositionPayload): CompositionResult {
   return { quiz_date: new Date().toISOString().slice(0, 10), questions };
 }
 
+// Groups the misses by category, so local runs show a believable review.
+function mockExamReview(payload: ExamReviewPayload) {
+  const byCategory = new Map<string, ExamReviewMiss[]>();
+  for (const miss of payload.misses) {
+    byCategory.set(miss.category, [...(byCategory.get(miss.category) ?? []), miss]);
+  }
+  const groups = [...byCategory.entries()].sort((a, b) => b[1].length - a[1].length);
+  return {
+    overview: `${payload.score.earned} / ${payload.score.total}. Most points went on ${groups[0]?.[0] ?? "a few slips"}.`,
+    patterns: groups.slice(0, 4).map(([category, misses]) => ({
+      title: `Mixing up ${category}`,
+      detail: misses
+        .slice(0, 2)
+        .map((miss) => `You wrote « ${miss.learnerAnswer} » where « ${miss.rightAnswer} » was expected.`)
+        .join(" "),
+      questions: misses.map((miss) => miss.number),
+    })),
+    next_steps: groups.slice(0, 2).map(([category]) => `Redo five ${category} questions tomorrow.`),
+  };
+}
+
 export function createMockProvider(): LlmProvider {
   return {
     async extract(input) {
@@ -556,6 +599,9 @@ export function createMockProvider(): LlmProvider {
           ? (payload.recentMisses as CompositionPayload["recentMisses"])
           : [],
       });
+    },
+    async summarize(input) {
+      return mockExamReview(input.payload as ExamReviewPayload);
     },
   };
 }
@@ -612,6 +658,9 @@ function createDeepseekProvider(): LlmProvider {
       return chat(input.systemPrompt, parts.length > 0 ? parts : [{ type: "text", text: "" }]);
     },
     compose(input) {
+      return chat(input.systemPrompt, JSON.stringify(input.payload));
+    },
+    summarize(input) {
       return chat(input.systemPrompt, JSON.stringify(input.payload));
     },
   };

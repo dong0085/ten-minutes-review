@@ -17,3 +17,10 @@ export {
   sanitizeCompositionQuestions,
 } from "./schemas";
 export type { DroppedQuestion } from "./schemas";
+export {
+  EXAM_REVIEW_PROMPT_V1,
+  EXAM_REVIEW_PROMPT_VERSION,
+  examReviewSchema,
+  parseExamReview,
+} from "./exam-review";
+export type { ExamReview } from "./exam-review";

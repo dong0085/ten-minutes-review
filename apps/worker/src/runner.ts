@@ -4,6 +4,7 @@ import type { Db, Job } from "@tmr/db";
 import { handleComposeJob } from "./handlers/compose";
 import { handleExtractJob } from "./handlers/extract";
 import { handleSendEmailJob } from "./handlers/send-email";
+import { handleSummarizeJob } from "./handlers/summarize";
 import {
   auditOverdueDailyEmails,
   enqueueDueDailyComposeJobs,
@@ -46,6 +47,8 @@ export async function runJob(db: Db, job: Job): Promise<void> {
       return handleComposeJob(db, job.payload, job.id);
     case "send_email":
       return handleSendEmailJob(db, job.payload);
+    case "summarize":
+      return handleSummarizeJob(db, job.payload);
     default:
       throw new Error(`unknown job kind: ${String(job.kind)}`);
   }
