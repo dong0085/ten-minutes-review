@@ -40,7 +40,7 @@ export type Classroom = {
 export type QuizListItem = {
   id: string;
   quizDate: string;
-  kind: "daily" | "manual";
+  kind: "daily" | "manual" | "exam";
   size: number;
   composedAt: string;
   bestScore: number | null;
@@ -55,6 +55,11 @@ export type ClassroomOverview = {
   bankByCategory: Record<Category, number>;
   lastUploadAt: string | null;
   unfinished: Array<Omit<QuizListItem, "bestScore" | "attemptCount">>;
+  exam: {
+    requiredPoints: number;
+    composeJob: { id: string; status: "pending" | "running"; requestedAt: string } | null;
+    latest: { id: string; quizDate: string; attemptCount: number; bestScore: number | null } | null;
+  };
 };
 
 export type Upload = {
@@ -100,6 +105,7 @@ export type QuizQuestion = {
 export type Quiz = {
   id: string;
   quizDate: string;
+  kind: "daily" | "manual" | "exam";
   size: number;
   classroomId: string;
   classroomName: string;

@@ -17,6 +17,7 @@ import { Badge } from "@tmr/ui/components/badge";
 import { Button } from "@tmr/ui/components/button";
 import { cn } from "@tmr/ui/utils";
 import { STATUS_STAMP } from "@/components/classroom/classroom-card";
+import { ExamCard } from "@/components/classroom/exam-card";
 import { TodayQuizAction } from "@/components/classroom/today-quiz-action";
 import { GuestBanner } from "@/components/guest-banner";
 import { DrillList, SectionTitle } from "@/components/page";
@@ -182,6 +183,16 @@ export function ClassroomHubPage() {
           </div>
         </Link>
       </div>
+
+      {isGuest ? null : (
+        <ExamCard
+          classroomId={id}
+          bankSize={counts.bank}
+          exam={overview.exam}
+          isPaid={session.plan.isPaid}
+          billingEnabled={session.features.billing}
+        />
+      )}
 
       {overview.unfinished.length > 0 ? (
         <section className="space-y-3">
