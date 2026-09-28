@@ -89,6 +89,7 @@ export const quiz = {
     answerSheet: "答题卡",
     collapseAnswerSheet: "收起答题卡",
     expandAnswerSheet: "展开答题卡",
+    floatAnswerSheet: "悬停时显示",
     omitKnowledgePoint: "这个我会了",
     omitKnowledgePointHint: "以后不再考这个知识点",
     knowledgePointOmitted: "已从以后测验中排除",
