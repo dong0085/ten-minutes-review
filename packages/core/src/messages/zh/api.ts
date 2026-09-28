@@ -8,6 +8,8 @@ export const api = {
   invalidExpiredToken: "链接无效或已过期，请重新申请",
   freePlanLimit: "免费版最多可创建 3 个课堂",
   emptyBank: "添加笔记后即可生成测验",
+  examProRequired: "考试是 Pro 功能",
+  examLocked: "题库知识点还不够，添加笔记后再试试",
   attemptInvalid: "此次作答无效或已过期，请重新开始",
   attemptSubmitted: "此次作答已提交",
   attemptRecord: "无法保存此次作答，请重试",

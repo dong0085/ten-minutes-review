@@ -28,7 +28,7 @@ export const JOB_STATUSES = ["pending", "running", "done", "failed", "cancelled"
 
 export type JobStatus = (typeof JOB_STATUSES)[number];
 
-export const QUIZ_KINDS = ["daily", "manual"] as const;
+export const QUIZ_KINDS = ["daily", "manual", "exam"] as const;
 
 export type QuizKind = (typeof QUIZ_KINDS)[number];
 

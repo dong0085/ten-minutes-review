@@ -8,6 +8,7 @@ export {
   COMPOSITION_PROMPT_VERSION,
   parseCompositionResponse,
 } from "./composition";
+export { EXAM_PROMPT_V1, EXAM_PROMPT_VERSION } from "./exam";
 export {
   extractionResultSchema,
   compositionResultSchema,

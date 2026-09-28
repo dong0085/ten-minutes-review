@@ -240,6 +240,30 @@ export const classroom = {
     targetRequired: "Enter the word or phrase.",
     showMore: "Show {count} more",
   },
+  ExamCard: {
+    kicker: "Exam",
+    lockedTitle: "An exam unlocks with a fuller bank",
+    lockedBlurb:
+      "At {required} knowledge points, you can sit a {count}-question exam worth 100 points.",
+    progress: "{count} of {required} knowledge points",
+    readyTitle: "Your bank is ready for an exam",
+    readyBlurb:
+      "{count} questions across the whole bank, worth 100 points, about {minutes} minutes. Recent misses come first.",
+    start: "Start an exam",
+    retry: "Try again",
+    take: "Take the exam",
+    writing: "Writing your exam…",
+    writingHint: "About a minute. You can leave this page.",
+    cancel: "Cancel",
+    failed: "Could not write the exam. Please try again.",
+    latest: "Latest exam {date}",
+    viewLatest: "View",
+    proBadge: "Pro",
+    proTitle: "Exams are part of Pro",
+    proBody:
+      "Pro unlocks the 100-point exam, its written summary of what you keep missing, and the mistake book with hints.",
+    close: "Not now",
+  },
   QuizzesPage: {
     title: "Quizzes",
     blurb:
@@ -249,6 +273,7 @@ export const classroom = {
     addNotes: "Add notes",
     onDemand: "On demand",
     daily: "Daily",
+    exam: "Exam",
     questions: "{count, plural, one {# question} other {# questions}}",
     best: "Best {score} / {size}",
     notAttempted: "Not attempted",

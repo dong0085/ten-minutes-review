@@ -3,7 +3,7 @@ import type { CompositionResult } from "../types";
 
 export const COMPOSITION_PROMPT_VERSION = "v3";
 
-const COMPOSITION_SCHEMA = `{
+export const COMPOSITION_SCHEMA = `{
   "quiz_date": "YYYY-MM-DD",
   "questions": [
     {
