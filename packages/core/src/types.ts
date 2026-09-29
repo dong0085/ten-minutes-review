@@ -57,7 +57,11 @@ export type KnowledgePointDetail =
 
 export type McqAnswer = { index: number };
 
-export type FillBlankAnswer = { blanks: string[] };
+export type FillBlankAnswer = {
+  blanks: string[];
+  /** Other answers marked right, per blank: accepted[i] holds the alternatives to blanks[i]. */
+  accepted?: string[][];
+};
 
 export type TrueFalseAnswer = { value: boolean };
 

@@ -1,7 +1,7 @@
 import { parseCompositionResult } from "./schemas";
 import type { CompositionResult } from "../types";
 
-export const COMPOSITION_PROMPT_VERSION = "v3";
+export const COMPOSITION_PROMPT_VERSION = "v4";
 
 export const COMPOSITION_SCHEMA = `{
   "quiz_date": "YYYY-MM-DD",
@@ -12,7 +12,7 @@ export const COMPOSITION_SCHEMA = `{
       "type": "mcq | fill_blank | true_false | image",
       "stem": "the question, in the target language; a production fill_blank carries the native cue in parentheses",
       "options": ["option A", "option B", "..."] or null,
-      "answer": { "index": 0 } | { "blanks": ["..."] } | { "value": false } | { "index": 0 },
+      "answer": { "index": 0 } | { "blanks": ["..."], "accepted": [["...", "..."]] } | { "value": false } | { "index": 0 },
       "explanation": "one sentence, in the target language, on why the answer is right"
     }
   ]
@@ -53,17 +53,35 @@ Rules:
 
    A grammar drill with several blanks is one fill_blank question, not several.
 
-6. Write questions and explanations in the target language, except the native
+6. A fill_blank is graded by exact match, ignoring accents and capitals, so
+   keep each blank short: one word or a short phrase, at most four words. The
+   rest of the sentence stays in the stem. To test a whole sentence or a long
+   expression, use mcq instead of asking the learner to type it.
+   In "accepted", list for each blank every other answer a teacher would mark
+   right: spelling variants (paie, paye) and synonyms that fit the cue. Put
+   each one back into the sentence first: it must read correctly with the words
+   around the blank ("un ___" takes "billete", never "el billete"), and it must
+   still show the point being tested (a por/para drill accepts only por or
+   para). accepted[0] holds the alternatives to blanks[0], and so on. Use []
+   for a blank with no alternative.
+
+7. Write questions and explanations in the target language, except the native
    cue that a production question carries.
 
-7. Every question carries a one-sentence explanation of why the answer is right.
+8. Every question carries a one-sentence explanation of why the answer is right.
 
-8. Output JSON only, matching the schema below. No prose, no markdown fence.
+9. The stem never contains the answer. A learner who matches words between the
+   stem and the options must still have to know the point. "Quel objet sert à
+   faire sécher le linge dehors ?" works; adding "… est un étendoir ?" gives it
+   away. Wrong options are plausible mix-ups from the same topic, not
+   obviously unrelated things.
+
+10. Output JSON only, matching the schema below. No prose, no markdown fence.
 
 Schema:
 ${COMPOSITION_SCHEMA}`;
 
-export const COMPOSITION_PROMPT_V3 = COMPOSITION_PROMPT_BODY;
+export const COMPOSITION_PROMPT_V4 = COMPOSITION_PROMPT_BODY;
 
 export function parseCompositionResponse(text: string): CompositionResult {
   return parseCompositionResult(JSON.parse(text));

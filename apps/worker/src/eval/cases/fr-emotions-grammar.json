@@ -1,0 +1,137 @@
+{
+  "targetLanguage": "fr",
+  "nativeLanguage": "en",
+  "size": 8,
+  "knowledgePoints": [
+    {
+      "id": "e01",
+      "category": "grammar",
+      "target": "adjectif → nom",
+      "native": "adjective → noun",
+      "detail": {
+        "grammar": {
+          "rule": "An adjective becomes a noun by changing form and taking a gender.",
+          "examples": [
+            {
+              "target": "heureux",
+              "related": "le bonheur"
+            },
+            {
+              "target": "triste",
+              "related": "la tristesse"
+            },
+            {
+              "target": "en colère",
+              "related": "la colère"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "e02",
+      "category": "grammar",
+      "target": "passé composé avec être",
+      "native": "passé composé with être",
+      "detail": {
+        "grammar": {
+          "rule": "Verbs of movement and reflexive verbs take être, and the past participle agrees with the subject.",
+          "examples": [
+            {
+              "target": "elle est partie",
+              "related": null
+            },
+            {
+              "target": "ils se sont levés",
+              "related": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "e03",
+      "category": "vocabulary",
+      "target": "épanouissant",
+      "native": "fulfilling",
+      "detail": null
+    },
+    {
+      "id": "e04",
+      "category": "vocabulary",
+      "target": "épuisant",
+      "native": "exhausting",
+      "detail": null
+    },
+    {
+      "id": "e05",
+      "category": "vocabulary",
+      "target": "la jalousie",
+      "native": "jealousy",
+      "detail": null
+    },
+    {
+      "id": "e06",
+      "category": "vocabulary",
+      "target": "déçu",
+      "native": "disappointed",
+      "detail": null
+    },
+    {
+      "id": "e07",
+      "category": "expression",
+      "target": "J'en ai marre.",
+      "native": "I'm fed up.",
+      "detail": null
+    },
+    {
+      "id": "e08",
+      "category": "expression",
+      "target": "Ça me fait chaud au cœur.",
+      "native": "It warms my heart.",
+      "detail": null
+    },
+    {
+      "id": "e09",
+      "category": "phrase",
+      "target": "avoir le cafard",
+      "native": "to feel down",
+      "detail": null
+    },
+    {
+      "id": "e10",
+      "category": "grammar",
+      "target": "le subjonctif après « il faut que »",
+      "native": "subjunctive after « il faut que »",
+      "detail": {
+        "grammar": {
+          "rule": "« Il faut que » is followed by the subjunctive.",
+          "examples": [
+            {
+              "target": "il faut que tu viennes",
+              "related": null
+            },
+            {
+              "target": "il faut que je fasse",
+              "related": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "e11",
+      "category": "vocabulary",
+      "target": "la fierté",
+      "native": "pride",
+      "detail": null
+    }
+  ],
+  "alreadyAskedStems": [],
+  "recentMisses": [
+    {
+      "knowledgePointId": "e01",
+      "stem": "Le nom de « triste » est :"
+    }
+  ]
+}

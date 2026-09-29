@@ -1,0 +1,69 @@
+{
+  "targetLanguage": "fr",
+  "nativeLanguage": "en",
+  "size": 6,
+  "knowledgePoints": [
+    {
+      "id": "p01",
+      "category": "comprehension",
+      "target": "Pour les bouddhistes, après la mort, l'âme entre dans l'univers et se prépare pour une prochaine vie.",
+      "native": "For Buddhists, after death, the soul enters the universe and prepares for a next life.",
+      "detail": {
+        "passage_ref": "8a1f0c52-2f7e-4c55-9d1b-3c1e8a0d7b11"
+      }
+    },
+    {
+      "id": "p02",
+      "category": "comprehension",
+      "target": "Le moine méditait chaque matin avant le lever du soleil.",
+      "native": "The monk meditated every morning before sunrise.",
+      "detail": {
+        "passage_ref": "8a1f0c52-2f7e-4c55-9d1b-3c1e8a0d7b11"
+      }
+    },
+    {
+      "id": "p03",
+      "category": "vocabulary",
+      "target": "l'âme",
+      "native": "the soul",
+      "detail": null
+    },
+    {
+      "id": "p04",
+      "category": "vocabulary",
+      "target": "le moine",
+      "native": "the monk",
+      "detail": null
+    },
+    {
+      "id": "p05",
+      "category": "vocabulary",
+      "target": "le lever du soleil",
+      "native": "sunrise",
+      "detail": null
+    },
+    {
+      "id": "p06",
+      "category": "phrase",
+      "target": "se préparer pour",
+      "native": "to prepare for",
+      "detail": null
+    },
+    {
+      "id": "p07",
+      "category": "vocabulary",
+      "target": "la renaissance",
+      "native": "rebirth",
+      "detail": null
+    },
+    {
+      "id": "p08",
+      "category": "expression",
+      "target": "Chacun sa voie.",
+      "native": "To each their own path.",
+      "detail": null
+    }
+  ],
+  "alreadyAskedStems": [],
+  "recentMisses": []
+}

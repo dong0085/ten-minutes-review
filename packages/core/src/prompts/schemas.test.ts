@@ -99,6 +99,36 @@ describe("parseCompositionResult", () => {
   });
 });
 
+describe("parseCompositionResult accepted answers", () => {
+  function parseBlank(answer: unknown) {
+    return parseCompositionResult({
+      quiz_date: "2026-09-29",
+      questions: [
+        {
+          knowledge_point_id: "k",
+          category: "phrase",
+          type: "fill_blank",
+          stem: "Chaque mois, ___ (I pay) le loyer.",
+          answer,
+          explanation: "…",
+        },
+      ],
+    }).questions[0]?.answer;
+  }
+
+  it("keeps alternatives, dropping blanks, repeats, and non-strings", () => {
+    expect(parseBlank({ blanks: ["je paie"], accepted: [["je paye", "Je paie", "", 3, "je paye"]] })).toEqual({
+      blanks: ["je paie"],
+      accepted: [["je paye"]],
+    });
+  });
+
+  it("omits accepted when it holds nothing usable", () => {
+    expect(parseBlank({ blanks: ["je paie"], accepted: "je paye" })).toEqual({ blanks: ["je paie"] });
+    expect(parseBlank({ blanks: ["je paie"], accepted: [[]] })).toEqual({ blanks: ["je paie"] });
+  });
+});
+
 describe("sanitizeCompositionQuestions", () => {
   const base: Omit<CompositionQuestion, "knowledge_point_id" | "type" | "answer" | "options"> =
     {
@@ -181,6 +211,122 @@ describe("sanitizeCompositionQuestions", () => {
       new Set(["k"]),
     );
     expect(kept).toHaveLength(2);
+  });
+
+  it("drops questions whose stem spells out the answer", () => {
+    const { kept, dropped } = sanitizeCompositionQuestions(
+      [
+        {
+          ...base,
+          knowledge_point_id: "k",
+          type: "mcq",
+          stem: "Quel objet utilisé pour faire sécher le linge à l'extérieur est un étendoir ?",
+          options: ["Un étendoir", "Un fer à repasser", "Une machine à laver", "Un aspirateur"],
+          answer: { index: 0 },
+        },
+        {
+          ...base,
+          knowledge_point_id: "k",
+          type: "fill_blank",
+          stem: "Le rouge à lèvres : elle se met du ___ (lipstick).",
+          options: null,
+          answer: { blanks: ["rouge à lèvres"] },
+        },
+      ],
+      new Set(["k"]),
+    );
+    expect(kept).toEqual([]);
+    expect(dropped.map((entry) => entry.reason)).toEqual([
+      "stem gives away the answer",
+      "stem gives away the answer",
+    ]);
+  });
+
+  it("catches an answer that ends in a period", () => {
+    const { dropped } = sanitizeCompositionQuestions(
+      [
+        {
+          ...base,
+          category: "expression",
+          knowledge_point_id: "k",
+          type: "mcq",
+          stem: "Comment dit-on qu'il n'y a plus de papier toilette ?",
+          options: ["Il n'y a plus de papier toilette.", "Il y a du papier toilette.", "Je vais en acheter."],
+          answer: { index: 0 },
+        },
+      ],
+      new Set(["k"]),
+    );
+    expect(dropped[0]?.reason).toBe("stem gives away the answer");
+  });
+
+  it("drops a fill_blank whose blank is a whole sentence", () => {
+    const { dropped } = sanitizeCompositionQuestions(
+      [
+        {
+          ...base,
+          category: "expression",
+          knowledge_point_id: "k",
+          type: "fill_blank",
+          stem: "Avec toute cette brume, ___ (We couldn't see the sky).",
+          options: null,
+          answer: { blanks: ["On n'a pas pu voir le ciel"] },
+        },
+      ],
+      new Set(["k"]),
+    );
+    expect(dropped[0]?.reason).toBe("blank answer too long");
+  });
+
+  it("keeps grammar stems that name the forms they drill", () => {
+    const { kept } = sanitizeCompositionQuestions(
+      [
+        {
+          ...base,
+          category: "grammar",
+          knowledge_point_id: "k",
+          type: "fill_blank",
+          stem: "Completa con por o para: Salimos ___ Sevilla.",
+          options: null,
+          answer: { blanks: ["para"] },
+        },
+      ],
+      new Set(["k"]),
+    );
+    expect(kept).toHaveLength(1);
+  });
+
+  it("keeps stems that name every option compared, or only part of a word", () => {
+    const { kept } = sanitizeCompositionQuestions(
+      [
+        {
+          ...base,
+          knowledge_point_id: "k",
+          type: "mcq",
+          stem: "Faut-il dire « il a mangé » ou « il est mangé » ?",
+          options: ["il a mangé", "il est mangé"],
+          answer: { index: 0 },
+        },
+        {
+          ...base,
+          knowledge_point_id: "k",
+          type: "fill_blank",
+          stem: "Il ___ (manger) une pomme.",
+          options: null,
+          answer: { blanks: ["mange"] },
+        },
+        {
+          ...base,
+          knowledge_point_id: "k",
+          type: "mcq",
+          stem: "« l'étendoir » veut dire :",
+          options: ["the clothes line", "the ceiling"],
+          answer: { index: 0 },
+        },
+      ],
+      new Set(["k"]),
+    );
+    expect(kept).toHaveLength(3);
   });
 
   it("keeps valid questions", () => {
