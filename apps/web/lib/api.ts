@@ -11,7 +11,6 @@ const MESSAGE_KEYS: Record<string, ApiMessageKey> = {
   "Email already registered": "emailRegistered",
   "Invalid or missing token": "invalidToken",
   "Invalid or expired token": "invalidExpiredToken",
-  "Free plan is limited to 3 classrooms": "freePlanLimit",
   "Add notes to create a quiz": "emptyBank",
   "Exams are a Pro feature": "examProRequired",
   "Add more notes to unlock the exam": "examLocked",
@@ -21,8 +20,6 @@ const MESSAGE_KEYS: Record<string, ApiMessageKey> = {
   "Attempt token is invalid or expired": "attemptInvalid",
   "This attempt was already submitted": "attemptSubmitted",
   "Could not record the attempt": "attemptRecord",
-  "Upload limit reached: 50 uploads per day": "uploadLimit",
-  "Free plan is limited to 2 notes uploads per month": "freeUploadLimit",
   "Billing is not available right now": "billingUnavailable",
   "You already have an active subscription": "alreadySubscribed",
   "Invalid form data": "invalidFormData",
@@ -34,6 +31,12 @@ const MESSAGE_KEYS: Record<string, ApiMessageKey> = {
 };
 
 const TOO_LARGE = /^(.+) is larger than 10MB$/;
+// Limits the admin console can change carry their number in the message.
+const COUNTED: [RegExp, ApiMessageKey][] = [
+  [/^Free plan is limited to (\d+) classrooms$/, "freePlanLimit"],
+  [/^Upload limit reached: (\d+) uploads per day$/, "uploadLimit"],
+  [/^Free plan is limited to (\d+) notes uploads per month$/, "freeUploadLimit"],
+];
 const WRONG_TYPE = /^(.+) must be a JPEG, PNG, WebP, GIF, AVIF, or HEIC image$/;
 
 export function jsonOk<T>(data: T, status = 200) {
@@ -45,6 +48,12 @@ async function localizeMessage(message: string): Promise<string> {
   const key = MESSAGE_KEYS[message];
   if (key) {
     return t(key);
+  }
+  for (const [pattern, countedKey] of COUNTED) {
+    const counted = pattern.exec(message);
+    if (counted) {
+      return t(countedKey, { count: Number(counted[1]) });
+    }
   }
   const tooLarge = TOO_LARGE.exec(message);
   if (tooLarge) {

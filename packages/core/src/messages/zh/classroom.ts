@@ -243,6 +243,7 @@ export const classroom = {
     checking: "批改中…",
     tryAgain: "再做一次",
     corrected: "已订正",
+    reopen: "重新展开这道题",
     stillWrong: "还不对。看看批注，再试一次。",
     checkError: "暂时无法批改这道题。",
     proTitle: "错题本是 Pro 功能",

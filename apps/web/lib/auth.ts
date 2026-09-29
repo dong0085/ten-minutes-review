@@ -55,7 +55,7 @@ providers.push(
         return null;
       }
       const user = await verifyCredentials(email, password);
-      if (!user) {
+      if (!user || user.disabledAt) {
         return null;
       }
       return { id: user.id, email: user.email, name: user.username ?? user.email };
@@ -207,7 +207,7 @@ export const authConfig: NextAuthConfig = {
       if (dbUser === undefined) {
         return token;
       }
-      if (!dbUser) {
+      if (!dbUser || dbUser.disabledAt) {
         return null;
       }
       if (user) {

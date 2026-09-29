@@ -1,4 +1,5 @@
-import { parseJsonFromLlmText } from "@tmr/core";
+import { parseJsonFromLlmText, usageFromChatCompletion } from "@tmr/core";
+import { reportLlmUsage, withLlmTracking } from "@tmr/db";
 import type { ExtractionResult } from "@tmr/core";
 import { env } from "./env";
 
@@ -83,7 +84,9 @@ function createDeepseekProvider() {
     }
     const data = (await response.json()) as {
       choices?: { message?: { content?: string } }[];
+      usage?: unknown;
     };
+    reportLlmUsage(usageFromChatCompletion(data.usage));
     const content = data.choices?.[0]?.message?.content;
     if (!content) {
       throw new Error("DeepSeek response is missing message content");
@@ -115,11 +118,14 @@ function createDeepseekProvider() {
 
 export function getLlmProvider() {
   if (env.llmProvider === "deepseek" && env.deepseekApiKey) {
-    return createDeepseekProvider();
+    return withLlmTracking(createDeepseekProvider(), { provider: "deepseek", model: env.deepseekModel });
   }
-  return {
-    async extract(input: ExtractInput) {
-      return mockExtraction(input);
+  return withLlmTracking(
+    {
+      async extract(input: ExtractInput) {
+        return mockExtraction(input);
+      },
     },
-  };
+    { provider: "mock", model: "mock" },
+  );
 }

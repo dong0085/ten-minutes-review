@@ -23,7 +23,7 @@ const redirectLegacyHost = appUrl !== "" && new URL(appUrl).host !== LEGACY_HOST
 // The signed-in app is a single-page app built by apps/spa into public/_spa.
 // Every address under these prefixes serves its shell; its router takes over.
 const SPA_SHELL = "/_spa/index.html";
-const SPA_PREFIXES = ["/classrooms", "/account"];
+const SPA_PREFIXES = ["/classrooms", "/account", "/admin"];
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@tmr/core", "@tmr/db", "@tmr/email", "@tmr/ui"],

@@ -201,6 +201,7 @@ export async function listDueClassrooms(db: Db, sendAt: Date) {
       AND c.active_until > now()
       AND c.paused_at IS NULL
       AND COALESCE(u.is_guest, false) = false
+      AND u.disabled_at IS NULL
       AND COALESCE(ep.daily_enabled, true)
       AND ep.unsubscribed_at IS NULL
       AND now() >= ${encodedSendAt}
@@ -245,6 +246,7 @@ export async function listReadyDailyEmailRecipients(db: Db, sendAt: Date) {
         AND c.active_until > now()
         AND c.paused_at IS NULL
         AND COALESCE(u.is_guest, false) = false
+        AND u.disabled_at IS NULL
         AND COALESCE(ep.daily_enabled, true)
         AND ep.unsubscribed_at IS NULL
         AND now() >= ${encodedSendAt}
@@ -297,6 +299,7 @@ export async function listUnsentDailyEmailRecipients(db: Db, sendAt: Date) {
       WHERE c.archived_at IS NULL
         AND c.active_until > now()
         AND c.paused_at IS NULL
+        AND u.disabled_at IS NULL
         AND COALESCE(ep.daily_enabled, true)
         AND ep.unsubscribed_at IS NULL
         AND now() >= ${encodedSendAt}

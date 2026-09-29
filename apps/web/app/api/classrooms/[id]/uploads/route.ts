@@ -1,9 +1,7 @@
 import { after } from "next/server";
 import { z } from "zod";
 import {
-  FREE_TIER,
   MAX_IMAGE_BYTES,
-  MAX_UPLOADS_PER_USER_PER_DAY,
   startOfMonthAt,
 } from "@tmr/core";
 import {
@@ -12,6 +10,7 @@ import {
   enqueueJob,
   extendClassroomActivity,
   getClassroom,
+  getEffectiveLimits,
   hasPaidPlan,
   listUploadsForUser,
 } from "@tmr/db";
@@ -59,7 +58,6 @@ function safeFilename(name: string): string {
   return cleaned || "image";
 }
 
-const FREE_UPLOAD_LIMIT = "Free plan is limited to 2 notes uploads per month";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -122,16 +120,19 @@ export async function POST(request: Request, context: RouteContext) {
     if (user.isGuest && recentCount >= 1) {
       return jsonError("Guest preview is limited to 1 upload. Sign up to add more.", 403);
     }
-    if (!user.isGuest && recentCount >= MAX_UPLOADS_PER_USER_PER_DAY) {
-      return jsonError("Upload limit reached: 50 uploads per day", 429);
+    const limits = await getEffectiveLimits(db, user.id);
+    const dailyLimitMessage = `Upload limit reached: ${limits.uploadsPerDay} uploads per day`;
+    const monthlyLimitMessage = `Free plan is limited to ${limits.notesUploadsPerMonth} notes uploads per month`;
+    if (!user.isGuest && recentCount >= limits.uploadsPerDay) {
+      return jsonError(dailyLimitMessage, 429);
     }
 
     const isPaid = !user.isGuest && (await hasPaidPlan(db, user.id));
     const monthCount = isPaid
       ? 0
       : await countUploadsSince(db, user.id, startOfMonthAt(user.timezone));
-    if (!isPaid && monthCount >= FREE_TIER.notesUploadsPerMonth) {
-      return jsonError(FREE_UPLOAD_LIMIT, 403);
+    if (!isPaid && monthCount >= limits.notesUploadsPerMonth) {
+      return jsonError(monthlyLimitMessage, 403);
     }
 
     const contentType = request.headers.get("content-type") ?? "";
@@ -152,11 +153,11 @@ export async function POST(request: Request, context: RouteContext) {
       if (user.isGuest && files.length > 1) {
         return jsonError("Guest preview is limited to 1 image. Sign up to add more.", 403);
       }
-      if (!user.isGuest && recentCount + files.length > MAX_UPLOADS_PER_USER_PER_DAY) {
-        return jsonError("Upload limit reached: 50 uploads per day", 429);
+      if (!user.isGuest && recentCount + files.length > limits.uploadsPerDay) {
+        return jsonError(dailyLimitMessage, 429);
       }
-      if (!isPaid && monthCount + files.length > FREE_TIER.notesUploadsPerMonth) {
-        return jsonError(FREE_UPLOAD_LIMIT, 403);
+      if (!isPaid && monthCount + files.length > limits.notesUploadsPerMonth) {
+        return jsonError(monthlyLimitMessage, 403);
       }
       const validated: { file: File; mimeType: string }[] = [];
       for (const file of files) {

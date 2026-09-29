@@ -9,50 +9,6 @@ html {
   font-family: var(--font-sans);
 }
 
-/* Quiz answer sheet: handed in (flies up), then handed back graded (drops in). */
-.quiz-sheet-hand-in {
-  animation: quiz-sheet-hand-in 0.5s cubic-bezier(0.55, 0, 0.75, 0.2) both;
-}
-
-.quiz-sheet-hand-back {
-  animation: quiz-sheet-hand-back 0.75s cubic-bezier(0.2, 0.9, 0.25, 1.08) both;
-}
-
-.quiz-mark {
-  animation: quiz-mark-in 0.35s cubic-bezier(0.3, 1.4, 0.5, 1) both;
-  animation-delay: calc(0.7s + var(--mark-order, 0) * 0.06s);
-}
-
-@keyframes quiz-sheet-hand-in {
-  to {
-    translate: 0 -110vh;
-    rotate: -2.5deg;
-    opacity: 0.6;
-  }
-}
-
-@keyframes quiz-sheet-hand-back {
-  from {
-    translate: 0 -110vh;
-    rotate: 1.5deg;
-  }
-  to {
-    translate: 0 0;
-    rotate: 0deg;
-  }
-}
-
-@keyframes quiz-mark-in {
-  from {
-    opacity: 0;
-    scale: 1.8;
-  }
-  to {
-    opacity: 1;
-    scale: 1;
-  }
-}
-
 /* The quiz as a printed exam paper, with two more sheets peeking out behind it. */
 .quiz-paper-stack {
   position: relative;
@@ -226,11 +182,6 @@ button.exam-review-chip:focus-visible {
     color: var(--foreground);
     print-color-adjust: exact;
   }
-
-  .quiz-sheet-hand-back,
-  .quiz-mark {
-    animation: none;
-  }
 }
 
 /* Exam answer sheet: an optical-mark card printed in the theme's ink, marked in pencil. */
@@ -392,8 +343,9 @@ button.exam-review-chip:focus-visible {
   background: color-mix(in oklch, var(--primary) 10%, transparent);
 }
 
-/* Graphite: dark, grainy, a touch past the edge, with the sheen soft lead leaves. */
-.scantron-bubble::after,
+/* Graphite: dark, grainy, a touch past the edge, with the sheen soft lead leaves.
+   A bubble's lead is its own element, animated by scantron.tsx. */
+.scantron-lead,
 .scantron-mini::after {
   content: "";
   position: absolute;
@@ -408,17 +360,9 @@ button.exam-review-chip:focus-visible {
   pointer-events: none;
 }
 
-.scantron-bubble.is-filled::after,
 .scantron-mini.is-filled::after {
   opacity: 0.94;
   animation: pencil-in 0.28s ease-out both;
-}
-
-/* A rubbed-out mark leaves a faint smudge behind. */
-.scantron-bubble.is-erased::after {
-  opacity: 0.13;
-  filter: blur(0.6px);
-  inset: -2px;
 }
 
 .scantron-bubble.is-missed {

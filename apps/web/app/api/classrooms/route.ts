@@ -1,6 +1,5 @@
 import { z } from "zod";
 import {
-  FREE_TIER,
   classroomDailyStatus,
   classroomQuizDaysRemaining,
   startOfMonthAt,
@@ -11,6 +10,7 @@ import {
   countUploadsSince,
   createClassroom,
   createGuestUser,
+  getEffectiveLimits,
   hasPaidPlan,
   listClassrooms,
   listQuizzesForUserOnDate,
@@ -60,14 +60,14 @@ export async function GET() {
       })),
     );
     // Free accounts see how much of the monthly allowance is left.
-    const limits =
-      isPaid || isGuest
-        ? null
-        : {
-            classrooms: FREE_TIER.classrooms,
-            uploadsPerMonth: FREE_TIER.notesUploadsPerMonth,
-            uploadsThisMonth: await countUploadsSince(db, user.id, startOfMonthAt(user.timezone)),
-          };
+    const effective = isPaid || isGuest ? null : await getEffectiveLimits(db, user.id);
+    const limits = effective
+      ? {
+          classrooms: effective.classrooms,
+          uploadsPerMonth: effective.notesUploadsPerMonth,
+          uploadsThisMonth: await countUploadsSince(db, user.id, startOfMonthAt(user.timezone)),
+        }
+      : null;
     return jsonOk({ classrooms: payload, limits });
   } catch (error) {
     return handleRouteError(error);
@@ -95,12 +95,11 @@ export async function POST(request: Request) {
     if (user.isGuest && existingCount >= 1) {
       return jsonError("Guest preview is limited to 1 classroom. Sign up to create more.", 403);
     }
-    if (
-      !user.isGuest &&
-      existingCount >= FREE_TIER.classrooms &&
-      !(await hasPaidPlan(db, user.id))
-    ) {
-      return jsonError("Free plan is limited to 3 classrooms", 403);
+    if (!user.isGuest) {
+      const { classrooms: classroomLimit } = await getEffectiveLimits(db, user.id);
+      if (existingCount >= classroomLimit && !(await hasPaidPlan(db, user.id))) {
+        return jsonError(`Free plan is limited to ${classroomLimit} classrooms`, 403);
+      }
     }
 
     const classroom = await createClassroom(db, user.id, {

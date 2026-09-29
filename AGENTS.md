@@ -1,6 +1,6 @@
 # ten-minutes-review — agent notes
 
-Specs live in `docs/`: `SCOPE.md` (every product decision), `PROMPTS.md` (the two prompts), `TECHNICAL.md` (architecture, data model, API, pipelines), `FLOWS.md` (screen behaviour), `TRIAL-RUN.md` (field notes), `SELF-HOSTING.md` (Docker deployment). Read `docs/TECHNICAL.md` before changing architecture.
+Specs live in `docs/`: `SCOPE.md` (every product decision), `PROMPTS.md` (the two prompts), `TECHNICAL.md` (architecture, data model, API, pipelines), `FLOWS.md` (screen behaviour), `TRIAL-RUN.md` (field notes), `SELF-HOSTING.md` (Docker deployment), `ADMIN.md` (admin console). Read `docs/TECHNICAL.md` before changing architecture.
 
 ## Layout
 

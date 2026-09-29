@@ -4,7 +4,7 @@ import { useTranslations } from "use-intl";
 import { Check } from "lucide-react";
 import { Alert, AlertDescription } from "@tmr/ui/components/alert";
 import { Button } from "@tmr/ui/components/button";
-import { Input } from "@tmr/ui/components/input";
+import { PasswordInput } from "@tmr/ui/components/password-input";
 import { Label } from "@tmr/ui/components/label";
 import { readError } from "@/lib/read-error";
 import { cn } from "@tmr/ui/utils";
@@ -62,9 +62,10 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
       {hasPassword ? (
         <div>
           <Label htmlFor="password-current">{t("currentPassword")}</Label>
-          <Input
+          <PasswordInput
             id="password-current"
-            type="password"
+            showLabel={tc("showPassword")}
+            hideLabel={tc("hidePassword")}
             required
             autoComplete="current-password"
             value={currentPassword}
@@ -75,9 +76,10 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <Label htmlFor="password-new">{t("newPassword")}</Label>
-          <Input
+          <PasswordInput
             id="password-new"
-            type="password"
+            showLabel={tc("showPassword")}
+            hideLabel={tc("hidePassword")}
             required
             minLength={8}
             autoComplete="new-password"
@@ -87,9 +89,10 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
         </div>
         <div>
           <Label htmlFor="password-confirm">{t("confirmPassword")}</Label>
-          <Input
+          <PasswordInput
             id="password-confirm"
-            type="password"
+            showLabel={tc("showPassword")}
+            hideLabel={tc("hidePassword")}
             required
             minLength={8}
             autoComplete="new-password"

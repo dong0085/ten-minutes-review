@@ -17,6 +17,7 @@ export type SessionUser = {
 export type Session = {
   user: SessionUser;
   isGuest: boolean;
+  isAdmin: boolean;
   hasPassword: boolean;
   googleLinked: boolean;
   plan: { isPaid: boolean; status: string | null };

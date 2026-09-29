@@ -17,6 +17,7 @@ import {
   insertKnowledgePoints,
   insertPassages,
   markUploadRunning,
+  runInLlmScope,
 } from "@tmr/db";
 import type { NewKnowledgePoint } from "@tmr/db";
 import { getDb } from "./db";
@@ -74,12 +75,16 @@ export async function processUploadExtraction(
     }
 
     const provider = getLlmProvider();
-    const raw = await provider.extract({
-      systemPrompt: EXTRACTION_PROMPT_V2,
-      text: upload.kind === "text" ? upload.textContent : null,
-      images,
-      targetHint: classroom?.targetLanguage ?? null,
-    });
+    const raw = await runInLlmScope(
+      { db, jobId: jobId ?? null, userId: classroom?.userId ?? null },
+      () =>
+        provider.extract({
+          systemPrompt: EXTRACTION_PROMPT_V2,
+          text: upload.kind === "text" ? upload.textContent : null,
+          images,
+          targetHint: classroom?.targetLanguage ?? null,
+        }),
+    );
     const result =
       typeof raw === "string" ? parseExtractionResponse(raw) : parseExtractionResult(raw);
 

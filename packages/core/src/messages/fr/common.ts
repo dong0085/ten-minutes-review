@@ -8,4 +8,6 @@ export const common = {
   back: "Retour",
   loading: "Chargement…",
   genericError: "Une erreur est survenue. Réessaie.",
+  showPassword: "Afficher le mot de passe",
+  hidePassword: "Masquer le mot de passe",
 } as const;

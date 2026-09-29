@@ -1,5 +1,4 @@
 import { useFormatter, useLocale, useTranslations } from "use-intl";
-import { FREE_TIER } from "@tmr/core";
 import { BillingButton } from "@/components/account/billing-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@tmr/ui/components/avatar";
 import { languageLabel } from "@/lib/language-label";
@@ -53,7 +52,7 @@ export function LibraryCard({
     uiLanguage: string;
   };
   membership: Membership;
-  usage: { classrooms: number; uploadsThisMonth: number };
+  usage: { classrooms: number; uploadsThisMonth: number; classroomLimit: number; uploadLimit: number };
   billingEnabled: boolean;
 }) {
   const t = useTranslations("Account.LibraryCard");
@@ -154,9 +153,9 @@ export function LibraryCard({
             <li className="flex items-center justify-between gap-3">
               <span className="text-muted-foreground">{t("classrooms")}</span>
               <span className="flex items-center gap-2">
-                <Pips used={Math.min(usage.classrooms, FREE_TIER.classrooms)} limit={FREE_TIER.classrooms} />
+                <Pips used={Math.min(usage.classrooms, usage.classroomLimit)} limit={usage.classroomLimit} />
                 <span className="w-8 text-right text-xs tabular-nums">
-                  {Math.min(usage.classrooms, FREE_TIER.classrooms)}/{FREE_TIER.classrooms}
+                  {Math.min(usage.classrooms, usage.classroomLimit)}/{usage.classroomLimit}
                 </span>
               </span>
             </li>
@@ -164,12 +163,12 @@ export function LibraryCard({
               <span className="text-muted-foreground">{t("uploads")}</span>
               <span className="flex items-center gap-2">
                 <Pips
-                  used={Math.min(usage.uploadsThisMonth, FREE_TIER.notesUploadsPerMonth)}
-                  limit={FREE_TIER.notesUploadsPerMonth}
+                  used={Math.min(usage.uploadsThisMonth, usage.uploadLimit)}
+                  limit={usage.uploadLimit}
                 />
                 <span className="w-8 text-right text-xs tabular-nums">
-                  {Math.min(usage.uploadsThisMonth, FREE_TIER.notesUploadsPerMonth)}/
-                  {FREE_TIER.notesUploadsPerMonth}
+                  {Math.min(usage.uploadsThisMonth, usage.uploadLimit)}/
+                  {usage.uploadLimit}
                 </span>
               </span>
             </li>

@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { useRouter } from "@/lib/router";
+import { motion } from "motion/react";
 import { useTranslations } from "use-intl";
 import { ArrowRight, Check, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@tmr/ui/components/button";
@@ -13,6 +14,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@tmr/ui/components/dialog";
+import { QuizMailbox } from "./quiz-mailbox";
+import { QuizWriting } from "./quiz-writing";
 
 type JobStatus = "pending" | "running";
 type Phase = "idle" | "posting" | "composing" | "ready" | "stopped" | "failed";
@@ -37,6 +40,7 @@ export function TodayQuizAction({
   resetLocal,
   resetUtc,
   resetTomorrow,
+  today,
 }: {
   classroomId: string;
   dailyQuizId: string | null;
@@ -48,6 +52,8 @@ export function TodayQuizAction({
   resetLocal: string;
   resetUtc: string;
   resetTomorrow: boolean;
+  /** Today's date in the learner's zone, YYYY-MM-DD, for the letterbox. */
+  today: string;
 }) {
   const t = useTranslations("Classroom.TodayQuiz");
   const tCommon = useTranslations("Common");
@@ -326,6 +332,7 @@ export function TodayQuizAction({
         <DialogContent showCloseButton={false}>
           {composing && !timedOut ? (
             <>
+              <QuizWriting />
               <DialogHeader>
                 <DialogTitle aria-live="polite">
                   {phase === "posting" ? t("stepQueued") : steps[stepIndex]?.label}
@@ -375,6 +382,15 @@ export function TodayQuizAction({
             </>
           ) : phase === "ready" && readyQuizId ? (
             <>
+              {/* The new quiz arrives in the letterbox and slides out. */}
+              <motion.div
+                initial="rest"
+                animate="open"
+                variants={{ rest: {}, open: { transition: { delayChildren: 0.25 } } }}
+                className="flex justify-center pt-4"
+              >
+                <QuizMailbox date={new Date(`${today}T00:00:00Z`)} />
+              </motion.div>
               <DialogHeader>
                 <DialogTitle>{t("readyTitle")}</DialogTitle>
                 <DialogDescription>

@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { Alert, AlertDescription } from "@tmr/ui/components/alert";
 import { Button } from "@tmr/ui/components/button";
 import { Card, CardContent } from "@tmr/ui/components/card";
-import { Input } from "@tmr/ui/components/input";
+import { PasswordInput } from "@tmr/ui/components/password-input";
 import { Label } from "@tmr/ui/components/label";
 
 export function ResetForm({ token }: { token: string }) {
@@ -66,9 +66,10 @@ export function ResetForm({ token }: { token: string }) {
         <form className="space-y-4" onSubmit={onSubmit}>
           <div>
             <Label htmlFor="reset-password">{t("password")}</Label>
-            <Input
+            <PasswordInput
               id="reset-password"
-              type="password"
+              showLabel={tc("showPassword")}
+              hideLabel={tc("hidePassword")}
               required
               minLength={8}
               value={password}
@@ -77,9 +78,10 @@ export function ResetForm({ token }: { token: string }) {
           </div>
           <div>
             <Label htmlFor="reset-confirm">{t("confirm")}</Label>
-            <Input
+            <PasswordInput
               id="reset-confirm"
-              type="password"
+              showLabel={tc("showPassword")}
+              hideLabel={tc("hidePassword")}
               required
               minLength={8}
               value={confirm}

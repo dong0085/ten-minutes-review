@@ -257,6 +257,7 @@ export const classroom = {
     checking: "Checking…",
     tryAgain: "Try again",
     corrected: "Corrected",
+    reopen: "Show this question again",
     stillWrong: "Not yet. Read the note, then try again.",
     checkError: "Could not check this answer.",
     proTitle: "Corrections are part of Pro",
