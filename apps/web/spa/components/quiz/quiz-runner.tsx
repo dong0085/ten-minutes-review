@@ -134,6 +134,7 @@ export function QuizRunner({
   suggestedMinutes,
   kind = "daily",
   candidateName = "",
+  onGraded,
 }: {
   quizId: string;
   classroomId: string;
@@ -144,6 +145,8 @@ export function QuizRunner({
   suggestedMinutes?: number;
   kind?: "daily" | "manual" | "exam";
   candidateName?: string;
+  /** Called with the attempt id once graded, and with null when a new attempt starts. */
+  onGraded?: (attemptId: string | null) => void;
 }) {
   const isExam = kind === "exam";
   const t = useTranslations("Quiz.Runner");
@@ -199,6 +202,7 @@ export function QuizRunner({
     setPhase("loading");
     setError(null);
     setResult(null);
+    onGraded?.(null);
     setHandedBack(false);
     setResponses({});
     setOptionOrders({});
@@ -272,7 +276,7 @@ export function QuizRunner({
       setError(startError instanceof Error ? startError.message : t("startError"));
       setPhase("error");
     }
-  }, [quizId, userId, t]);
+  }, [quizId, userId, t, onGraded]);
 
   useEffect(() => {
     if (hasStarted.current) {
@@ -414,6 +418,7 @@ export function QuizRunner({
       setElapsedMs(durationMs);
       setHandedBack(true);
       setPhase("results");
+      onGraded?.(data.attemptId);
     } catch (submitError) {
       const message = submitError instanceof Error ? submitError.message : t("submitError");
       if (submitError instanceof ApiRequestError && submitError.code === "attempt_invalid") {
@@ -425,7 +430,7 @@ export function QuizRunner({
       setPhase("taking");
       toast.error(message);
     }
-  }, [attemptToken, current, questions, quizId, responses, t, trackTime, userId]);
+  }, [attemptToken, current, questions, quizId, responses, t, trackTime, userId, onGraded]);
 
   const focusQuestion = useCallback((questionId: string) => {
     const container = questionRefs.current[questionId];

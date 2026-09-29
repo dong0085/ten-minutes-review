@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { Link, useParams } from "react-router";
+import { useCallback, useEffect, useState } from "react";
+import { Link, Navigate, useParams, useSearchParams } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "use-intl";
 import { X } from "lucide-react";
@@ -23,6 +23,27 @@ export function TakeQuizPage() {
   const { data: session } = useSession();
   const { data, isPending, error } = useQuiz(quizId);
   const { data: classroom } = useClassroom(id);
+  const [searchParams, setSearchParams] = useSearchParams();
+  // A graded quiz keeps its attempt in the address, so a reload opens that review
+  // instead of starting a new attempt.
+  const [reloadedAttemptId] = useState(() => searchParams.get("attempt"));
+  const onGraded = useCallback(
+    (attemptId: string | null) => {
+      setSearchParams(
+        (params) => {
+          const next = new URLSearchParams(params);
+          if (attemptId) {
+            next.set("attempt", attemptId);
+          } else {
+            next.delete("attempt");
+          }
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
 
   // A submitted attempt changes scores on the quiz, the list, and the hub.
   useEffect(
@@ -34,6 +55,14 @@ export function TakeQuizPage() {
     [id, quizId, queryClient],
   );
 
+  if (reloadedAttemptId) {
+    return (
+      <Navigate
+        replace
+        to={`/classrooms/${id}/quizzes/${quizId}/attempts/${encodeURIComponent(reloadedAttemptId)}`}
+      />
+    );
+  }
   if (isPending || !session) {
     return <FullPageSpinner />;
   }
@@ -63,6 +92,7 @@ export function TakeQuizPage() {
             : formatQuizDate(data.quiz.quizDate, locale)
         }
         kind={data.quiz.kind}
+        onGraded={onGraded}
         candidateName={session.user.username ?? session.user.email.split("@")[0] ?? ""}
         instructions={t("note", { count: data.quiz.size })}
         suggestedMinutes={
