@@ -1,5 +1,6 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router";
+import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "use-intl";
 import { ChevronRight, EyeOff, Loader2, RotateCcw, Search } from "lucide-react";
 import { CATEGORIES, type Category } from "@tmr/core";
@@ -7,7 +8,9 @@ import { Badge } from "@tmr/ui/components/badge";
 import { Button } from "@tmr/ui/components/button";
 import { Input } from "@tmr/ui/components/input";
 import { cn } from "@tmr/ui/utils";
+import { CountUp } from "@/components/count-up";
 import { useToggleOmit } from "@/lib/bank-actions";
+import { PEEK_SPRING } from "@/lib/use-peek";
 import type { BankItem } from "@/lib/queries";
 
 type StatusFilter = "active" | "omitted" | "all";
@@ -125,14 +128,21 @@ export function BankManager({ classroomId, items }: { classroomId: string; items
                 aria-checked={status === option.value}
                 onClick={() => update({ status: option.value === "active" ? null : option.value })}
                 className={cn(
-                  "inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition sm:flex-none",
+                  "relative inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors sm:flex-none",
                   status === option.value
-                    ? "bg-card text-foreground shadow-[0_1px_3px_rgb(var(--shadow-colour)/0.08)]"
+                    ? "text-foreground"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                {option.label}
-                <span className="tabular-nums text-muted-foreground">{option.count}</span>
+                {status === option.value ? (
+                  <motion.span
+                    layoutId="bank-status"
+                    transition={PEEK_SPRING}
+                    className="absolute inset-0 rounded-lg bg-card shadow-[0_1px_3px_rgb(var(--shadow-colour)/0.08)]"
+                  />
+                ) : null}
+                <span className="relative">{option.label}</span>
+                <CountUp value={option.count} className="relative tabular-nums text-muted-foreground" />
               </button>
             ))}
           </div>
@@ -149,14 +159,21 @@ export function BankManager({ classroomId, items }: { classroomId: string; items
                 aria-checked={selected}
                 onClick={() => update({ category: value === "all" ? null : value })}
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition",
-                  selected
-                    ? "border-primary/35 bg-primary/10 text-primary"
-                    : "border-border/70 bg-card/60 text-muted-foreground hover:text-foreground",
+                  "relative inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 py-1 text-xs font-medium transition-colors",
+                  selected ? "text-primary" : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                {value === "all" ? t("allCategories") : categoryT(value)}
-                <span className="tabular-nums opacity-70">{count}</span>
+                {selected ? (
+                  <motion.span
+                    layoutId="bank-category"
+                    transition={PEEK_SPRING}
+                    className="absolute -inset-px rounded-full border border-primary/35 bg-primary/10"
+                  />
+                ) : null}
+                <span className="relative">
+                  {value === "all" ? t("allCategories") : categoryT(value)}
+                </span>
+                <CountUp value={count} className="relative tabular-nums opacity-70" />
               </button>
             );
           })}
@@ -177,60 +194,70 @@ export function BankManager({ classroomId, items }: { classroomId: string; items
         </div>
       ) : (
         <ul className="divide-y divide-border/70 overflow-hidden rounded-2xl border border-border/70 bg-card/75">
-          {visible.slice(0, limit).map((item) => {
-            const pending = toggleOmit.isPending && toggleOmit.variables?.id === item.id;
-            return (
-              <li key={item.id} className={cn("flex items-center", item.isRetired && "bg-muted/30")}>
-                <Link
-                  to={`/classrooms/${classroomId}/bank/${item.id}`}
-                  className="group flex min-w-0 flex-1 items-center gap-3 px-4 py-3 transition-colors hover:bg-primary/[0.04] sm:px-5"
+          <AnimatePresence initial={false} mode="popLayout">
+            {visible.slice(0, limit).map((item) => {
+              const pending = toggleOmit.isPending && toggleOmit.variables?.id === item.id;
+              return (
+                <motion.li
+                  key={item.id}
+                  layout="position"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, transition: { duration: 0.12 } }}
+                  transition={PEEK_SPRING}
+                  className={cn("flex items-center", item.isRetired && "bg-muted/30")}
                 >
-                  <span className={cn("min-w-0 flex-1", item.isRetired && "opacity-60")}>
-                    <span className="flex min-w-0 items-baseline gap-2">
-                      <span className="truncate text-[0.95rem] font-medium">{item.targetText}</span>
-                      {item.nativeText ? (
-                        <span className="truncate text-sm text-muted-foreground">
-                          {item.nativeText}
+                  <Link
+                    to={`/classrooms/${classroomId}/bank/${item.id}`}
+                    className="group flex min-w-0 flex-1 items-center gap-3 px-4 py-3 transition-colors hover:bg-primary/[0.04] sm:px-5"
+                  >
+                    <span className={cn("min-w-0 flex-1", item.isRetired && "opacity-60")}>
+                      <span className="flex min-w-0 items-baseline gap-2">
+                        <span className="truncate text-[0.95rem] font-medium">{item.targetText}</span>
+                        {item.nativeText ? (
+                          <span className="truncate text-sm text-muted-foreground">
+                            {item.nativeText}
+                          </span>
+                        ) : null}
+                      </span>
+                      <span className="mt-1 flex flex-wrap items-center gap-1.5">
+                        <Badge variant="secondary">{categoryT(item.category)}</Badge>
+                        {item.isRetired ? <Badge variant="outline">{t("omittedBadge")}</Badge> : null}
+                        {item.inferred ? (
+                          <Badge variant="warning" title={t("inferredHint")}>
+                            {t("inferredBadge")}
+                          </Badge>
+                        ) : null}
+                        <span className="text-[0.72rem] text-muted-foreground tabular-nums">
+                          {item.answered > 0
+                            ? t("stats", { answered: item.answered, missed: item.missed })
+                            : t("notAsked")}
                         </span>
-                      ) : null}
-                    </span>
-                    <span className="mt-1 flex flex-wrap items-center gap-1.5">
-                      <Badge variant="secondary">{categoryT(item.category)}</Badge>
-                      {item.isRetired ? <Badge variant="outline">{t("omittedBadge")}</Badge> : null}
-                      {item.inferred ? (
-                        <Badge variant="warning" title={t("inferredHint")}>
-                          {t("inferredBadge")}
-                        </Badge>
-                      ) : null}
-                      <span className="text-[0.72rem] text-muted-foreground tabular-nums">
-                        {item.answered > 0
-                          ? t("stats", { answered: item.answered, missed: item.missed })
-                          : t("notAsked")}
                       </span>
                     </span>
-                  </span>
-                  <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-                </Link>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className="mr-3 shrink-0 sm:mr-4"
-                  disabled={pending}
-                  onClick={() => toggleOmit.mutate({ id: item.id, omit: !item.isRetired })}
-                  title={item.isRetired ? t("restoreHint") : t("omitHint")}
-                  aria-label={item.isRetired ? t("restore") : t("omit")}
-                >
-                  {pending ? (
-                    <Loader2 className="animate-spin" />
-                  ) : item.isRetired ? (
-                    <RotateCcw />
-                  ) : (
-                    <EyeOff />
-                  )}
-                </Button>
-              </li>
-            );
-          })}
+                    <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className="mr-3 shrink-0 sm:mr-4"
+                    disabled={pending}
+                    onClick={() => toggleOmit.mutate({ id: item.id, omit: !item.isRetired })}
+                    title={item.isRetired ? t("restoreHint") : t("omitHint")}
+                    aria-label={item.isRetired ? t("restore") : t("omit")}
+                  >
+                    {pending ? (
+                      <Loader2 className="animate-spin" />
+                    ) : item.isRetired ? (
+                      <RotateCcw />
+                    ) : (
+                      <EyeOff />
+                    )}
+                  </Button>
+                </motion.li>
+              );
+            })}
+          </AnimatePresence>
         </ul>
       )}
 

@@ -31,7 +31,7 @@ import { languageLabel } from "@/lib/language-label";
 import { useClassroom, useOverview } from "@/lib/queries";
 import { formatResetTime } from "@/lib/send-time";
 import { useSession } from "@/lib/session";
-import { usePeek } from "@/lib/use-peek";
+import { PEEK_SPRING, usePeek } from "@/lib/use-peek";
 import { ErrorPanel } from "./errors";
 
 /**
@@ -49,6 +49,7 @@ export function ClassroomHubPage() {
   const format = useFormatter();
   const { data: session } = useSession();
   const mailPeek = usePeek();
+  const padPeek = usePeek();
   const { data: classroom } = useClassroom(id);
   const { data: overview, dataUpdatedAt, error, isPending, refetch } = useOverview(id);
 
@@ -160,24 +161,39 @@ export function ClassroomHubPage() {
         </motion.section>
 
         {/* Add notes on a torn-off legal pad. */}
-        <Link
-          to={`${base}/notes/new`}
-          className="group relative block rotate-[0.8deg] transition-transform duration-300 hover:-translate-y-1 hover:rotate-0"
+        <motion.div
+          {...padPeek}
+          variants={{ rest: { y: 0, rotate: 0.8 }, open: { y: -5, rotate: 0 } }}
+          transition={PEEK_SPRING}
         >
-          <div className="torn-top notepad flex h-full min-h-48 flex-col justify-between gap-4 rounded-b-2xl px-6 pt-8 pb-6 shadow-[0_1px_2px_rgb(var(--shadow-colour)/0.06),0_14px_30px_rgb(var(--shadow-colour)/0.08)]">
-            <div>
-              <PencilIcon className="size-6 text-primary transition-transform duration-300 group-hover:-rotate-12" />
-              <h2 className="mt-4 font-heading text-2xl font-semibold tracking-[-0.025em]">
-                {t("addNotesTitle")}
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-foreground/75">{tHub("addNotesBlurb")}</p>
+          <Link to={`${base}/notes/new`} className="relative block h-full">
+            <div className="torn-top notepad flex h-full min-h-48 flex-col justify-between gap-4 rounded-b-2xl px-6 pt-8 pb-6 shadow-[0_1px_2px_rgb(var(--shadow-colour)/0.06),0_14px_30px_rgb(var(--shadow-colour)/0.08)]">
+              <div>
+                <motion.span
+                  className="inline-block"
+                  variants={{ rest: { rotate: 0, x: 0, y: 0 }, open: { rotate: [0, -18, -8, -14], x: 2, y: -2 } }}
+                  transition={{ rotate: { duration: 0.6, ease: "easeInOut" }, default: PEEK_SPRING }}
+                >
+                  <PencilIcon className="size-6 text-primary" />
+                </motion.span>
+                <h2 className="mt-4 font-heading text-2xl font-semibold tracking-[-0.025em]">
+                  {t("addNotesTitle")}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-foreground/75">{tHub("addNotesBlurb")}</p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                {t("addNotes")}
+                <motion.span
+                  className="inline-flex"
+                  variants={{ rest: { x: 0 }, open: { x: 4 } }}
+                  transition={PEEK_SPRING}
+                >
+                  <ArrowRight className="size-4" />
+                </motion.span>
+              </span>
             </div>
-            <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
-              {t("addNotes")}
-              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-            </span>
-          </div>
-        </Link>
+          </Link>
+        </motion.div>
       </div>
 
       {isGuest ? null : (

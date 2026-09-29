@@ -1,7 +1,9 @@
+import { motion } from "motion/react";
 import { useFormatter, useLocale, useTranslations } from "use-intl";
 import { BillingButton } from "@/components/account/billing-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@tmr/ui/components/avatar";
 import { languageLabel } from "@/lib/language-label";
+import { PEEK_SPRING, usePeek } from "@/lib/use-peek";
 import { cn } from "@tmr/ui/utils";
 
 type Membership = {
@@ -18,17 +20,17 @@ function Pips({ used, limit }: { used: number; limit: number }) {
   return (
     <span className="flex gap-1" aria-hidden="true">
       {Array.from({ length: limit }, (_, index) => (
-        <span
-          key={index}
-          className={cn(
-            "h-2 w-5 rounded-full transition-colors",
-            index < used
-              ? used >= limit
-                ? "bg-warning"
-                : "bg-primary"
-              : "bg-foreground/10",
-          )}
-        />
+        <span key={index} className="h-2 w-5 overflow-hidden rounded-full bg-foreground/10">
+          {index < used ? (
+            // Used pips fill in one after another.
+            <motion.span
+              className={cn("block h-full origin-left", used >= limit ? "bg-warning" : "bg-primary")}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 0.35, ease: "easeOut", delay: 0.3 + index * 0.12 }}
+            />
+          ) : null}
+        </span>
       ))}
     </span>
   );
@@ -62,6 +64,7 @@ export function LibraryCard({
   const displayName = user.username ?? user.email.split("@")[0];
   const cardNumber = user.id.replace(/-/g, "").slice(0, 8).toUpperCase();
   const { isPaid } = membership;
+  const stubPeek = usePeek();
 
   return (
     <section className="editorial-surface relative grid overflow-hidden rounded-[1.6rem] lg:grid-cols-[minmax(0,1fr)_17.5rem]">
@@ -112,8 +115,14 @@ export function LibraryCard({
         </dl>
       </div>
 
-      {/* Tear-off stub. The perforation runs down (wide) or across (narrow). */}
-      <div className="relative flex flex-col gap-4 border-t border-dashed border-border bg-muted/35 px-6 py-6 sm:px-8 lg:border-t-0 lg:border-l lg:px-6">
+      {/* Tear-off stub. The perforation runs down (wide) or across (narrow); on
+          hover it starts to lift away along it. */}
+      <motion.div
+        {...stubPeek}
+        variants={{ rest: { rotate: 0, x: 0 }, open: { rotate: 1.2, x: 3 } }}
+        transition={PEEK_SPRING}
+        className="relative flex origin-top-left flex-col gap-4 border-t border-dashed border-border bg-muted/35 px-6 py-6 sm:px-8 lg:border-t-0 lg:border-l lg:px-6"
+      >
         <span
           aria-hidden="true"
           className="absolute -top-2.5 -left-2.5 hidden size-5 rounded-full border border-border/70 bg-background lg:block"
@@ -130,14 +139,17 @@ export function LibraryCard({
               {isPaid ? tAccount("planProBlurb") : t("freeShort")}
             </p>
           </div>
-          <span
+          <motion.span
+            initial={{ opacity: 0, scale: 2.2, rotate: -12 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 520, damping: 17, delay: 0.25 }}
             className={cn(
               "ink-stamp grid size-16 shrink-0 place-items-center rounded-full font-heading text-sm font-bold tracking-[0.12em] uppercase",
               isPaid ? "text-success" : "text-primary/80",
             )}
           >
             {isPaid ? tAccount("pro") : tAccount("free")}
-          </span>
+          </motion.span>
         </div>
 
         {isPaid ? (
@@ -187,7 +199,7 @@ export function LibraryCard({
             <BillingButton action={membership.billingAction} />
           </div>
         ) : null}
-      </div>
+      </motion.div>
     </section>
   );
 }

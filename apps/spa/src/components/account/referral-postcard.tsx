@@ -1,7 +1,9 @@
+import { motion } from "motion/react";
 import { useFormatter, useTranslations } from "use-intl";
 import { Gift } from "lucide-react";
 import { CopyButton } from "@/components/account/copy-button";
 import { cn } from "@tmr/ui/utils";
+import { PEEK_SPRING } from "@/lib/use-peek";
 
 type Referral = { id: string; status: string; createdAt: Date };
 
@@ -39,12 +41,17 @@ export function ReferralPostcard({
 
         <div className="relative">
           {/* Stamp in the corner, showing the referral code. */}
-          <div className="float-right ml-4 mb-3 -rotate-3 rounded-sm border-2 border-dashed border-primary/45 bg-primary/[0.06] px-3 py-2 text-center">
+          <motion.div
+            initial={{ rotate: -3 }}
+            whileHover={{ rotate: 2, scale: 1.06, y: -2 }}
+            transition={PEEK_SPRING}
+            className="float-right ml-4 mb-3 rounded-sm border-2 border-dashed border-primary/45 bg-primary/[0.06] px-3 py-2 text-center"
+          >
             <p className="text-[0.58rem] font-semibold tracking-[0.18em] text-primary uppercase">
               {t("Postcard.code")}
             </p>
             <p className="mt-0.5 font-mono text-sm font-semibold">{code ?? t("pending")}</p>
-          </div>
+          </motion.div>
           <p className="text-[0.68rem] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
             {t("Postcard.to")}
           </p>
@@ -68,11 +75,19 @@ export function ReferralPostcard({
         ) : (
           <ul className="flex flex-wrap gap-3">
             {referrals.map((entry, index) => (
-              <li
+              // Each postmark is stamped on in turn.
+              <motion.li
                 key={entry.id}
+                initial={{ opacity: 0, scale: 1.7, rotate: index % 2 === 0 ? -16 : 12 }}
+                animate={{ opacity: 1, scale: 1, rotate: index % 2 === 0 ? -6 : 3 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 480,
+                  damping: 18,
+                  delay: 0.2 + Math.min(index, 10) * 0.12,
+                }}
                 className={cn(
                   "grid size-24 place-items-center rounded-full border-2 p-2 text-center",
-                  index % 2 === 0 ? "-rotate-6" : "rotate-3",
                   entry.status === "rewarded"
                     ? "border-success/60 text-success"
                     : "border-muted-foreground/40 text-muted-foreground",
@@ -90,7 +105,7 @@ export function ReferralPostcard({
                     {format.dateTime(entry.createdAt, { month: "short", day: "numeric" })}
                   </span>
                 </span>
-              </li>
+              </motion.li>
             ))}
           </ul>
         )}

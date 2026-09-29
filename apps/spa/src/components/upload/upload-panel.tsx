@@ -8,9 +8,11 @@ import {
   type DragEvent,
   type FormEvent,
 } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "use-intl";
 import { ArrowRight, FileText, ImagePlus, Loader2, UploadCloud, X } from "lucide-react";
 import { MAX_IMAGE_BYTES } from "@tmr/core";
+import { PEEK_SPRING } from "@/lib/use-peek";
 import { Alert, AlertDescription } from "@tmr/ui/components/alert";
 import { Badge } from "@tmr/ui/components/badge";
 import { Button } from "@tmr/ui/components/button";
@@ -70,7 +72,14 @@ function SelectedFilePreview({ file, onRemove }: { file: File; onRemove: () => v
   const t = useTranslations("Upload.Panel");
 
   return (
-    <li className="group relative overflow-hidden rounded-xl border border-border/70 bg-card">
+    <motion.li
+      layout
+      initial={{ opacity: 0, scale: 0.85, y: 8 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.85, transition: { duration: 0.15 } }}
+      transition={PEEK_SPRING}
+      className="group relative overflow-hidden rounded-xl border border-border/70 bg-card"
+    >
       <div className="paper-lines grid h-24 place-items-center bg-primary/[0.035]">
         <span className="grid size-9 place-items-center rounded-xl bg-card text-primary shadow-sm">
           <ImagePlus className="size-4" />
@@ -87,7 +96,7 @@ function SelectedFilePreview({ file, onRemove }: { file: File; onRemove: () => v
           <X className="size-3.5" />
         </button>
       </div>
-    </li>
+    </motion.li>
   );
 }
 
@@ -309,7 +318,9 @@ export function UploadPanel({
                   </p>
                 </div>
               </div>
-              <div
+              <motion.div
+                animate={{ scale: dragActive ? 1.025 : 1 }}
+                transition={PEEK_SPRING}
                 onDragEnter={(event) => {
                   event.preventDefault();
                   setDragActive(true);
@@ -321,14 +332,20 @@ export function UploadPanel({
                   }
                 }}
                 onDrop={handleDrop}
-                className={`grid min-h-48 place-items-center rounded-2xl border border-dashed p-6 text-center transition ${
+                className={`grid min-h-48 place-items-center rounded-2xl border border-dashed p-6 text-center transition-colors ${
                   dragActive
                     ? "border-primary bg-primary/[0.08]"
                     : "border-border bg-muted/25 hover:border-primary/30 hover:bg-primary/[0.035]"
                 }`}
               >
                 <div>
-                  <UploadCloud className="mx-auto size-6 text-primary" strokeWidth={1.6} />
+                  <motion.span
+                    className="block"
+                    animate={dragActive ? { y: -6, scale: 1.2 } : { y: 0, scale: 1 }}
+                    transition={PEEK_SPRING}
+                  >
+                    <UploadCloud className="mx-auto size-6 text-primary" strokeWidth={1.6} />
+                  </motion.span>
                   <p className="mt-4 text-sm font-medium">{t("dropTitle")}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{t("dropCopy")}</p>
                   <Label
@@ -347,10 +364,10 @@ export function UploadPanel({
                     className="sr-only"
                   />
                 </div>
-              </div>
+              </motion.div>
               {fileError ? <p className="mt-2 text-sm text-destructive">{fileError}</p> : null}
-              {files.length > 0 ? (
-                <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
+              <ul className="mt-3 grid grid-cols-2 gap-2 empty:hidden sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
+                <AnimatePresence initial={false}>
                   {files.map((file, index) => (
                     <SelectedFilePreview
                       key={`${file.name}-${file.lastModified}-${index}`}
@@ -362,8 +379,8 @@ export function UploadPanel({
                       }
                     />
                   ))}
-                </ul>
-              ) : null}
+                </AnimatePresence>
+              </ul>
             </section>
           </CardContent>
           <div className="flex flex-col gap-3 border-t border-border/65 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
@@ -385,91 +402,105 @@ export function UploadPanel({
         </Card>
       </form>
       {sessionIds.length > 0 ? (
-        <Card className="border-primary/15 bg-primary/[0.035]" aria-live="polite">
-          <CardContent>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="eyebrow">{t("statusKicker")}</p>
-              <h2 className="mt-2 font-heading text-2xl font-semibold">
-                {processing ? t("readingNotes") : t("processingFinished")}
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {processing ? t("processingBlurb") : t("finishedBlurb")}
-              </p>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => void refresh()}>
-              {t("checkStatus")}
-            </Button>
-          </div>
-          <ul className="mt-4 space-y-3">
-            {sessionUploads.length === 0 ? (
-              <li className="text-sm text-muted-foreground">{t("waiting")}</li>
-            ) : null}
-            {sessionUploads.map((upload) => {
-              const showPoints =
-                pointsDelta !== null &&
-                upload.extractionStatus === "done" &&
-                sessionUploads.length === 1;
-              return (
-                <li key={upload.id} className="rounded-xl border border-border/70 bg-card/65 p-3.5">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="min-w-0 truncate text-sm">
-                      {upload.subject ??
-                        (upload.kind === "image"
-                          ? (upload.originalFilename ?? t("image"))
-                          : firstLine(upload.textContent, t("textNotes")))}
-                    </p>
-                    <StatusBadge status={upload.extractionStatus} />
-                  </div>
-                  {upload.extractionStatus === "done" ? (
-                    <p className="mt-2 text-sm text-success">
-                      {showPoints ? t("pointsPrefix", { points: pointsDelta }) : ""}
-                      {t("linesSkipped", { count: upload.discardedCount })}
-                    </p>
-                  ) : null}
-                  {upload.extractionStatus === "failed" ? (
-                    <div className="mt-2 space-y-1">
-                      <p className="text-sm text-destructive">
-                        {upload.extractionError ?? t("extractionFailed")}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{t("keptBlurb")}</p>
-                    </div>
-                  ) : null}
-                </li>
-              );
-            })}
-          </ul>
-          {!processing && pointsDelta !== null && sessionUploads.length > 1 ? (
-            <p className="mt-3 text-sm text-success">
-              {t("pointsAdded", { count: pointsDelta })}
-            </p>
-          ) : null}
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm">
-            <Link
-              className="inline-flex items-center gap-1 font-medium text-muted-foreground transition hover:text-foreground"
-              to={`/classrooms/${classroomId}/notes`}
-            >
-              {t("viewHistory")}
-              <ArrowRight className="size-3.5" />
-            </Link>
-          </div>
-
-          {isGuest ? (
-            <div className="mt-5 flex flex-col items-start justify-between gap-3 rounded-xl border border-primary/25 bg-primary/[0.08] p-4 sm:flex-row sm:items-center">
+        <motion.div
+          initial={{ opacity: 0, y: -16, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={PEEK_SPRING}
+        >
+          <Card className="border-primary/15 bg-primary/[0.035]" aria-live="polite">
+            <CardContent>
+              <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-foreground">{t("guestStatusPrompt")}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{t("guestModalDescription")}</p>
+                <p className="eyebrow">{t("statusKicker")}</p>
+                <h2 className="mt-2 font-heading text-2xl font-semibold">
+                  {processing ? t("readingNotes") : t("processingFinished")}
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {processing ? t("processingBlurb") : t("finishedBlurb")}
+                </p>
               </div>
-              <Button asChild size="sm" className="shrink-0">
-                <a href="/signup">
-                  {t("guestModalSignUp")}
-                  <ArrowRight className="ml-1 size-3.5" />
-                </a>
+              <Button variant="outline" size="sm" onClick={() => void refresh()}>
+                {t("checkStatus")}
               </Button>
             </div>
-          ) : null}
-          </CardContent>
-        </Card>
+            <ul className="mt-4 space-y-3">
+              {sessionUploads.length === 0 ? (
+                <li className="text-sm text-muted-foreground">{t("waiting")}</li>
+              ) : null}
+              {sessionUploads.map((upload) => {
+                const showPoints =
+                  pointsDelta !== null &&
+                  upload.extractionStatus === "done" &&
+                  sessionUploads.length === 1;
+                return (
+                  <li key={upload.id} className="rounded-xl border border-border/70 bg-card/65 p-3.5">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="min-w-0 truncate text-sm">
+                        {upload.subject ??
+                          (upload.kind === "image"
+                            ? (upload.originalFilename ?? t("image"))
+                            : firstLine(upload.textContent, t("textNotes")))}
+                      </p>
+                      <motion.span
+                        key={upload.extractionStatus}
+                        className="shrink-0"
+                        initial={{ opacity: 0, scale: 0.6 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={PEEK_SPRING}
+                      >
+                        <StatusBadge status={upload.extractionStatus} />
+                      </motion.span>
+                    </div>
+                    {upload.extractionStatus === "done" ? (
+                      <p className="mt-2 text-sm text-success">
+                        {showPoints ? t("pointsPrefix", { points: pointsDelta }) : ""}
+                        {t("linesSkipped", { count: upload.discardedCount })}
+                      </p>
+                    ) : null}
+                    {upload.extractionStatus === "failed" ? (
+                      <div className="mt-2 space-y-1">
+                        <p className="text-sm text-destructive">
+                          {upload.extractionError ?? t("extractionFailed")}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{t("keptBlurb")}</p>
+                      </div>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+            {!processing && pointsDelta !== null && sessionUploads.length > 1 ? (
+              <p className="mt-3 text-sm text-success">
+                {t("pointsAdded", { count: pointsDelta })}
+              </p>
+            ) : null}
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm">
+              <Link
+                className="inline-flex items-center gap-1 font-medium text-muted-foreground transition hover:text-foreground"
+                to={`/classrooms/${classroomId}/notes`}
+              >
+                {t("viewHistory")}
+                <ArrowRight className="size-3.5" />
+              </Link>
+            </div>
+
+            {isGuest ? (
+              <div className="mt-5 flex flex-col items-start justify-between gap-3 rounded-xl border border-primary/25 bg-primary/[0.08] p-4 sm:flex-row sm:items-center">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{t("guestStatusPrompt")}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{t("guestModalDescription")}</p>
+                </div>
+                <Button asChild size="sm" className="shrink-0">
+                  <a href="/signup">
+                    {t("guestModalSignUp")}
+                    <ArrowRight className="ml-1 size-3.5" />
+                  </a>
+                </Button>
+              </div>
+            ) : null}
+            </CardContent>
+          </Card>
+        </motion.div>
       ) : null}
 
       <Dialog open={showGuestModal} onOpenChange={setShowGuestModal}>

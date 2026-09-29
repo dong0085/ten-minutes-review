@@ -16,7 +16,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@tmr/ui/components/dialog";
-import { Progress } from "@tmr/ui/components/progress";
 import { BillingButton } from "@/components/account/billing-button";
 import { ApiError, api } from "@/lib/api";
 import { formatQuizDate } from "@/lib/format";
@@ -107,7 +106,7 @@ export function ExamCard({
       {...peek}
       className="editorial-surface flex flex-col gap-5 rounded-[1.6rem] px-6 py-6 sm:flex-row sm:items-center sm:gap-7 sm:px-8"
     >
-      <ExamStack unlocked={unlocked} label={t("kicker")} />
+      <ExamStack unlocked={unlocked} open={peek.animate === "open"} label={t("kicker")} />
       <div className="min-w-0 flex-1">
         <p className="eyebrow flex items-center gap-1.5">
           <ScrollText className="size-3" />
@@ -127,7 +126,20 @@ export function ExamCard({
               <span>{t("progress", { count: bankSize, required: exam.requiredPoints })}</span>
               <span>{Math.round((bankSize / exam.requiredPoints) * 100)}%</span>
             </div>
-            <Progress className="mt-1.5" value={(bankSize / exam.requiredPoints) * 100} />
+            <div
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round((bankSize / exam.requiredPoints) * 100)}
+              className="mt-1.5 h-2 overflow-hidden rounded-full bg-primary/20"
+            >
+              <motion.div
+                className="h-full origin-left rounded-full bg-primary"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: Math.min(1, bankSize / exam.requiredPoints) }}
+                transition={{ type: "spring", stiffness: 90, damping: 16, delay: 0.2 }}
+              />
+            </div>
           </div>
         ) : null}
         {exam.latest && phase !== "writing" ? (
@@ -201,24 +213,44 @@ export function ExamCard({
   );
 }
 
-/** A stack of exam papers that fans out while the card is hovered or focused. */
-function ExamStack({ unlocked, label }: { unlocked: boolean; label: string }) {
+/**
+ * A stack of exam papers. It sits in a messy pile until the bank can fill an
+ * exam, squares up when it can, and fans out while the card is hovered.
+ */
+function ExamStack({ unlocked, open, label }: { unlocked: boolean; open: boolean; label: string }) {
   const sheet =
     "absolute inset-0 origin-bottom rounded-sm border border-border/70 bg-card shadow-[0_1px_2px_rgb(var(--shadow-colour)/0.08)]";
   return (
-    <div aria-hidden="true" className="relative hidden h-28 w-22 shrink-0 sm:block">
+    <motion.div
+      aria-hidden="true"
+      initial="messy"
+      animate={open ? "open" : unlocked ? "rest" : "messy"}
+      className="relative hidden h-28 w-22 shrink-0 sm:block"
+    >
       <motion.div
-        variants={{ rest: { x: 0, rotate: -5 }, open: { x: -4, rotate: -13 } }}
+        variants={{
+          messy: { x: -6, y: 2, rotate: -11 },
+          rest: { x: 0, y: 0, rotate: -5 },
+          open: { x: -4, y: 0, rotate: -13 },
+        }}
         transition={PEEK_SPRING}
         className={sheet}
       />
       <motion.div
-        variants={{ rest: { rotate: -2 }, open: { rotate: -6 } }}
+        variants={{
+          messy: { x: 5, y: -1, rotate: 7 },
+          rest: { x: 0, y: 0, rotate: -2 },
+          open: { x: 0, y: 0, rotate: -6 },
+        }}
         transition={{ ...PEEK_SPRING, delay: 0.03 }}
         className={sheet}
       />
       <motion.div
-        variants={{ rest: { y: 0, rotate: 1 }, open: { y: -8, rotate: 3 } }}
+        variants={{
+          messy: { x: -2, y: 3, rotate: -3 },
+          rest: { x: 0, y: 0, rotate: 1 },
+          open: { x: 0, y: -8, rotate: 3 },
+        }}
         transition={{ ...PEEK_SPRING, delay: 0.06 }}
         className={`${sheet} shadow-[0_2px_4px_rgb(var(--shadow-colour)/0.08),0_12px_24px_rgb(var(--shadow-colour)/0.12)]`}
       >
@@ -239,6 +271,6 @@ function ExamStack({ unlocked, label }: { unlocked: boolean; label: string }) {
           </span>
         )}
       </motion.div>
-    </div>
+    </motion.div>
   );
 }

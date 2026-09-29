@@ -17,6 +17,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { resolveTheme } from "@/lib/locale";
 import { goToSignIn, signOut, useSession } from "@/lib/session";
+import { ScreenTransition } from "./screen-transition";
 
 /** Screens an anonymous visitor may open; everything else needs a session. */
 const PUBLIC_PATHS = new Set(["/classrooms", "/classrooms/new"]);
@@ -128,7 +129,9 @@ export function AppShell() {
       <TopBar />
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
         <SessionGate>
-          <Outlet />
+          <ScreenTransition>
+            <Outlet />
+          </ScreenTransition>
         </SessionGate>
       </main>
       <ScrollRestoration />
