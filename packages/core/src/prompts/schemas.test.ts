@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   parseCompositionResult,
   parseExtractionResult,
+  firstOptionNamed,
   sanitizeCompositionQuestions,
 } from "./schemas";
 import type { CompositionQuestion } from "../types";
@@ -138,6 +139,50 @@ describe("sanitizeCompositionQuestions", () => {
     ]);
   });
 
+  it("drops mcq questions whose explanation leads with a different option", () => {
+    const { kept, dropped } = sanitizeCompositionQuestions(
+      [
+        {
+          ...base,
+          knowledge_point_id: "k",
+          type: "mcq",
+          options: ["Épuisants", "Épanouissants", "Ennuyeux", "Dangereux"],
+          answer: { index: 0 },
+          explanation:
+            "« Épanouissants » signifie « fulfilling, enriching » ; l'option « épuisants » veut dire « exhausting ».",
+        },
+      ],
+      new Set(["k"]),
+    );
+    expect(kept).toEqual([]);
+    expect(dropped[0]?.reason).toBe("explanation names a different option");
+  });
+
+  it("keeps mcq questions whose explanation leads with the answer or names no option", () => {
+    const { kept } = sanitizeCompositionQuestions(
+      [
+        {
+          ...base,
+          knowledge_point_id: "k",
+          type: "mcq",
+          options: ["Épuisants", "Épanouissants"],
+          answer: { index: 1 },
+          explanation: "« Épanouissants » signifie « fulfilling » ; « épuisants » veut dire « exhausting ».",
+        },
+        {
+          ...base,
+          knowledge_point_id: "k",
+          type: "mcq",
+          options: ["chat", "chien"],
+          answer: { index: 0 },
+          explanation: "Le mot désigne un félin domestique.",
+        },
+      ],
+      new Set(["k"]),
+    );
+    expect(kept).toHaveLength(2);
+  });
+
   it("keeps valid questions", () => {
     const { kept, dropped } = sanitizeCompositionQuestions(
       [
@@ -160,5 +205,15 @@ describe("sanitizeCompositionQuestions", () => {
     );
     expect(kept).toHaveLength(2);
     expect(dropped).toEqual([]);
+  });
+});
+
+describe("firstOptionNamed", () => {
+  it("prefers the longer option when two start at the same place", () => {
+    expect(firstOptionNamed(["le", "le chat"], "« Le chat » est correct.")).toBe(1);
+  });
+
+  it("skips one-letter options", () => {
+    expect(firstOptionNamed(["a", "à"], "La préposition à marque le lieu.")).toBeNull();
   });
 });

@@ -144,6 +144,29 @@ export type DroppedQuestion = {
   reason: string;
 };
 
+function comparable(text: string): string {
+  return text.normalize("NFC").toLocaleLowerCase().trim();
+}
+
+// The option the explanation quotes first, or null when it quotes none. An
+// explanation leads with the right option ("« X » means…; « Y » means…"), so a
+// first-quoted option that differs from the answer index means the index is wrong.
+export function firstOptionNamed(options: readonly string[], explanation: string): number | null {
+  const text = comparable(explanation);
+  let first: { index: number; at: number; length: number } | null = null;
+  for (const [index, option] of options.entries()) {
+    const needle = comparable(option);
+    const at = needle.length < 2 ? -1 : text.indexOf(needle);
+    if (at < 0) {
+      continue;
+    }
+    if (!first || at < first.at || (at === first.at && needle.length > first.length)) {
+      first = { index, at, length: needle.length };
+    }
+  }
+  return first?.index ?? null;
+}
+
 export function sanitizeCompositionQuestions(
   questions: CompositionQuestion[],
   validKnowledgePointIds: ReadonlySet<string>,
@@ -164,6 +187,11 @@ export function sanitizeCompositionQuestions(
       const index = (question.answer as { index?: unknown }).index;
       if (typeof index !== "number" || index < 0 || index >= question.options.length) {
         dropped.push({ question, reason: "answer index outside options" });
+        continue;
+      }
+      const named = firstOptionNamed(question.options, question.explanation);
+      if (named !== null && named !== index) {
+        dropped.push({ question, reason: "explanation names a different option" });
         continue;
       }
     }
