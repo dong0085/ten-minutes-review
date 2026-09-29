@@ -1,0 +1,296 @@
+import { Link, useParams, useSearchParams } from "react-router";
+import { motion } from "motion/react";
+import { useFormatter, useLocale, useTranslations } from "use-intl";
+import {
+  ArrowRight,
+  BookOpen,
+  Check,
+  Clock3,
+  Globe2,
+  Library,
+  Moon,
+  NotebookPen,
+  NotebookText,
+  PauseCircle,
+  Settings2,
+} from "lucide-react";
+import { classroomDailyStatus } from "@tmr/core";
+import { Badge } from "@tmr/ui/components/badge";
+import { Button } from "@tmr/ui/components/button";
+import { cn } from "@tmr/ui/utils";
+import { STATUS_STAMP } from "@/spa/components/classroom/classroom-card";
+import { ExamCard } from "@/spa/components/classroom/exam-card";
+import { QuizMailbox } from "@/spa/components/classroom/quiz-mailbox";
+import { TodayQuizAction } from "@/spa/components/classroom/today-quiz-action";
+import { GuestBanner } from "@/spa/components/guest-banner";
+import { DrillList, SectionTitle } from "@/spa/components/page";
+import { PencilIcon } from "@/spa/components/pencil-icon";
+import { FullPageSpinner } from "@/spa/app/shell";
+import { formatQuizDate } from "@/spa/lib/format";
+import { languageLabel } from "@/spa/lib/language-label";
+import { useClassroom, useOverview } from "@/spa/lib/queries";
+import { formatResetTime } from "@/spa/lib/send-time";
+import { useSession } from "@/spa/lib/session";
+import { PEEK_SPRING, usePeek } from "@/spa/lib/use-peek";
+import { ErrorPanel } from "./errors";
+
+/**
+ * The classroom's front page. It answers one question — what do I do today? —
+ * and lists the deeper screens (notes, bank, quizzes, settings) as rows.
+ */
+export function ClassroomHubPage() {
+  const { id } = useParams() as { id: string };
+  const [searchParams] = useSearchParams();
+  const t = useTranslations("Classroom.HomePage");
+  const tLayout = useTranslations("Classroom.Layout");
+  const tHub = useTranslations("App.Hub");
+  const tExam = useTranslations("Classroom.ExamCard");
+  const locale = useLocale();
+  const format = useFormatter();
+  const { data: session } = useSession();
+  const mailPeek = usePeek();
+  const padPeek = usePeek();
+  const { data: classroom } = useClassroom(id);
+  const { data: overview, dataUpdatedAt, error, isPending, refetch } = useOverview(id);
+
+  if (isPending || !classroom || !session) {
+    return <FullPageSpinner />;
+  }
+  if (error || !overview) {
+    return <ErrorPanel onRetry={() => void refetch()} />;
+  }
+
+  const isGuest = session.isGuest;
+  const status = classroomDailyStatus({
+    activeUntil: new Date(classroom.activeUntil),
+    pausedAt: classroom.pausedAt ? new Date(classroom.pausedAt) : null,
+  });
+  const reset = formatResetTime(locale, session.user.timezone);
+  const leaf = new Date(`${overview.today}T00:00:00Z`);
+  const base = `/classrooms/${id}`;
+  const { counts } = overview;
+
+  return (
+    <div className="space-y-10">
+      {isGuest ? <GuestBanner /> : null}
+
+      <header className="space-y-4">
+        <h1 className="font-heading text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
+          <span className="marker-swipe">{classroom.name}</span>
+        </h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 py-1.5 text-xs text-muted-foreground">
+            <Globe2 className="size-3.5 text-primary" />
+            {languageLabel(classroom.targetLanguage, locale)} <span aria-hidden="true">→</span>{" "}
+            {languageLabel(classroom.nativeLanguage, locale)}
+          </span>
+          <span
+            className={cn(
+              "ink-stamp rounded-md px-2 py-0.5 text-[0.62rem] font-bold tracking-[0.16em] uppercase",
+              STATUS_STAMP[status],
+            )}
+          >
+            {status === "paused"
+              ? tLayout("pausedStatus")
+              : status === "dormant"
+                ? tLayout("dormantStatus")
+                : tLayout("activeStatus")}
+          </span>
+        </div>
+        {status !== "active" ? (
+          <p className="flex max-w-xl items-start gap-2.5 rounded-xl border border-border/70 bg-muted/40 px-4 py-3 text-sm leading-6">
+            {status === "paused" ? (
+              <PauseCircle className="mt-0.5 size-4 shrink-0 text-destructive" />
+            ) : (
+              <Moon className="mt-0.5 size-4 shrink-0 text-warning" />
+            )}
+            {status === "paused" ? tLayout("paused") : tLayout("dormant")}
+          </p>
+        ) : null}
+      </header>
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_17rem]">
+        {/* Today's quiz waits in a letterbox; hovering the card slides the sheet out. */}
+        <motion.section
+          {...mailPeek}
+          className="editorial-surface grid overflow-hidden rounded-[1.6rem] sm:grid-cols-[9rem_minmax(0,1fr)]"
+        >
+          <div className="relative hidden items-end justify-center border-r border-border/70 bg-muted/40 px-5 pt-6 pb-7 sm:flex">
+            <QuizMailbox date={leaf} />
+          </div>
+          <div className="px-6 py-6 sm:px-8">
+            {isGuest ? (
+              <div className="flex h-full flex-col justify-between gap-4">
+                <div>
+                  <p className="eyebrow flex items-center gap-1.5">
+                    <Clock3 className="size-3" />
+                    {t("guestDailyQuizKicker")}
+                  </p>
+                  <h2 className="mt-2 font-heading text-2xl font-semibold tracking-[-0.025em]">
+                    {t("guestDailyQuizTitle")}
+                  </h2>
+                  <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
+                    {t("guestDailyQuizBlurb")}
+                  </p>
+                </div>
+                <div>
+                  <Button asChild size="lg">
+                    <a href="/signup">
+                      {t("guestDailyQuizCta")}
+                      <ArrowRight />
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <TodayQuizAction
+                classroomId={id}
+                dailyQuizId={overview.dailyQuizId}
+                bankSize={counts.bank}
+                paused={classroom.pausedAt !== null}
+                nowMs={dataUpdatedAt}
+                autoStart={searchParams.get("create") === "1"}
+                resetLocal={reset.local}
+                resetUtc={reset.utc}
+                resetTomorrow={reset.tomorrow}
+                initialJob={overview.composeJob}
+                today={overview.today}
+              />
+            )}
+          </div>
+        </motion.section>
+
+        {/* Add notes on a torn-off legal pad. */}
+        <motion.div
+          {...padPeek}
+          variants={{ rest: { y: 0, rotate: 0.8 }, open: { y: -5, rotate: 0 } }}
+          transition={PEEK_SPRING}
+        >
+          <Link to={`${base}/notes/new`} className="relative block h-full">
+            <div className="torn-top notepad flex h-full min-h-48 flex-col justify-between gap-4 rounded-b-2xl px-6 pt-8 pb-6 shadow-[0_1px_2px_rgb(var(--shadow-colour)/0.06),0_14px_30px_rgb(var(--shadow-colour)/0.08)]">
+              <div>
+                <motion.span
+                  className="inline-block"
+                  variants={{ rest: { rotate: 0, x: 0, y: 0 }, open: { rotate: [0, -18, -8, -14], x: 2, y: -2 } }}
+                  transition={{ rotate: { duration: 0.6, ease: "easeInOut" }, default: PEEK_SPRING }}
+                >
+                  <PencilIcon className="size-6 text-primary" />
+                </motion.span>
+                <h2 className="mt-4 font-heading text-2xl font-semibold tracking-[-0.025em]">
+                  {t("addNotesTitle")}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-foreground/75">{tHub("addNotesBlurb")}</p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                {t("addNotes")}
+                <motion.span
+                  className="inline-flex"
+                  variants={{ rest: { x: 0 }, open: { x: 4 } }}
+                  transition={PEEK_SPRING}
+                >
+                  <ArrowRight className="size-4" />
+                </motion.span>
+              </span>
+            </div>
+          </Link>
+        </motion.div>
+      </div>
+
+      {isGuest ? null : (
+        <ExamCard
+          classroomId={id}
+          bankSize={counts.bank}
+          exam={overview.exam}
+          isPaid={session.plan.isPaid}
+          billingEnabled={session.features.billing}
+        />
+      )}
+
+      {overview.unfinished.length > 0 ? (
+        <section className="space-y-3">
+          <SectionTitle>{t("unfinished")}</SectionTitle>
+          <ul className="flex flex-wrap gap-2">
+            {overview.unfinished.map((quiz) => (
+              <li key={quiz.id}>
+                <Link
+                  to={`${base}/quizzes/${quiz.id}/take`}
+                  className="group inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/70 py-1.5 pr-3.5 pl-2 text-sm transition hover:border-primary/40"
+                >
+                  <span className="grid size-4.5 place-items-center rounded-[4px] border-[1.5px] border-foreground/45 transition-colors group-hover:border-primary">
+                    <Check className="size-3 text-primary opacity-0 transition-opacity group-hover:opacity-100" />
+                  </span>
+                  <span className="font-medium">{formatQuizDate(quiz.quizDate, locale)}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {t("questions", { count: quiz.size })}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      <section className="space-y-3">
+        <SectionTitle>{tHub("inside")}</SectionTitle>
+        <DrillList
+          items={[
+            {
+              to: `${base}/notes`,
+              icon: NotebookPen,
+              title: tHub("notes"),
+              meta:
+                counts.uploads === 0
+                  ? t("noUploads")
+                  : overview.lastUploadAt
+                    ? tHub("notesMeta", {
+                        count: counts.uploads,
+                        when: format.relativeTime(new Date(overview.lastUploadAt)),
+                      })
+                    : null,
+              badge:
+                counts.pendingUploads > 0 ? (
+                  <Badge variant="warning">{tHub("reading", { count: counts.pendingUploads })}</Badge>
+                ) : null,
+            },
+            {
+              to: `${base}/bank`,
+              icon: Library,
+              title: tHub("bank"),
+              meta: tHub("bankMeta", { count: counts.bank }),
+            },
+            {
+              to: `${base}/quizzes`,
+              icon: BookOpen,
+              title: tHub("quizzes"),
+              meta:
+                counts.quizzes === 0
+                  ? t("noQuizzes")
+                  : tHub("quizzesMeta", { count: counts.quizzes }),
+            },
+            ...(isGuest
+              ? []
+              : [
+                  {
+                    to: `${base}/mistakes`,
+                    icon: NotebookText,
+                    title: tHub("mistakes"),
+                    meta: session.plan.isPaid ? tHub("mistakesMeta", { count: overview.mistakes }) : null,
+                    badge: !session.plan.isPaid ? (
+                      <Badge>{tExam("proBadge")}</Badge>
+                    ) : overview.mistakes > 0 ? (
+                      <Badge variant="destructive">{overview.mistakes}</Badge>
+                    ) : null,
+                  },
+                ]),
+            {
+              to: `${base}/settings`,
+              icon: Settings2,
+              title: tHub("settings"),
+              meta: tHub("settingsMeta"),
+            },
+          ]}
+        />
+      </section>
+    </div>
+  );
+}

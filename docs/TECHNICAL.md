@@ -9,7 +9,7 @@ The build blueprint. The data model is the centerpiece — it is the one part th
 | Piece | Choice | Job |
 |---|---|---|
 | Web | Next.js (App Router) on Vercel | API route handlers, plus the server-rendered marketing, sign-in, and unsubscribe pages |
-| Web app | Vite + React Router single-page app in `apps/spa`, served by the Next deployment | Every signed-in screen, over the API |
+| Web app | React Router single-page app in `apps/web/spa`, mounted by Next | Every signed-in screen, over the API |
 | Extension | Chrome/Firefox MV3 in `apps/extension` | Context-menu note capture over the API |
 | Database | Postgres on Neon | All state, plus the job queue |
 | Worker | Node service on Render (free web service, health-check pinged) | Extraction, composition, email sends |
@@ -23,10 +23,10 @@ The web never calls the LLM inline. It writes a row and returns. The worker pick
 
 ### The signed-in web app
 
-`apps/spa` is a single-page app. It holds every screen under `/classrooms` and `/account`; Next.js keeps the API, the landing, about, and privacy pages, the auth pages (`/signin`, `/signup`, `/forgot`, `/reset`, `/verify`), and `/unsubscribe`.
+`apps/web/spa` is a single-page app. It holds every screen under `/classrooms`, `/account`, and `/admin`; the Next pages in `app/(site)/` cover the landing, about, and privacy pages, the auth pages (`/signin`, `/signup`, `/forgot`, `/reset`, `/verify`), and `/unsubscribe`.
 
-- **Serving.** `vite build` writes to `apps/web/public/_spa/` (gitignored), and the web `build` script runs it before `next build`, so one deploy ships both. `next.config.ts` rewrites `/classrooms/:path*` and `/account/:path*` to `/_spa/index.html`; the SPA router takes over from there. Hashed assets under `/_spa/assets/` are cached as immutable, and the shell is `no-cache`.
-- **Same origin.** The SPA and the API share one origin, so the Auth.js cookie, Google OAuth, and Stripe redirects work unchanged. In dev, `pnpm dev:spa` runs Vite on 5173 and proxies `/api` and the Next pages to `pnpm dev:web` on 3000.
+- **Serving.** Next builds the SPA with everything else. The root layout holds `<html>`, fonts, and the theme; `app/(site)/layout.tsx` adds the site header, and `app/(app)/layout.tsx` mounts the SPA with `next/dynamic` and `ssr: false`, marked `noindex`. Optional catch-all pages under `app/(app)/classrooms`, `account`, and `admin` render nothing; they claim those paths so the layout serves them, and the SPA router picks the screen. The layout stays mounted as the router moves between the three paths.
+- **Same origin.** The SPA and the API share one origin, so the Auth.js cookie, Google OAuth, and Stripe redirects work unchanged. Links between the SPA and the Next pages are full page loads.
 - **Session.** The SPA boots from `GET /api/me`, which also resolves guests and reports the plan, feature flags, and sign-in methods. A 401 on a screen that needs an account sends the browser to `/signin?callbackUrl=<path>`, and sign-in returns there.
 - **Data.** TanStack Query fetches from `/api`; mutations update or invalidate the cached queries. Screens load lazily per route.
 - **Shared UI.** The shadcn primitives, `cn`, and `globals.css` live in `packages/ui`, imported by both apps.
@@ -399,7 +399,7 @@ Answers and explanations never leave the server before a submission. The quiz pa
 
 | Concern | Where |
 |---|---|
-| Web and SPA | Vercel (one project; the build runs `vite build`, then `next build`) |
+| Web and SPA | Vercel (one project, one `next build`) |
 | Postgres | Neon |
 | Worker | Render free web service, kept awake through the 7:00 AM Eastern send by a GitHub Actions keep-alive |
 | Images | Vercel Blob |

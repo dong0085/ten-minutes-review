@@ -6,3 +6,10 @@ declare module "next-intl" {
     Messages: MessagesShape;
   }
 }
+
+declare module "use-intl" {
+  interface AppConfig {
+    Locale: UiLocale;
+    Messages: MessagesShape;
+  }
+}
