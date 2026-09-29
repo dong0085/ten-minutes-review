@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@tmr/ui/components/alert";
 import { Button } from "@tmr/ui/components/button";
 import { Card, CardContent } from "@tmr/ui/components/card";
 import { Input } from "@tmr/ui/components/input";
+import { PasswordInput } from "@tmr/ui/components/password-input";
 import { Label } from "@tmr/ui/components/label";
 import { GoogleButton } from "./google-button";
 
@@ -58,9 +59,10 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
           </div>
           <div>
             <Label htmlFor="signin-password">{t("password")}</Label>
-            <Input
+            <PasswordInput
               id="signin-password"
-              type="password"
+              showLabel={tc("showPassword")}
+              hideLabel={tc("hidePassword")}
               required
               value={password}
               onChange={(event) => setPassword(event.target.value)}

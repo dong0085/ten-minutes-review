@@ -153,6 +153,7 @@ export function ClassroomHubPage() {
                 resetUtc={reset.utc}
                 resetTomorrow={reset.tomorrow}
                 initialJob={overview.composeJob}
+                today={overview.today}
               />
             )}
           </div>

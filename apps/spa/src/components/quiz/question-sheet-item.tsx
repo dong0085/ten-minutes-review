@@ -1,4 +1,4 @@
-import { useRef, type CSSProperties, type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { useTranslations } from "use-intl";
 import { Check, X } from "lucide-react";
 import { isIndexOrder } from "@tmr/core";
@@ -6,6 +6,7 @@ import { Badge } from "@tmr/ui/components/badge";
 import { Label } from "@tmr/ui/components/label";
 import { RadioGroup, RadioGroupItem } from "@tmr/ui/components/radio-group";
 import { cn } from "@tmr/ui/utils";
+import { PenCircle, PenMark, PopMark } from "./marks";
 import { OmitKnowledgePointButton } from "./omit-knowledge-point-button";
 import type { AnswerShape } from "./question-review";
 import type { LocalResponse, QuizQuestion } from "./types";
@@ -76,8 +77,11 @@ export function QuestionSheetItem({
   onAdvance,
   kicker,
   children,
+  as: Root = "li",
 }: {
   ref: (element: HTMLElement | null) => void;
+  /** The root element; a list outside this item can supply the list item. */
+  as?: "li" | "div";
   question: QuizQuestion;
   number: number;
   /** Printed after the stem and taken off a wrong answer; left out off the paper. */
@@ -111,19 +115,12 @@ export function QuestionSheetItem({
       ? optionOrder
       : sourceOptions.map((_, index) => index);
   const blanks = question.type === "fill_blank" ? blankCount(question.stem) : 0;
-  const markStyle = { "--mark-order": markOrder } as CSSProperties;
   const correctBlanks = (grade?.correctAnswer?.blanks ?? []).filter(
     (blank): blank is string => !!blank && blank.trim() !== "",
   );
   const shortOptions = sourceOptions.every((option) => option.length <= 28);
   // The teacher's red circle around the right choice.
-  const circle = (
-    <span
-      aria-hidden="true"
-      className="quiz-mark pointer-events-none absolute -inset-1.5 rotate-[-8deg] rounded-[50%] border-2 border-destructive/75"
-      style={markStyle}
-    />
-  );
+  const circle = <PenCircle order={markOrder} className="rotate-[-8deg] text-destructive/75" />;
 
   const blankInput = (index: number) => (
     <input
@@ -156,7 +153,7 @@ export function QuestionSheetItem({
   const inlineBlanks = question.type === "fill_blank" && stemParts.length > 1;
 
   return (
-    <li
+    <Root
       ref={ref}
       aria-labelledby={`${question.id}-stem`}
       className="flex scroll-mt-24 items-start gap-3 break-inside-avoid"
@@ -333,22 +330,23 @@ export function QuestionSheetItem({
           </div>
         ) : null}
         {grade && !grade.isCorrect && question.type === "fill_blank" && correctBlanks.length > 0 ? (
-          <p className="quiz-mark font-heading text-lg text-destructive italic" style={markStyle}>
+          <PopMark as="p" order={markOrder} className="font-heading text-lg text-destructive italic">
             <span className="sr-only">{tReview("correctAnswer")} </span>→ {correctBlanks.join(", ")}
-          </p>
+          </PopMark>
         ) : null}
         {grade?.explanation ? (
-          <p
+          <PopMark
+            as="p"
+            order={markOrder}
             className={cn(
-              "quiz-mark border-l-2 pl-3 font-heading text-[0.95rem] leading-6 italic",
+              "border-l-2 pl-3 font-heading text-[0.95rem] leading-6 italic",
               grade.isCorrect
                 ? "border-border text-muted-foreground"
                 : "border-destructive/50 text-destructive/90",
             )}
-            style={markStyle}
           >
             {grade.explanation}
-          </p>
+          </PopMark>
         ) : null}
         <div className="flex flex-wrap items-center gap-2 print:hidden">
           <Badge variant="secondary">{categoryLabel}</Badge>
@@ -363,23 +361,16 @@ export function QuestionSheetItem({
         {children}
       </div>
       {grade ? (
-        <span
-          className="quiz-mark flex shrink-0 flex-col items-center text-destructive"
-          style={markStyle}
-        >
-          {grade.isCorrect ? (
-            <Check className="size-10 -rotate-12" strokeWidth={3} />
-          ) : (
-            <>
-              <X className="size-10 -rotate-12" strokeWidth={3} />
-              {points !== undefined ? (
-                <span className="-rotate-6 font-heading text-lg font-semibold">−{points}</span>
-              ) : null}
-            </>
-          )}
+        <span className="flex shrink-0 flex-col items-center text-destructive">
+          <PenMark correct={grade.isCorrect} order={markOrder} />
+          {!grade.isCorrect && points !== undefined ? (
+            <PopMark order={markOrder} className="-rotate-6 font-heading text-lg font-semibold">
+              −{points}
+            </PopMark>
+          ) : null}
           <span className="sr-only">{grade.isCorrect ? tReview("correct") : tReview("wrong")}</span>
         </span>
       ) : null}
-    </li>
+    </Root>
   );
 }

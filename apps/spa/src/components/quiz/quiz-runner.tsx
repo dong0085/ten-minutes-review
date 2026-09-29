@@ -1,6 +1,7 @@
 
 import { Link } from "react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { motion, type Variants } from "motion/react";
 import { useTranslations } from "use-intl";
 import { Loader2, PanelLeftClose, PanelLeftOpen, Printer, ScanLine } from "lucide-react";
 import { toast } from "sonner";
@@ -36,6 +37,7 @@ import {
   type QuizOptionOrders,
 } from "@/lib/quiz-draft";
 import { ExamReviewPanel } from "./exam-review";
+import { LAST_MARK, PopMark, ScoreStamp } from "./marks";
 import { blankCount, isAnswered, QuestionSheetItem, type QuestionGrade } from "./question-sheet-item";
 import { Scantron } from "./scantron";
 import type { LocalResponse, QuizQuestion } from "./types";
@@ -500,13 +502,10 @@ export function QuizRunner({
     );
   const earnedTotal = parts.reduce((sum, part) => sum + earnedIn(part), 0);
   const numeral = (partNumber: number) => partNumeral(tPaper("numerals"), partNumber);
-  const redMark = "quiz-mark font-heading font-semibold text-destructive";
-  const sheetMotion =
-    phase === "submitting"
-      ? "quiz-sheet-hand-in pointer-events-none"
-      : handedBack
-        ? "quiz-sheet-hand-back"
-        : undefined;
+  const redMark = "font-heading font-semibold text-destructive";
+  const submitting = phase === "submitting";
+  // Totals land once the last question on the paper has its mark.
+  const lastMark = Math.min(questions.length, LAST_MARK);
   const scantron = isExam ? (
     <Scantron
       seed={quizId}
@@ -604,7 +603,7 @@ export function QuizRunner({
       <span
         className={cn(
           "text-[0.65rem] leading-tight tabular-nums",
-          graded ? "quiz-mark font-heading font-semibold text-destructive" : "",
+          graded ? redMark : "",
         )}
       >
         {graded ? graded.correctCount : answeredCount}
@@ -637,7 +636,13 @@ export function QuizRunner({
           className="hidden lg:sticky lg:top-6 lg:flex lg:max-h-[calc(100dvh-3rem)] lg:flex-col print:hidden motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-left-4"
         >
           {sheetHeader}
-          <div className={cn("min-h-0 overflow-y-auto p-1", sheetMotion)}>{scantron}</div>
+          <HandInSheet
+            submitting={submitting}
+            handedBack={handedBack}
+            className="min-h-0 overflow-y-auto p-1"
+          >
+            {scantron}
+          </HandInSheet>
           {floatToggle}
         </aside>
       ) : null}
@@ -652,7 +657,13 @@ export function QuizRunner({
           className="fixed top-6 z-40 hidden max-h-[calc(100dvh-3rem)] w-[23rem] flex-col rounded-xl border border-border/70 bg-background/95 p-2 shadow-[0_18px_48px_rgb(var(--shadow-colour)/0.22)] backdrop-blur-xl lg:flex print:hidden motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-left-2"
         >
           {sheetHeader}
-          <div className={cn("min-h-0 overflow-y-auto p-1", sheetMotion)}>{scantron}</div>
+          <HandInSheet
+            submitting={submitting}
+            handedBack={handedBack}
+            className="min-h-0 overflow-y-auto p-1"
+          >
+            {scantron}
+          </HandInSheet>
           {floatToggle}
         </div>
       ) : null}
@@ -673,9 +684,11 @@ export function QuizRunner({
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : null}
-      <div
+      <HandInSheet
         key={graded ? graded.attemptId : "sheet"}
-        className={cn("quiz-paper-stack", sheetMotion)}
+        submitting={submitting}
+        handedBack={handedBack}
+        className="quiz-paper-stack"
       >
         <article className="quiz-paper">
           <header className="px-6 pt-8 sm:px-12 sm:pt-10">
@@ -686,19 +699,15 @@ export function QuizRunner({
             <p className="mt-1 text-center text-sm text-muted-foreground">{subtitle}</p>
             <div className="mt-6 flex flex-col gap-4 border-b-[3px] border-double border-foreground/60 pb-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="space-y-1 text-sm">
-                <p
-                  className={cn(
-                    graded
-                      ? "quiz-mark font-heading text-base text-destructive italic"
-                      : "text-muted-foreground",
-                  )}
-                >
-                  {graded
-                    ? graded.correctCount === graded.questionCount
+                {graded ? (
+                  <PopMark as="p" className="font-heading text-base text-destructive italic">
+                    {graded.correctCount === graded.questionCount
                       ? t("everyAnswerLanded")
-                      : t("reviewMissed")
-                    : instructions}
-                </p>
+                      : t("reviewMissed")}
+                  </PopMark>
+                ) : (
+                  <p className="text-muted-foreground">{instructions}</p>
+                )}
                 <p className="text-muted-foreground">
                   {tPaper("fullMarks", { total: fullMarks })}
                   {graded ? (
@@ -743,14 +752,16 @@ export function QuizRunner({
                     </th>
                     {parts.map((part) => (
                       <td key={part.section} className="h-11 min-w-11 border border-foreground/60">
-                        {graded ? <span className={cn(redMark, "text-lg")}>{earnedIn(part)}</span> : null}
+                        {graded ? (
+                          <PopMark order={lastMark} className={cn(redMark, "text-lg")}>
+                            {earnedIn(part)}
+                          </PopMark>
+                        ) : null}
                       </td>
                     ))}
                     <td className="h-11 min-w-14 border border-foreground/60">
                       {graded ? (
-                        <span className={cn(redMark, "inline-block -rotate-6 text-2xl")}>
-                          {earnedTotal}
-                        </span>
+                        <ScoreStamp after={lastMark} className={cn(redMark, "text-2xl")}>{earnedTotal}</ScoreStamp>
                       ) : null}
                     </td>
                   </tr>
@@ -789,9 +800,9 @@ export function QuizRunner({
                     })}
                   </span>
                   {graded ? (
-                    <span className={cn(redMark, "ml-1 inline-block -rotate-6 text-xl")}>
+                    <PopMark order={lastMark} className={cn(redMark, "ml-1 -rotate-6 text-xl")}>
                       {earnedIn(part)}
-                    </span>
+                    </PopMark>
                   ) : null}
                 </h3>
                 <ol className="mt-5 space-y-9">
@@ -832,7 +843,7 @@ export function QuizRunner({
             ))}
           </div>
         </article>
-      </div>
+      </HandInSheet>
       <div className="sticky bottom-3 z-20 flex items-center gap-2 print:hidden rounded-2xl border border-border/75 bg-background/85 p-2 pl-4 shadow-[0_10px_36px_rgb(var(--shadow-colour)/0.1)] backdrop-blur-xl">
         {graded ? (
           <>
@@ -904,5 +915,41 @@ export function QuizRunner({
       </div>
       </div>
     </div>
+  );
+}
+
+const SHEET: Variants = {
+  // Where a graded copy starts before it drops back onto the desk.
+  away: { y: "-110vh", rotate: 1.5 },
+  handIn: {
+    y: "-110vh",
+    rotate: -2.5,
+    opacity: 0.6,
+    transition: { duration: 0.5, ease: [0.55, 0, 0.75, 0.2] },
+  },
+  rest: { y: 0, rotate: 0, opacity: 1, transition: { type: "spring", stiffness: 170, damping: 19 } },
+};
+
+/** A sheet that flies up when handed in and drops back once it is marked. */
+function HandInSheet({
+  submitting,
+  handedBack,
+  className,
+  children,
+}: {
+  submitting: boolean;
+  handedBack: boolean;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <motion.div
+      variants={SHEET}
+      initial={handedBack ? "away" : false}
+      animate={submitting ? "handIn" : "rest"}
+      className={cn(className, submitting && "pointer-events-none")}
+    >
+      {children}
+    </motion.div>
   );
 }

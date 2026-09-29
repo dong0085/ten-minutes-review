@@ -502,6 +502,23 @@
     content: "";
   }
 
+  /* A page corner folded up: the desk shows through where the flap lifted. */
+  .dog-ear {
+    border-bottom-right-radius: 1rem;
+    background:
+      linear-gradient(
+        to top left,
+        var(--background) 0 50%,
+        transparent 50%
+      ),
+      linear-gradient(
+        to top left,
+        transparent 50%,
+        color-mix(in oklch, var(--card), var(--foreground) 9%) 50%
+      );
+    filter: drop-shadow(-1px -1px 1px rgb(var(--shadow-colour) / 0.12));
+  }
+
   /* Cover label plate, like the white sticker on a school notebook. */
   .label-plate {
     border: 1px solid color-mix(in oklch, var(--foreground), transparent 82%);

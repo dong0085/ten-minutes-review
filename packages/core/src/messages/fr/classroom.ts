@@ -267,6 +267,7 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     checking: "Vérification…",
     tryAgain: "Réessayer",
     corrected: "Corrigée",
+    reopen: "Afficher de nouveau cette question",
     stillWrong: "Pas encore. Lis la note, puis réessaie.",
     checkError: "Impossible de vérifier cette réponse.",
     proTitle: "Le carnet d'erreurs fait partie de Pro",

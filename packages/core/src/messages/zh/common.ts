@@ -8,4 +8,6 @@ export const common = {
   back: "返回",
   loading: "加载中…",
   genericError: "出了点问题，请重试。",
+  showPassword: "显示密码",
+  hidePassword: "隐藏密码",
 } as const;

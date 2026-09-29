@@ -1,7 +1,9 @@
 import type { CSSProperties, ReactNode } from "react";
 import { useTranslations } from "use-intl";
 import { isIndexOrder, type PaperPart } from "@tmr/core";
+import { motion, type Variants } from "motion/react";
 import { cn } from "@tmr/ui/utils";
+import { PopMark, ScoreStamp } from "./marks";
 import type { LocalResponse, QuizQuestion } from "./types";
 
 export type ScantronGrade = {
@@ -20,6 +22,28 @@ function barcodeBars(seed: string): number[] {
   const hex = seed.replace(/[^0-9a-f]/gi, "").padEnd(24, "0");
   return Array.from(hex.slice(0, 24), (char) => (parseInt(char, 16) % 3) + 1);
 }
+
+const LEAD: Variants = {
+  empty: { opacity: 0, clipPath: "inset(0 100% 0 0)", filter: "blur(0px)", scale: 1, x: 0 },
+  // Scribbled in from the left, pressing a little past the edge.
+  filled: {
+    opacity: 0.94,
+    clipPath: ["inset(0 100% 0 0)", "inset(0 0% 0 0)"],
+    filter: "blur(0px)",
+    scale: [1, 1.12, 1],
+    x: 0,
+    transition: { duration: 0.3, ease: "easeOut" },
+  },
+  // Rubbed out side to side, leaving a faint smudge.
+  erased: {
+    opacity: 0.13,
+    clipPath: "inset(0 0% 0 0)",
+    filter: "blur(0.6px)",
+    scale: 1.15,
+    x: [0, -1.5, 1.5, -1, 0],
+    transition: { duration: 0.35, ease: "easeOut" },
+  },
+};
 
 function Bubble({
   label,
@@ -44,15 +68,17 @@ function Bubble({
       aria-pressed={filled}
       disabled={!onClick}
       onClick={onClick}
-      className={cn(
-        "scantron-bubble",
-        filled && "is-filled",
-        erased && !filled && "is-erased",
-        graded === "missed" && "is-missed",
-      )}
+      className={cn("scantron-bubble", graded === "missed" && "is-missed")}
     >
+      <motion.span
+        aria-hidden="true"
+        className="scantron-lead"
+        variants={LEAD}
+        initial={false}
+        animate={filled ? "filled" : erased ? "erased" : "empty"}
+      />
       <span aria-hidden="true">{label}</span>
-      {graded === "right" ? <span aria-hidden="true" className="scantron-ring quiz-mark" /> : null}
+      {graded === "right" ? <PopMark aria-hidden className="scantron-ring" /> : null}
     </button>
   );
 }
@@ -119,9 +145,9 @@ export function Scantron({
         </button>
         <span className="flex gap-[0.3rem]">{bubbles}</span>
         {grade && !grade.isCorrect ? (
-          <span aria-hidden="true" className="scantron-flag quiz-mark">
+          <PopMark aria-hidden className="scantron-flag">
             ✗
-          </span>
+          </PopMark>
         ) : null}
       </div>
     );
@@ -201,9 +227,9 @@ export function Scantron({
           {earned !== null ? (
             <div className="grid w-14 shrink-0 place-items-center border border-[var(--ink-line)] text-center">
               <span className="text-[0.6rem] text-[var(--ink)]">{t("score")}</span>
-              <span className="quiz-mark -rotate-6 font-heading text-2xl font-semibold text-destructive">
+              <ScoreStamp className="font-heading text-2xl font-semibold text-destructive">
                 {earned}
-              </span>
+              </ScoreStamp>
             </div>
           ) : null}
         </div>
@@ -251,9 +277,9 @@ export function Scantron({
                       {blanks.join(" / ")}
                     </span>
                     {grade && !grade.isCorrect ? (
-                      <span aria-hidden="true" className="scantron-flag quiz-mark">
+                      <PopMark aria-hidden className="scantron-flag">
                         ✗
-                      </span>
+                      </PopMark>
                     ) : null}
                   </button>
                 );

@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from "@tmr/ui/components/alert";
 import { Button } from "@tmr/ui/components/button";
 import { Card, CardContent } from "@tmr/ui/components/card";
 import { Input } from "@tmr/ui/components/input";
+import { PasswordInput } from "@tmr/ui/components/password-input";
 import { Label } from "@tmr/ui/components/label";
 import { languageLabel } from "@/lib/language-label";
 import { GoogleButton } from "./google-button";
@@ -37,6 +38,7 @@ function writeReferralCookie(code: string) {
 
 export function SignUpForm({ referralCode = "" }: { referralCode?: string }) {
   const t = useTranslations("Auth.SignUpForm");
+  const tc = useTranslations("Common");
   const locale = useLocale();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -121,9 +123,10 @@ export function SignUpForm({ referralCode = "" }: { referralCode?: string }) {
           </div>
           <div>
             <Label htmlFor="signup-password">{t("password")}</Label>
-            <Input
+            <PasswordInput
               id="signup-password"
-              type="password"
+              showLabel={tc("showPassword")}
+              hideLabel={tc("hidePassword")}
               required
               minLength={8}
               value={password}
