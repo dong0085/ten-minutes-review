@@ -58,6 +58,9 @@ function Bubble({ selected, children }: { selected: boolean; children?: ReactNod
 const optionRowClass =
   "group/option -mx-2 flex w-auto cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-left text-[0.95rem] leading-normal font-normal transition hover:bg-muted/60 outline-none focus-visible:ring-3 focus-visible:ring-ring/30 has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/30";
 
+// A graded answer stays locked but its text can be selected and copied.
+const gradedRowClass = "cursor-text select-text hover:bg-transparent";
+
 export function QuestionSheetItem({
   ref,
   question,
@@ -132,6 +135,8 @@ export function QuestionSheetItem({
       aria-label={t("blank", { number: index + 1 })}
       autoComplete="off"
       spellCheck={false}
+      readOnly={!!grade}
+      tabIndex={grade ? -1 : undefined}
       value={response?.blanks?.[index] ?? ""}
       enterKeyHint={index < blanks - 1 || !isLast ? "next" : "done"}
       className={cn(
@@ -186,7 +191,6 @@ export function QuestionSheetItem({
         <div
           id={`${question.id}-stem`}
           data-quiz-answer={inlineBlanks ? "" : undefined}
-          inert={inlineBlanks && !!grade}
           className="font-heading text-[1.05rem] leading-8 whitespace-pre-wrap"
         >
           {inlineBlanks
@@ -208,14 +212,14 @@ export function QuestionSheetItem({
           />
         ) : null}
         {question.type === "fill_blank" && !inlineBlanks ? (
-          <div data-quiz-answer="" inert={!!grade}>
+          <div data-quiz-answer="">
             {Array.from({ length: blanks }).map((_, index) => blankInput(index))}
           </div>
         ) : null}
         {question.type === "mcq" || question.type === "image" ? (
           <RadioGroup
             data-quiz-answer=""
-            inert={!!grade}
+            disabled={!!grade}
             aria-labelledby={`${question.id}-stem`}
             className={cn("gap-x-6 gap-y-0.5", shortOptions && "sm:grid-cols-2")}
             value={typeof response?.index === "number" ? String(response.index) : ""}
@@ -251,7 +255,11 @@ export function QuestionSheetItem({
               const optionId = `${question.id}-option-${optionIndex}`;
               const isRight = grade?.correctAnswer?.index === optionIndex;
               return (
-                <Label key={optionId} htmlFor={optionId} className={cn(optionRowClass, "mb-0")}>
+                <Label
+                  key={optionId}
+                  htmlFor={optionId}
+                  className={cn(optionRowClass, "mb-0", grade && gradedRowClass)}
+                >
                   <RadioGroupItem
                     ref={(element) => {
                       optionRefs.current[optionIndex] = element;
@@ -281,10 +289,36 @@ export function QuestionSheetItem({
           </RadioGroup>
         ) : null}
         {question.type === "true_false" ? (
-          <div data-quiz-answer="" inert={!!grade} className="flex flex-wrap gap-x-10 gap-y-1">
+          <div data-quiz-answer="" className="flex flex-wrap gap-x-10 gap-y-1">
             {[true, false].map((value, index) => {
               const selected = response?.value === value;
               const isRight = grade?.correctAnswer?.value === value;
+              const content = (
+                <>
+                  <Bubble selected={selected}>
+                    {value ? <Check className="size-3.5" /> : <X className="size-3.5" />}
+                    {isRight ? circle : null}
+                  </Bubble>
+                  <span
+                    className={cn(
+                      grade &&
+                        selected &&
+                        !isRight &&
+                        "line-through decoration-destructive decoration-2",
+                    )}
+                  >
+                    {value ? tReview("true") : tReview("false")}
+                  </span>
+                </>
+              );
+              // Browsers keep text inside a button unselectable, so a graded answer is plain text.
+              if (grade) {
+                return (
+                  <div key={String(value)} className={cn(optionRowClass, gradedRowClass)}>
+                    {content}
+                  </div>
+                );
+              }
               return (
                 <button
                   key={String(value)}
@@ -310,20 +344,7 @@ export function QuestionSheetItem({
                     }
                   }}
                 >
-                  <Bubble selected={selected}>
-                    {value ? <Check className="size-3.5" /> : <X className="size-3.5" />}
-                    {isRight ? circle : null}
-                  </Bubble>
-                  <span
-                    className={cn(
-                      grade &&
-                        selected &&
-                        !isRight &&
-                        "line-through decoration-destructive decoration-2",
-                    )}
-                  >
-                    {value ? tReview("true") : tReview("false")}
-                  </span>
+                  {content}
                 </button>
               );
             })}
