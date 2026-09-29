@@ -13,6 +13,7 @@ import { footer } from "./footer";
 import { home } from "./home";
 import { layout } from "./layout";
 import { notFound } from "./not-found";
+import { onboarding } from "./onboarding";
 import { privacy } from "./privacy";
 import { quiz } from "./quiz";
 import { seo } from "./seo";
@@ -36,4 +37,5 @@ export const zh: MessageShape<typeof en> = {
   About: about,
   Privacy: privacy,
   NotFound: notFound,
+  Onboarding: onboarding,
 };

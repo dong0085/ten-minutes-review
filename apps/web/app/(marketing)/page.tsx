@@ -139,7 +139,7 @@ export default async function HomePage() {
             ) : (
               <>
                 <Button asChild size="lg">
-                  <a href="/classrooms/new">
+                  <a href="/classrooms/start">
                     {t("tryAsGuest")}
                     <ArrowRight />
                   </a>

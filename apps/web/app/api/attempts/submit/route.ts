@@ -13,7 +13,7 @@ import {
 import { handleRouteError, jsonError, jsonOk, readJson } from "@/lib/api";
 import { getDb } from "@/lib/db";
 import { env } from "@/lib/env";
-import { getSessionUser } from "@/lib/session";
+import { getCurrentUserOrGuest } from "@/lib/session";
 import { verifyAttemptToken } from "@/lib/tokens";
 
 const submitSchema = z.object({
@@ -32,7 +32,8 @@ const submitSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const user = await getSessionUser();
+    // Guests take quizzes too, so onboarding can end on a real one.
+    const user = (await getCurrentUserOrGuest())?.user;
     if (!user) {
       return jsonError("Unauthorized", 401);
     }

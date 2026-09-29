@@ -16,3 +16,4 @@ export * from "./url";
 export * from "./prompts/index";
 export * from "./mistakes";
 export * from "./admin";
+export * from "./onboarding";

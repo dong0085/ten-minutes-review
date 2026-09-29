@@ -4,6 +4,7 @@ import { isLanguageCode } from "@tmr/core";
 import { NewClassroomForm } from "@/components/classroom/new-classroom-form";
 import { FullPageSpinner } from "@/app/shell";
 import { useClassrooms } from "@/lib/queries";
+import { needsOnboarding, ONBOARDING_PATH } from "@/lib/onboarding";
 import { useSession } from "@/lib/session";
 
 export function NewClassroomPage() {
@@ -12,6 +13,10 @@ export function NewClassroomPage() {
   const signedIn = Boolean(session && !session.isGuest);
   const { data, isPending } = useClassrooms(signedIn);
 
+  // A first-time visitor gets the guided start instead of the bare form.
+  if (!session && needsOnboarding(session, 0)) {
+    return <Navigate to={ONBOARDING_PATH} replace />;
+  }
   if (signedIn && isPending) {
     return <FullPageSpinner />;
   }

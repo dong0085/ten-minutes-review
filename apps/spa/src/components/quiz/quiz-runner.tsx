@@ -931,7 +931,7 @@ const SHEET: Variants = {
 };
 
 /** A sheet that flies up when handed in and drops back once it is marked. */
-function HandInSheet({
+export function HandInSheet({
   submitting,
   handedBack,
   className,

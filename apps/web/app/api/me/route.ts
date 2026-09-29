@@ -19,6 +19,7 @@ const updateMeSchema = z.object({
     .max(64)
     .refine(isTimezone, "Invalid timezone")
     .optional(),
+  onboarded: z.literal(true).optional(),
 });
 
 // Guests resolve here too, so the web app can boot from one call.
@@ -63,6 +64,7 @@ export async function PATCH(request: Request) {
       uiLanguage: body.uiLanguage,
       uiTheme: body.uiTheme,
       timezone: body.timezone,
+      onboardedAt: body.onboarded ? (user.onboardedAt ?? new Date()) : undefined,
     });
     if (!updated) {
       return jsonError("Not found", 404);

@@ -32,6 +32,8 @@ export const users = pgTable("users", {
   /** Set by an admin; a disabled user cannot sign in or use a token. */
   disabledAt: timestamp("disabled_at", { withTimezone: true }),
   disabledReason: text("disabled_reason"),
+  /** Set when the user finishes or skips onboarding; null sends a new user through it. */
+  onboardedAt: timestamp("onboarded_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

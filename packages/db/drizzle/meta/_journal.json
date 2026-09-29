@@ -120,6 +120,13 @@
       "when": 1790639932752,
       "tag": "0016_young_veda",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1790643627648,
+      "tag": "0017_sloppy_thundra",
+      "breakpoints": true
     }
   ]
 }

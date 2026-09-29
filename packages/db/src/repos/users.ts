@@ -23,6 +23,7 @@ export type UpdateUserInput = {
   timezone?: string;
   isGuest?: boolean;
   emailVerifiedAt?: Date | null;
+  onboardedAt?: Date | null;
 };
 
 export async function getUserById(db: Db, id: string) {

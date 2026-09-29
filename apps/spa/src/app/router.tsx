@@ -33,6 +33,7 @@ const screens = {
   mistakes: page(() => import("@/routes/mistakes"), "MistakeBookPage"),
   classroomSettings: page(() => import("@/routes/classroom-settings"), "ClassroomSettingsPage"),
   accountHub: page(() => import("@/routes/account-hub"), "AccountHubPage"),
+  onboarding: page(() => import("@/routes/onboarding"), "OnboardingPage"),
 };
 
 const content = (name: keyof typeof import("@/routes/admin/content")) =>
@@ -160,6 +161,9 @@ export const router = createBrowserRouter([
     // The quiz runner takes the whole screen, without the top bar.
     element: <FocusShell />,
     errorElement: <RouteError />,
-    children: [{ path: "classrooms/:id/quizzes/:quizId/take", lazy: screens.takeQuiz }],
+    children: [
+      { path: "classrooms/start", lazy: screens.onboarding },
+      { path: "classrooms/:id/quizzes/:quizId/take", lazy: screens.takeQuiz },
+    ],
   },
 ]);

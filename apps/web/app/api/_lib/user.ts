@@ -10,6 +10,7 @@ export function publicUser(user: User) {
     uiTheme: user.uiTheme,
     timezone: user.timezone,
     emailVerifiedAt: user.emailVerifiedAt,
+    onboardedAt: user.onboardedAt,
     createdAt: user.createdAt,
   };
 }

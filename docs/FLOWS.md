@@ -24,11 +24,24 @@ Google or email plus password. Forgot-password sends a reset link. After sign-in
 
 ---
 
-## 3. Empty state
+## 3. Onboarding
 
-**Shown when:** the user owns no classrooms.
+**Shown when:** a visitor, guest, or new account owns no classrooms and has not finished or skipped onboarding. The landing page's "Try it" button opens it at `/classrooms/start`, and the classroom list sends such users there. Accounts created before onboarding existed count as onboarded.
 
-Explains the product in one line and offers a single action: create a classroom. This is the only screen a new user sees with no quiz and no notes, so it carries the explanation.
+A full-screen guide in four steps, with a three-part progress line and "Skip for now" in the header:
+
+1. **Welcome** — one line on the product and the three steps ahead.
+2. **Language** — eleven cards, each greeting in its own script; the chosen one flies into the header as a chip. "I speak" defaults to the interface language.
+3. **How it works** — a sample paper in the chosen language, built into the app and never stored. A coach card walks through seven stops (the paper header, each of the three parts, the submit bar, the red-pen marks, the score) with Back, Next, and "Skip this part". A sample student fills in the answers as the tour goes, gets the last one wrong, and the paper is handed in and comes back marked, exactly as a real quiz does.
+4. **Your notes** — a photo (one for a guest) or pasted text, with sample notes in the language for someone without any at hand. Submitting creates the classroom ("My Spanish"), uploads the notes, shows them being read, then the points found. "Make my first quiz" writes an on-demand quiz and opens it in the runner. Guests see a prompt to create an account.
+
+Skipping, or creating the classroom, marks onboarding done: on the account for a signed-in user, in the browser for a visitor.
+
+## 3b. Empty state
+
+**Shown when:** the user owns no classrooms and has finished or skipped onboarding.
+
+Explains the product in one line and offers a single action: create a classroom.
 
 ## 4. Create a classroom
 
@@ -220,6 +233,7 @@ Account deletion removes classrooms, uploads, knowledge points, quizzes, attempt
 | Flow | Trigger | Ends when |
 |---|---|---|
 | Sign up | Landing page or referral link | User row exists, email verified |
+| Onboarding | First visit, or a new account with no classroom | First quiz opens, or the user skips |
 | Create classroom | Empty state or classroom list | Classroom hub opens |
 | Upload notes | Add notes action | Points appear in the bank |
 | Daily quiz | Morning email, or the site | Attempt recorded |

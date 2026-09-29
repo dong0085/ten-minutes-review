@@ -2,14 +2,15 @@ import type { NextRequest } from "next/server";
 import { deleteQuizForUser, listAttemptsForQuiz } from "@tmr/db";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/api";
 import { getDb } from "@/lib/db";
-import { getSessionUser } from "@/lib/session";
+import { getCurrentUserOrGuest, getSessionUser } from "@/lib/session";
 import { buildQuizPayload } from "@/app/api/_lib/quiz";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const user = await getSessionUser();
+    // Guests take quizzes too, so onboarding can end on a real one.
+    const user = (await getCurrentUserOrGuest())?.user;
     if (!user) {
       return jsonError("Unauthorized", 401);
     }

@@ -11,6 +11,7 @@ export type SessionUser = {
   uiTheme: UiTheme | null;
   timezone: string;
   emailVerifiedAt: string | null;
+  onboardedAt: string | null;
   createdAt: string;
 };
 

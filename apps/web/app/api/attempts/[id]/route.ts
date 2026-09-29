@@ -1,13 +1,14 @@
 import { getAttemptReview } from "@tmr/db";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/api";
 import { getDb } from "@/lib/db";
-import { getSessionUser } from "@/lib/session";
+import { getCurrentUserOrGuest } from "@/lib/session";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(_request: Request, context: RouteContext) {
   try {
-    const user = await getSessionUser();
+    // Guests take quizzes too, so onboarding can end on a real one.
+    const user = (await getCurrentUserOrGuest())?.user;
     if (!user) {
       return jsonError("Unauthorized", 401);
     }

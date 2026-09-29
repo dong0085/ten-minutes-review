@@ -81,6 +81,7 @@ Postgres. All ids are UUIDs. All timestamps are `timestamptz`.
 | `ui_language` | text | ISO 639-1, default `en` |
 | `ui_theme` | text | Colour palette (`mint`, `sky`, `sakura`, `lavender`); null until the user picks one |
 | `timezone` | text | IANA name, e.g. `Asia/Shanghai` |
+| `onboarded_at` | timestamptz | Set when the user finishes or skips onboarding; null sends a user with no classroom through it |
 | `created_at` / `updated_at` | timestamptz | |
 
 ### accounts, sessions, verification_tokens
@@ -358,7 +359,7 @@ Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve t
 | `POST` | `/api/classrooms/:id/quizzes/cancel` | Cancel the in-flight compose job |
 | `POST` | `/api/classrooms/:id/exams` | Start writing an exam (Pro, 80+ active points); returns the compose `jobId` to poll |
 | `POST` | `/api/classrooms/:id/exams/cancel` | Cancel the exam being written |
-| `GET` `DELETE` | `/api/quizzes/:id` | Read the quiz (answers withheld; `?includeAttempts=1` adds attempt summaries) or delete it with its attempts and answers |
+| `GET` `DELETE` | `/api/quizzes/:id` | Read the quiz (answers withheld; `?includeAttempts=1` adds attempt summaries) or delete it with its attempts and answers. Reading, attempting, submitting, and the full review below also serve guests, so onboarding can end on a real quiz |
 | `POST` | `/api/quizzes/:id/attempts` | Start an attempt |
 | `POST` | `/api/attempts/submit` | Submit answers, receive correctness and explanations |
 | `GET` | `/api/attempts/:id` | Full review |
@@ -367,7 +368,7 @@ Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve t
 | `POST` | `/api/classrooms/:id/mistakes/:questionId/tutor` | Ask the AI tutor (Pro, open mistakes only): `mode: "hint"` for the next of up to 3 hints, or `mode: "analysis"` with a wrong `response`; returns the request to poll |
 | `GET` | `/api/tutor/:id` | One tutor reply (`pending`, `done`, or `failed`) |
 | `GET` `POST` | `/api/attempts/:id/review` | The AI review of an exam attempt (`none`, `writing`, `ready`, or `failed`); `POST` writes it again after a failure (Pro) |
-| `GET` `PATCH` | `/api/me` | Profile. `GET` also resolves guests and returns `isGuest`, `hasPassword`, `googleLinked`, the plan, and feature flags |
+| `GET` `PATCH` | `/api/me` | Profile. `GET` also resolves guests and returns `isGuest`, `hasPassword`, `googleLinked`, the plan, and feature flags. `PATCH { onboarded: true }` records that onboarding is done |
 | `GET` | `/api/me/overview` | Account hub: activity and learning stats, recent quizzes, membership, and this month's usage |
 | `GET` `PATCH` | `/api/me/email-preferences` | |
 | `GET` | `/api/me/export` | Data export |

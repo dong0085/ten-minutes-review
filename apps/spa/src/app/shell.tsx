@@ -20,7 +20,7 @@ import { goToSignIn, signOut, useSession } from "@/lib/session";
 import { ScreenTransition } from "./screen-transition";
 
 /** Screens an anonymous visitor may open; everything else needs a session. */
-const PUBLIC_PATHS = new Set(["/classrooms", "/classrooms/new"]);
+const PUBLIC_PATHS = new Set(["/classrooms", "/classrooms/new", "/classrooms/start"]);
 
 function TopBar() {
   const t = useTranslations("Layout");

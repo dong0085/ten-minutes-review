@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, Navigate } from "react-router";
 import { useTranslations } from "use-intl";
 import { ArrowRight, BookOpen, Sparkles } from "lucide-react";
 import { Button } from "@tmr/ui/components/button";
@@ -9,6 +9,7 @@ import { GuestBanner } from "@/components/guest-banner";
 import { PageHeader } from "@/components/page";
 import { FullPageSpinner } from "@/app/shell";
 import { useClassrooms } from "@/lib/queries";
+import { needsOnboarding, ONBOARDING_PATH } from "@/lib/onboarding";
 import { useSession } from "@/lib/session";
 import { ErrorPanel } from "./errors";
 
@@ -45,7 +46,7 @@ export function ClassroomListPage() {
   const { data, isPending, error, refetch } = useClassrooms(Boolean(session));
 
   if (!session) {
-    return <EmptyState />;
+    return needsOnboarding(session, 0) ? <Navigate to={ONBOARDING_PATH} replace /> : <EmptyState />;
   }
   if (isPending) {
     return <FullPageSpinner />;
@@ -55,7 +56,7 @@ export function ClassroomListPage() {
   }
   const { classrooms, limits } = data;
   if (classrooms.length === 0) {
-    return <EmptyState />;
+    return needsOnboarding(session, 0) ? <Navigate to={ONBOARDING_PATH} replace /> : <EmptyState />;
   }
   const activeCount = classrooms.filter((classroom) => classroom.status === "active").length;
   const isPaid = session.plan.isPaid;
