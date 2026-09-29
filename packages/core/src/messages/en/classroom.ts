@@ -265,7 +265,6 @@ export const classroom = {
     upgrade: "Upgrade to Pro",
   },
   Tutor: {
-    label: "AI tutor",
     hint: "Get a hint",
     nextHint: "Another hint",
     hintCount: "{used} of {max}",
@@ -279,7 +278,6 @@ export const classroom = {
     thinking: "Thinking…",
     failed: "The tutor could not answer.",
     askAgain: "Ask again",
-    note: "Hints guide you without giving the answer away.",
   },
   ExamCard: {
     kicker: "Exam",

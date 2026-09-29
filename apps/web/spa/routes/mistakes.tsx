@@ -290,7 +290,14 @@ function MistakeSheet({
                             }
                           }}
                         >
-                          <div className="flex flex-wrap items-center gap-3">
+                          <TutorPanel
+                            classroomId={classroomId}
+                            questionId={questionId}
+                            initial={mistake.tutor}
+                            wrongResponse={entry.grade && !right ? (entry.response ?? {}) : null}
+                            wrongAt={entry.grade && !right ? entry.gradedAt : null}
+                            corrected={right}
+                          >
                             {!entry.grade ? (
                               <Button
                                 size="sm"
@@ -322,15 +329,7 @@ function MistakeSheet({
                                 {t("checkError")}
                               </span>
                             ) : null}
-                          </div>
-                          <TutorPanel
-                            classroomId={classroomId}
-                            questionId={questionId}
-                            initial={mistake.tutor}
-                            wrongResponse={entry.grade && !right ? (entry.response ?? {}) : null}
-                            wrongAt={entry.grade && !right ? entry.gradedAt : null}
-                            corrected={right}
-                          />
+                          </TutorPanel>
                         </QuestionSheetItem>
                       </motion.div>
                     )}
