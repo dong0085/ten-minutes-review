@@ -48,6 +48,20 @@ describe("gradeAnswer", () => {
     );
   });
 
+  it("accepts a blank's alternatives, blank by blank", () => {
+    const answer = { blanks: ["je paie", "le loyer"], accepted: [["je paye"], []] };
+    expect(gradeAnswer("fill_blank", answer, { blanks: ["Je paye", "le loyer"] })).toBe(true);
+    expect(gradeAnswer("fill_blank", answer, { blanks: ["je paie", "le loyer"] })).toBe(true);
+    expect(gradeAnswer("fill_blank", answer, { blanks: ["le loyer", "je paye"] })).toBe(false);
+  });
+
+  it("ignores closing punctuation and curly apostrophes", () => {
+    expect(gradeAnswer("fill_blank", { blanks: ["On va voir."] }, { blanks: ["on va voir"] })).toBe(true);
+    expect(gradeAnswer("fill_blank", { blanks: ["je n’avais pas"] }, { blanks: ["je n'avais pas"] })).toBe(
+      true,
+    );
+  });
+
   it("rejects empty or missing blanks", () => {
     const answer = { blanks: ["le bonheur"] };
     expect(gradeAnswer("fill_blank", answer, { blanks: [] })).toBe(false);

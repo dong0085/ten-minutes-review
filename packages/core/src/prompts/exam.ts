@@ -1,8 +1,8 @@
 import { COMPOSITION_SCHEMA } from "./composition";
 
-export const EXAM_PROMPT_VERSION = "exam-v1";
+export const EXAM_PROMPT_VERSION = "exam-v2";
 
-export const EXAM_PROMPT_V1 = `You write an exam for a language learner, drawn from their own session notes.
+export const EXAM_PROMPT_V2 = `You write an exam for a language learner, drawn from their own session notes.
 
 You receive the knowledge points chosen for the exam, each with the question
 type it must be tested with, the questions the learner has already seen this
@@ -33,8 +33,13 @@ Rules:
      learner would make (wrong gender, wrong tense, a near-synonym), never silly.
    - true_false: a statement that is clearly true or clearly false, about
      meaning, usage, or grammar. Mix true and false roughly evenly.
-   - fill_blank: blanks marked ___; each blank has one expected answer. A drill
-     with several blanks is one question.
+   - fill_blank: blanks marked ___. Grading is exact match, ignoring accents
+     and capitals, so each blank is one word or a short phrase of at most four
+     words. In "accepted", list for each blank every other answer a teacher
+     would mark right (spelling variants, a synonym that fits the cue); each must
+     read correctly with the words around the blank and still show the point
+     tested; [] when there is none. A drill with several blanks is one
+     question.
 
 6. Write questions and explanations in the target language, except the native
    cue that a production question carries.

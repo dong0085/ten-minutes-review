@@ -199,12 +199,30 @@ Rules:
 
    A grammar drill with several blanks is one fill_blank question, not several.
 
-6. Write questions and explanations in the target language, except the native
+6. A fill_blank is graded by exact match, ignoring accents and capitals, so
+   keep each blank short: one word or a short phrase, at most four words. The
+   rest of the sentence stays in the stem. To test a whole sentence or a long
+   expression, use mcq instead of asking the learner to type it.
+   In "accepted", list for each blank every other answer a teacher would mark
+   right: spelling variants (paie, paye) and synonyms that fit the cue. Put
+   each one back into the sentence first: it must read correctly with the words
+   around the blank ("un ___" takes "billete", never "el billete"), and it must
+   still show the point being tested (a por/para drill accepts only por or
+   para). accepted[0] holds the alternatives to blanks[0], and so on. Use []
+   for a blank with no alternative.
+
+7. Write questions and explanations in the target language, except the native
    cue that a production question carries.
 
-7. Every question carries a one-sentence explanation of why the answer is right.
+8. Every question carries a one-sentence explanation of why the answer is right.
 
-8. Output JSON only, matching the schema below. No prose, no markdown fence.
+9. The stem never contains the answer. A learner who matches words between the
+   stem and the options must still have to know the point. "Quel objet sert à
+   faire sécher le linge dehors ?" works; adding "… est un étendoir ?" gives it
+   away. Wrong options are plausible mix-ups from the same topic, not
+   obviously unrelated things.
+
+10. Output JSON only, matching the schema below. No prose, no markdown fence.
 
 Schema:
 <schema>
@@ -240,7 +258,10 @@ Schema:
       "type": "fill_blank",
       "stem": "Donnez le nom : heureux → ____ ; triste → ____ ; en colère → ____",
       "options": null,
-      "answer": { "blanks": ["le bonheur", "la tristesse", "la colère"] },
+      "answer": {
+        "blanks": ["le bonheur", "la tristesse", "la colère"],
+        "accepted": [["bonheur"], ["tristesse"], ["colère"]]
+      },
       "explanation": "Chaque adjectif d'émotion a un nom correspondant, avec son genre."
     }
   ]
@@ -252,11 +273,11 @@ Schema:
 | Type | `answer` shape |
 |---|---|
 | `mcq` | `{ "index": 2 }` |
-| `fill_blank` | `{ "blanks": ["le bonheur", "la tristesse"] }` |
+| `fill_blank` | `{ "blanks": ["je paie"], "accepted": [["je paye"]] }` — `accepted` is optional, one list per blank |
 | `true_false` | `{ "value": false }` |
 | `image` | `{ "index": 0 }` — the stem points at a retained upload image |
 
-Text blanks compare case-insensitively and ignore accents, so `etendoir` marks correct against `étendoir`.
+Text blanks compare case-insensitively and ignore accents, curly apostrophes, and closing punctuation, so `etendoir` marks correct against `étendoir` and `on va voir` against `On va voir.` A blank also marks correct against any answer in its `accepted` list. Screens show only `blanks`. The worker drops a fill_blank whose blank runs past four words.
 
 ### Point selection
 
@@ -273,8 +294,24 @@ Points fill a time budget of `min(20, max(8, floor(bank_size / 8)))` standard qu
 
 - A question referencing a point outside the chosen list is dropped; the spare points fill the gap.
 - An `mcq` whose `answer.index` falls outside `options` is dropped.
+- An `mcq` whose explanation leads with a different option is dropped.
+- A vocabulary, phrase, or expression question whose stem contains its answer is dropped. Grammar stems name the forms they drill, so they pass.
+- With `JUDGE_PROVIDER=jev`, TypeSafe's Jev reviews every usable question (`apps/worker/src/review.ts`). It returns a probability for each problem — the stem reveals the answer, the answer is wrong, several answers are right, the wrong options are easy to rule out — and a quality score from 0 to 4. A question with any problem at 0.5 or above, or quality below 1.5, goes back to the model once with `REWRITE_PROMPT_V1`, along with the rejected question and Jev's numbers. A rewrite that passes takes its place; one that fails again is set aside, and the spare points fill the gap. Set-aside questions come back only when the quiz would otherwise fall under 5. When Jev is unreachable, the question stays unreviewed and the quiz still goes out.
 - Fewer than 5 usable questions → the quiz is not sent; the classroom is flagged for review. For an on-demand quiz the compose job fails and the user can retry.
 - A daily quiz is composed once per classroom per day. The partial unique index on `(classroom_id, quiz_date) WHERE kind = 'daily'` makes a retry safe. On-demand quizzes share the same prompt and selection rules and can be composed at any time.
+
+### Evaluating the composition prompt
+
+`apps/worker/src/eval` scores the prompt on fixed cases, so a prompt or model change is measured before it ships. It reads and writes no database.
+
+- `pnpm --filter worker eval` runs every case: the four synthetic cases in `src/eval/cases`, plus real ones in `.eval/cases`. Flags: `--prompt <file>` tries a draft prompt, `--runs N` repeats each case, `--label`, `--only <name>`, `--no-judge`. `DEEPSEEK_MODEL` picks the model.
+- Each question gets the worker's code checks (drops, option count, blank count, missing cue, repeated stem) and an LLM judge that checks it against a short list: answer correct, one right answer, no giveaway, plausible distractors, clear cue, natural language, and a 1–5 score.
+- Results land in `apps/worker/.eval/results/<time>-<label>/`: `report.md` lists every question with its flags, `results.json` holds the raw run.
+- `pnpm --filter worker eval:compare <dir> <dir>` puts two runs side by side.
+- `--review` adds the Jev review-and-rewrite step, so `eval --label plain` and `eval --review --label jev` compare the pipeline with and without it. `pnpm --filter worker eval:jev-calibrate` runs Jev on four questions with a known verdict, to check the review questions and thresholds.
+- `pnpm --filter worker eval:snapshot <classroomId> [name]` saves the payload today's quiz would send for a real classroom into `.eval/cases`. Git ignores `.eval/`, since those cases hold real notes.
+
+The judge runs on the same model it grades and reads some native cues as giveaways, so its rates carry noise of a few points between runs. Read the flagged questions in `report.md` before trusting a small difference.
 
 ---
 
@@ -284,7 +321,7 @@ Points fill a time budget of `min(20, max(8, floor(bank_size / 8)))` standard qu
 **Input:** the composition payload, except each knowledge point carries the `type` it must be tested with (`mcq`, `true_false`, or `fill_blank`).
 **Output:** the composition schema, one question per point, in the given type.
 
-`EXAM_PROMPT_V1` (`packages/core/src/prompts/exam.ts`) keeps the composition rules on rewording, misses, production cues, and target-language output, and adds: never change the type; test use rather than recall of the notes; four options with plausible distractors for mcq; true_false statements clearly true or false, mixed evenly. The worker drops any question whose type differs from its point's, then fills 20 / 10 / 10 in part order; a short part fails the job.
+`EXAM_PROMPT_V2` (`packages/core/src/prompts/exam.ts`) keeps the composition rules on rewording, misses, production cues, and target-language output, and adds: never change the type; test use rather than recall of the notes; four options with plausible distractors for mcq; short fill_blank answers with an `accepted` list of alternatives; true_false statements clearly true or false, mixed evenly. The worker drops any question whose type differs from its point's, then fills 20 / 10 / 10 in part order; a short part fails the job.
 
 ## 2c. Exam review
 
@@ -304,6 +341,6 @@ Points fill a time budget of `min(20, max(8, floor(bank_size / 8)))` standard qu
 
 ## 3. Versioning
 
-- The prompts live in code as named constants: `EXTRACTION_PROMPT_V2`, `COMPOSITION_PROMPT_V3`, `EXAM_PROMPT_V1`, `EXAM_REVIEW_PROMPT_V1`, `TUTOR_HINT_PROMPT_V1`, `TUTOR_ANALYSIS_PROMPT_V1` (both `tutor-v1`).
+- The prompts live in code as named constants: `EXTRACTION_PROMPT_V2`, `COMPOSITION_PROMPT_V4`, `EXAM_PROMPT_V2`, `EXAM_REVIEW_PROMPT_V1`, `TUTOR_HINT_PROMPT_V1`, `TUTOR_ANALYSIS_PROMPT_V1` (both `tutor-v1`).
 - Every `knowledge_point` and every `question` row stores the version that produced it, and an attempt's review stores its own in `review_prompt_version`.
 - Bumping a version affects new work only. Existing rows keep their original version, so old and new output can be compared side by side.

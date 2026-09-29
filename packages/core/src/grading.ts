@@ -8,9 +8,11 @@ export function normalizeAnswerText(value: string): string {
   return value
     .normalize("NFD")
     .replace(/\p{Diacritic}/gu, "")
+    .replace(/[‘’ʼ]/g, "'")
     .toLowerCase()
     .replace(/\s+/g, " ")
-    .trim();
+    .trim()
+    .replace(/\s*[.!?…]+$/u, "");
 }
 
 export function gradeAnswer(
@@ -33,6 +35,7 @@ export function gradeAnswer(
   }
 
   const expectedBlanks = (answer as { blanks?: unknown }).blanks;
+  const accepted = (answer as { accepted?: unknown }).accepted;
   const actualBlanks = response.blanks;
   if (!Array.isArray(expectedBlanks) || !Array.isArray(actualBlanks)) {
     return false;
@@ -42,10 +45,13 @@ export function gradeAnswer(
   }
   return expectedBlanks.every((expected, index) => {
     const actual = actualBlanks[index];
-    return (
-      typeof expected === "string" &&
-      typeof actual === "string" &&
-      normalizeAnswerText(actual) === normalizeAnswerText(expected)
+    if (typeof expected !== "string" || typeof actual !== "string") {
+      return false;
+    }
+    const alternatives = Array.isArray(accepted) && Array.isArray(accepted[index]) ? accepted[index] : [];
+    const given = normalizeAnswerText(actual);
+    return [expected, ...alternatives].some(
+      (option) => typeof option === "string" && normalizeAnswerText(option) === given,
     );
   });
 }

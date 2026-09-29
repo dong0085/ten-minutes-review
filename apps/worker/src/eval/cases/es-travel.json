@@ -1,0 +1,116 @@
+{
+  "targetLanguage": "es",
+  "nativeLanguage": "en",
+  "size": 8,
+  "knowledgePoints": [
+    {
+      "id": "t01",
+      "category": "vocabulary",
+      "target": "la maleta",
+      "native": "the suitcase",
+      "detail": null
+    },
+    {
+      "id": "t02",
+      "category": "vocabulary",
+      "target": "el andén",
+      "native": "the (train) platform",
+      "detail": null
+    },
+    {
+      "id": "t03",
+      "category": "vocabulary",
+      "target": "el billete de ida y vuelta",
+      "native": "the return ticket",
+      "detail": null
+    },
+    {
+      "id": "t04",
+      "category": "vocabulary",
+      "target": "la aduana",
+      "native": "customs",
+      "detail": null
+    },
+    {
+      "id": "t05",
+      "category": "phrase",
+      "target": "perder el tren",
+      "native": "to miss the train",
+      "detail": null
+    },
+    {
+      "id": "t06",
+      "category": "phrase",
+      "target": "facturar el equipaje",
+      "native": "to check the luggage",
+      "detail": null
+    },
+    {
+      "id": "t07",
+      "category": "grammar",
+      "target": "ser vs estar",
+      "native": "ser vs estar",
+      "detail": {
+        "grammar": {
+          "rule": "Ser for identity and lasting traits; estar for location and temporary states.",
+          "examples": [
+            {
+              "target": "el tren está retrasado",
+              "related": null
+            },
+            {
+              "target": "Madrid es grande",
+              "related": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "t08",
+      "category": "expression",
+      "target": "¿A qué hora sale el próximo tren?",
+      "native": "What time does the next train leave?",
+      "detail": null
+    },
+    {
+      "id": "t09",
+      "category": "vocabulary",
+      "target": "el retraso",
+      "native": "the delay",
+      "detail": null
+    },
+    {
+      "id": "t10",
+      "category": "grammar",
+      "target": "por vs para",
+      "native": "por vs para",
+      "detail": {
+        "grammar": {
+          "rule": "Para for destination and purpose; por for cause, route, and exchange.",
+          "examples": [
+            {
+              "target": "salgo para Sevilla",
+              "related": null
+            },
+            {
+              "target": "paseamos por el parque",
+              "related": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "t11",
+      "category": "vocabulary",
+      "target": "el asiento de pasillo",
+      "native": "the aisle seat",
+      "detail": null
+    }
+  ],
+  "alreadyAskedStems": [
+    "¿Qué significa « la maleta »?"
+  ],
+  "recentMisses": []
+}

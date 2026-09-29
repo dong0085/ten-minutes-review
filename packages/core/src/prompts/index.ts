@@ -4,11 +4,12 @@ export {
   parseExtractionResponse,
 } from "./extraction";
 export {
-  COMPOSITION_PROMPT_V3,
+  COMPOSITION_PROMPT_V4,
   COMPOSITION_PROMPT_VERSION,
   parseCompositionResponse,
 } from "./composition";
-export { EXAM_PROMPT_V1, EXAM_PROMPT_VERSION } from "./exam";
+export { EXAM_PROMPT_V2, EXAM_PROMPT_VERSION } from "./exam";
+export { REWRITE_PROMPT_V1, REWRITE_PROMPT_VERSION } from "./rewrite";
 export {
   extractionResultSchema,
   compositionResultSchema,

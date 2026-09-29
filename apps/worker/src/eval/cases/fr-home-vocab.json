@@ -1,0 +1,108 @@
+{
+  "targetLanguage": "fr",
+  "nativeLanguage": "en",
+  "size": 10,
+  "knowledgePoints": [
+    {
+      "id": "h01",
+      "category": "vocabulary",
+      "target": "l'étendoir",
+      "native": "the clothes line",
+      "detail": null
+    },
+    {
+      "id": "h02",
+      "category": "vocabulary",
+      "target": "la pince à linge",
+      "native": "the clothespin",
+      "detail": null
+    },
+    {
+      "id": "h03",
+      "category": "vocabulary",
+      "target": "le fer à repasser",
+      "native": "the iron",
+      "detail": null
+    },
+    {
+      "id": "h04",
+      "category": "vocabulary",
+      "target": "la lessive",
+      "native": "the laundry detergent",
+      "detail": null
+    },
+    {
+      "id": "h05",
+      "category": "vocabulary",
+      "target": "le plafond",
+      "native": "the ceiling",
+      "detail": null
+    },
+    {
+      "id": "h06",
+      "category": "vocabulary",
+      "target": "le grenier",
+      "native": "the attic",
+      "detail": null
+    },
+    {
+      "id": "h07",
+      "category": "vocabulary",
+      "target": "la serpillière",
+      "native": "the floor cloth / mop",
+      "detail": null
+    },
+    {
+      "id": "h08",
+      "category": "vocabulary",
+      "target": "le robinet",
+      "native": "the tap",
+      "detail": null
+    },
+    {
+      "id": "h09",
+      "category": "phrase",
+      "target": "faire la vaisselle",
+      "native": "to do the dishes",
+      "detail": null
+    },
+    {
+      "id": "h10",
+      "category": "phrase",
+      "target": "passer l'aspirateur",
+      "native": "to vacuum",
+      "detail": null
+    },
+    {
+      "id": "h11",
+      "category": "expression",
+      "target": "Il n'y a plus de papier toilette.",
+      "native": "We're out of toilet paper.",
+      "detail": null
+    },
+    {
+      "id": "h12",
+      "category": "vocabulary",
+      "target": "le rouge à lèvres",
+      "native": "the lipstick",
+      "detail": null
+    },
+    {
+      "id": "h13",
+      "category": "phrase",
+      "target": "étendre le linge",
+      "native": "to hang out the laundry",
+      "detail": null
+    }
+  ],
+  "alreadyAskedStems": [
+    "« le plafond » veut dire :",
+    "Elle se met du ___ (lipstick) tous les matins avant de sortir."
+  ],
+  "recentMisses": [
+    {
+      "knowledgePointId": "h02",
+      "stem": "Pour accrocher le linge, on utilise une ___ (clothespin)."
+    }
+  ]
+}

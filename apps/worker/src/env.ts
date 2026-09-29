@@ -21,6 +21,7 @@ function required(name: string): string {
 }
 
 export type LlmProviderName = "mock" | "deepseek";
+export type JudgeProviderName = "off" | "jev";
 export type EmailProviderName = "console" | "resend" | "brevo";
 export type StorageProviderName = "local" | "vercel" | "s3";
 
@@ -34,6 +35,7 @@ export const env = {
   appUrl: normalizeAppUrl(process.env.APP_URL ?? "http://localhost:3000"),
   port: Number(process.env.PORT ?? 3000),
   llmProvider: provider(process.env.LLM_PROVIDER, "mock", ["mock", "deepseek"] as const),
+  judgeProvider: provider(process.env.JUDGE_PROVIDER, "off", ["off", "jev"] as const),
   emailProvider: provider(process.env.EMAIL_PROVIDER, "console", [
     "console",
     "resend",
@@ -48,6 +50,9 @@ export const env = {
   deepseekApiKey: process.env.DEEPSEEK_API_KEY ?? "",
   deepseekBaseUrl: process.env.DEEPSEEK_BASE_URL ?? "https://api.deepseek.com",
   deepseekModel: process.env.DEEPSEEK_MODEL ?? "deepseek-chat",
+  jevApiKey: process.env.JEV_API_KEY ?? "",
+  jevBaseUrl: process.env.JEV_BASE_URL ?? "https://api.typesafe.ai",
+  jevModel: process.env.JEV_MODEL ?? "jev-latest",
   resendApiKey: process.env.RESEND_API_KEY ?? "",
   brevoApiKey: process.env.BREVO_API_KEY ?? "",
   blobReadWriteToken: process.env.BLOB_READ_WRITE_TOKEN ?? "",

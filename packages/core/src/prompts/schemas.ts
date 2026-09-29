@@ -7,6 +7,7 @@ import type {
   QuestionType,
 } from "../types";
 import { CATEGORIES, QUESTION_TYPES } from "../types";
+import { normalizeAnswerText } from "../grading";
 
 const grammarExampleSchema = z.object({
   target: z.string(),
@@ -119,6 +120,32 @@ function isAnswerFor(type: QuestionType, answer: unknown): answer is QuestionAns
   );
 }
 
+// Keeps a fill_blank's accepted alternatives only when they line up with its
+// blanks, dropping empty entries and repeats of the main answer.
+function cleanAnswer(type: QuestionType, answer: QuestionAnswer): QuestionAnswer {
+  if (type !== "fill_blank" || !("blanks" in answer)) {
+    return answer;
+  }
+  const raw = (answer as { accepted?: unknown }).accepted;
+  const accepted = answer.blanks.map((blank, index) => {
+    const entry = Array.isArray(raw) ? raw[index] : null;
+    if (!Array.isArray(entry)) {
+      return [];
+    }
+    const seen = new Set([normalizeAnswerText(blank)]);
+    return entry.filter((option): option is string => {
+      if (typeof option !== "string" || !option.trim() || seen.has(normalizeAnswerText(option))) {
+        return false;
+      }
+      seen.add(normalizeAnswerText(option));
+      return true;
+    });
+  });
+  return accepted.some((entry) => entry.length > 0)
+    ? { blanks: answer.blanks, accepted }
+    : { blanks: answer.blanks };
+}
+
 export function parseCompositionResult(json: unknown): CompositionResult {
   const parsed = compositionResultSchema.parse(json);
   const questions: CompositionQuestion[] = [];
@@ -132,7 +159,7 @@ export function parseCompositionResult(json: unknown): CompositionResult {
       type: question.type,
       stem: question.stem,
       options: question.options,
-      answer: question.answer,
+      answer: cleanAnswer(question.type, question.answer),
       explanation: question.explanation,
     });
   }
@@ -167,6 +194,57 @@ export function firstOptionNamed(options: readonly string[], explanation: string
   return first?.index ?? null;
 }
 
+// Leading articles an option may carry ("Un étendoir") that a stem drops ("l'étendoir").
+const LEADING_ARTICLE =
+  /^(?:(?:le|la|les|un|une|des|du|de|the|a|an|el|los|las|unos|unas|der|die|das|ein|eine) |(?:l|d)['’])/;
+
+function answerCore(text: string): string {
+  return normalizeAnswerText(text).replace(LEADING_ARTICLE, "");
+}
+
+function containsWords(haystack: string, needle: string): boolean {
+  if (needle.length < 3) {
+    return false;
+  }
+  const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(?<![\\p{L}\\p{N}])${escaped}(?![\\p{L}\\p{N}])`, "u").test(haystack);
+}
+
+// True when the stem spells out the answer, so the learner can match words
+// instead of recalling them. An mcq stem that names every option it compares
+// ("le ou la ?") is fine; one that names only the right option is not. Grammar
+// stems name the forms they drill ("por o para", "en colère → ?"), so they pass.
+export function stemGivesAwayAnswer(question: CompositionQuestion): boolean {
+  if (question.category === "grammar") {
+    return false;
+  }
+  const stem = normalizeAnswerText(question.stem);
+  const answer = question.answer;
+  if ((question.type === "mcq" || question.type === "image") && "index" in answer) {
+    const options = question.options ?? [];
+    const right = options[answer.index];
+    if (right === undefined || !containsWords(stem, answerCore(right))) {
+      return false;
+    }
+    return !options.some(
+      (option, index) => index !== answer.index && containsWords(stem, answerCore(option)),
+    );
+  }
+  if ("blanks" in answer) {
+    return [...answer.blanks, ...(answer.accepted ?? []).flat()].some((blank) =>
+      containsWords(stem, answerCore(blank)),
+    );
+  }
+  return false;
+}
+
+/** A blank longer than this is a sentence to type from memory, which exact-match grading judges badly. */
+export const MAX_BLANK_WORDS = 4;
+
+function wordCount(text: string): number {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
 export function sanitizeCompositionQuestions(
   questions: CompositionQuestion[],
   validKnowledgePointIds: ReadonlySet<string>,
@@ -194,6 +272,14 @@ export function sanitizeCompositionQuestions(
         dropped.push({ question, reason: "explanation names a different option" });
         continue;
       }
+    }
+    if ("blanks" in question.answer && question.answer.blanks.some((blank) => wordCount(blank) > MAX_BLANK_WORDS)) {
+      dropped.push({ question, reason: "blank answer too long" });
+      continue;
+    }
+    if (stemGivesAwayAnswer(question)) {
+      dropped.push({ question, reason: "stem gives away the answer" });
+      continue;
     }
     kept.push(question);
   }

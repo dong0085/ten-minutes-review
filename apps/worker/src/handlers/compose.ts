@@ -1,7 +1,7 @@
 import {
-  COMPOSITION_PROMPT_V3,
+  COMPOSITION_PROMPT_V4,
   COMPOSITION_PROMPT_VERSION,
-  EXAM_PROMPT_V1,
+  EXAM_PROMPT_V2,
   EXAM_PROMPT_VERSION,
   fillExamBlueprint,
   selectExamPoints,
@@ -32,7 +32,10 @@ import {
   recordJobResult,
 } from "@tmr/db";
 import type { Db, NewQuestion } from "@tmr/db";
+import { env } from "../env";
+import { createJevClient } from "../jev";
 import { getLlmProvider } from "../llm";
+import { reviewAndRewrite } from "../review";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -87,6 +90,60 @@ async function cancelIfRequested(db: Db, jobId: string | undefined): Promise<boo
   return false;
 }
 
+type ComposeClassroom = {
+  id: string;
+  targetLanguage: string;
+  nativeLanguage: string;
+  quizLength: number;
+};
+
+type BankPoint = Awaited<ReturnType<typeof listKnowledgePointsForComposition>>[number];
+
+/** Picks today's points and builds what the model sees. Shared with the eval snapshot. */
+export async function buildDailyCompositionInput(
+  db: Db,
+  userId: string,
+  classroom: ComposeClassroom,
+  bank: BankPoint[],
+  now = new Date(),
+) {
+  const budget = quizBudget(bank.length, classroom.quizLength);
+  const recentMisses = await listRecentMisses(
+    db,
+    userId,
+    classroom.id,
+    new Date(now.getTime() - 30 * DAY_MS),
+  );
+  const { chosen, spares } = selectCompositionPoints(bank, {
+    budget,
+    now,
+    lastQuizzedAt: await listLastQuizzedByPoint(db, classroom.id),
+    missedIds: recentMisses.map((miss) => miss.knowledgePointId),
+  });
+  const selected = [...chosen, ...spares];
+  const selectedIds = new Set(selected.map((point) => point.id));
+
+  const payload = {
+    targetLanguage: classroom.targetLanguage,
+    nativeLanguage: classroom.nativeLanguage,
+    size: chosen.length,
+    knowledgePoints: selected.map((point) => ({
+      id: point.id,
+      category: point.category,
+      target: point.targetText,
+      native: point.nativeText,
+      detail: point.detail,
+    })),
+    alreadyAskedStems: await listWeekQuestionStems(
+      db,
+      classroom.id,
+      new Date(now.getTime() - 7 * DAY_MS),
+    ),
+    recentMisses: recentMisses.filter((miss) => selectedIds.has(miss.knowledgePointId)),
+  };
+  return { budget, chosen, selected, payload };
+}
+
 export async function handleComposeJob(
   db: Db,
   payload: Record<string, unknown>,
@@ -132,46 +189,36 @@ export async function handleComposeJob(
     console.log(`[worker] compose ${classroomId} ${localDate}: empty bank, nothing to compose`);
     return;
   }
-  const budget = quizBudget(bank.length, classroom.quizLength);
-  const now = new Date();
-  const recentMisses = await listRecentMisses(
+  const { budget, selected, payload: compositionPayload } = await buildDailyCompositionInput(
     db,
     userId,
-    classroomId,
-    new Date(now.getTime() - 30 * DAY_MS),
+    classroom,
+    bank,
   );
-  const { chosen, spares } = selectCompositionPoints(bank, {
-    budget,
-    now,
-    lastQuizzedAt: await listLastQuizzedByPoint(db, classroomId),
-    missedIds: recentMisses.map((miss) => miss.knowledgePointId),
-  });
-  const selected = [...chosen, ...spares];
   const selectedIds = new Set(selected.map((point) => point.id));
-
-  const compositionPayload = {
-    targetLanguage: classroom.targetLanguage,
-    nativeLanguage: classroom.nativeLanguage,
-    size: chosen.length,
-    knowledgePoints: selected.map((point) => ({
-      id: point.id,
-      category: point.category,
-      target: point.targetText,
-      native: point.nativeText,
-      detail: point.detail,
-    })),
-    alreadyAskedStems: await listWeekQuestionStems(db, classroomId, new Date(now.getTime() - 7 * DAY_MS)),
-    recentMisses: recentMisses.filter((miss) => selectedIds.has(miss.knowledgePointId)),
-  };
 
   const provider = getLlmProvider();
   const raw = await provider.compose({
-    systemPrompt: COMPOSITION_PROMPT_V3,
+    systemPrompt: COMPOSITION_PROMPT_V4,
     payload: compositionPayload,
   });
   const parsed = typeof raw === "string" ? parseCompositionResponse(raw) : parseCompositionResult(raw);
 
-  const { kept: usable, dropped } = sanitizeCompositionQuestions(parsed.questions, selectedIds);
+  const { kept: sanitized, dropped } = sanitizeCompositionQuestions(parsed.questions, selectedIds);
+  let usable = sanitized;
+  let reviewNote = "";
+  if (env.judgeProvider === "jev") {
+    const review = await reviewAndRewrite({
+      jev: createJevClient(),
+      provider,
+      payload: compositionPayload,
+      questions: sanitized,
+    });
+    // Rejected questions come back only when the quiz would otherwise be too short to send.
+    const shortBy = Math.max(0, MIN_USABLE_QUESTIONS - review.kept.length);
+    usable = [...review.kept, ...review.rejected.slice(0, shortBy).map((entry) => entry.question)];
+    reviewNote = `, review ${JSON.stringify(review.stats)}`;
+  }
   const categoryById = new Map(selected.map((point) => [point.id, point.category]));
   const kept = fitToBudget(
     usable,
@@ -238,7 +285,7 @@ export async function handleComposeJob(
     });
   }
   console.log(
-    `[worker] compose ${kind} ${classroomId} ${localDate}: ${kept.length} questions (${dropped.length} dropped)`,
+    `[worker] compose ${kind} ${classroomId} ${localDate}: ${kept.length} questions (${dropped.length} dropped${reviewNote})`,
   );
 }
 
@@ -274,7 +321,7 @@ async function composeExam(
 
   const provider = getLlmProvider();
   const raw = await provider.compose({
-    systemPrompt: EXAM_PROMPT_V1,
+    systemPrompt: EXAM_PROMPT_V2,
     payload: {
       targetLanguage: classroom.targetLanguage,
       nativeLanguage: classroom.nativeLanguage,

@@ -7,8 +7,13 @@
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
     "once": "tsx src/run-once.ts",
+    "eval": "tsx src/eval/run.ts",
+    "eval:snapshot": "tsx src/eval/snapshot.ts",
+    "eval:compare": "tsx src/eval/compare.ts",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "eval:jev-calibrate": "tsx src/eval/jev-calibrate.ts",
+    "eval:score-quizzes": "tsx src/eval/score-quizzes.ts"
   },
   "dependencies": {
     "@tmr/core": "workspace:*",

@@ -102,7 +102,7 @@ export function answerGiveaways(
     }
   }
   if ("blanks" in answer) {
-    texts.push(...answer.blanks);
+    texts.push(...answer.blanks, ...(answer.accepted ?? []).flat());
   }
   // Very short answers ("a", "le") show up in any sentence; they are left to the prompt.
   return texts.map(normalizeAnswerText).filter((text) => text.length >= 3);
