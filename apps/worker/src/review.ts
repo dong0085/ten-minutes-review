@@ -1,7 +1,7 @@
 // Reviews composed questions with Jev and rewrites the ones it rejects, once.
 // A rewrite that still fails is set aside; the spare points fill its place.
 import {
-  REWRITE_PROMPT_V1,
+  REWRITE_PROMPT_V2,
   parseCompositionResponse,
   parseCompositionResult,
   sanitizeCompositionQuestions,
@@ -54,7 +54,38 @@ function hasOptions(question: CompositionQuestion): boolean {
   return (question.type === "mcq" || question.type === "image") && Boolean(question.options?.length);
 }
 
+// A true_false statement has no options to match against, so it skips the giveaway
+// and distractor checks. Its two other problems are a wrong verdict and a
+// statement a knowledgeable learner could read either way.
+function trueFalseQuestions(): Record<string, JevQuestion> {
+  return {
+    answer_wrong: {
+      type: "noul",
+      instructions:
+        "Is the marked answer (true or false) the wrong verdict for the statement in the question text?",
+      criteria: { true: "Yes, the verdict is wrong.", false: "No, the verdict is correct." },
+    },
+    several_right: {
+      type: "noul",
+      instructions:
+        "Is the statement ambiguous, partly true and partly false, or debatable, so that a learner who knows the point could reasonably choose the other verdict?",
+      criteria: {
+        true: "Yes, the statement could fairly be read either way.",
+        false: "No, the statement is clearly true or clearly false.",
+      },
+    },
+    quality: {
+      type: "score",
+      instructions: "How good is this as a true/false question for a language learner?",
+      criteria: QUALITY_LEVELS,
+    },
+  };
+}
+
 export function reviewQuestions(question: CompositionQuestion): Record<string, JevQuestion> {
+  if (question.type === "true_false") {
+    return trueFalseQuestions();
+  }
   const questions: Record<string, JevQuestion> = {
     reveals_answer: {
       type: "noul",
@@ -221,7 +252,7 @@ export async function reviewAndRewrite(input: {
   const replacements = new Map<CompositionQuestion, CompositionQuestion>();
   const rejected: ReviewOutcome["rejected"] = [];
   try {
-    const raw = await provider.compose({ systemPrompt: REWRITE_PROMPT_V1, payload: rewritePayload(payload, failing) });
+    const raw = await provider.compose({ systemPrompt: REWRITE_PROMPT_V2, payload: rewritePayload(payload, failing) });
     const failingIds = new Set(failing.map(({ question }) => question.knowledge_point_id));
     const parsed = typeof raw === "string" ? parseCompositionResponse(raw) : parseCompositionResult(raw);
     const { kept: rewrites } = sanitizeCompositionQuestions(parsed.questions, failingIds);

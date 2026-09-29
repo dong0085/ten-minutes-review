@@ -1,0 +1,53 @@
+{
+  "targetLanguage": "fr",
+  "nativeLanguage": "en",
+  "size": 12,
+  "knowledgePoints": [
+    { "id": "x01", "category": "vocabulary", "type": "mcq", "target": "le plafond", "native": "the ceiling", "detail": null },
+    { "id": "x02", "category": "vocabulary", "type": "mcq", "target": "le grenier", "native": "the attic", "detail": null },
+    { "id": "x03", "category": "phrase", "type": "mcq", "target": "faire la vaisselle", "native": "to do the dishes", "detail": null },
+    { "id": "x04", "category": "expression", "type": "mcq", "target": "J'en ai marre.", "native": "I'm fed up.", "detail": null },
+    {
+      "id": "x05",
+      "category": "grammar",
+      "type": "true_false",
+      "target": "passé composé avec être",
+      "native": "passé composé with être",
+      "detail": {
+        "grammar": {
+          "rule": "Verbs of movement and reflexive verbs take être, and the past participle agrees with the subject.",
+          "examples": [
+            { "target": "elle est partie", "related": null },
+            { "target": "ils se sont levés", "related": null }
+          ]
+        }
+      }
+    },
+    {
+      "id": "x06",
+      "category": "grammar",
+      "type": "true_false",
+      "target": "le subjonctif après « il faut que »",
+      "native": "subjunctive after « il faut que »",
+      "detail": {
+        "grammar": {
+          "rule": "« Il faut que » is followed by the subjunctive.",
+          "examples": [
+            { "target": "il faut que tu viennes", "related": null },
+            { "target": "il faut que je fasse", "related": null }
+          ]
+        }
+      }
+    },
+    { "id": "x07", "category": "expression", "type": "true_false", "target": "Ça me fait chaud au cœur.", "native": "It warms my heart.", "detail": null },
+    { "id": "x08", "category": "vocabulary", "type": "fill_blank", "target": "la serpillière", "native": "the floor cloth / mop", "detail": null },
+    { "id": "x09", "category": "vocabulary", "type": "fill_blank", "target": "le robinet", "native": "the tap", "detail": null },
+    { "id": "x10", "category": "phrase", "type": "fill_blank", "target": "passer l'aspirateur", "native": "to vacuum", "detail": null },
+    { "id": "x11", "category": "vocabulary", "type": "fill_blank", "target": "la fierté", "native": "pride", "detail": null },
+    { "id": "x12", "category": "vocabulary", "type": "mcq", "target": "déçu", "native": "disappointed", "detail": null }
+  ],
+  "alreadyAskedStems": [],
+  "recentMisses": [
+    { "knowledgePointId": "x03", "stem": "Pour ___ (do the dishes), on utilise du liquide vaisselle." }
+  ]
+}

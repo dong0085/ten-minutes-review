@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { CompositionQuestion } from "@tmr/core";
 import type { JevAnswer, JevClient } from "./jev";
 import type { CompositionPayload, LlmProvider } from "./llm";
-import { reviewAndRewrite } from "./review";
+import { reviewAndRewrite, reviewQuestions } from "./review";
 
 const payload: CompositionPayload = {
   targetLanguage: "fr",
@@ -99,5 +99,36 @@ describe("reviewAndRewrite", () => {
     const outcome = await reviewAndRewrite({ jev, provider: fakeProvider(good), payload, questions: [bad, good] });
     expect(outcome.kept).toEqual([bad, good]);
     expect(outcome.stats).toMatchObject({ reviewed: 0, unreviewed: 2 });
+  });
+});
+
+describe("reviewQuestions", () => {
+  it("asks a true_false only about its verdict and ambiguity, not options or giveaways", () => {
+    const statement: CompositionQuestion = {
+      ...mcq("a", "Le verbe « partir » prend être."),
+      type: "true_false",
+      options: null,
+      answer: { value: true },
+    };
+    expect(Object.keys(reviewQuestions(statement))).toEqual(["answer_wrong", "several_right", "quality"]);
+    expect(Object.keys(reviewQuestions(good))).toContain("weak_distractors");
+  });
+
+  it("keeps a rewrite in the type of the question it replaces", async () => {
+    const statement: CompositionQuestion = {
+      ...bad,
+      type: "true_false",
+      options: null,
+      answer: { value: true },
+    };
+    const wrongType = mcq("a", "Comment dit-on « the clothes line » ?");
+    const outcome = await reviewAndRewrite({
+      jev: fakeJev(),
+      provider: fakeProvider(wrongType),
+      payload,
+      questions: [statement],
+    });
+    expect(outcome.kept).toEqual([]);
+    expect(outcome.rejected.map((entry) => entry.question)).toEqual([statement]);
   });
 });

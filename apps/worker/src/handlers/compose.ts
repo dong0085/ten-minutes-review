@@ -319,35 +319,47 @@ async function composeExam(
   const selectedIds = new Set(selected.map(({ point }) => point.id));
   const typeById = new Map(selected.map(({ point, type }) => [point.id, type]));
 
+  const examPayload = {
+    targetLanguage: classroom.targetLanguage,
+    nativeLanguage: classroom.nativeLanguage,
+    size: selected.length,
+    knowledgePoints: selected.map(({ point, type }) => ({
+      id: point.id,
+      category: point.category,
+      type,
+      target: point.targetText,
+      native: point.nativeText,
+      detail: point.detail,
+    })),
+    alreadyAskedStems: await listWeekQuestionStems(
+      db,
+      classroomId,
+      new Date(now.getTime() - 7 * DAY_MS),
+    ),
+    recentMisses: recentMisses.filter((miss) => selectedIds.has(miss.knowledgePointId)),
+  };
+
   const provider = getLlmProvider();
-  const raw = await provider.compose({
-    systemPrompt: EXAM_PROMPT_V2,
-    payload: {
-      targetLanguage: classroom.targetLanguage,
-      nativeLanguage: classroom.nativeLanguage,
-      size: selected.length,
-      knowledgePoints: selected.map(({ point, type }) => ({
-        id: point.id,
-        category: point.category,
-        type,
-        target: point.targetText,
-        native: point.nativeText,
-        detail: point.detail,
-      })),
-      alreadyAskedStems: await listWeekQuestionStems(
-        db,
-        classroomId,
-        new Date(now.getTime() - 7 * DAY_MS),
-      ),
-      recentMisses: recentMisses.filter((miss) => selectedIds.has(miss.knowledgePointId)),
-    },
-  });
+  const raw = await provider.compose({ systemPrompt: EXAM_PROMPT_V2, payload: examPayload });
   const parsed = typeof raw === "string" ? parseCompositionResponse(raw) : parseCompositionResult(raw);
-  const { kept: usable, dropped } = sanitizeCompositionQuestions(parsed.questions, selectedIds);
+  const { kept: sanitized, dropped } = sanitizeCompositionQuestions(parsed.questions, selectedIds);
   // A question in a type other than the one its point was given would unbalance the paper.
-  const paper = fillExamBlueprint(
-    usable.filter((question) => typeById.get(question.knowledge_point_id) === question.type),
+  const usable = sanitized.filter(
+    (question) => typeById.get(question.knowledge_point_id) === question.type,
   );
+  let paper = fillExamBlueprint(usable);
+  let reviewNote = "";
+  if (env.judgeProvider === "jev") {
+    const review = await reviewAndRewrite({
+      jev: createJevClient(),
+      provider,
+      payload: examPayload,
+      questions: usable,
+    });
+    // Rejected questions come back, best first, only for a part the spares cannot fill.
+    paper = fillExamBlueprint([...review.kept, ...review.rejected.map((entry) => entry.question)]);
+    reviewNote = `, review ${JSON.stringify(review.stats)}`;
+  }
   if (!paper) {
     throw new Error(`exam blueprint not filled from ${usable.length} usable questions`);
   }
@@ -384,6 +396,6 @@ async function composeExam(
     await recordJobResult(db, jobId, { quizId: quiz.id });
   }
   console.log(
-    `[worker] compose exam ${classroomId}: ${paper.length} questions (${dropped.length} dropped)`,
+    `[worker] compose exam ${classroomId}: ${paper.length} questions (${dropped.length} dropped${reviewNote})`,
   );
 }

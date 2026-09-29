@@ -1,7 +1,8 @@
 // Runs the composition prompt over saved cases and scores the questions it writes.
 //
 //   pnpm --filter worker eval                      # current prompt, every case
-//   pnpm --filter worker eval --prompt draft.txt   # a draft prompt from a file
+//   pnpm --filter worker eval --prompt draft.txt   # a draft prompt from a file, for every case
+//   pnpm --filter worker eval --only exam          # exam cases use the exam prompt
 //   pnpm --filter worker eval --runs 3 --label v4  # repeat each case, name the run
 //   pnpm --filter worker eval --no-judge           # code checks only
 //   pnpm --filter worker eval --review             # add the Jev review-and-rewrite step
@@ -13,6 +14,8 @@ import { parseArgs } from "node:util";
 import {
   COMPOSITION_PROMPT_V4,
   COMPOSITION_PROMPT_VERSION,
+  EXAM_PROMPT_V2,
+  EXAM_PROMPT_VERSION,
   parseCompositionResponse,
   parseCompositionResult,
 } from "@tmr/core";
@@ -74,10 +77,15 @@ async function loadCases(only: string | undefined): Promise<EvalCase[]> {
   return cases;
 }
 
+/** Exam cases give each knowledge point the question type it must be tested with. */
+function isExamCase(evalCase: EvalCase): boolean {
+  return evalCase.payload.knowledgePoints.some((point) => point.type);
+}
+
 async function runCase(
   evalCase: EvalCase,
   run: number,
-  systemPrompt: string,
+  promptOverride: string | undefined,
   judge: boolean,
   review: boolean,
 ): Promise<CaseResult> {
@@ -94,6 +102,7 @@ async function runCase(
     seconds: 0,
   };
   try {
+    const systemPrompt = promptOverride ?? (isExamCase(evalCase) ? EXAM_PROMPT_V2 : COMPOSITION_PROMPT_V4);
     const raw = await provider.compose({ systemPrompt, payload: evalCase.payload });
     const parsed = typeof raw === "string" ? parseCompositionResponse(raw) : parseCompositionResult(raw);
     result.questions = parsed.questions;
@@ -144,10 +153,9 @@ async function main(): Promise<void> {
   if (env.llmProvider === "mock") {
     console.warn("[eval] LLM_PROVIDER is mock: this checks the plumbing, not the prompt.");
   }
-  const systemPrompt = values.prompt
+  const promptOverride = values.prompt
     ? await readFile(path.resolve(process.cwd(), values.prompt), "utf8")
-    : COMPOSITION_PROMPT_V4;
-  const promptVersion = values.prompt ? path.basename(values.prompt) : COMPOSITION_PROMPT_VERSION;
+    : undefined;
   // The mock provider only writes quizzes, so it cannot judge them.
   const judged = !values["no-judge"] && env.llmProvider !== "mock";
   const reviewed = values.review;
@@ -156,6 +164,11 @@ async function main(): Promise<void> {
   if (cases.length === 0) {
     throw new Error("no eval cases found");
   }
+  const promptVersion = promptOverride
+    ? path.basename(values.prompt ?? "")
+    : cases.some(isExamCase)
+      ? `${COMPOSITION_PROMPT_VERSION}+${EXAM_PROMPT_VERSION}`
+      : COMPOSITION_PROMPT_VERSION;
 
   const model = env.llmProvider === "mock" ? "mock" : env.deepseekModel;
   const label = values.label ?? `${promptVersion}${reviewed ? "+jev" : ""}-${model}`;
@@ -165,7 +178,7 @@ async function main(): Promise<void> {
     Array.from({ length: runs }, (_, run) => ({ evalCase, run })),
   );
   const results = await inBatches(jobs, CONCURRENCY, async ({ evalCase, run }) => {
-    const result = await runCase(evalCase, run, systemPrompt, judged, reviewed);
+    const result = await runCase(evalCase, run, promptOverride, judged, reviewed);
     console.log(
       `[eval] ${evalCase.name}#${run}: ${result.error ?? `${result.questions.length} questions`} (${result.seconds}s)`,
     );

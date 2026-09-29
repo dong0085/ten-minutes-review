@@ -9,7 +9,7 @@ export {
   parseCompositionResponse,
 } from "./composition";
 export { EXAM_PROMPT_V2, EXAM_PROMPT_VERSION } from "./exam";
-export { REWRITE_PROMPT_V1, REWRITE_PROMPT_VERSION } from "./rewrite";
+export { REWRITE_PROMPT_V2, REWRITE_PROMPT_VERSION } from "./rewrite";
 export {
   extractionResultSchema,
   compositionResultSchema,
