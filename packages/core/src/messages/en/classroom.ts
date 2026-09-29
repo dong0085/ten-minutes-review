@@ -174,6 +174,9 @@ export const classroom = {
     best: "Best {score} / {size}",
     unfinished: "Unfinished",
     unfinishedBlurb: "Quizzes you created but have not taken yet.",
+    recentMade: "Made {when}",
+    recentReady: "Ready when you are",
+    review: "Review",
     guestBanner:
       "You are exploring in preview mode. Notes and classrooms are temporary until you create an account.",
     guestBannerAction: "Sign up to save",

@@ -61,6 +61,8 @@ export type ClassroomOverview = {
   counts: { uploads: number; pendingUploads: number; bank: number; quizzes: number };
   bankByCategory: Record<Category, number>;
   lastUploadAt: string | null;
+  /** On-demand quizzes made in the last 24 hours, taken or not, newest first. */
+  recentOnDemand: QuizListItem[];
   unfinished: Array<Omit<QuizListItem, "bestScore" | "attemptCount">>;
   mistakes: number;
   exam: {

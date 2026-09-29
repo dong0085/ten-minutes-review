@@ -1,3 +1,4 @@
+import { COMPOSE_REHYDRATE_MS } from "@tmr/core";
 import { getClassroom, getDailyQuizByClassroomAndDate, getLatestComposeJob } from "@tmr/db";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/api";
 import { getDb } from "@/lib/db";
@@ -5,8 +6,6 @@ import { getSessionUser } from "@/lib/session";
 import { buildQuizPayload, localDateFor } from "@/app/api/_lib/quiz";
 
 type RouteContext = { params: Promise<{ id: string }> };
-
-const REHYDRATE_WINDOW_MS = 10 * 60 * 1000;
 
 export async function GET(_request: Request, context: RouteContext) {
   try {
@@ -23,7 +22,7 @@ export async function GET(_request: Request, context: RouteContext) {
     const quizDate = localDateFor(user.timezone);
     const quiz = await getDailyQuizByClassroomAndDate(db, id, quizDate);
     if (!quiz) {
-      const job = await getLatestComposeJob(db, id, REHYDRATE_WINDOW_MS);
+      const job = await getLatestComposeJob(db, id, COMPOSE_REHYDRATE_MS);
       return jsonOk({
         quiz: null,
         job: job ? { id: job.id, status: job.status, requestedAt: job.createdAt } : null,
