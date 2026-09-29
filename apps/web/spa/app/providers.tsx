@@ -1,7 +1,6 @@
 import { useEffect, type ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MotionConfig } from "motion/react";
-import { ThemeProvider } from "next-themes";
 import { IntlProvider } from "use-intl";
 import { getMessages } from "@tmr/core";
 import { Toaster } from "@tmr/ui/components/sonner";
@@ -43,14 +42,12 @@ function IntlFromSession({ children }: { children: ReactNode }) {
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <IntlFromSession>
-          <MotionConfig reducedMotion="user">
-            {children}
-            <Toaster />
-          </MotionConfig>
-        </IntlFromSession>
-      </ThemeProvider>
+      <IntlFromSession>
+        <MotionConfig reducedMotion="user">
+          {children}
+          <Toaster />
+        </MotionConfig>
+      </IntlFromSession>
     </QueryClientProvider>
   );
 }
