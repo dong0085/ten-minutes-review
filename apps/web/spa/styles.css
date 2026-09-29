@@ -1,0 +1,405 @@
+/* Styles only the signed-in app uses. The root layout loads globals.css. */
+
+/* The quiz as a printed exam paper, with two more sheets peeking out behind it. */
+.quiz-paper-stack {
+  position: relative;
+  isolation: isolate;
+}
+
+.quiz-paper,
+.quiz-paper-stack::before,
+.quiz-paper-stack::after {
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  background: var(--card);
+}
+
+.quiz-paper {
+  position: relative;
+  border-top: 4px solid var(--primary);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.05),
+    0 18px 40px -18px rgb(var(--shadow-colour) / 0.28);
+}
+
+.quiz-paper-stack::before,
+.quiz-paper-stack::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.quiz-paper-stack::before {
+  translate: 5px 6px;
+  rotate: 0.6deg;
+}
+
+.quiz-paper-stack::after {
+  translate: -4px 9px;
+  rotate: -0.5deg;
+  opacity: 0.7;
+}
+
+/* The AI review of an exam, clipped to the paper under the header like a comment slip. */
+.exam-review-slip {
+  position: relative;
+  border: 1px dashed color-mix(in oklch, var(--primary) 45%, transparent);
+  border-radius: 0.375rem;
+  background: color-mix(in oklch, var(--primary) 4%, var(--card));
+  padding: 1rem 1.25rem 1.1rem;
+}
+
+/* A paper clip's shadow on the slip's top edge. */
+.exam-review-slip::before {
+  content: "";
+  position: absolute;
+  top: -0.55rem;
+  left: 1.5rem;
+  width: 0.7rem;
+  height: 1.6rem;
+  border: 2px solid color-mix(in oklch, var(--muted-foreground) 70%, transparent);
+  border-radius: 999px;
+}
+
+.exam-review-chip {
+  display: inline-grid;
+  min-width: 1.5rem;
+  height: 1.35rem;
+  place-items: center;
+  border: 1px solid color-mix(in oklch, var(--destructive) 45%, transparent);
+  border-radius: 999px;
+  padding: 0 0.4rem;
+  color: var(--destructive);
+  font-variant-numeric: tabular-nums;
+}
+
+button.exam-review-chip:hover {
+  background: color-mix(in oklch, var(--destructive) 10%, transparent);
+}
+
+button.exam-review-chip:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+/* The mistake book: a ruled exercise book with a red margin, corrected in red pen. */
+.mistake-book {
+  --margin-ink: color-mix(in oklch, var(--destructive) 45%, transparent);
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  background-color: var(--card);
+  background-image:
+    linear-gradient(
+      to right,
+      transparent 2.4rem,
+      var(--margin-ink) 2.4rem calc(2.4rem + 1px),
+      transparent calc(2.4rem + 1px) calc(2.4rem + 4px),
+      var(--margin-ink) calc(2.4rem + 4px) calc(2.4rem + 5px),
+      transparent calc(2.4rem + 5px)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 calc(2rem - 1px),
+      color-mix(in oklch, var(--primary) 7%, transparent) calc(2rem - 1px) 2rem
+    );
+  padding: 2.5rem 1.25rem 2.5rem 0.5rem;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.05),
+    0 18px 40px -18px rgb(var(--shadow-colour) / 0.22);
+}
+
+@media (min-width: 40rem) {
+  .mistake-book {
+    padding-right: 3rem;
+  }
+}
+
+/* The teacher's "corrected" stamp. */
+.mistake-stamp {
+  display: inline-block;
+  rotate: -6deg;
+  border: 2px solid color-mix(in oklch, var(--destructive) 80%, transparent);
+  border-radius: 0.3rem;
+  padding: 0.1rem 0.6rem;
+  color: var(--destructive);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+/* The AI tutor writes in the theme's ink on a sticky note, apart from the red pen. */
+.tutor-panel {
+  border-top: 1px dashed color-mix(in oklch, var(--primary) 30%, transparent);
+  padding-top: 0.75rem;
+}
+
+.tutor-note {
+  border-left: 3px solid color-mix(in oklch, var(--primary) 55%, transparent);
+  border-radius: 0 0.375rem 0.375rem 0;
+  background: color-mix(in oklch, var(--primary) 6%, var(--card));
+  padding: 0.5rem 0.75rem;
+  color: var(--foreground);
+}
+
+/* Printing the quiz gives just the paper, marks and all. */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  body {
+    background: white;
+  }
+
+  .quiz-paper-stack::before,
+  .quiz-paper-stack::after {
+    display: none;
+  }
+
+  /* Ink on white, even when the app is in dark mode. */
+  .quiz-paper {
+    --card: white;
+    --foreground: oklch(0.235 0.018 64);
+    --muted-foreground: oklch(0.49 0.018 64);
+    --muted: oklch(0.945 0.008 var(--paper-hue));
+    --border: oklch(0.885 0.01 var(--paper-hue));
+    --destructive: oklch(0.545 0.2 27.325);
+    --primary: oklch(0.46 var(--theme-chroma) var(--theme-hue));
+    --primary-foreground: white;
+    border: none;
+    box-shadow: none;
+    color: var(--foreground);
+    print-color-adjust: exact;
+  }
+}
+
+/* Exam answer sheet: an optical-mark card printed in the theme's ink, marked in pencil. */
+.scantron {
+  --ink: var(--primary);
+  --ink-line: color-mix(in oklch, var(--primary) 55%, transparent);
+  --graphite: oklch(0.32 0.004 260);
+  --pencil-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.6' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.45 -0.12'/%3E%3C/filter%3E%3Crect width='48' height='48' filter='url(%23g)'/%3E%3C/svg%3E");
+  position: relative;
+  border: 1px solid var(--ink-line);
+  border-radius: 0.25rem;
+  background:
+    linear-gradient(color-mix(in oklch, var(--primary) 5%, transparent), color-mix(in oklch, var(--primary) 5%, transparent)),
+    var(--card);
+  padding: 1rem 1rem 0.75rem 1.4rem;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.05),
+    0 18px 40px -20px rgb(var(--shadow-colour) / 0.3);
+  font-variant-numeric: tabular-nums;
+  container-type: inline-size;
+}
+
+/* On a phone-width card the bubbles tighten so each row keeps room for the reader's ✗. */
+@container (max-width: 22rem) {
+  .scantron .scantron-bubble {
+    width: 1.15rem;
+  }
+
+  .scantron .scantron-row {
+    gap: 0.25rem;
+  }
+}
+
+.dark .scantron {
+  --graphite: oklch(0.86 0.004 260);
+}
+
+/* The corner notch every reader uses to square the card up. */
+.scantron::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: var(--background);
+  border-left: 1px solid var(--ink-line);
+  border-bottom: 1px solid var(--ink-line);
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+.pencil-writing {
+  color: var(--graphite);
+  font-family: var(--font-editorial), ui-serif, serif;
+  font-style: italic;
+  letter-spacing: 0.01em;
+}
+
+.scantron-field {
+  min-height: 1.1rem;
+  border-bottom: 1px solid var(--ink-line);
+  padding-inline: 0.25rem;
+  font-size: 0.8rem;
+  line-height: 1.1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scantron-barcode {
+  display: flex;
+  height: 1.75rem;
+  align-items: stretch;
+  gap: 0;
+  padding: 0.2rem;
+  border: 1px dashed var(--ink-line);
+}
+
+.scantron-barcode > span {
+  background: var(--foreground);
+}
+
+.scantron-column {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Rows come in blocks of five, like the printed card. */
+.scantron-column > .scantron-row:nth-child(5n + 1):not(:first-child) {
+  margin-top: 0.45rem;
+}
+
+.scantron-row,
+.scantron-written {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 0.2rem;
+  padding: 0.12rem 1rem 0.12rem 0.15rem;
+  transition: background-color 0.2s;
+}
+
+.scantron-row > *,
+.scantron-written > :not(.pencil-writing) {
+  flex-shrink: 0;
+}
+
+.scantron-row.is-active,
+.scantron-written.is-active {
+  background: color-mix(in oklch, var(--primary) 12%, transparent);
+}
+
+.scantron-written {
+  width: 100%;
+  min-height: 1.5rem;
+  border: 1px solid var(--foreground);
+  border-radius: 0;
+  font-size: 0.8rem;
+}
+
+/* The black clock marks down the edge that the reader counts rows by. */
+.scantron-timing {
+  position: absolute;
+  left: -1.15rem;
+  width: 0.6rem;
+  height: 0.28rem;
+  background: var(--foreground);
+}
+
+.scantron-number {
+  width: 1.1rem;
+  text-align: right;
+  font-size: 0.65rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.scantron-bubble {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.45rem;
+  height: 0.8rem;
+  border: 1px solid var(--ink-line);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 0.52rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.scantron-bubble:disabled {
+  cursor: default;
+}
+
+.scantron-bubble:not(:disabled):hover {
+  background: color-mix(in oklch, var(--primary) 10%, transparent);
+}
+
+/* Graphite: dark, grainy, a touch past the edge, with the sheen soft lead leaves.
+   A bubble's lead is its own element, animated by scantron.tsx. */
+.scantron-lead,
+.scantron-mini::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 48% 52% 55% 45% / 55% 45% 55% 45%;
+  background:
+    linear-gradient(112deg, transparent 38%, rgb(255 255 255 / 0.14) 50%, transparent 62%),
+    var(--pencil-grain),
+    var(--graphite);
+  opacity: 0;
+  rotate: -3deg;
+  pointer-events: none;
+}
+
+.scantron-mini.is-filled::after {
+  opacity: 0.94;
+  animation: pencil-in 0.28s ease-out both;
+}
+
+.scantron-bubble.is-missed {
+  border-color: var(--destructive);
+}
+
+.scantron-ring {
+  position: absolute;
+  inset: -3px -4px;
+  border: 1.5px solid var(--destructive);
+  border-radius: 50%;
+  rotate: -6deg;
+}
+
+.scantron-flag {
+  position: absolute;
+  right: 0.15rem;
+  color: var(--destructive);
+  font-weight: 700;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.scantron-mini {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 0.95rem;
+  height: 0.55rem;
+  border: 1px solid var(--ink-line);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 0.42rem;
+  line-height: 1;
+}
+
+.scantron-mini.is-half::after {
+  opacity: 0.8;
+  clip-path: inset(0 55% 0 0);
+}
+
+@keyframes pencil-in {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}

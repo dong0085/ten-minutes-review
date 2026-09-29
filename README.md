@@ -17,19 +17,19 @@ pnpm db:migrate
 pnpm dev
 ```
 
-`pnpm dev` starts Next on port 3000 and Vite on port 5173 together. In a second terminal, start the job worker:
+`pnpm dev` starts Next on port 3000. In a second terminal, start the job worker:
 
 ```sh
 pnpm dev:worker
 ```
 
-Open [http://localhost:5173](http://localhost:5173) and sign up. Vite serves the signed-in screens and forwards the API and the other pages to Next on port 3000. The defaults in `.env.example` provide fixture extraction and quiz composition, print email to the worker log, and store uploaded images in `.uploads/`.
+Open [http://localhost:3000](http://localhost:3000) and sign up. The defaults in `.env.example` provide fixture extraction and quiz composition, print email to the worker log, and store uploaded images in `.uploads/`.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  SPA[apps/spa] -->|/api| Web[apps/web · Next.js]
+  SPA[apps/web/spa · React Router] -->|/api| Web[apps/web · Next.js]
   Ext[Browser extension] -->|Bearer token| Web
   Web -->|writes jobs| PG[(Postgres)]
   Worker[apps/worker] -->|claims jobs| PG
@@ -42,8 +42,7 @@ The web app never waits for the language model. It writes an `extract`, `compose
 
 | Layer | Responsibility |
 |---|---|
-| `apps/web` | Next.js 16: API routes, Auth.js sessions, and the landing, sign-in, and unsubscribe pages |
-| `apps/spa` | Vite + React Router single-page app for every signed-in screen, served by the Next deployment |
+| `apps/web` | Next.js 16: API routes, Auth.js sessions, the landing, sign-in, and unsubscribe pages, and in `spa/` the React Router app for every signed-in screen |
 | `apps/worker` | Extraction, quiz composition, scheduled delivery, retries, and health server |
 | `packages/core` | Domain types, prompts, grading, quiz sizing, and localization |
 | `packages/db` | Drizzle schema, migrations, and user-scoped repositories |

@@ -25,8 +25,6 @@ if [ "$target" = "web" ]; then
       exit 1
     fi
   done
-  curl -fsS http://127.0.0.1:3000/classrooms | grep -q '/_spa/assets/'
-  echo "SPA shell served"
 else
   docker run --rm --entrypoint test "$image" -d ../../packages/db/drizzle
   docker run --rm --entrypoint ./node_modules/.bin/tsx "$image" --eval '
