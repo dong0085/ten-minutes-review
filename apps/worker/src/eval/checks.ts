@@ -9,7 +9,8 @@ export type CodeFlag =
   | "too_few_options"
   | "blank_count_mismatch"
   | "no_cue"
-  | "repeats_asked_stem";
+  | "repeats_asked_stem"
+  | "wrong_type";
 
 export type CheckedQuestion = {
   question: CompositionQuestion;
@@ -71,11 +72,17 @@ export function checkCase(payload: CompositionPayload, questions: CompositionQue
   const { dropped } = sanitizeCompositionQuestions(questions, ids);
   const dropReasons = new Map(dropped.map((entry) => [entry.question, entry.reason]));
 
+  const types = new Map(payload.knowledgePoints.map((point) => [point.id, point.type]));
   const covered = new Set(questions.map((question) => question.knowledge_point_id));
   return {
     questions: questions.map((question) => {
       const dropReason = dropReasons.get(question) ?? null;
       const flags = checkQuestion(question, asked);
+      // Exam points name the type they must be tested with.
+      const wanted = types.get(question.knowledge_point_id);
+      if (wanted && wanted !== question.type) {
+        flags.push("wrong_type");
+      }
       return { question, dropReason, flags: dropReason ? ["dropped", ...flags] : flags };
     }),
     pointCount: ids.size,

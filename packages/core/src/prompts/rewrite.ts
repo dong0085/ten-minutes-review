@@ -1,8 +1,8 @@
 import { COMPOSITION_SCHEMA } from "./composition";
 
-export const REWRITE_PROMPT_VERSION = "rewrite-v1";
+export const REWRITE_PROMPT_VERSION = "rewrite-v2";
 
-export const REWRITE_PROMPT_V1 = `You rewrite quiz questions that a reviewer rejected. The quiz is for a
+export const REWRITE_PROMPT_V2 = `You rewrite quiz questions that a reviewer rejected. The quiz is for a
 language learner and is drawn from their own session notes.
 
 For each item you receive:
@@ -21,7 +21,8 @@ the same question type. Fix every failed check:
   correct, spelled right, and fit the sentence (gender, number, verb form).
 - several_right: exactly one option may be correct; replace any option that is
   also right. For a fill_blank, list every other correct answer in "accepted",
-  or shorten the blank so only one answer fits.
+  or shorten the blank so only one answer fits. For a true_false, make the
+  statement clearly true or clearly false.
 - weak_distractors: wrong options must be plausible mix-ups from the same topic
   and word class.
 - low_quality: the question should read like one a good teacher would write.

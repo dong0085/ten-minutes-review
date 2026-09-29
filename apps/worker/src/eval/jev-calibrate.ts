@@ -1,4 +1,4 @@
-// Runs the Jev review on four questions whose verdict is known, to check that
+// Runs the Jev review on seven questions whose verdict is known, to check that
 // the review questions and thresholds in ../review.ts catch what they should.
 //
 //   pnpm --filter worker eval:jev-calibrate
@@ -10,11 +10,12 @@ import { reviewQuestion } from "../review";
 const payload: CompositionPayload = {
   targetLanguage: "fr",
   nativeLanguage: "en",
-  size: 4,
+  size: 7,
   knowledgePoints: [
     { id: "etendoir", category: "vocabulary", target: "l'étendoir", native: "the clothes line", detail: null },
     { id: "epuise", category: "vocabulary", target: "épuisant", native: "exhausting", detail: null },
     { id: "preparer", category: "phrase", target: "se préparer pour", native: "to prepare for", detail: null },
+    { id: "avoir", category: "grammar", target: "passé composé avec être", native: "passé composé with être", detail: null },
   ],
   alreadyAskedStems: [],
   recentMisses: [],
@@ -73,6 +74,45 @@ const cases: { name: string; expect: string; question: CompositionQuestion }[] =
       explanation: "« Se préparer pour » veut dire to prepare for.",
     },
   },
+  {
+    name: "tf good",
+    expect: "nothing",
+    question: {
+      knowledge_point_id: "avoir",
+      category: "grammar",
+      type: "true_false",
+      stem: "Avec le verbe « partir », le passé composé se forme avec l'auxiliaire être.",
+      options: null,
+      answer: { value: true },
+      explanation: "« Partir » est un verbe de mouvement, donc il prend être.",
+    },
+  },
+  {
+    name: "tf wrong verdict",
+    expect: "answer_wrong",
+    question: {
+      knowledge_point_id: "avoir",
+      category: "grammar",
+      type: "true_false",
+      stem: "Avec le verbe « partir », le passé composé se forme avec l'auxiliaire avoir.",
+      options: null,
+      answer: { value: true },
+      explanation: "« Partir » se conjugue avec avoir.",
+    },
+  },
+  {
+    name: "tf ambiguous",
+    expect: "several_right",
+    question: {
+      knowledge_point_id: "avoir",
+      category: "grammar",
+      type: "true_false",
+      stem: "Les verbes de mouvement se conjuguent avec être au passé composé.",
+      options: null,
+      answer: { value: true },
+      explanation: "Les verbes de mouvement prennent être.",
+    },
+  },
 ];
 
 const jev = createJevClient();
@@ -82,7 +122,7 @@ for (const { name, expect, question } of cases) {
     .map(([check, probability]) => `${check}=${probability}`)
     .join(" ");
   console.log(
-    `${name.padEnd(13)} expect ${expect.padEnd(15)} failed [${review.failed.join(", ")}]  ` +
+    `${name.padEnd(17)} expect ${expect.padEnd(15)} failed [${review.failed.join(", ")}]  ` +
       `quality=${review.quality} (confidence ${review.confidence})  ${problems}`,
   );
 }
