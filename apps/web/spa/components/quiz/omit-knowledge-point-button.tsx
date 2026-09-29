@@ -63,6 +63,7 @@ export function OmitKnowledgePointButton({
       size="xs"
       onClick={toggle}
       disabled={loading}
+      tabIndex={-1}
       className={cn(
         "h-6 rounded-full px-2.5 text-[0.72rem] font-medium transition-colors",
         omitted
