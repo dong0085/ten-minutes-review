@@ -29,14 +29,19 @@ Open [http://localhost:3000](http://localhost:3000) and sign up. The defaults in
 
 ```mermaid
 flowchart LR
-  SPA[apps/web/spa · React Router] -->|/api| Web[apps/web · Next.js]
-  Ext[Browser extension] -->|Bearer token| Web
+  subgraph Web[apps/web · Next.js]
+    Pages[Landing, auth, unsubscribe pages]
+    SPA[spa/ · React Router app] -->|/api| API[API routes]
+  end
+  Ext[Browser extension] -->|Bearer token| API
   Web -->|writes jobs| PG[(Postgres)]
   Worker[apps/worker] -->|claims jobs| PG
   Worker --> LLM[LLM adapter]
   Worker --> Mail[Email adapter]
   Web --> Store[Storage adapter]
 ```
+
+One Next server runs everything in `apps/web`. It renders the landing, auth, and unsubscribe pages on the server. For `/classrooms`, `/account`, and `/admin` it loads the React Router app in the browser, and that app reads and writes through `/api` with TanStack Query.
 
 The web app never waits for the language model. It writes an `extract`, `compose`, or `send_email` job to Postgres and returns; the worker claims that work, retries it safely, and records the result. Answers and explanations remain server-side until an attempt is submitted.
 
