@@ -18,6 +18,7 @@ export const auth: MessageShape<typeof enAuth> = {
     google: "Se connecter avec Google",
     forgot: "Mot de passe oublié ?",
     createAccount: "Créer un compte",
+    lastUsed: "Dernière connexion",
   },
   SignUpPage: {
     title: "Crée ton compte",

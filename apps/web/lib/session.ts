@@ -12,6 +12,7 @@ import { getDb } from "./db";
 
 export const GUEST_COOKIE_NAME = "tmr_guest_id";
 export const LINK_GOOGLE_COOKIE_NAME = "tmr_link_google";
+export const LAST_LOGIN_COOKIE_NAME = "tmr_last_login";
 
 const TOKEN_TOUCH_INTERVAL_MS = 60 * 60 * 1000;
 

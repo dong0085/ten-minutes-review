@@ -15,6 +15,7 @@ export const auth = {
     google: "Sign in with Google",
     forgot: "Forgot password?",
     createAccount: "Create account",
+    lastUsed: "Last used",
   },
   SignUpPage: {
     title: "Create your account",

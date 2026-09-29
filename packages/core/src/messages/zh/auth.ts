@@ -15,6 +15,7 @@ export const auth = {
     google: "使用 Google 登录",
     forgot: "忘记密码？",
     createAccount: "创建账户",
+    lastUsed: "上次使用",
   },
   SignUpPage: {
     title: "创建你的账户",

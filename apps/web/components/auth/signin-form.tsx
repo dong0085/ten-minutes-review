@@ -12,7 +12,21 @@ import { PasswordInput } from "@tmr/ui/components/password-input";
 import { Label } from "@tmr/ui/components/label";
 import { GoogleButton } from "./google-button";
 
-export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
+function LastUsedBadge({ label }: { label: string }) {
+  return (
+    <span className="pointer-events-none absolute -top-2 right-3 rounded-full border border-primary/20 bg-card px-2 py-0.5 text-[11px] leading-none font-medium text-primary shadow-sm">
+      {label}
+    </span>
+  );
+}
+
+export function SignInForm({
+  callbackUrl,
+  lastMethod,
+}: {
+  callbackUrl: string;
+  lastMethod: "google" | "credentials" | null;
+}) {
   const t = useTranslations("Auth.SignInForm");
   const tc = useTranslations("Common");
   const [email, setEmail] = useState("");
@@ -73,9 +87,12 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           ) : null}
-          <Button type="submit" className="w-full" disabled={pending}>
-            {pending ? t("submitting") : t("submit")}
-          </Button>
+          <div className="relative">
+            <Button type="submit" className="w-full" disabled={pending}>
+              {pending ? t("submitting") : t("submit")}
+            </Button>
+            {lastMethod === "credentials" ? <LastUsedBadge label={t("lastUsed")} /> : null}
+          </div>
         </form>
 
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -83,7 +100,10 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
           {t("or")}
           <span className="h-px flex-1 bg-border" />
         </div>
-        <GoogleButton label={t("google")} callbackUrl={callbackUrl} />
+        <div className="relative">
+          <GoogleButton label={t("google")} callbackUrl={callbackUrl} />
+          {lastMethod === "google" ? <LastUsedBadge label={t("lastUsed")} /> : null}
+        </div>
         <div className="flex justify-between text-sm text-muted-foreground">
           <Link className="underline" href="/forgot">
             {t("forgot")}

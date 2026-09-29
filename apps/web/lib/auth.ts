@@ -21,7 +21,7 @@ import { env } from "./env";
 import { verifyCredentials } from "./credentials";
 import { getDb } from "./db";
 import { REFERRAL_COOKIE_NAME, resolveReferrer } from "./referral";
-import { GUEST_COOKIE_NAME, LINK_GOOGLE_COOKIE_NAME } from "./session";
+import { GUEST_COOKIE_NAME, LAST_LOGIN_COOKIE_NAME, LINK_GOOGLE_COOKIE_NAME } from "./session";
 
 declare module "next-auth" {
   interface Session {
@@ -70,9 +70,20 @@ export const authConfig: NextAuthConfig = {
   pages: { signIn: "/signin" },
   providers,
   events: {
-    async signIn({ user }) {
+    async signIn({ user, account }) {
       if (user.id) {
         await extendClassroomActivityForLogin(getDb(), user.id);
+      }
+      // Remember how this browser signed in, so the sign-in page can mark
+      // that option next time.
+      if (account?.provider === "google" || account?.provider === "credentials") {
+        const store = await cookies();
+        store.set(LAST_LOGIN_COOKIE_NAME, account.provider, {
+          httpOnly: true,
+          sameSite: "lax",
+          path: "/",
+          maxAge: 60 * 60 * 24 * 365,
+        });
       }
     },
   },

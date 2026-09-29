@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { Alert, AlertDescription } from "@tmr/ui/components/alert";
 import { SignInForm } from "@/components/auth/signin-form";
+import { LAST_LOGIN_COOKIE_NAME } from "@/lib/session";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Auth");
@@ -32,6 +34,8 @@ export default async function SignInPage({
   const error = first(params.error);
   const callbackUrl = safeCallbackPath(first(params.callbackUrl));
   const t = await getTranslations("Auth.SignInPage");
+  const lastLogin = (await cookies()).get(LAST_LOGIN_COOKIE_NAME)?.value;
+  const lastMethod = lastLogin === "google" || lastLogin === "credentials" ? lastLogin : null;
 
   return (
     <div className="mx-auto max-w-md space-y-7 py-6 sm:py-10">
@@ -52,7 +56,7 @@ export default async function SignInPage({
           <AlertDescription>{t("signInError")}</AlertDescription>
         </Alert>
       ) : null}
-      <SignInForm callbackUrl={callbackUrl} />
+      <SignInForm callbackUrl={callbackUrl} lastMethod={lastMethod} />
     </div>
   );
 }
