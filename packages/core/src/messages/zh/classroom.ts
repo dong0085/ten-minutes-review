@@ -251,7 +251,6 @@ export const classroom = {
     upgrade: "升级到 Pro",
   },
   Tutor: {
-    label: "AI 老师",
     hint: "给我一点提示",
     nextHint: "再提示一下",
     hintCount: "{used} / {max}",
@@ -265,7 +264,6 @@ export const classroom = {
     thinking: "正在思考…",
     failed: "AI 老师暂时没能回答。",
     askAgain: "再问一次",
-    note: "提示只引导思路，不会直接给出答案。",
   },
   ExamCard: {
     kicker: "考试",

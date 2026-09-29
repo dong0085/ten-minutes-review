@@ -275,7 +275,6 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     upgrade: "Passer à Pro",
   },
   Tutor: {
-    label: "Tuteur IA",
     hint: "Un indice",
     nextHint: "Un autre indice",
     hintCount: "{used} sur {max}",
@@ -289,7 +288,6 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     thinking: "Réflexion…",
     failed: "Le tuteur n'a pas pu répondre.",
     askAgain: "Redemander",
-    note: "Les indices te guident sans donner la réponse.",
   },
   ExamCard: {
     kicker: "Examen",

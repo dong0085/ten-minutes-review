@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { useTranslations } from "use-intl";
 import { Lightbulb, Loader2, MessageCircleQuestion, RotateCcw } from "lucide-react";
 import { TUTOR_MAX_HINTS, type TutorAnalysis, type TutorHint } from "@tmr/core";
 import { Button } from "@tmr/ui/components/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@tmr/ui/components/tooltip";
+import { cn } from "@tmr/ui/utils";
 import { ApiError, api } from "@/spa/lib/api";
 import type { TutorNote } from "@/spa/lib/queries";
 import type { LocalResponse } from "./types";
@@ -10,10 +12,10 @@ import type { LocalResponse } from "./types";
 const POLL_MS = 2000;
 
 /**
- * The AI tutor under a Corrections question, written in the theme's ink so it
- * reads apart from the red-pen marks. Before answering it offers hints that
- * get closer each time and never give the answer; after a wrong answer it can
- * explain the mistake in depth.
+ * The AI tutor for a Corrections question. Its buttons join the question's own
+ * row: before answering, a light bulb gives hints that get closer each time and
+ * never give the answer; after a wrong answer, it can explain the mistake in
+ * depth. Replies sit below on notes in the theme's ink, apart from the red pen.
  */
 export function TutorPanel({
   classroomId,
@@ -22,6 +24,7 @@ export function TutorPanel({
   wrongResponse,
   wrongAt,
   corrected,
+  children,
 }: {
   classroomId: string;
   questionId: string;
@@ -31,6 +34,8 @@ export function TutorPanel({
   /** When that answer was marked, so an older analysis does not count for it. */
   wrongAt: string | null;
   corrected: boolean;
+  /** The question's own actions, such as Check or Try again, which lead the row. */
+  children?: ReactNode;
 }) {
   const t = useTranslations("Classroom.Tutor");
   const [notes, setNotes] = useState<TutorNote[]>(initial);
@@ -86,65 +91,66 @@ export function TutorPanel({
     }
   }
 
-  const canHint = !corrected && !wrongResponse && hintsUsed < TUTOR_MAX_HINTS;
+  const hintLabel = hintsUsed === 0 ? t("hint") : t("nextHint");
+  const hintCount = t("hintCount", { used: hintsUsed, max: TUTOR_MAX_HINTS });
+  const showHint = !corrected && !wrongResponse;
+  const hintsLeft = TUTOR_MAX_HINTS - hintsUsed;
   const showAnalyze =
     !corrected &&
     !!wrongResponse &&
     (!analysis || (analysis.status !== "pending" && analysis.createdAt < (wrongAt ?? "")));
 
-  if (notes.length === 0 && corrected) {
-    return null;
-  }
-
   return (
-    <div className="tutor-panel print:hidden" aria-live="polite">
-      <p className="flex items-center gap-1.5 text-xs font-semibold tracking-wide text-primary uppercase">
-        <MessageCircleQuestion aria-hidden="true" className="size-3.5" />
-        {t("label")}
-      </p>
-
-      {hints.length > 0 ? (
-        <ol className="mt-2 space-y-2">
-          {hints.map((note) => (
-            <li key={note.id} className="tutor-note">
-              <p className="text-[0.7rem] font-semibold text-primary">
-                {t("hintTitle", { level: note.level })}
-              </p>
-              <NoteBody note={note} onRetry={() => void ask("hint", note.id)} />
-            </li>
-          ))}
-        </ol>
-      ) : null}
-
-      {analysis ? (
-        <div className="tutor-note mt-2">
-          <p className="text-[0.7rem] font-semibold text-primary">{t("analysisTitle")}</p>
-          <NoteBody note={analysis} onRetry={() => void ask("analysis", analysis.id)} />
-        </div>
-      ) : null}
-
-      <div className="mt-2 flex flex-wrap items-center gap-2">
-        {canHint ? (
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={asking !== null || waiting}
-            onClick={() => void ask("hint")}
-          >
-            {asking === "hint" ? <Loader2 className="animate-spin" /> : <Lightbulb />}
-            {hintsUsed === 0 ? t("hint") : t("nextHint")}
-            <span className="text-muted-foreground tabular-nums">
-              {t("hintCount", { used: hintsUsed, max: TUTOR_MAX_HINTS })}
-            </span>
-          </Button>
-        ) : null}
-        {!corrected && !wrongResponse && hintsUsed >= TUTOR_MAX_HINTS ? (
-          <p className="text-xs text-muted-foreground">{t("hintsUsed")}</p>
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-3">
+        {children}
+        {showHint ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              {/* Spent hints keep the button focusable, so its tooltip still explains why. */}
+              <Button
+                size="sm"
+                variant="outline"
+                className={cn("gap-1.5 px-2.5 print:hidden", hintsLeft === 0 && "opacity-50")}
+                aria-label={hintsLeft === 0 ? t("hintsUsed") : `${hintLabel} (${hintCount})`}
+                aria-disabled={hintsLeft === 0}
+                disabled={asking !== null || waiting}
+                onClick={() => {
+                  if (hintsLeft > 0) {
+                    void ask("hint");
+                  }
+                }}
+              >
+                {asking === "hint" ? <Loader2 className="animate-spin" /> : <Lightbulb />}
+                <span aria-hidden="true" className="flex gap-0.5">
+                  {Array.from({ length: TUTOR_MAX_HINTS }, (_, index) => (
+                    <span
+                      key={index}
+                      className={cn(
+                        "size-1.5 rounded-full",
+                        index < hintsLeft ? "bg-primary" : "bg-muted-foreground/25",
+                      )}
+                    />
+                  ))}
+                </span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {hintsLeft === 0 ? (
+                t("hintsUsed")
+              ) : (
+                <>
+                  {hintLabel} <span className="tabular-nums opacity-70">{hintCount}</span>
+                </>
+              )}
+            </TooltipContent>
+          </Tooltip>
         ) : null}
         {showAnalyze ? (
           <Button
             size="sm"
             variant="outline"
+            className="print:hidden"
             disabled={asking !== null}
             onClick={() => void ask("analysis")}
           >
@@ -152,15 +158,39 @@ export function TutorPanel({
             {t("analyze")}
           </Button>
         ) : null}
-        {hints.length === 0 && !analysis && !corrected ? (
-          <p className="text-xs text-muted-foreground">{t("note")}</p>
-        ) : null}
         {error ? (
           <p role="alert" className="text-xs text-destructive">
             {error}
           </p>
         ) : null}
       </div>
+
+      {notes.length > 0 ? (
+        <div className="tutor-panel space-y-2 print:hidden" aria-live="polite">
+          {hints.length > 0 ? (
+            <ol className="space-y-2">
+              {hints.map((note) => (
+                <li key={note.id} className="tutor-note">
+                  <p className="flex items-center gap-1 text-[0.7rem] font-semibold text-primary">
+                    <Lightbulb aria-hidden="true" className="size-3" />
+                    <span aria-hidden="true" className="tabular-nums">
+                      {note.level}
+                    </span>
+                    <span className="sr-only">{t("hintTitle", { level: note.level })}</span>
+                  </p>
+                  <NoteBody note={note} onRetry={() => void ask("hint", note.id)} />
+                </li>
+              ))}
+            </ol>
+          ) : null}
+          {analysis ? (
+            <div className="tutor-note">
+              <p className="text-[0.7rem] font-semibold text-primary">{t("analysisTitle")}</p>
+              <NoteBody note={analysis} onRetry={() => void ask("analysis", analysis.id)} />
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }
