@@ -23,15 +23,21 @@ import { ExamCard } from "@/spa/components/classroom/exam-card";
 import { QuizMailbox } from "@/spa/components/classroom/quiz-mailbox";
 import { RecentQuizCards } from "@/spa/components/classroom/recent-quiz-cards";
 import { TodayQuizAction } from "@/spa/components/classroom/today-quiz-action";
+import { useQuizJob } from "@/spa/components/classroom/use-quiz-job";
 import { GuestBanner } from "@/spa/components/guest-banner";
 import { DrillList, SectionTitle } from "@/spa/components/page";
 import { PencilIcon } from "@/spa/components/pencil-icon";
 import { FullPageSpinner } from "@/spa/app/shell";
 import { formatQuizDate } from "@/spa/lib/format";
 import { languageLabel } from "@/spa/lib/language-label";
-import { useClassroom, useOverview } from "@/spa/lib/queries";
+import {
+  useClassroom,
+  useOverview,
+  type Classroom,
+  type ClassroomOverview,
+} from "@/spa/lib/queries";
 import { formatResetTime } from "@/spa/lib/send-time";
-import { useSession } from "@/spa/lib/session";
+import { useSession, type Session } from "@/spa/lib/session";
 import { PEEK_SPRING, usePeek } from "@/spa/lib/use-peek";
 import { ErrorPanel } from "./errors";
 
@@ -42,15 +48,7 @@ import { ErrorPanel } from "./errors";
 export function ClassroomHubPage() {
   const { id } = useParams() as { id: string };
   const [searchParams] = useSearchParams();
-  const t = useTranslations("Classroom.HomePage");
-  const tLayout = useTranslations("Classroom.Layout");
-  const tHub = useTranslations("App.Hub");
-  const tExam = useTranslations("Classroom.ExamCard");
-  const locale = useLocale();
-  const format = useFormatter();
   const { data: session } = useSession();
-  const mailPeek = usePeek();
-  const padPeek = usePeek();
   const { data: classroom } = useClassroom(id);
   const { data: overview, dataUpdatedAt, error, isPending, refetch } = useOverview(id);
 
@@ -60,6 +58,43 @@ export function ClassroomHubPage() {
   if (error || !overview) {
     return <ErrorPanel onRetry={() => void refetch()} />;
   }
+  return (
+    <ClassroomHub
+      id={id}
+      classroom={classroom}
+      session={session}
+      overview={overview}
+      nowMs={dataUpdatedAt}
+      autoStart={searchParams.get("create") === "1"}
+    />
+  );
+}
+
+/** The hub once its data has loaded, so the quiz job can start from the overview. */
+function ClassroomHub({
+  id,
+  classroom,
+  session,
+  overview,
+  nowMs,
+  autoStart,
+}: {
+  id: string;
+  classroom: Classroom;
+  session: Session;
+  overview: ClassroomOverview;
+  nowMs: number;
+  autoStart: boolean;
+}) {
+  const t = useTranslations("Classroom.HomePage");
+  const tLayout = useTranslations("Classroom.Layout");
+  const tHub = useTranslations("App.Hub");
+  const tExam = useTranslations("Classroom.ExamCard");
+  const locale = useLocale();
+  const format = useFormatter();
+  const mailPeek = usePeek();
+  const padPeek = usePeek();
+  const quizJob = useQuizJob(id, overview.composeJob);
 
   const isGuest = session.isGuest;
   const status = classroomDailyStatus({
@@ -149,13 +184,11 @@ export function ClassroomHubPage() {
                 dailyQuizId={overview.dailyQuizId}
                 bankSize={counts.bank}
                 paused={classroom.pausedAt !== null}
-                nowMs={dataUpdatedAt}
-                autoStart={searchParams.get("create") === "1"}
+                autoStart={autoStart}
+                job={quizJob}
                 resetLocal={reset.local}
                 resetUtc={reset.utc}
                 resetTomorrow={reset.tomorrow}
-                initialJob={overview.composeJob}
-                today={overview.today}
               />
             )}
           </div>
@@ -197,9 +230,13 @@ export function ClassroomHubPage() {
         </motion.div>
       </div>
 
-      {overview.recentOnDemand.length > 0 ? (
-        <RecentQuizCards classroomId={id} quizzes={overview.recentOnDemand} nowMs={dataUpdatedAt} />
-      ) : null}
+      {/* Always mounted, so the first card animates in; it hides itself when empty. */}
+      <RecentQuizCards
+        classroomId={id}
+        quizzes={overview.recentOnDemand}
+        nowMs={nowMs}
+        job={quizJob}
+      />
 
       {isGuest ? null : (
         <ExamCard

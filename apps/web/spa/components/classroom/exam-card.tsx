@@ -22,6 +22,7 @@ import { formatQuizDate } from "@/spa/lib/format";
 import type { ClassroomOverview } from "@/spa/lib/queries";
 import { useRouter } from "@/spa/lib/router";
 import { PEEK_SPRING, usePeek } from "@/spa/lib/use-peek";
+import { WritingLines } from "./quiz-writing";
 
 const POLL_MS = 2500;
 
@@ -106,7 +107,12 @@ export function ExamCard({
       {...peek}
       className="editorial-surface flex flex-col gap-5 rounded-[1.6rem] px-6 py-6 sm:flex-row sm:items-center sm:gap-7 sm:px-8"
     >
-      <ExamStack unlocked={unlocked} open={peek.animate === "open"} label={t("kicker")} />
+      <ExamStack
+        unlocked={unlocked}
+        open={peek.animate === "open"}
+        writing={phase === "writing"}
+        label={t("kicker")}
+      />
       <div className="min-w-0 flex-1">
         <p className="eyebrow flex items-center gap-1.5">
           <ScrollText className="size-3" />
@@ -184,7 +190,8 @@ export function ExamCard({
           ) : phase === "writing" ? (
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-2 text-sm text-muted-foreground" role="status">
-                <Loader2 className="size-4 animate-spin" />
+                {/* From sm up, the pencil on the exam stack shows the progress. */}
+                <Loader2 className="size-4 animate-spin sm:hidden" />
                 <span>
                   {t("writing")}
                   <span className="block text-xs">{t("writingHint")}</span>
@@ -215,9 +222,20 @@ export function ExamCard({
 
 /**
  * A stack of exam papers. It sits in a messy pile until the bank can fill an
- * exam, squares up when it can, and fans out while the card is hovered.
+ * exam, squares up when it can, and fans out while the card is hovered. While
+ * an exam is written, a pencil writes on the top sheet.
  */
-function ExamStack({ unlocked, open, label }: { unlocked: boolean; open: boolean; label: string }) {
+function ExamStack({
+  unlocked,
+  open,
+  writing,
+  label,
+}: {
+  unlocked: boolean;
+  open: boolean;
+  writing: boolean;
+  label: string;
+}) {
   const sheet =
     "absolute inset-0 origin-bottom rounded-sm border border-border/70 bg-card shadow-[0_1px_2px_rgb(var(--shadow-colour)/0.08)]";
   return (
@@ -257,12 +275,16 @@ function ExamStack({ unlocked, open, label }: { unlocked: boolean; open: boolean
         <p className="border-b border-dashed border-border px-2 pt-2 pb-1 text-[0.55rem] font-bold tracking-[0.18em] text-primary uppercase">
           {label}
         </p>
-        <div className="space-y-1.5 px-2 pt-2">
-          <span className="block h-1 w-4/5 rounded-full bg-foreground/15" />
-          <span className="block h-1 w-3/5 rounded-full bg-foreground/10" />
-          <span className="block h-1 w-2/3 rounded-full bg-foreground/10" />
-          <span className="block h-1 w-1/2 rounded-full bg-foreground/10" />
-        </div>
+        {writing ? (
+          <WritingLines width={72} left={8} firstLine={30} lineGap={10} lines={4} pencil={14} />
+        ) : (
+          <div className="space-y-1.5 px-2 pt-2">
+            <span className="block h-1 w-4/5 rounded-full bg-foreground/15" />
+            <span className="block h-1 w-3/5 rounded-full bg-foreground/10" />
+            <span className="block h-1 w-2/3 rounded-full bg-foreground/10" />
+            <span className="block h-1 w-1/2 rounded-full bg-foreground/10" />
+          </div>
+        )}
         {/* Binder clip on the top edge. */}
         <span className="absolute -top-1.5 left-1/2 h-3 w-7 -translate-x-1/2 rounded-sm bg-foreground/70" />
         {unlocked ? null : (
