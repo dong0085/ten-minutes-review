@@ -348,7 +348,7 @@ Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve t
 | `GET` `PATCH` `DELETE` | `/api/classrooms/:id` | Read, rename/settings (including the dedicated `paused` transition), delete |
 | `POST` | `/api/classrooms/:id/uploads` | Text body or multipart image |
 | `GET` | `/api/classrooms/:id/uploads` | Timeline |
-| `GET` | `/api/classrooms/:id/overview` | Classroom hub: today's daily quiz id, an in-flight compose job, and counts of uploads, bank points, and quizzes |
+| `GET` | `/api/classrooms/:id/overview` | Classroom hub: today's daily quiz id, a compose job still in flight from the last hour, on-demand quizzes from the last 24 hours, older untaken ones, and counts of uploads, bank points, and quizzes |
 | `GET` | `/api/classrooms/:id/bank` | Counts per category |
 | `GET` | `/api/classrooms/:id/knowledge-points` | Every knowledge point, omitted ones included, with answered/missed counts |
 | `PATCH` | `/api/knowledge-points/:id` | Edit target text, meaning, or note |

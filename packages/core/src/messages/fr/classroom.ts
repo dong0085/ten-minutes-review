@@ -182,6 +182,9 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     best: "Meilleur : {score} / {size}",
     unfinished: "Inachevés",
     unfinishedBlurb: "Des quiz que tu as créés mais pas encore faits.",
+    recentMade: "Créé {when}",
+    recentReady: "Prêt quand tu veux",
+    review: "Revoir",
     guestBanner:
       "Tu explores en mode aperçu. Les notes et classes sont temporaires tant que tu ne crées pas de compte.",
     guestBannerAction: "S'inscrire pour enregistrer",

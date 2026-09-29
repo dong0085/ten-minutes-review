@@ -21,6 +21,7 @@ import { cn } from "@tmr/ui/utils";
 import { STATUS_STAMP } from "@/spa/components/classroom/classroom-card";
 import { ExamCard } from "@/spa/components/classroom/exam-card";
 import { QuizMailbox } from "@/spa/components/classroom/quiz-mailbox";
+import { RecentQuizCards } from "@/spa/components/classroom/recent-quiz-cards";
 import { TodayQuizAction } from "@/spa/components/classroom/today-quiz-action";
 import { GuestBanner } from "@/spa/components/guest-banner";
 import { DrillList, SectionTitle } from "@/spa/components/page";
@@ -195,6 +196,10 @@ export function ClassroomHubPage() {
           </Link>
         </motion.div>
       </div>
+
+      {overview.recentOnDemand.length > 0 ? (
+        <RecentQuizCards classroomId={id} quizzes={overview.recentOnDemand} nowMs={dataUpdatedAt} />
+      ) : null}
 
       {isGuest ? null : (
         <ExamCard

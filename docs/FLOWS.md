@@ -58,9 +58,10 @@ Both languages stay editable, and extraction corrects them if the notes disagree
 The default screen once a classroom exists. It answers one question — what do I do today? — and leads to everything else one level down. Shows:
 
 - **Header** — the classroom name, its language pair, and its status stamp (Active, Dormant, Paused).
-- **Today's quiz** — take the daily quiz, or create one on demand. While a quiz is being written, the card shows live progress with Minimize and Cancel; when it is ready, it offers Take quiz. With an empty bank the button explains what to add first.
+- **Today's quiz** — take the daily quiz, or create one on demand. While a quiz is being written, the card shows live progress with Minimize and Cancel; when it is ready, it offers Take quiz. Progress comes back for up to an hour after the request when the user leaves and returns. With an empty bank the button explains what to add first.
 - **Add notes** — the primary action; opens the Add notes screen.
-- **Unfinished** — up to three on-demand quizzes not taken yet, each one tap from the quiz runner.
+- **On-demand cards** — each on-demand quiz from the last 24 hours gets its own card, up to three, newest first: when it was made and its size, with Take quiz, or once taken its best score and Review. A quiz that finishes while the user is away shows up here.
+- **Unfinished** — up to three older on-demand quizzes not taken yet, each one tap from the quiz runner.
 - **In this classroom** — one row per deeper screen, each with a count:
   - **Notes** — uploads so far and when the last one arrived, plus a badge while notes are being read.
   - **Question bank** — knowledge points currently in quizzes.

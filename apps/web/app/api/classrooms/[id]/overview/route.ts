@@ -1,4 +1,10 @@
-import { EXAM_MIN_POINTS, type Category } from "@tmr/core";
+import {
+  COMPOSE_REHYDRATE_MS,
+  EXAM_MIN_POINTS,
+  RECENT_ON_DEMAND_LIMIT,
+  RECENT_ON_DEMAND_MS,
+  type Category,
+} from "@tmr/core";
 import {
   countBankByCategory,
   countOpenMistakes,
@@ -15,8 +21,6 @@ import { getCurrentUserOrGuest } from "@/lib/session";
 import { localDateFor } from "@/app/api/_lib/quiz";
 
 type RouteContext = { params: Promise<{ id: string }> };
-
-const REHYDRATE_WINDOW_MS = 10 * 60 * 1000;
 
 // Everything the classroom hub shows in one round trip: today's quiz state,
 // a compose job still in flight, and the counts behind each drill-down row.
@@ -40,12 +44,19 @@ export async function GET(_request: Request, context: RouteContext) {
         getDailyQuizByClassroomAndDate(db, id, today),
         listUploadsForUser(db, user.id, id),
         listQuizzesForClassroom(db, user.id, id),
-        listUntakenOnDemandQuizzes(db, id, 3),
-        getLatestComposeJob(db, id, REHYDRATE_WINDOW_MS),
-        getLatestComposeJob(db, id, REHYDRATE_WINDOW_MS, "exam"),
+        listUntakenOnDemandQuizzes(db, id, 3 + RECENT_ON_DEMAND_LIMIT),
+        getLatestComposeJob(db, id, COMPOSE_REHYDRATE_MS),
+        getLatestComposeJob(db, id, COMPOSE_REHYDRATE_MS, "exam"),
         countOpenMistakes(db, user.id, id),
       ]);
     const latestExam = quizzes.find((quiz) => quiz.kind === "exam");
+    // On-demand quizzes from the last day get their own card, taken or not;
+    // older untaken ones stay in the Unfinished row.
+    const recentSince = Date.now() - RECENT_ON_DEMAND_MS;
+    const recentOnDemand = quizzes
+      .filter((quiz) => quiz.kind === "manual" && quiz.composedAt.getTime() >= recentSince)
+      .slice(0, RECENT_ON_DEMAND_LIMIT);
+    const recentIds = new Set(recentOnDemand.map((quiz) => quiz.id));
     const bankByCategory: Record<Category, number> = {
       vocabulary: 0,
       phrase: 0,
@@ -88,7 +99,8 @@ export async function GET(_request: Request, context: RouteContext) {
             }
           : null,
       },
-      unfinished,
+      recentOnDemand,
+      unfinished: unfinished.filter((quiz) => !recentIds.has(quiz.id)).slice(0, 3),
     });
   } catch (error) {
     return handleRouteError(error);

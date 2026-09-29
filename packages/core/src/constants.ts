@@ -26,6 +26,14 @@ export const JOB_STALE_MINUTES = 10;
 
 export const JOB_MAX_ATTEMPTS = 3;
 
+/** How long the classroom hub keeps showing a compose job still in flight after it was requested. */
+export const COMPOSE_REHYDRATE_MS = 60 * 60 * 1000;
+
+/** How long a new on-demand quiz keeps its own card on the classroom hub. */
+export const RECENT_ON_DEMAND_MS = 24 * 60 * 60 * 1000;
+
+export const RECENT_ON_DEMAND_LIMIT = 3;
+
 export const MIN_USABLE_QUESTIONS = 5;
 
 /** How long an unsubmitted attempt token, and the browser draft behind it, stays valid. */
