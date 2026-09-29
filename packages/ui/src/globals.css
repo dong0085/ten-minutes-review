@@ -170,6 +170,9 @@
     }
   html {
     @apply font-sans;
+    /* 17px at the browser's default 16px, and still follows a reader's own
+       font-size setting. Every rem-based size and spacing scales with it. */
+    font-size: 106.25%;
     }
   ::selection {
     background: oklch(0.76 0.05 var(--theme-hue) / 0.55);
