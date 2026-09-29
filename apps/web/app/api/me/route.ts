@@ -5,6 +5,7 @@ import { handleRouteError, jsonError, jsonOk, readJson } from "@/lib/api";
 import { getDb } from "@/lib/db";
 import { env } from "@/lib/env";
 import { getCurrentUserOrGuest, getSessionUser } from "@/lib/session";
+import { isAdminUser } from "@/lib/admin";
 import { isTimezone, publicUser } from "@/app/api/_lib/user";
 
 const updateMeSchema = z.object({
@@ -36,6 +37,7 @@ export async function GET() {
     return jsonOk({
       user: publicUser(user),
       isGuest,
+      isAdmin: isAdminUser(user),
       hasPassword: Boolean(user.passwordHash),
       googleLinked: Boolean(googleAccount),
       plan: {

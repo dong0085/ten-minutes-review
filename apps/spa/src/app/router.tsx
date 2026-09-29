@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate, type RouteObject } from "react-router";
 import { ClassroomName, Label, PointName, QuizName, UploadName } from "@/components/crumbs";
 import type { CrumbHandle } from "@/components/breadcrumbs";
 import { AppShell, FocusShell } from "./shell";
+import { AdminShell } from "./admin-shell";
 import { RouteError } from "@/routes/errors";
 import { NotFoundPage } from "@/routes/not-found";
 import { LegacyAttemptRedirect, LegacyRedirect } from "@/routes/legacy";
@@ -33,6 +34,31 @@ const screens = {
   classroomSettings: page(() => import("@/routes/classroom-settings"), "ClassroomSettingsPage"),
   accountHub: page(() => import("@/routes/account-hub"), "AccountHubPage"),
 };
+
+const content = (name: keyof typeof import("@/routes/admin/content")) =>
+  page(() => import("@/routes/admin/content"), name);
+const ops = (name: keyof typeof import("@/routes/admin/ops")) => page(() => import("@/routes/admin/ops"), name);
+const adminSettings = (name: keyof typeof import("@/routes/admin/settings")) =>
+  page(() => import("@/routes/admin/settings"), name);
+
+const adminChildren: RouteObject[] = [
+  { index: true, lazy: page(() => import("@/routes/admin/dashboard"), "AdminDashboardPage") },
+  { path: "users", lazy: page(() => import("@/routes/admin/users"), "AdminUsersPage") },
+  { path: "users/:userId", lazy: page(() => import("@/routes/admin/user"), "AdminUserPage") },
+  { path: "users/:userId/classrooms/:classroomId", lazy: content("AdminClassroomPage") },
+  { path: "quizzes/:quizId", lazy: content("AdminQuizPage") },
+  { path: "uploads", lazy: content("AdminUploadsPage") },
+  { path: "uploads/:uploadId", lazy: content("AdminUploadPage") },
+  { path: "jobs", lazy: ops("AdminJobsPage") },
+  { path: "jobs/:jobId", lazy: ops("AdminJobPage") },
+  { path: "llm", lazy: ops("AdminLlmPage") },
+  { path: "billing", lazy: ops("AdminBillingPage") },
+  { path: "emails", lazy: ops("AdminEmailsPage") },
+  { path: "referrals", lazy: ops("AdminReferralsPage") },
+  { path: "settings", lazy: adminSettings("AdminSettingsPage") },
+  { path: "audit", lazy: adminSettings("AdminAuditPage") },
+  { path: "*", element: <NotFoundPage /> },
+];
 
 const crumb = (fn: CrumbHandle["crumb"]): CrumbHandle => ({ crumb: fn });
 const label = (k: Parameters<typeof Label>[0]["k"]) => crumb(() => <Label k={k} />);
@@ -122,6 +148,13 @@ export const router = createBrowserRouter([
       { path: "account", handle: label("account"), children: accountChildren },
       { path: "*", element: <NotFoundPage /> },
     ],
+  },
+  {
+    // The admin console has its own frame with side navigation.
+    path: "admin",
+    element: <AdminShell />,
+    errorElement: <RouteError />,
+    children: adminChildren,
   },
   {
     // The quiz runner takes the whole screen, without the top bar.

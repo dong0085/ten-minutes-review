@@ -1,4 +1,4 @@
-import { normalizeAppUrl } from "@tmr/core";
+import { normalizeAppUrl, parseAdminEmails } from "@tmr/core";
 
 const provider = <T extends string>(
   value: string | undefined,
@@ -17,6 +17,7 @@ const stripeVar = (name: string) =>
   process.env[stripeSandbox ? `STRIPE_SANDBOX_${name}` : `STRIPE_${name}`] ?? "";
 
 export const env = {
+  adminEmails: parseAdminEmails(process.env.ADMIN_EMAILS),
   appUrl: normalizeAppUrl(process.env.APP_URL ?? "http://localhost:3000"),
   authSecret: process.env.AUTH_SECRET ?? "dev-insecure-secret-change-me",
   databaseUrl: process.env.DATABASE_URL ?? "",

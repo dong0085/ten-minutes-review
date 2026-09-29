@@ -1,8 +1,9 @@
-import { FREE_TIER, hasPaidAccess, startOfMonthAt } from "@tmr/core";
+import { hasPaidAccess, startOfMonthAt } from "@tmr/core";
 import {
   countClassrooms,
   countUploadsSince,
   getActivityStats,
+  getEffectiveLimits,
   getLearningStats,
   getSubscription,
   listQuizzesForUser,
@@ -24,7 +25,7 @@ export async function GET() {
       return jsonError("Unauthorized", 401);
     }
     const db = getDb();
-    const [activity, learning, attempts, misses, quizzes, subscription, classrooms, uploadsThisMonth] =
+    const [activity, learning, attempts, misses, quizzes, subscription, classrooms, uploadsThisMonth, limits] =
       await Promise.all([
         getActivityStats(db, user.id, user.timezone),
         getLearningStats(db, user.id),
@@ -34,6 +35,7 @@ export async function GET() {
         getSubscription(db, user.id),
         countClassrooms(db, user.id),
         countUploadsSince(db, user.id, startOfMonthAt(user.timezone)),
+        getEffectiveLimits(db, user.id),
       ]);
     const isPaid = hasPaidAccess(subscription);
     const paymentIssue = subscription?.status === "past_due" || subscription?.status === "unpaid";
@@ -56,8 +58,8 @@ export async function GET() {
       usage: {
         classrooms,
         uploadsThisMonth,
-        classroomLimit: FREE_TIER.classrooms,
-        uploadLimit: FREE_TIER.notesUploadsPerMonth,
+        classroomLimit: limits.classrooms,
+        uploadLimit: limits.notesUploadsPerMonth,
       },
     });
   } catch (error) {

@@ -34,7 +34,8 @@ async function userFromBearer(): Promise<User | null | undefined> {
   if (stale) {
     await touchApiTokenUsed(getDb(), token.id).catch(() => null);
   }
-  return (await getUserById(getDb(), token.userId)) ?? null;
+  const user = await getUserById(getDb(), token.userId);
+  return user && !user.disabledAt ? user : null;
 }
 
 export async function getSessionUser(): Promise<User | null> {
@@ -47,7 +48,7 @@ export async function getSessionUser(): Promise<User | null> {
     return null;
   }
   const user = await getUserById(getDb(), session.user.id);
-  return user ?? null;
+  return user && !user.disabledAt ? user : null;
 }
 
 export async function getCurrentUserOrGuest(): Promise<{

@@ -1,7 +1,9 @@
 import {
   languageName,
   parseJsonFromLlmText,
+  usageFromChatCompletion,
 } from "@tmr/core";
+import { reportLlmUsage, withLlmTracking } from "@tmr/db";
 import type {
   Category,
   CompositionQuestion,
@@ -672,7 +674,9 @@ function createDeepseekProvider(): LlmProvider {
     }
     const data = (await response.json()) as {
       choices?: { message?: { content?: string } }[];
+      usage?: unknown;
     };
+    reportLlmUsage(usageFromChatCompletion(data.usage));
     const content = data.choices?.[0]?.message?.content;
     if (!content) {
       throw new Error("DeepSeek response is missing message content");
@@ -713,7 +717,7 @@ function createDeepseekProvider(): LlmProvider {
 
 export function getLlmProvider(): LlmProvider {
   if (env.llmProvider === "deepseek") {
-    return createDeepseekProvider();
+    return withLlmTracking(createDeepseekProvider(), { provider: "deepseek", model: env.deepseekModel });
   }
-  return createMockProvider();
+  return withLlmTracking(createMockProvider(), { provider: "mock", model: "mock" });
 }

@@ -1,5 +1,13 @@
 import os from "node:os";
-import { claimJob, cleanupExpiredGuests, completeJob, failJob, reapStaleJobs } from "@tmr/db";
+import {
+  claimJob,
+  cleanupExpiredGuests,
+  completeJob,
+  failJob,
+  reapStaleJobs,
+  resolveJobUserId,
+  runInLlmScope,
+} from "@tmr/db";
 import type { Db, Job } from "@tmr/db";
 import { handleComposeJob } from "./handlers/compose";
 import { handleExtractJob } from "./handlers/extract";
@@ -41,6 +49,11 @@ export class WorkerRunError extends Error {
 }
 
 export async function runJob(db: Db, job: Job): Promise<void> {
+  const userId = await resolveJobUserId(db, job.payload).catch(() => null);
+  return runInLlmScope({ db, jobId: job.id, userId }, () => dispatchJob(db, job));
+}
+
+function dispatchJob(db: Db, job: Job): Promise<void> {
   switch (job.kind) {
     case "extract":
       return handleExtractJob(db, job.payload);

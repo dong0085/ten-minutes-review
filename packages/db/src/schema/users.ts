@@ -29,6 +29,9 @@ export const users = pgTable("users", {
   uiTheme: text("ui_theme"),
   timezone: text("timezone").notNull().default("UTC"),
   isGuest: boolean("is_guest").notNull().default(false),
+  /** Set by an admin; a disabled user cannot sign in or use a token. */
+  disabledAt: timestamp("disabled_at", { withTimezone: true }),
+  disabledReason: text("disabled_reason"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

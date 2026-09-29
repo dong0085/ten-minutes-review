@@ -60,6 +60,11 @@ function TopBar() {
                 <DropdownMenuItem asChild>
                   <Link to="/account">{t("account")}</Link>
                 </DropdownMenuItem>
+                {session?.isAdmin ? (
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin">Admin</Link>
+                  </DropdownMenuItem>
+                ) : null}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={() => void signOut()}>{t("signOut")}</DropdownMenuItem>
               </DropdownMenuContent>
