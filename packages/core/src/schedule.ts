@@ -72,9 +72,24 @@ export function nextDailySendAt(now: Date = new Date()): Date {
   );
 }
 
-export function startOfMonthAt(timeZone: string, now: Date = new Date()): Date {
+/** Local midnight on the Monday that starts the current week. */
+export function startOfWeekAt(timeZone: string, now: Date = new Date()): Date {
   const parts = zonedParts(now, timeZone);
-  return zonedTimeToUtc(parts.year, parts.month, 1, 0, timeZone);
+  const today = new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
+  const monday = new Date(today.getTime() - ((today.getUTCDay() + 6) % 7) * DAY_MS);
+  return zonedTimeToUtc(
+    monday.getUTCFullYear(),
+    monday.getUTCMonth() + 1,
+    monday.getUTCDate(),
+    0,
+    timeZone,
+  );
+}
+
+/** Local midnight on the Monday that starts next week, when the free weekly allowance resets. */
+export function startOfNextWeekAt(timeZone: string, now: Date = new Date()): Date {
+  // Eight days past this Monday always lands inside next week, even across a clock change.
+  return startOfWeekAt(timeZone, new Date(startOfWeekAt(timeZone, now).getTime() + 8 * DAY_MS));
 }
 
 export type ClassroomDailyStatus = "active" | "dormant" | "paused";

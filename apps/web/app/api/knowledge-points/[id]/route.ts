@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { updateKnowledgePointText } from "@tmr/db";
+import { hasPaidPlan, updateKnowledgePointText } from "@tmr/db";
 import { handleRouteError, jsonError, jsonOk, readJson } from "@/lib/api";
 import { toKnowledgePointJson } from "@/lib/bank";
 import { getDb } from "@/lib/db";
@@ -32,11 +32,15 @@ export async function PATCH(request: Request, context: RouteContext) {
     const { user } = current;
     const { id } = await context.params;
     const body = await readJson(request, updateSchema);
+    const db = getDb();
+    if (user.isGuest || !(await hasPaidPlan(db, user.id))) {
+      return jsonError("Editing knowledge points is a Pro feature", 403, "pro_required");
+    }
     const fields = Object.fromEntries(
       Object.entries(body).filter(([, value]) => value !== undefined),
     );
 
-    const updated = await updateKnowledgePointText(getDb(), user.id, id, fields);
+    const updated = await updateKnowledgePointText(db, user.id, id, fields);
     if (!updated) {
       return jsonError("Not found", 404);
     }

@@ -211,7 +211,7 @@ Settings screens, one job each:
 - **Profile** — username, UI language, timezone. Changing the UI language takes effect immediately across the interface and future emails.
 - **Sign-in & security** — password, and the linked Google account.
 - **Email** — daily email on or off, unsubscribe status, and the next send time in the user's timezone.
-- **Plan & usage** — current plan and status, this month's usage against the free limits, and the Stripe checkout or billing portal. Stripe returns here.
+- **Plan & usage** — current plan and status, this week's usage against the free limits, and the Stripe checkout or billing portal. Stripe returns here.
 - **Referrals** — the user's code, the share link, and who signed up with it.
 - **API tokens** — create and revoke tokens for the browser extension.
 - **Your data** — export everything, or delete the account.

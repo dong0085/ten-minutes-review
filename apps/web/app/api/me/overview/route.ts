@@ -1,4 +1,4 @@
-import { hasPaidAccess, startOfMonthAt } from "@tmr/core";
+import { hasPaidAccess, startOfWeekAt } from "@tmr/core";
 import {
   countClassrooms,
   countUploadsSince,
@@ -17,7 +17,7 @@ import { getSessionUser } from "@/lib/session";
 const RECENT_QUIZ_LIMIT = 8;
 
 // The account hub: learning stats, recent quizzes across classrooms, and the
-// plan with this month's usage.
+// plan with this week's usage.
 export async function GET() {
   try {
     const user = await getSessionUser();
@@ -25,7 +25,7 @@ export async function GET() {
       return jsonError("Unauthorized", 401);
     }
     const db = getDb();
-    const [activity, learning, attempts, misses, quizzes, subscription, classrooms, uploadsThisMonth, limits] =
+    const [activity, learning, attempts, misses, quizzes, subscription, classrooms, uploadsThisWeek, limits] =
       await Promise.all([
         getActivityStats(db, user.id, user.timezone),
         getLearningStats(db, user.id),
@@ -34,7 +34,7 @@ export async function GET() {
         listQuizzesForUser(db, user.id, RECENT_QUIZ_LIMIT + 1),
         getSubscription(db, user.id),
         countClassrooms(db, user.id),
-        countUploadsSince(db, user.id, startOfMonthAt(user.timezone)),
+        countUploadsSince(db, user.id, startOfWeekAt(user.timezone)),
         getEffectiveLimits(db, user.id),
       ]);
     const isPaid = hasPaidAccess(subscription);
@@ -57,9 +57,9 @@ export async function GET() {
       },
       usage: {
         classrooms,
-        uploadsThisMonth,
+        uploadsThisWeek,
         classroomLimit: limits.classrooms,
-        uploadLimit: limits.notesUploadsPerMonth,
+        uploadLimit: limits.notesUploadsPerWeek,
       },
     });
   } catch (error) {

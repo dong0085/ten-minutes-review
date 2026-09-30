@@ -62,7 +62,7 @@ export const app: MessageShape<(typeof en)["App"]> = {
     email: "邮件",
     emailMeta: "每日测验邮件",
     plan: "方案与用量",
-    planMeta: "你的会员方案和本月用量",
+    planMeta: "你的会员方案和本周用量",
     referrals: "邀请好友",
     referralsMeta: "邀请好友，双方各得一个月免费使用",
     tokens: "API 令牌",

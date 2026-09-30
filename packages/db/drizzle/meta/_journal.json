@@ -127,6 +127,13 @@
       "when": 1790643627648,
       "tag": "0017_sloppy_thundra",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790785043137,
+      "tag": "0018_weekly_upload_cap",
+      "breakpoints": true
     }
   ]
 }

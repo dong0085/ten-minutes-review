@@ -71,7 +71,7 @@ const actionSchema = z.discriminatedUnion("action", [
   z.object({
     action: z.literal("set_limits"),
     classrooms: count,
-    notesUploadsPerMonth: count,
+    notesUploadsPerWeek: count,
     note: z.string().trim().max(500).nullable(),
   }),
   z.object({ action: z.literal("daily_email"), enabled: z.boolean() }),
@@ -126,7 +126,7 @@ export const POST = adminRoute<Params>(async ({ admin, request, params }) => {
     case "set_limits":
       await setUserLimitOverride(db, user.id, {
         classrooms: body.classrooms,
-        notesUploadsPerMonth: body.notesUploadsPerMonth,
+        notesUploadsPerWeek: body.notesUploadsPerWeek,
         note: body.note || null,
       });
       break;

@@ -2,7 +2,8 @@ import { z } from "zod";
 import {
   classroomDailyStatus,
   classroomQuizDaysRemaining,
-  startOfMonthAt,
+  startOfNextWeekAt,
+  startOfWeekAt,
 } from "@tmr/core";
 import {
   bankSize,
@@ -59,13 +60,14 @@ export async function GET() {
         quizDaysRemaining: classroomQuizDaysRemaining(classroom, user.timezone),
       })),
     );
-    // Free accounts see how much of the monthly allowance is left.
+    // Free accounts see how much of the weekly allowance is left.
     const effective = isPaid || isGuest ? null : await getEffectiveLimits(db, user.id);
     const limits = effective
       ? {
           classrooms: effective.classrooms,
-          uploadsPerMonth: effective.notesUploadsPerMonth,
-          uploadsThisMonth: await countUploadsSince(db, user.id, startOfMonthAt(user.timezone)),
+          uploadsPerWeek: effective.notesUploadsPerWeek,
+          uploadsThisWeek: await countUploadsSince(db, user.id, startOfWeekAt(user.timezone)),
+          weekResetsAt: startOfNextWeekAt(user.timezone).toISOString(),
         }
       : null;
     return jsonOk({ classrooms: payload, limits });

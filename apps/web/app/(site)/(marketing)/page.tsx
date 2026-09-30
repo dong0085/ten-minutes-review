@@ -93,6 +93,27 @@ export default async function HomePage() {
     { icon: Sparkles, number: "02", title: t("steps.shapeTitle"), copy: t("steps.shapeCopy") },
     { icon: Clock3, number: "03", title: t("steps.reviewTitle"), copy: t("steps.reviewCopy") },
   ];
+  // Signed-in learners upgrade from the plan page; everyone else signs up first.
+  const plans = [
+    {
+      name: t("pricing.freeName"),
+      price: t("pricing.freePrice"),
+      blurb: t("pricing.freeBlurb"),
+      features: [t("pricing.free1"), t("pricing.free2"), t("pricing.free3"), t("pricing.free4")],
+      cta: t("pricing.freeCta"),
+      href: user ? "/classrooms" : "/signup",
+      featured: false,
+    },
+    {
+      name: t("pricing.proName"),
+      price: t("pricing.proPrice"),
+      blurb: t("pricing.proBlurb"),
+      features: [t("pricing.pro1"), t("pricing.pro2"), t("pricing.pro3"), t("pricing.pro4")],
+      cta: t("pricing.proCta"),
+      href: user && !user.isGuest ? "/account/plan" : "/signup",
+      featured: true,
+    },
+  ];
   const highlights = [
     {
       icon: Feather,
@@ -329,6 +350,61 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      {env.billingEnabled ? (
+        <section id="pricing" className="section-band py-16 sm:py-20">
+          <Reveal className="max-w-2xl">
+            <p className="eyebrow">{t("pricing.kicker")}</p>
+            <h2 className="mt-3 font-heading text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+              {t("pricing.title")}
+            </h2>
+          </Reveal>
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
+            {plans.map((plan, index) => (
+              <Reveal
+                as="article"
+                key={plan.name}
+                delay={index * 120}
+                className={
+                  plan.featured
+                    ? "flex flex-col rounded-2xl border border-primary/35 bg-primary/[0.05] p-6 sm:p-8"
+                    : "flex flex-col rounded-2xl border border-border/70 bg-card/95 p-6 sm:p-8"
+                }
+              >
+                <h3 className="font-heading text-xl font-semibold">{plan.name}</h3>
+                <p className="mt-3 flex items-baseline gap-1">
+                  <span className="font-heading text-4xl font-semibold tracking-[-0.03em] tabular-nums">
+                    {plan.price}
+                  </span>
+                  <span className="text-sm text-muted-foreground">{t("pricing.perMonth")}</span>
+                </p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {plan.featured ? <span className="marker-note">{plan.blurb}</span> : plan.blurb}
+                </p>
+                <ul className="mt-6 flex-1 space-y-3 text-sm">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-2.5">
+                      <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  asChild
+                  size="lg"
+                  variant={plan.featured ? "default" : "outline"}
+                  className="mt-8 self-start"
+                >
+                  <a href={plan.href}>
+                    {plan.cta}
+                    <ArrowRight />
+                  </a>
+                </Button>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <Reveal
         as="section"

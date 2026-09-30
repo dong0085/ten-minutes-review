@@ -351,7 +351,7 @@ Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve t
 | `GET` | `/api/classrooms/:id/overview` | Classroom hub: today's daily quiz id, a compose job still in flight from the last hour, on-demand quizzes from the last 24 hours, older untaken ones, and counts of uploads, bank points, and quizzes |
 | `GET` | `/api/classrooms/:id/bank` | Counts per category |
 | `GET` | `/api/classrooms/:id/knowledge-points` | Every knowledge point, omitted ones included, with answered/missed counts |
-| `PATCH` | `/api/knowledge-points/:id` | Edit target text, meaning, or note |
+| `PATCH` | `/api/knowledge-points/:id` | Edit target text, meaning, or note (Pro; `403 pro_required` otherwise) |
 | `POST` | `/api/knowledge-points/:id/omit` | Omit from (`{ omit: true }`) or restore to future quizzes |
 | `GET` | `/api/classrooms/:id/quizzes/today` | Today's daily quiz plus any in-flight compose job, answers withheld |
 | `POST` | `/api/classrooms/:id/quizzes` | Create an on-demand quiz (enqueues a compose job, or reuses the one in flight, and returns its `jobId`) |
@@ -369,7 +369,7 @@ Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve t
 | `GET` | `/api/tutor/:id` | One tutor reply (`pending`, `done`, or `failed`) |
 | `GET` `POST` | `/api/attempts/:id/review` | The AI review of an exam attempt (`none`, `writing`, `ready`, or `failed`); `POST` writes it again after a failure (Pro) |
 | `GET` `PATCH` | `/api/me` | Profile. `GET` also resolves guests and returns `isGuest`, `hasPassword`, `googleLinked`, the plan, and feature flags. `PATCH { onboarded: true }` records that onboarding is done |
-| `GET` | `/api/me/overview` | Account hub: activity and learning stats, recent quizzes, membership, and this month's usage |
+| `GET` | `/api/me/overview` | Account hub: activity and learning stats, recent quizzes, membership, and this week's usage |
 | `GET` `PATCH` | `/api/me/email-preferences` | |
 | `GET` | `/api/me/export` | Data export |
 | `DELETE` | `/api/me` | Account deletion |

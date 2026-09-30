@@ -64,7 +64,7 @@ export const app: MessageShape<(typeof en)["App"]> = {
     email: "E-mail",
     emailMeta: "L'e-mail du quiz quotidien",
     plan: "Formule et utilisation",
-    planMeta: "Ton abonnement et ton utilisation ce mois-ci",
+    planMeta: "Ton abonnement et ton utilisation cette semaine",
     referrals: "Parrainage",
     referralsMeta: "Invite un ami : un mois offert pour chacun",
     tokens: "Jetons d'API",

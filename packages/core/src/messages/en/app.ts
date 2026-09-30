@@ -61,7 +61,7 @@ export const app = {
     email: "Email",
     emailMeta: "The daily quiz email",
     plan: "Plan & usage",
-    planMeta: "Your membership and this month's usage",
+    planMeta: "Your membership and this week's usage",
     referrals: "Referrals",
     referralsMeta: "Invite a friend, both of you get a free month",
     tokens: "API tokens",

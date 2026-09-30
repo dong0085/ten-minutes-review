@@ -121,13 +121,13 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     activeHint:
       "Les classes actives reçoivent un nouveau quiz chaque matin. Si les e-mails sont activés, il arrive aussi dans ta boîte de réception. Après plusieurs jours sans nouvelles notes, ajoute des notes ou ouvre la classe pour relancer les quiz.",
     uploadsHint:
-      "Forfait gratuit : {used} ajouts de notes sur {limit} utilisés ce mois-ci, toutes classes confondues.",
+      "Forfait gratuit : {used} sur {limit, plural, one {# ajout de notes} other {# ajouts de notes}} cette semaine, toutes classes confondues. Avec Pro, ajoute tes notes après chaque cours.",
     newClassroom: "Nouvelle classe",
     proBadge: "Pro",
     lockedLabel: "Nouvelle classe (limite du forfait gratuit atteinte, Pro requis)",
     lockedTitle: "Tu as atteint la limite de 3 classes",
     lockedBody:
-      "Le forfait gratuit comprend 3 classes et 2 ajouts de notes par mois. Pro lève ces deux limites pour 2,99 $/mois.",
+      "Le forfait gratuit comprend 3 classes et 1 ajout de notes par semaine. Pro lève ces deux limites et te laisse modifier ta banque de questions, pour 2,99 $/mois.",
     lockedClose: "Plus tard",
     emptyKicker: "Commence par un cours",
     emptyTitle: "Tes notes deviennent un quiz de dix minutes",
@@ -202,6 +202,14 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     title: "Banque de questions",
     blurb:
       "Toutes les notions tirées de tes notes. Corrige une formulation ou écarte ce que tu maîtrises déjà pour ne plus le retrouver dans les prochains quiz.",
+    blurbFree:
+      "Toutes les notions tirées de tes notes. Passe à Pro pour corriger une formulation ou écarter ce que tu maîtrises déjà.",
+    proBadge: "Pro",
+    proTitle: "Ta banque, à ta façon, avec Pro",
+    proBody:
+      "L'IA lit tes notes, mais c'est toi qui connais le mieux tes cours. Avec Pro, corrige un sens, ajoute une remarque ou écarte ce que tu maîtrises. Tous les prochains quiz utilisent ta version.",
+    proClose: "Plus tard",
+    omitLockedHint: "Écarter des notions depuis la banque fait partie de Pro",
     summary: "{active} dans les quiz · {omitted} écartés",
     addNotes: "Ajouter des notes",
     emptyTitle: "La banque est vide",

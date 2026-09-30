@@ -16,7 +16,7 @@ One operator runs the product. The admin console gives that person one place to 
 |---|---|---|
 | `/admin` | KPIs (users, active learners, paying users, MRR, LLM cost), 30-day charts, alerts (failed jobs, failed extractions, stuck jobs, overdue emails, Stripe mismatches) | — |
 | `/admin/users` | Search by email or id; filter by guest, plan, disabled | — |
-| `/admin/users/:id` | Profile, sign-in methods, plan, usage this month, limit overrides, classrooms, API tokens, email sends, LLM cost, referrals, audit trail | Sign out everywhere, revoke tokens, mark email verified, grant or end complimentary Pro, set limit overrides, turn off daily email, disable or enable, delete |
+| `/admin/users/:id` | Profile, sign-in methods, plan, usage this week, limit overrides, classrooms, API tokens, email sends, LLM cost, referrals, audit trail | Sign out everywhere, revoke tokens, mark email verified, grant or end complimentary Pro, set limit overrides, turn off daily email, disable or enable, delete |
 | `/admin/users/:id/classrooms/:classroomId` | Read-only view of a learner's classroom: notes, knowledge points, quizzes, attempts | Re-run a failed extraction |
 | `/admin/uploads` | Recent notes uploads, filter by extraction status | — |
 | `/admin/uploads/:id` | Source text or images, extraction result, discarded lines, error | Re-run extraction |
@@ -36,7 +36,7 @@ The console shows a learner's data read-only through admin API routes. It never 
 ## Data
 
 - `users.disabled_at`, `users.disabled_reason` — a disabled user cannot sign in or use a token, and the scheduler skips them.
-- `user_limit_overrides` — per-user free-tier limits (classrooms, notes uploads per month). Empty fields fall back to the global setting.
+- `user_limit_overrides` — per-user free-tier limits (classrooms, notes uploads per week). Empty fields fall back to the global setting.
 - `app_settings` — key/value JSON: `limits` (free-tier limits and daily caps) and `llm_prices` (USD per million tokens: input, cached input, output).
 - `llm_calls` — one row per LLM request: purpose (`extract`, `compose`, `summarize`, `tutor`), provider, model, user, job, input/cached/output tokens, duration, success, error. Cost is computed at read time from `llm_prices`.
 - `admin_audit_log` — admin, action, target type and id, JSON detail, time.

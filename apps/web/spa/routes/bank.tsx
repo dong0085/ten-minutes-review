@@ -12,6 +12,7 @@ import {
   EmptyTitle,
 } from "@tmr/ui/components/empty";
 import { BankManager } from "@/spa/components/classroom/bank-manager";
+import { useCanManageBank } from "@/spa/components/classroom/bank-pro-dialog";
 import { PageHeader } from "@/spa/components/page";
 import { FullPageSpinner } from "@/spa/app/shell";
 import { useBank } from "@/spa/lib/queries";
@@ -21,6 +22,7 @@ export function BankPage() {
   const { id } = useParams() as { id: string };
   const t = useTranslations("Classroom.BankPage");
   const { data: items, isPending, error, refetch } = useBank(id);
+  const canManage = useCanManageBank();
 
   if (isPending) {
     return <FullPageSpinner />;
@@ -41,7 +43,7 @@ export function BankPage() {
         title={t("title")}
         description={
           <>
-            {t("blurb")}
+            {canManage ? t("blurb") : t("blurbFree")}
             {items.length > 0 ? (
               <span className="mt-1 block text-xs tabular-nums">
                 {t("summary", { active: items.length - omitted, omitted })}

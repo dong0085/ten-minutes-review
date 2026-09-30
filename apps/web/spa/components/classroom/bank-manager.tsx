@@ -2,12 +2,13 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "use-intl";
-import { ChevronRight, EyeOff, Loader2, RotateCcw, Search } from "lucide-react";
+import { ChevronRight, EyeOff, Loader2, Lock, RotateCcw, Search } from "lucide-react";
 import { CATEGORIES, type Category } from "@tmr/core";
 import { Badge } from "@tmr/ui/components/badge";
 import { Button } from "@tmr/ui/components/button";
 import { Input } from "@tmr/ui/components/input";
 import { cn } from "@tmr/ui/utils";
+import { BankProDialog, useCanManageBank } from "@/spa/components/classroom/bank-pro-dialog";
 import { CountUp } from "@/spa/components/count-up";
 import { useToggleOmit } from "@/spa/lib/bank-actions";
 import { PEEK_SPRING } from "@/spa/lib/use-peek";
@@ -50,6 +51,7 @@ export function BankManager({ classroomId, items }: { classroomId: string; items
   const [limit, setLimit] = useState(PAGE_SIZE);
   const deferredQuery = useDeferredValue(query.trim().toLocaleLowerCase());
   const toggleOmit = useToggleOmit(classroomId);
+  const canManage = useCanManageBank();
 
   function update(next: Record<string, string | null>) {
     setLimit(PAGE_SIZE);
@@ -237,23 +239,37 @@ export function BankManager({ classroomId, items }: { classroomId: string; items
                     </span>
                     <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
                   </Link>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="mr-3 shrink-0 sm:mr-4"
-                    disabled={pending}
-                    onClick={() => toggleOmit.mutate({ id: item.id, omit: !item.isRetired })}
-                    title={item.isRetired ? t("restoreHint") : t("omitHint")}
-                    aria-label={item.isRetired ? t("restore") : t("omit")}
-                  >
-                    {pending ? (
-                      <Loader2 className="animate-spin" />
-                    ) : item.isRetired ? (
-                      <RotateCcw />
-                    ) : (
-                      <EyeOff />
-                    )}
-                  </Button>
+                  {canManage ? (
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="mr-3 shrink-0 sm:mr-4"
+                      disabled={pending}
+                      onClick={() => toggleOmit.mutate({ id: item.id, omit: !item.isRetired })}
+                      title={item.isRetired ? t("restoreHint") : t("omitHint")}
+                      aria-label={item.isRetired ? t("restore") : t("omit")}
+                    >
+                      {pending ? (
+                        <Loader2 className="animate-spin" />
+                      ) : item.isRetired ? (
+                        <RotateCcw />
+                      ) : (
+                        <EyeOff />
+                      )}
+                    </Button>
+                  ) : (
+                    <BankProDialog>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="mr-3 shrink-0 text-muted-foreground sm:mr-4"
+                        title={t("omitLockedHint")}
+                        aria-label={t("omitLockedHint")}
+                      >
+                        <Lock />
+                      </Button>
+                    </BankProDialog>
+                  )}
                 </motion.li>
               );
             })}

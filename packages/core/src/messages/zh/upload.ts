@@ -23,6 +23,10 @@ export const upload = {
     couldNotSaveImages: "无法保存你的图片。",
     savingNotes: "正在保存笔记…",
     uploadNotes: "上传笔记",
+    limitTitle: "本周的免费上传已用完",
+    limitBody:
+      "升级 Pro，每节课后都能上传笔记，每日测验总有新内容。每月 2.99 美元。",
+    limitNext: "下次免费上传：{date}。",
     backgroundHint: "上传后可以离开，笔记会继续在后台整理。",
     statusKicker: "整理进度",
     readingNotes: "正在从笔记中整理知识点…",
