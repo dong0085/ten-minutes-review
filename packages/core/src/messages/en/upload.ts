@@ -23,6 +23,10 @@ export const upload = {
     couldNotSaveImages: "Could not save your images.",
     savingNotes: "Saving notes…",
     uploadNotes: "Upload notes",
+    limitTitle: "You've used this week's free upload",
+    limitBody:
+      "Pro lets you add notes after every lesson, so your daily quiz always has something new. $2.99/month.",
+    limitNext: "Next free upload: {date}.",
     backgroundHint: "You can leave after uploading. Reading continues in the background.",
     statusKicker: "Extraction status",
     readingNotes: "Reading your notes…",

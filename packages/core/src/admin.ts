@@ -7,13 +7,13 @@ export type LlmPurpose = (typeof LLM_PURPOSES)[number];
 /** Limits the admin console can change at runtime. */
 export type AppLimits = {
   freeClassrooms: number;
-  freeNotesUploadsPerMonth: number;
+  freeNotesUploadsPerWeek: number;
   uploadsPerUserPerDay: number;
 };
 
 export const DEFAULT_APP_LIMITS: AppLimits = {
   freeClassrooms: FREE_TIER.classrooms,
-  freeNotesUploadsPerMonth: FREE_TIER.notesUploadsPerMonth,
+  freeNotesUploadsPerWeek: FREE_TIER.notesUploadsPerWeek,
   uploadsPerUserPerDay: MAX_UPLOADS_PER_USER_PER_DAY,
 };
 

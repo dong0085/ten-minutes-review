@@ -58,7 +58,7 @@ export type AccountOverview = {
   };
   usage: {
     classrooms: number;
-    uploadsThisMonth: number;
+    uploadsThisWeek: number;
     classroomLimit: number;
     uploadLimit: number;
   };

@@ -58,7 +58,7 @@ type Detail = {
   }[];
   apiTokens: { id: string; name: string; prefix: string; createdAt: string; lastUsedAt: string | null; revokedAt: string | null }[];
   usage: {
-    uploadsThisMonth: number;
+    uploadsThisWeek: number;
     uploadsTotal: number;
     attemptsTotal: number;
     attempts30d: number;
@@ -67,10 +67,10 @@ type Detail = {
     tutorRequests: number;
   };
   llm: { calls: number; failed: number; costUsd: number };
-  effectiveLimits: { classrooms: number; notesUploadsPerMonth: number };
+  effectiveLimits: { classrooms: number; notesUploadsPerWeek: number };
   referrals: { id: string; status: string; createdAt: string; userId: string; email: string }[];
   referredBy: { userId: string; email: string; status: string } | null;
-  limitOverride: { classrooms: number | null; notesUploadsPerMonth: number | null; note: string | null } | null;
+  limitOverride: { classrooms: number | null; notesUploadsPerWeek: number | null; note: string | null } | null;
   emails: { id: string; sentOn: string; kind: string; providerMessageId: string | null; createdAt: string }[];
   audit: { id: string; action: string; adminEmail: string; detail: Record<string, unknown>; createdAt: string }[];
   stripeDashboard: string;
@@ -81,7 +81,7 @@ type Action = { action: string } & Record<string, unknown>;
 function LimitsForm({ detail, run }: { detail: Detail; run: (body: Action) => void }) {
   const override = detail.limitOverride;
   const [classrooms, setClassrooms] = useState(override?.classrooms?.toString() ?? "");
-  const [uploads, setUploads] = useState(override?.notesUploadsPerMonth?.toString() ?? "");
+  const [uploads, setUploads] = useState(override?.notesUploadsPerWeek?.toString() ?? "");
   const [note, setNote] = useState(override?.note ?? "");
   const parse = (value: string) => (value.trim() === "" ? null : Math.max(0, Math.floor(Number(value))));
   return (
@@ -89,12 +89,12 @@ function LimitsForm({ detail, run }: { detail: Detail; run: (body: Action) => vo
       className="space-y-3"
       onSubmit={(event) => {
         event.preventDefault();
-        run({ action: "set_limits", classrooms: parse(classrooms), notesUploadsPerMonth: parse(uploads), note: note || null });
+        run({ action: "set_limits", classrooms: parse(classrooms), notesUploadsPerWeek: parse(uploads), note: note || null });
       }}
     >
       <p className="text-xs text-muted-foreground">
-        只对免费用户生效。留空就用全局设置（现在：{detail.effectiveLimits.classrooms} 个课堂，每月{" "}
-        {detail.effectiveLimits.notesUploadsPerMonth} 次上传）。
+        只对免费用户生效。留空就用全局设置（现在：{detail.effectiveLimits.classrooms} 个课堂，每周{" "}
+        {detail.effectiveLimits.notesUploadsPerWeek} 次上传）。
       </p>
       <div className="grid grid-cols-2 gap-3">
         <label className="space-y-1 text-sm">
@@ -102,7 +102,7 @@ function LimitsForm({ detail, run }: { detail: Detail; run: (body: Action) => vo
           <Input type="number" min={0} value={classrooms} onChange={(event) => setClassrooms(event.target.value)} placeholder="全局" />
         </label>
         <label className="space-y-1 text-sm">
-          <span className="text-muted-foreground">每月上传</span>
+          <span className="text-muted-foreground">每周上传</span>
           <Input type="number" min={0} value={uploads} onChange={(event) => setUploads(event.target.value)} placeholder="全局" />
         </label>
       </div>
@@ -168,7 +168,7 @@ export function AdminUserPage() {
       ) : null}
 
       <StatGrid>
-        <StatTile label="本月上传" value={`${data.usage.uploadsThisMonth} / ${data.effectiveLimits.notesUploadsPerMonth}`} hint={`累计 ${data.usage.uploadsTotal}`} />
+        <StatTile label="本周上传" value={`${data.usage.uploadsThisWeek} / ${data.effectiveLimits.notesUploadsPerWeek}`} hint={`累计 ${data.usage.uploadsTotal}`} />
         <StatTile label="答题次数" value={fmt.n(data.usage.attemptsTotal)} hint={`近 30 天 ${data.usage.attempts30d} · 最近 ${fmt.ago(data.usage.lastActiveAt)}`} />
         <StatTile label="LLM 成本（累计）" value={fmt.usd(data.llm.costUsd)} hint={`${data.llm.calls} 次调用 · 失败 ${data.llm.failed}`} />
         <StatTile label="收到邮件" value={fmt.n(data.usage.emailsSent)} hint={`AI 导师请求 ${data.usage.tutorRequests}`} />

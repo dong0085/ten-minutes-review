@@ -25,7 +25,7 @@ export const userLimitOverrides = pgTable("user_limit_overrides", {
     .primaryKey()
     .references(() => users.id, { onDelete: "cascade" }),
   classrooms: integer("classrooms"),
-  notesUploadsPerMonth: integer("notes_uploads_per_month"),
+  notesUploadsPerWeek: integer("notes_uploads_per_week"),
   note: text("note"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

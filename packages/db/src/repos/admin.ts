@@ -53,7 +53,7 @@ export async function saveAppSetting(
 
 export type EffectiveLimits = {
   classrooms: number;
-  notesUploadsPerMonth: number;
+  notesUploadsPerWeek: number;
   uploadsPerDay: number;
 };
 
@@ -65,7 +65,7 @@ export async function getEffectiveLimits(db: Db, userId: string): Promise<Effect
   ]);
   return {
     classrooms: override?.classrooms ?? limits.freeClassrooms,
-    notesUploadsPerMonth: override?.notesUploadsPerMonth ?? limits.freeNotesUploadsPerMonth,
+    notesUploadsPerWeek: override?.notesUploadsPerWeek ?? limits.freeNotesUploadsPerWeek,
     uploadsPerDay: limits.uploadsPerUserPerDay,
   };
 }
@@ -82,9 +82,9 @@ export async function getUserLimitOverride(db: Db, userId: string) {
 export async function setUserLimitOverride(
   db: Db,
   userId: string,
-  input: { classrooms: number | null; notesUploadsPerMonth: number | null; note: string | null },
+  input: { classrooms: number | null; notesUploadsPerWeek: number | null; note: string | null },
 ) {
-  if (input.classrooms === null && input.notesUploadsPerMonth === null) {
+  if (input.classrooms === null && input.notesUploadsPerWeek === null) {
     await db.delete(userLimitOverrides).where(eq(userLimitOverrides.userId, userId));
     return;
   }
@@ -398,7 +398,7 @@ export async function getUserAdminDetail(db: Db, userId: string) {
       FROM api_tokens WHERE user_id = ${userId} ORDER BY created_at DESC`).then(rowsOf),
     db.execute(sql`
       SELECT
-        (SELECT count(*) FROM uploads up JOIN classrooms c ON c.id = up.classroom_id WHERE c.user_id = ${userId} AND up.created_at >= date_trunc('month', now()))::int AS "uploadsThisMonth",
+        (SELECT count(*) FROM uploads up JOIN classrooms c ON c.id = up.classroom_id WHERE c.user_id = ${userId} AND up.created_at >= date_trunc('week', now()))::int AS "uploadsThisWeek",
         (SELECT count(*) FROM uploads up JOIN classrooms c ON c.id = up.classroom_id WHERE c.user_id = ${userId})::int AS "uploadsTotal",
         (SELECT count(*) FROM attempts WHERE user_id = ${userId})::int AS "attemptsTotal",
         (SELECT count(*) FROM attempts WHERE user_id = ${userId} AND submitted_at > now() - interval '30 days')::int AS "attempts30d",

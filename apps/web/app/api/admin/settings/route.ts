@@ -32,7 +32,7 @@ const settingsSchema = z.object({
   limits: z
     .object({
       freeClassrooms: limit,
-      freeNotesUploadsPerMonth: limit,
+      freeNotesUploadsPerWeek: limit,
       uploadsPerUserPerDay: limit,
     })
     .optional(),

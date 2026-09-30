@@ -54,7 +54,7 @@ export function LibraryCard({
     uiLanguage: string;
   };
   membership: Membership;
-  usage: { classrooms: number; uploadsThisMonth: number; classroomLimit: number; uploadLimit: number };
+  usage: { classrooms: number; uploadsThisWeek: number; classroomLimit: number; uploadLimit: number };
   billingEnabled: boolean;
 }) {
   const t = useTranslations("Account.LibraryCard");
@@ -175,11 +175,11 @@ export function LibraryCard({
               <span className="text-muted-foreground">{t("uploads")}</span>
               <span className="flex items-center gap-2">
                 <Pips
-                  used={Math.min(usage.uploadsThisMonth, usage.uploadLimit)}
+                  used={Math.min(usage.uploadsThisWeek, usage.uploadLimit)}
                   limit={usage.uploadLimit}
                 />
                 <span className="w-8 text-right text-xs tabular-nums">
-                  {Math.min(usage.uploadsThisMonth, usage.uploadLimit)}/
+                  {Math.min(usage.uploadsThisWeek, usage.uploadLimit)}/
                   {usage.uploadLimit}
                 </span>
               </span>

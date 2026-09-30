@@ -87,8 +87,8 @@ export function ClassroomListPage() {
                 {limits ? (
                   <p className="text-muted-foreground">
                     {t("uploadsHint", {
-                      used: Math.min(limits.uploadsThisMonth, limits.uploadsPerMonth),
-                      limit: limits.uploadsPerMonth,
+                      used: Math.min(limits.uploadsThisWeek, limits.uploadsPerWeek),
+                      limit: limits.uploadsPerWeek,
                     })}
                   </p>
                 ) : null}

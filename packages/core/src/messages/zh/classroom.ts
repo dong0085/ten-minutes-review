@@ -108,12 +108,14 @@ export const classroom = {
     activeCount: "{active} 个进行中",
     activeHint:
       "进行中的课堂每天早上都会生成新测验。开启邮件后，测验也会发到你的邮箱。多日没有新笔记时会自动暂停；添加笔记或打开课堂即可恢复。",
-    uploadsHint: "免费版：本月已上传 {used}/{limit} 次笔记，所有课堂共用。",
+    uploadsHint:
+      "免费版：本周已上传 {used}/{limit} 次笔记，所有课堂共用。升级 Pro，每节课后都能上传笔记。",
     newClassroom: "新建课堂",
     proBadge: "Pro",
     lockedLabel: "新建课堂（免费版已达上限，需要 Pro）",
     lockedTitle: "已达到 3 个课堂",
-    lockedBody: "免费版可创建 3 个课堂，每月上传 2 次笔记。Pro 每月 2.99 美元，解除这两项限制。",
+    lockedBody:
+      "免费版可创建 3 个课堂，每周上传 1 次笔记。Pro 每月 2.99 美元，解除这两项限制，还能自己修改题库。",
     lockedClose: "以后再说",
     emptyKicker: "从一节课开始",
     emptyTitle: "你的语言课笔记，变成十分钟测验",
@@ -181,6 +183,14 @@ export const classroom = {
   BankPage: {
     title: "题库",
     blurb: "这里收着从笔记中整理出的知识点。可以修改内容，也可以把已掌握的知识点排除在以后测验之外。",
+    blurbFree:
+      "这里收着从笔记中整理出的知识点。升级 Pro 后，可以修改内容，也可以排除已掌握的知识点。",
+    proBadge: "Pro",
+    proTitle: "升级 Pro，让题库完全属于你",
+    proBody:
+      "AI 负责读笔记，但最懂你课程的是你自己。升级 Pro 后，你可以修正释义、补充备注，或排除已掌握的内容。之后的每次测验都会用你的版本。",
+    proClose: "以后再说",
+    omitLockedHint: "在题库中排除知识点是 Pro 功能",
     summary: "{active} 个参与出题 · {omitted} 个已排除",
     addNotes: "添加笔记",
     emptyTitle: "题库是空的",

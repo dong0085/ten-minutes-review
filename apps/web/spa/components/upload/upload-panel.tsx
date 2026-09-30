@@ -9,8 +9,9 @@ import {
   type FormEvent,
 } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { useTranslations } from "use-intl";
-import { ArrowRight, FileText, ImagePlus, Loader2, UploadCloud, X } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useFormatter, useTranslations } from "use-intl";
+import { ArrowRight, FileText, ImagePlus, Loader2, Lock, UploadCloud, X } from "lucide-react";
 import { MAX_IMAGE_BYTES } from "@tmr/core";
 import { PEEK_SPRING } from "@/spa/lib/use-peek";
 import { Alert, AlertDescription } from "@tmr/ui/components/alert";
@@ -27,9 +28,60 @@ import {
 } from "@tmr/ui/components/dialog";
 import { Label } from "@tmr/ui/components/label";
 import { Textarea } from "@tmr/ui/components/textarea";
-import { readError } from "@/spa/lib/read-error";
+import { BillingButton } from "@/spa/components/account/billing-button";
+import { keys, useClassrooms } from "@/spa/lib/queries";
+import { readApiError } from "@/spa/lib/read-error";
+import { useSession } from "@/spa/lib/session";
 
 const MAX_FILES = 10;
+
+/** The free weekly allowance ran out; the API answered with `pro_required`. */
+class UploadLimitError extends Error {}
+
+async function uploadFailure(response: Response, fallback: string): Promise<Error> {
+  const { message, code } = await readApiError(response);
+  return code === "pro_required"
+    ? new UploadLimitError(message ?? fallback)
+    : new Error(message ?? fallback);
+}
+
+/** Shown in place of the form once a free account has used this week's upload. */
+function UploadLimitCard({ resetsAt }: { resetsAt: string | null }) {
+  const t = useTranslations("Upload.Panel");
+  const format = useFormatter();
+  const { data: session } = useSession();
+
+  return (
+    <Card className="bg-card/75">
+      <CardContent className="space-y-4">
+        <div className="flex items-start gap-3">
+          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/[0.08] text-primary">
+            <Lock className="size-4" />
+          </span>
+          <div className="space-y-1.5">
+            <p className="flex flex-wrap items-center gap-2 font-heading text-lg font-semibold">
+              {t("limitTitle")}
+              <Badge>Pro</Badge>
+            </p>
+            <p className="text-sm text-muted-foreground">{t("limitBody")}</p>
+            {resetsAt ? (
+              <p className="text-xs text-muted-foreground">
+                {t("limitNext", {
+                  date: format.dateTime(new Date(resetsAt), {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                  }),
+                })}
+              </p>
+            ) : null}
+          </div>
+        </div>
+        {session?.features.billing ? <BillingButton action="checkout" /> : null}
+      </CardContent>
+    </Card>
+  );
+}
 
 type ExtractionStatus = "pending" | "running" | "done" | "failed";
 
@@ -121,6 +173,13 @@ export function UploadPanel({
   const [fileInputKey, setFileInputKey] = useState(0);
   const [dragActive, setDragActive] = useState(false);
   const [showGuestModal, setShowGuestModal] = useState(false);
+  const [limitReached, setLimitReached] = useState(false);
+  const queryClient = useQueryClient();
+  // Free accounts get `limits`; paid accounts and guests get null.
+  const { data: classroomList } = useClassrooms(!isGuest);
+  const limits = classroomList?.limits ?? null;
+  const outOfUploads =
+    limitReached || (limits !== null && limits.uploadsThisWeek >= limits.uploadsPerWeek);
 
   const loadUploads = useCallback(async () => {
     const response = await fetch(`/api/classrooms/${classroomId}/uploads`);
@@ -241,7 +300,7 @@ export function UploadPanel({
           body: JSON.stringify({ text: trimmed }),
         });
         if (!response.ok) {
-          throw new Error((await readError(response)) ?? t("couldNotSaveNotes"));
+          throw await uploadFailure(response, t("couldNotSaveNotes"));
         }
         const data = (await response.json()) as { uploadIds: string[] };
         ids.push(...data.uploadIds);
@@ -256,7 +315,7 @@ export function UploadPanel({
           body: formData,
         });
         if (!response.ok) {
-          throw new Error((await readError(response)) ?? t("couldNotSaveImages"));
+          throw await uploadFailure(response, t("couldNotSaveImages"));
         }
         const data = (await response.json()) as { uploadIds: string[] };
         ids.push(...data.uploadIds);
@@ -271,136 +330,146 @@ export function UploadPanel({
       const rows = await loadUploads();
       setUploads(rows ?? []);
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : tCommon("genericError"));
+      if (error instanceof UploadLimitError) {
+        setLimitReached(true);
+      } else {
+        setFormError(error instanceof Error ? error.message : tCommon("genericError"));
+      }
     } finally {
       setSubmitting(false);
+      // The weekly count moved; the limit card and the classroom list read it.
+      void queryClient.invalidateQueries({ queryKey: keys.classrooms });
     }
   };
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSubmit}>
-        <Card className="overflow-visible bg-card/75">
-          <CardContent className="grid gap-6 lg:grid-cols-2">
-            <section>
-              <div className="mb-4 flex items-start gap-3">
-                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/[0.08] text-primary">
-                  <FileText className="size-4" />
-                </span>
-                <div>
-                  <Label htmlFor="note-text" className="mb-0 font-heading text-lg font-semibold">
-                    {t("pasteLabel")}
-                  </Label>
-                  <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("textHint")}</p>
+      {outOfUploads ? (
+        <UploadLimitCard resetsAt={limits?.weekResetsAt ?? null} />
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <Card className="overflow-visible bg-card/75">
+            <CardContent className="grid gap-6 lg:grid-cols-2">
+              <section>
+                <div className="mb-4 flex items-start gap-3">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/[0.08] text-primary">
+                    <FileText className="size-4" />
+                  </span>
+                  <div>
+                    <Label htmlFor="note-text" className="mb-0 font-heading text-lg font-semibold">
+                      {t("pasteLabel")}
+                    </Label>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("textHint")}</p>
+                  </div>
                 </div>
-              </div>
-              <Textarea
-                id="note-text"
-                rows={12}
-                value={text}
-                onChange={(event) => setText(event.target.value)}
-                placeholder={t("pastePlaceholder")}
-                className="paper-lines min-h-80 resize-y bg-background/45 leading-8"
-              />
-            </section>
+                <Textarea
+                  id="note-text"
+                  rows={12}
+                  value={text}
+                  onChange={(event) => setText(event.target.value)}
+                  placeholder={t("pastePlaceholder")}
+                  className="paper-lines min-h-80 resize-y bg-background/45 leading-8"
+                />
+              </section>
 
-            <section>
-              <div className="mb-4 flex items-start gap-3">
-                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/[0.08] text-primary">
-                  <ImagePlus className="size-4" />
-                </span>
-                <div>
-                  <Label className="mb-0 font-heading text-lg font-semibold">
-                    {t("attachImages")}
-                  </Label>
-                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    {t("upToImages", { max: MAX_FILES })}
-                  </p>
+              <section>
+                <div className="mb-4 flex items-start gap-3">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/[0.08] text-primary">
+                    <ImagePlus className="size-4" />
+                  </span>
+                  <div>
+                    <Label className="mb-0 font-heading text-lg font-semibold">
+                      {t("attachImages")}
+                    </Label>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      {t("upToImages", { max: MAX_FILES })}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <motion.div
-                animate={{ scale: dragActive ? 1.025 : 1 }}
-                transition={PEEK_SPRING}
-                onDragEnter={(event) => {
-                  event.preventDefault();
-                  setDragActive(true);
-                }}
-                onDragOver={(event) => event.preventDefault()}
-                onDragLeave={(event) => {
-                  if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
-                    setDragActive(false);
-                  }
-                }}
-                onDrop={handleDrop}
-                className={`grid min-h-48 place-items-center rounded-2xl border border-dashed p-6 text-center transition-colors ${
-                  dragActive
-                    ? "border-primary bg-primary/[0.08]"
-                    : "border-border bg-muted/25 hover:border-primary/30 hover:bg-primary/[0.035]"
-                }`}
-              >
-                <div>
-                  <motion.span
-                    className="block"
-                    animate={dragActive ? { y: -6, scale: 1.2 } : { y: 0, scale: 1 }}
-                    transition={PEEK_SPRING}
-                  >
-                    <UploadCloud className="mx-auto size-6 text-primary" strokeWidth={1.6} />
-                  </motion.span>
-                  <p className="mt-4 text-sm font-medium">{t("dropTitle")}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{t("dropCopy")}</p>
-                  <Label
-                    htmlFor={`note-images-${fileInputKey}`}
-                    className="mx-auto mt-4 inline-flex h-9 w-fit cursor-pointer items-center rounded-[0.7rem] border border-border bg-card px-3.5 text-sm shadow-sm transition hover:border-primary/25 hover:bg-accent"
-                  >
-                    {t("chooseImages")}
-                  </Label>
-                  <input
-                    key={fileInputKey}
-                    id={`note-images-${fileInputKey}`}
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleFiles}
-                    className="sr-only"
-                  />
-                </div>
-              </motion.div>
-              {fileError ? <p className="mt-2 text-sm text-destructive">{fileError}</p> : null}
-              <ul className="mt-3 grid grid-cols-2 gap-2 empty:hidden sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
-                <AnimatePresence initial={false}>
-                  {files.map((file, index) => (
-                    <SelectedFilePreview
-                      key={`${file.name}-${file.lastModified}-${index}`}
-                      file={file}
-                      onRemove={() =>
-                        setFiles((current) =>
-                          current.filter((_, fileIndex) => fileIndex !== index),
-                        )
-                      }
+                <motion.div
+                  animate={{ scale: dragActive ? 1.025 : 1 }}
+                  transition={PEEK_SPRING}
+                  onDragEnter={(event) => {
+                    event.preventDefault();
+                    setDragActive(true);
+                  }}
+                  onDragOver={(event) => event.preventDefault()}
+                  onDragLeave={(event) => {
+                    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                      setDragActive(false);
+                    }
+                  }}
+                  onDrop={handleDrop}
+                  className={`grid min-h-48 place-items-center rounded-2xl border border-dashed p-6 text-center transition-colors ${
+                    dragActive
+                      ? "border-primary bg-primary/[0.08]"
+                      : "border-border bg-muted/25 hover:border-primary/30 hover:bg-primary/[0.035]"
+                  }`}
+                >
+                  <div>
+                    <motion.span
+                      className="block"
+                      animate={dragActive ? { y: -6, scale: 1.2 } : { y: 0, scale: 1 }}
+                      transition={PEEK_SPRING}
+                    >
+                      <UploadCloud className="mx-auto size-6 text-primary" strokeWidth={1.6} />
+                    </motion.span>
+                    <p className="mt-4 text-sm font-medium">{t("dropTitle")}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{t("dropCopy")}</p>
+                    <Label
+                      htmlFor={`note-images-${fileInputKey}`}
+                      className="mx-auto mt-4 inline-flex h-9 w-fit cursor-pointer items-center rounded-[0.7rem] border border-border bg-card px-3.5 text-sm shadow-sm transition hover:border-primary/25 hover:bg-accent"
+                    >
+                      {t("chooseImages")}
+                    </Label>
+                    <input
+                      key={fileInputKey}
+                      id={`note-images-${fileInputKey}`}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleFiles}
+                      className="sr-only"
                     />
-                  ))}
-                </AnimatePresence>
-              </ul>
-            </section>
-          </CardContent>
-          <div className="flex flex-col gap-3 border-t border-border/65 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              {formError ? (
-                <Alert variant="destructive">
-                  <AlertDescription>{formError}</AlertDescription>
-                </Alert>
-              ) : (
-                <p className="text-xs text-muted-foreground">{t("backgroundHint")}</p>
-              )}
+                  </div>
+                </motion.div>
+                {fileError ? <p className="mt-2 text-sm text-destructive">{fileError}</p> : null}
+                <ul className="mt-3 grid grid-cols-2 gap-2 empty:hidden sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
+                  <AnimatePresence initial={false}>
+                    {files.map((file, index) => (
+                      <SelectedFilePreview
+                        key={`${file.name}-${file.lastModified}-${index}`}
+                        file={file}
+                        onRemove={() =>
+                          setFiles((current) =>
+                            current.filter((_, fileIndex) => fileIndex !== index),
+                          )
+                        }
+                      />
+                    ))}
+                  </AnimatePresence>
+                </ul>
+              </section>
+            </CardContent>
+            <div className="flex flex-col gap-3 border-t border-border/65 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                {formError ? (
+                  <Alert variant="destructive">
+                    <AlertDescription>{formError}</AlertDescription>
+                  </Alert>
+                ) : (
+                  <p className="text-xs text-muted-foreground">{t("backgroundHint")}</p>
+                )}
+              </div>
+              <Button type="submit" size="lg" disabled={submitting}>
+                {submitting ? <Loader2 className="animate-spin" /> : null}
+                {submitting ? t("savingNotes") : t("uploadNotes")}
+                {!submitting ? <ArrowRight /> : null}
+              </Button>
             </div>
-            <Button type="submit" size="lg" disabled={submitting}>
-              {submitting ? <Loader2 className="animate-spin" /> : null}
-              {submitting ? t("savingNotes") : t("uploadNotes")}
-              {!submitting ? <ArrowRight /> : null}
-            </Button>
-          </div>
-        </Card>
-      </form>
+          </Card>
+        </form>
+      )}
       {sessionIds.length > 0 ? (
         <motion.div
           initial={{ opacity: 0, y: -16, scale: 0.98 }}

@@ -2,7 +2,7 @@ import { after } from "next/server";
 import { z } from "zod";
 import {
   MAX_IMAGE_BYTES,
-  startOfMonthAt,
+  startOfWeekAt,
 } from "@tmr/core";
 import {
   countUploadsSince,
@@ -122,17 +122,17 @@ export async function POST(request: Request, context: RouteContext) {
     }
     const limits = await getEffectiveLimits(db, user.id);
     const dailyLimitMessage = `Upload limit reached: ${limits.uploadsPerDay} uploads per day`;
-    const monthlyLimitMessage = `Free plan is limited to ${limits.notesUploadsPerMonth} notes uploads per month`;
+    const weeklyLimitMessage = `Free plan is limited to ${limits.notesUploadsPerWeek} notes uploads per week`;
     if (!user.isGuest && recentCount >= limits.uploadsPerDay) {
       return jsonError(dailyLimitMessage, 429);
     }
 
     const isPaid = !user.isGuest && (await hasPaidPlan(db, user.id));
-    const monthCount = isPaid
+    const weekCount = isPaid
       ? 0
-      : await countUploadsSince(db, user.id, startOfMonthAt(user.timezone));
-    if (!isPaid && monthCount >= limits.notesUploadsPerMonth) {
-      return jsonError(monthlyLimitMessage, 403);
+      : await countUploadsSince(db, user.id, startOfWeekAt(user.timezone));
+    if (!isPaid && weekCount >= limits.notesUploadsPerWeek) {
+      return jsonError(weeklyLimitMessage, 403, "pro_required");
     }
 
     const contentType = request.headers.get("content-type") ?? "";
@@ -156,8 +156,8 @@ export async function POST(request: Request, context: RouteContext) {
       if (!user.isGuest && recentCount + files.length > limits.uploadsPerDay) {
         return jsonError(dailyLimitMessage, 429);
       }
-      if (!isPaid && monthCount + files.length > limits.notesUploadsPerMonth) {
-        return jsonError(monthlyLimitMessage, 403);
+      if (!isPaid && weekCount + files.length > limits.notesUploadsPerWeek) {
+        return jsonError(weeklyLimitMessage, 403, "pro_required");
       }
       const validated: { file: File; mimeType: string }[] = [];
       for (const file of files) {

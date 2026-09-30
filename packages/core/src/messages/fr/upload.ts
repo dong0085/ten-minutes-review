@@ -26,6 +26,10 @@ export const upload: MessageShape<(typeof en)["Upload"]> = {
     couldNotSaveImages: "Impossible d'enregistrer tes images.",
     savingNotes: "Enregistrement des notes…",
     uploadNotes: "Envoyer les notes",
+    limitTitle: "Tu as utilisé ton ajout gratuit de la semaine",
+    limitBody:
+      "Avec Pro, ajoute tes notes après chaque cours pour que ton quiz du jour ait toujours du nouveau. 2,99 $/mois.",
+    limitNext: "Prochain ajout gratuit : {date}.",
     backgroundHint: "Tu peux quitter cette page après l'ajout. Le traitement continue en arrière-plan.",
     statusKicker: "Traitement des notes",
     readingNotes: "Nous préparons les notions à réviser…",

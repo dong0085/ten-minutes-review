@@ -13,7 +13,7 @@ import {
   Panel,
 } from "@/spa/components/admin/ui";
 
-type Limits = { freeClassrooms: number; freeNotesUploadsPerMonth: number; uploadsPerUserPerDay: number };
+type Limits = { freeClassrooms: number; freeNotesUploadsPerWeek: number; uploadsPerUserPerDay: number };
 type Prices = { input: number; cachedInput: number; output: number };
 
 type Settings = {
@@ -103,7 +103,7 @@ export function AdminSettingsPage() {
           defaults={data.defaults.limits}
           fields={[
             { key: "freeClassrooms", label: "免费课堂数" },
-            { key: "freeNotesUploadsPerMonth", label: "免费每月上传次数" },
+            { key: "freeNotesUploadsPerWeek", label: "免费每周上传次数" },
             { key: "uploadsPerUserPerDay", label: "每人每天上传上限", hint: "付费用户也受限，防滥用" },
           ]}
           onSave={(limits) => save.mutate({ limits })}

@@ -115,13 +115,13 @@ export const classroom = {
     activeHint:
       "Active classrooms get a fresh quiz by email every morning. A classroom rests after a stretch of quiet days; add notes or open it to wake it up.",
     uploadsHint:
-      "Free plan: {used} of {limit} notes uploads used this month, shared across all classrooms.",
+      "Free plan: {used} of {limit, plural, one {# notes upload} other {# notes uploads}} used this week, shared across all classrooms. Pro lets you add notes after every lesson.",
     newClassroom: "New classroom",
     proBadge: "Pro",
     lockedLabel: "New classroom (free plan limit reached, Pro required)",
     lockedTitle: "You've reached 3 classrooms",
     lockedBody:
-      "The free plan includes 3 classrooms and 2 notes uploads a month. Pro removes both limits for $2.99/month.",
+      "The free plan includes 3 classrooms and 1 notes upload a week. Pro removes both limits and lets you edit your question bank, for $2.99/month.",
     lockedClose: "Not now",
     emptyKicker: "Begin with one lesson",
     emptyTitle: "Your notes become a ten-minute quiz",
@@ -193,6 +193,14 @@ export const classroom = {
     title: "Question bank",
     blurb:
       "Every knowledge point your notes produced. Fix a wording, or omit what you already know so daily quizzes skip it.",
+    blurbFree:
+      "Every knowledge point your notes produced. Upgrade to Pro to fix a wording or leave out what you already know.",
+    proBadge: "Pro",
+    proTitle: "Make the bank yours with Pro",
+    proBody:
+      "The AI reads your notes, but you know your lessons best. With Pro, fix any meaning, add a note, or leave out what you've mastered. Every future quiz uses your version.",
+    proClose: "Not now",
+    omitLockedHint: "Leaving points out from the bank is part of Pro",
     summary: "{active} in quizzes · {omitted} omitted",
     addNotes: "Add notes",
     emptyTitle: "The bank is empty",

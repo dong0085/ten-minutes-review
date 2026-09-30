@@ -5,23 +5,56 @@ import {
   dailySendAt,
   isClassroomEligibleForDailySend,
   nextDailySendAt,
-  startOfMonthAt,
+  startOfNextWeekAt,
+  startOfWeekAt,
 } from "./schedule";
 
-describe("startOfMonthAt", () => {
-  it("returns local midnight on the first of the month", () => {
-    expect(
-      startOfMonthAt("America/Toronto", new Date("2026-09-24T12:00:00Z")).toISOString(),
-    ).toBe("2026-09-01T04:00:00.000Z");
+describe("startOfWeekAt", () => {
+  it("returns local midnight on Monday", () => {
+    // 2026-09-30 is a Wednesday.
+    expect(startOfWeekAt("America/Toronto", new Date("2026-09-30T12:00:00Z")).toISOString()).toBe(
+      "2026-09-28T04:00:00.000Z",
+    );
   });
 
-  it("uses the local calendar month near a month boundary", () => {
-    expect(
-      startOfMonthAt("America/Toronto", new Date("2026-10-01T02:00:00Z")).toISOString(),
-    ).toBe("2026-09-01T04:00:00.000Z");
-    expect(startOfMonthAt("Asia/Shanghai", new Date("2026-09-30T17:00:00Z")).toISOString()).toBe(
-      "2026-09-30T16:00:00.000Z",
+  it("counts Sunday as the last day of the week", () => {
+    expect(startOfWeekAt("America/Toronto", new Date("2026-10-04T20:00:00Z")).toISOString()).toBe(
+      "2026-09-28T04:00:00.000Z",
     );
+  });
+
+  it("uses the local calendar day near a week boundary", () => {
+    // Sunday evening in Toronto is already Monday in Shanghai.
+    expect(startOfWeekAt("America/Toronto", new Date("2026-10-05T02:00:00Z")).toISOString()).toBe(
+      "2026-09-28T04:00:00.000Z",
+    );
+    expect(startOfWeekAt("Asia/Shanghai", new Date("2026-10-04T17:00:00Z")).toISOString()).toBe(
+      "2026-10-04T16:00:00.000Z",
+    );
+  });
+
+  it("crosses a month and a daylight-saving change", () => {
+    // Toronto leaves daylight time on Sunday 2026-11-01.
+    expect(startOfWeekAt("America/Toronto", new Date("2026-11-04T12:00:00Z")).toISOString()).toBe(
+      "2026-11-02T05:00:00.000Z",
+    );
+    expect(startOfWeekAt("America/Toronto", new Date("2026-11-01T12:00:00Z")).toISOString()).toBe(
+      "2026-10-26T04:00:00.000Z",
+    );
+  });
+});
+
+describe("startOfNextWeekAt", () => {
+  it("returns next Monday at local midnight", () => {
+    expect(
+      startOfNextWeekAt("America/Toronto", new Date("2026-09-30T12:00:00Z")).toISOString(),
+    ).toBe("2026-10-05T04:00:00.000Z");
+  });
+
+  it("crosses a daylight-saving change", () => {
+    expect(
+      startOfNextWeekAt("America/Toronto", new Date("2026-10-28T12:00:00Z")).toISOString(),
+    ).toBe("2026-11-02T05:00:00.000Z");
   });
 });
 

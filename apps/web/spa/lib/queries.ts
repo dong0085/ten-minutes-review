@@ -27,7 +27,12 @@ export type ClassroomSummary = {
 
 export type ClassroomList = {
   classrooms: ClassroomSummary[];
-  limits: { classrooms: number; uploadsPerMonth: number; uploadsThisMonth: number } | null;
+  limits: {
+    classrooms: number;
+    uploadsPerWeek: number;
+    uploadsThisWeek: number;
+    weekResetsAt: string;
+  } | null;
 };
 
 export type Classroom = {
