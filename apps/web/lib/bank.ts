@@ -9,15 +9,21 @@ export type KnowledgePointJson = {
   note: string | null;
   inferred: boolean;
   sourceExcerpt: string | null;
+  sourceUploadId: string;
   isRetired: boolean;
   retiredAt: string | null;
   createdAt: string;
 };
 
 // A bank row also carries how often the learner answered questions built on it.
-export type BankItem = KnowledgePointJson & { answered: number; missed: number };
+export type BankItem = KnowledgePointJson & {
+  answered: number;
+  missed: number;
+};
 
-export function toKnowledgePointJson(point: KnowledgePoint): KnowledgePointJson {
+export function toKnowledgePointJson(
+  point: KnowledgePoint,
+): KnowledgePointJson {
   return {
     id: point.id,
     category: point.category,
@@ -26,12 +32,17 @@ export function toKnowledgePointJson(point: KnowledgePoint): KnowledgePointJson 
     note: point.note,
     inferred: point.inferred,
     sourceExcerpt: point.sourceExcerpt,
+    sourceUploadId: point.sourceUploadId,
     isRetired: point.retiredAt !== null,
     retiredAt: point.retiredAt ? point.retiredAt.toISOString() : null,
     createdAt: point.createdAt.toISOString(),
   };
 }
 
-export function toBankItem(point: KnowledgePoint, answered: number, missed: number): BankItem {
+export function toBankItem(
+  point: KnowledgePoint,
+  answered: number,
+  missed: number,
+): BankItem {
   return { ...toKnowledgePointJson(point), answered, missed };
 }

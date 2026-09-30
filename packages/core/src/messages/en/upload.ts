@@ -7,7 +7,8 @@ export const upload = {
     reading: "Reading",
     queued: "Queued",
     pasteLabel: "Paste or type your notes",
-    textHint: "Messy notes are welcome — extraction will keep what is useful.",
+    textHint:
+      "Paste your tutor’s recap or your own lesson notes. Mixed languages and rough notes are welcome.",
     pastePlaceholder: "Paste your session notes here",
     attachImages: "Attach images",
     upToImages: "Up to {max} images, 10 MB each.",
@@ -27,13 +28,15 @@ export const upload = {
     limitBody:
       "Pro lets you add notes after every lesson, so your daily quiz always has something new. $2.99/month.",
     limitNext: "Next free upload: {date}.",
-    backgroundHint: "You can leave after uploading. Reading continues in the background.",
-    statusKicker: "Extraction status",
-    readingNotes: "Reading your notes…",
+    backgroundHint:
+      "You can leave after uploading. Reading continues in the background.",
+    statusKicker: "Preparing your review",
+    readingNotes: "Finding what to practise…",
     processingFinished: "Processing finished",
     processingBlurb:
       "Extraction runs in the background. You can leave this page or add more notes.",
-    finishedBlurb: "The upload stays in this classroom for good.",
+    finishedBlurb:
+      "These notes are saved. New material joins your next reviews alongside older points and recent mistakes.",
     checkStatus: "Check status",
     waiting: "Waiting for the upload to appear…",
     pointsPrefix: "+{points} points, ",
@@ -48,7 +51,11 @@ export const upload = {
       "We're processing your notes into studyable points. Sign up to receive your 10-minute daily quiz every morning and keep your notes safe.",
     guestModalSignUp: "Sign up to receive your daily quiz",
     guestModalContinue: "Continue previewing",
-    guestStatusPrompt: "Notes uploaded! Sign up to receive your daily quiz and preserve your classroom.",
-    guestUploadLimit: "Guest preview is limited to 1 upload. Sign up to add more notes.",
+    guestStatusPrompt:
+      "Notes uploaded! Sign up to receive your daily quiz and preserve your classroom.",
+    guestUploadLimit:
+      "Guest preview is limited to 1 upload. Sign up to add more notes.",
+    startReview: "Practise now",
+    openBank: "See what we found",
   },
 };

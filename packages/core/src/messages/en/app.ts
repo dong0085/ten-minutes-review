@@ -5,7 +5,8 @@ export const app = {
     back: "Back",
     closeQuiz: "Close the quiz",
     errorTitle: "Something went wrong",
-    errorBlurb: "This page could not load. Check your connection and try again.",
+    errorBlurb:
+      "This page could not load. Check your connection and try again.",
     retry: "Try again",
     toClassrooms: "Go to classrooms",
   },
@@ -29,7 +30,8 @@ export const app = {
     data: "Your data",
   },
   Hub: {
-    addNotesBlurb: "Paste notes or add photos. New material joins the question bank.",
+    addNotesBlurb:
+      "Just had another lesson? Add its notes here. New material joins future reviews alongside what you learned before.",
     inside: "In this classroom",
     notes: "Notes",
     notesMeta:
@@ -39,18 +41,21 @@ export const app = {
     bankMeta:
       "{count, plural, =0 {Empty until your first notes are read} one {# knowledge point in quizzes} other {# knowledge points in quizzes}}",
     quizzes: "Quizzes",
-    quizzesMeta: "{count, plural, one {# quiz} other {# quizzes}}, with every attempt",
+    quizzesMeta:
+      "{count, plural, one {# review} other {# reviews}} · revisit whenever you want",
     mistakes: "Corrections",
-    mistakesMeta: "{count, plural, =0 {Nothing to correct from the last 30 days} one {# question to correct} other {# questions to correct}}",
+    mistakesMeta:
+      "{count, plural, =0 {No recent mistakes to revisit} one {# recent question to revisit} other {# recent questions to revisit}}",
     settings: "Settings",
     settingsMeta: "Name, languages, and daily reviews",
   },
   QuizDetail: {
     take: "Take quiz",
     retake: "Retake",
-    covers: "What it covers",
+    covers: "What you’ll practise",
     attempts: "Attempts",
-    noAttempts: "No attempts yet. Answers and explanations appear after you submit.",
+    noAttempts:
+      "No attempts yet. Answers and explanations appear after you submit.",
   },
   AccountHub: {
     settings: "Settings",

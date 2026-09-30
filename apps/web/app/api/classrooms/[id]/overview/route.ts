@@ -11,6 +11,7 @@ import {
   getClassroom,
   getDailyQuizByClassroomAndDate,
   getLatestComposeJob,
+  getLatestReviewForClassroomOnDate,
   listQuizzesForClassroom,
   listUntakenOnDemandQuizzes,
   listUploadsForUser,
@@ -38,23 +39,44 @@ export async function GET(_request: Request, context: RouteContext) {
       return jsonError("Not found", 404);
     }
     const today = localDateFor(user.timezone);
-    const [categoryRows, dailyQuiz, uploads, quizzes, unfinished, composeJob, examJob, mistakes] =
-      await Promise.all([
-        countBankByCategory(db, user.id, id),
-        getDailyQuizByClassroomAndDate(db, id, today),
-        listUploadsForUser(db, user.id, id),
-        listQuizzesForClassroom(db, user.id, id),
-        listUntakenOnDemandQuizzes(db, id, 3 + RECENT_ON_DEMAND_LIMIT),
-        getLatestComposeJob(db, id, COMPOSE_REHYDRATE_MS),
-        getLatestComposeJob(db, id, COMPOSE_REHYDRATE_MS, "exam"),
-        countOpenMistakes(db, user.id, id),
-      ]);
+    let timezone = "UTC";
+    try {
+      timezone = new Intl.DateTimeFormat("en", {
+        timeZone: user.timezone,
+      }).resolvedOptions().timeZone;
+    } catch {
+      // Match localDateFor's UTC fallback for a legacy invalid timezone.
+    }
+    const [
+      categoryRows,
+      dailyQuiz,
+      uploads,
+      quizzes,
+      unfinished,
+      composeJob,
+      examJob,
+      mistakes,
+      latestReview,
+    ] = await Promise.all([
+      countBankByCategory(db, user.id, id),
+      getDailyQuizByClassroomAndDate(db, id, today),
+      listUploadsForUser(db, user.id, id),
+      listQuizzesForClassroom(db, user.id, id),
+      listUntakenOnDemandQuizzes(db, id, 3 + RECENT_ON_DEMAND_LIMIT),
+      getLatestComposeJob(db, id, COMPOSE_REHYDRATE_MS),
+      getLatestComposeJob(db, id, COMPOSE_REHYDRATE_MS, "exam"),
+      countOpenMistakes(db, user.id, id),
+      getLatestReviewForClassroomOnDate(db, user.id, id, today, timezone),
+    ]);
     const latestExam = quizzes.find((quiz) => quiz.kind === "exam");
     // On-demand quizzes from the last day get their own card, taken or not;
     // older untaken ones stay in the Unfinished row.
     const recentSince = Date.now() - RECENT_ON_DEMAND_MS;
     const recentOnDemand = quizzes
-      .filter((quiz) => quiz.kind === "manual" && quiz.composedAt.getTime() >= recentSince)
+      .filter(
+        (quiz) =>
+          quiz.kind === "manual" && quiz.composedAt.getTime() >= recentSince,
+      )
       .slice(0, RECENT_ON_DEMAND_LIMIT);
     const recentIds = new Set(recentOnDemand.map((quiz) => quiz.id));
     const bankByCategory: Record<Category, number> = {
@@ -68,18 +90,28 @@ export async function GET(_request: Request, context: RouteContext) {
       bankByCategory[row.category] = row.value;
     }
     const pendingUploads = uploads.filter(
-      ({ upload }) => upload.extractionStatus === "pending" || upload.extractionStatus === "running",
+      ({ upload }) =>
+        upload.extractionStatus === "pending" ||
+        upload.extractionStatus === "running",
     ).length;
     return jsonOk({
       today,
       dailyQuizId: dailyQuiz?.id ?? null,
+      latestReview,
       composeJob: composeJob
-        ? { id: composeJob.id, status: composeJob.status, requestedAt: composeJob.createdAt }
+        ? {
+            id: composeJob.id,
+            status: composeJob.status,
+            requestedAt: composeJob.createdAt,
+          }
         : null,
       counts: {
         uploads: uploads.length,
         pendingUploads,
-        bank: Object.values(bankByCategory).reduce((sum, value) => sum + value, 0),
+        bank: Object.values(bankByCategory).reduce(
+          (sum, value) => sum + value,
+          0,
+        ),
         quizzes: quizzes.length,
       },
       bankByCategory,
@@ -88,7 +120,11 @@ export async function GET(_request: Request, context: RouteContext) {
       exam: {
         requiredPoints: EXAM_MIN_POINTS,
         composeJob: examJob
-          ? { id: examJob.id, status: examJob.status, requestedAt: examJob.createdAt }
+          ? {
+              id: examJob.id,
+              status: examJob.status,
+              requestedAt: examJob.createdAt,
+            }
           : null,
         latest: latestExam
           ? {
@@ -100,7 +136,9 @@ export async function GET(_request: Request, context: RouteContext) {
           : null,
       },
       recentOnDemand,
-      unfinished: unfinished.filter((quiz) => !recentIds.has(quiz.id)).slice(0, 3),
+      unfinished: unfinished
+        .filter((quiz) => !recentIds.has(quiz.id))
+        .slice(0, 3),
     });
   } catch (error) {
     return handleRouteError(error);

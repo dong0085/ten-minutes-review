@@ -11,6 +11,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { UI_LOCALES } from "@tmr/core";
 import { Alert, AlertDescription } from "@tmr/ui/components/alert";
 import { Button } from "@tmr/ui/components/button";
+import { CtaIcon } from "@tmr/ui/components/cta-icon";
 import { Card, CardContent } from "@tmr/ui/components/card";
 import { Input } from "@tmr/ui/components/input";
 import { PasswordInput } from "@tmr/ui/components/password-input";
@@ -166,6 +167,7 @@ export function SignUpForm({ referralCode = "" }: { referralCode?: string }) {
             </Alert>
           ) : null}
           <Button type="submit" className="w-full" disabled={pending}>
+            <CtaIcon kind="signup" />
             {pending ? t("creating") : t("createAccount")}
           </Button>
         </form>

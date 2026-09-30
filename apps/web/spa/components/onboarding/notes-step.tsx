@@ -1,8 +1,23 @@
-import { useEffect, useRef, useState, type DragEvent, type FormEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type DragEvent,
+  type FormEvent,
+} from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion, type Variants } from "motion/react";
 import { useTranslations } from "use-intl";
-import { ArrowLeft, ArrowRight, Camera, FileText, ImagePlus, Loader2, Sparkles, X } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Camera,
+  FileText,
+  ImagePlus,
+  Loader2,
+  Sparkles,
+  X,
+} from "lucide-react";
 import { DEMO_PAPERS, MAX_IMAGE_BYTES, type LanguageCode } from "@tmr/core";
 import { Alert, AlertDescription } from "@tmr/ui/components/alert";
 import { Button } from "@tmr/ui/components/button";
@@ -25,9 +40,16 @@ const POINTS_SHOWN = 8;
 type Mode = "photo" | "text";
 type Phase = "form" | "saving" | "reading" | "done" | "failed" | "composing";
 type Photo = { file: File; url: string };
-type UploadRow = { id: string; extractionStatus: "pending" | "running" | "done" | "failed"; extractionError: string | null };
+type UploadRow = {
+  id: string;
+  extractionStatus: "pending" | "running" | "done" | "failed";
+  extractionError: string | null;
+};
 type Point = { id: string; targetText: string; nativeText: string | null };
-type ComposeJob = { status: "pending" | "running" | "done" | "failed" | "cancelled"; quizId: string | null };
+type ComposeJob = {
+  status: "pending" | "running" | "done" | "failed" | "cancelled";
+  quizId: string | null;
+};
 
 const POINTS: Variants = {
   hidden: {},
@@ -46,11 +68,24 @@ const POINT: Variants = {
 };
 
 /** The notes being read, with a highlighter band sweeping down them until they are done. */
-function NotesUnderReview({ photos, text, reading }: { photos: Photo[]; text: string; reading: boolean }) {
+function NotesUnderReview({
+  photos,
+  text,
+  reading,
+}: {
+  photos: Photo[];
+  text: string;
+  reading: boolean;
+}) {
   return (
     <div className="relative overflow-hidden rounded-2xl border border-border/75 bg-card shadow-[0_18px_40px_-18px_rgb(var(--shadow-colour)/0.28)]">
       {photos.length > 0 ? (
-        <div className={cn("grid gap-1 p-1", photos.length > 1 && "grid-cols-2 sm:grid-cols-3")}>
+        <div
+          className={cn(
+            "grid gap-1 p-1",
+            photos.length > 1 && "grid-cols-2 sm:grid-cols-3",
+          )}
+        >
           {photos.map((photo) => (
             <img
               key={photo.url}
@@ -77,7 +112,12 @@ function NotesUnderReview({ photos, text, reading }: { photos: Photo[]; text: st
             animate={{ top: ["-20%", "100%"], opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{
-              top: { duration: 2.2, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.25 },
+              top: {
+                duration: 2.2,
+                ease: "easeInOut",
+                repeat: Infinity,
+                repeatDelay: 0.25,
+              },
               opacity: { duration: 0.3 },
             }}
           />
@@ -105,7 +145,10 @@ function PaperBeingWritten() {
             <div key={width + index} className="flex items-center gap-3">
               <span className="size-3.5 shrink-0 rounded-full border border-foreground/30" />
               <motion.span
-                className={cn("h-1.5 origin-left rounded-full bg-primary/35", width)}
+                className={cn(
+                  "h-1.5 origin-left rounded-full bg-primary/35",
+                  width,
+                )}
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: [0, 1, 1, 0] }}
                 transition={{
@@ -143,7 +186,7 @@ export function NotesStep({
   const router = useRouter();
   const queryClient = useQueryClient();
   const { data: session } = useSession();
-  const [mode, setMode] = useState<Mode>("photo");
+  const [mode, setMode] = useState<Mode>("text");
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [text, setText] = useState("");
   const [dragActive, setDragActive] = useState(false);
@@ -164,7 +207,11 @@ export function NotesStep({
   useEffect(() => {
     photosRef.current = photos;
   }, [photos]);
-  useEffect(() => () => photosRef.current.forEach((photo) => URL.revokeObjectURL(photo.url)), []);
+  useEffect(
+    () => () =>
+      photosRef.current.forEach((photo) => URL.revokeObjectURL(photo.url)),
+    [],
+  );
 
   // Poll until every upload is read, then pull the points it added.
   useEffect(() => {
@@ -179,8 +226,17 @@ export function NotesStep({
       if (stopped || !data) {
         return;
       }
-      const mine = data.uploads.filter((upload) => uploadIds.includes(upload.id));
-      if (mine.length === 0 || mine.some((upload) => upload.extractionStatus === "pending" || upload.extractionStatus === "running")) {
+      const mine = data.uploads.filter((upload) =>
+        uploadIds.includes(upload.id),
+      );
+      if (
+        mine.length === 0 ||
+        mine.some(
+          (upload) =>
+            upload.extractionStatus === "pending" ||
+            upload.extractionStatus === "running",
+        )
+      ) {
         return;
       }
       if (mine.every((upload) => upload.extractionStatus === "failed")) {
@@ -189,7 +245,9 @@ export function NotesStep({
         return;
       }
       const bank = await api
-        .get<{ knowledgePoints: Point[] }>(`/api/classrooms/${classroomId}/knowledge-points`)
+        .get<{ knowledgePoints: Point[] }>(
+          `/api/classrooms/${classroomId}/knowledge-points`,
+        )
         .catch(() => null);
       if (stopped) {
         return;
@@ -218,8 +276,14 @@ export function NotesStep({
           if (job.status === "done" && job.quizId) {
             clearInterval(interval);
             void queryClient.invalidateQueries({ queryKey: keys.classrooms });
-            router.push(`/classrooms/${classroomId}/quizzes/${job.quizId}/take`);
-          } else if (job.status === "failed" || job.status === "cancelled" || job.status === "done") {
+            router.push(
+              `/classrooms/${classroomId}/quizzes/${job.quizId}/take`,
+            );
+          } else if (
+            job.status === "failed" ||
+            job.status === "cancelled" ||
+            job.status === "done"
+          ) {
             clearInterval(interval);
             setComposeError(true);
             setPhase("done");
@@ -230,12 +294,14 @@ export function NotesStep({
     return () => clearInterval(interval);
   }, [phase, classroomId, jobId, queryClient, router]);
 
-  // The quiz is written from here, so a guest gets one too; the classroom hub only offers it to accounts.
+  // Write the first review here so both guests and accounts can try their notes immediately.
   const makeQuiz = async () => {
     setComposeError(false);
     setPhase("composing");
     try {
-      const created = await api.post<{ jobId: string | null }>(`/api/classrooms/${classroomId}/quizzes`);
+      const created = await api.post<{ jobId: string | null }>(
+        `/api/classrooms/${classroomId}/quizzes`,
+      );
       if (!created.jobId) {
         throw new Error("No compose job");
       }
@@ -284,11 +350,14 @@ export function NotesStep({
     try {
       let id = classroomId;
       if (!id) {
-        const created = await api.post<{ classroom: { id: string } }>("/api/classrooms", {
-          name: t("classroomName", { language: languageName }),
-          targetLanguage,
-          nativeLanguage,
-        });
+        const created = await api.post<{ classroom: { id: string } }>(
+          "/api/classrooms",
+          {
+            name: t("classroomName", { language: languageName }),
+            targetLanguage,
+            nativeLanguage,
+          },
+        );
         id = created.classroom.id;
         setClassroomId(id);
         await markOnboarded(session, queryClient);
@@ -308,7 +377,10 @@ export function NotesStep({
         for (const photo of photos) {
           formData.append("files", photo.file);
         }
-        response = await fetch(`/api/classrooms/${id}/uploads`, { method: "POST", body: formData });
+        response = await fetch(`/api/classrooms/${id}/uploads`, {
+          method: "POST",
+          body: formData,
+        });
       }
       if (!response.ok) {
         throw new Error((await readError(response)) ?? tCommon("genericError"));
@@ -318,12 +390,21 @@ export function NotesStep({
       setSlow(false);
       setPhase("reading");
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : tCommon("genericError"));
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : tCommon("genericError"),
+      );
       setPhase("form");
     }
   };
 
-  if (phase === "reading" || phase === "done" || phase === "failed" || phase === "composing") {
+  if (
+    phase === "reading" ||
+    phase === "done" ||
+    phase === "failed" ||
+    phase === "composing"
+  ) {
     const reading = phase === "reading";
     const composing = phase === "composing";
     return (
@@ -366,7 +447,11 @@ export function NotesStep({
           {composing ? (
             <PaperBeingWritten />
           ) : (
-            <NotesUnderReview photos={photos} text={text.trim()} reading={reading} />
+            <NotesUnderReview
+              photos={photos}
+              text={text.trim()}
+              reading={reading}
+            />
           )}
         </div>
 
@@ -389,16 +474,24 @@ export function NotesStep({
                 variants={POINT}
                 className="rounded-lg border border-primary/20 bg-primary/[0.06] px-3 py-1.5 text-sm shadow-sm"
               >
-                <span lang={targetLanguage} className="font-heading font-semibold">
+                <span
+                  lang={targetLanguage}
+                  className="font-heading font-semibold"
+                >
                   {point.targetText}
                 </span>
                 {point.nativeText ? (
-                  <span className="ml-1.5 text-muted-foreground">{point.nativeText}</span>
+                  <span className="ml-1.5 text-muted-foreground">
+                    {point.nativeText}
+                  </span>
                 ) : null}
               </motion.li>
             ))}
             {points.length > POINTS_SHOWN ? (
-              <motion.li variants={POINT} className="px-2 py-1.5 text-sm text-muted-foreground">
+              <motion.li
+                variants={POINT}
+                className="px-2 py-1.5 text-sm text-muted-foreground"
+              >
                 +{points.length - POINTS_SHOWN}
               </motion.li>
             ) : null}
@@ -441,7 +534,12 @@ export function NotesStep({
             <motion.div
               initial={{ opacity: 0, scale: 0.94 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ type: "spring", stiffness: 380, damping: 22, delay: 0.5 }}
+              transition={{
+                type: "spring",
+                stiffness: 380,
+                damping: 22,
+                delay: 0.5,
+              }}
             >
               <Button
                 size="lg"
@@ -460,12 +558,19 @@ export function NotesStep({
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, type: "spring", stiffness: 260, damping: 26 }}
+            transition={{
+              delay: 0.8,
+              type: "spring",
+              stiffness: 260,
+              damping: 26,
+            }}
             className="mt-10 flex flex-col items-start justify-between gap-3 rounded-2xl border border-primary/25 bg-primary/[0.06] p-4 sm:flex-row sm:items-center sm:px-5"
           >
             <div>
               <p className="text-sm font-semibold">{t("guestTitle")}</p>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("guestBlurb")}</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                {t("guestBlurb")}
+              </p>
             </div>
             <Button asChild size="sm" className="shrink-0">
               <a href="/signup">
@@ -488,11 +593,16 @@ export function NotesStep({
         <h1 className="mt-3 font-heading text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
           {t("title")}
         </h1>
-        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">{t("blurb")}</p>
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+          {t("blurb")}
+        </p>
       </div>
 
-      <div className="mx-auto mt-8 flex w-fit rounded-xl border border-border/75 bg-muted/40 p-1" role="tablist">
-        {(["photo", "text"] as const).map((entry) => (
+      <div
+        className="mx-auto mt-8 flex w-fit rounded-xl border border-border/75 bg-muted/40 p-1"
+        role="tablist"
+      >
+        {(["text", "photo"] as const).map((entry) => (
           <button
             key={entry}
             type="button"
@@ -504,7 +614,9 @@ export function NotesStep({
             }}
             className={cn(
               "relative flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm font-medium transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
-              mode === entry ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+              mode === entry
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
             {mode === entry ? (
@@ -515,7 +627,11 @@ export function NotesStep({
               />
             ) : null}
             <span className="relative flex items-center gap-2">
-              {entry === "photo" ? <Camera className="size-4" /> : <FileText className="size-4" />}
+              {entry === "photo" ? (
+                <Camera className="size-4" />
+              ) : (
+                <FileText className="size-4" />
+              )}
               {entry === "photo" ? t("photoTab") : t("textTab")}
             </span>
           </button>
@@ -533,7 +649,12 @@ export function NotesStep({
               transition={{ duration: 0.2 }}
             >
               {photos.length > 0 ? (
-                <ul className={cn("grid gap-2", photos.length > 1 ? "grid-cols-2 sm:grid-cols-3" : "")}>
+                <ul
+                  className={cn(
+                    "grid gap-2",
+                    photos.length > 1 ? "grid-cols-2 sm:grid-cols-3" : "",
+                  )}
+                >
                   <AnimatePresence initial={false}>
                     {photos.map((photo) => (
                       <motion.li
@@ -542,13 +663,20 @@ export function NotesStep({
                         initial={{ opacity: 0, scale: 0.9, rotate: -3 }}
                         animate={{ opacity: 1, scale: 1, rotate: 0 }}
                         exit={{ opacity: 0, scale: 0.9 }}
-                        transition={{ type: "spring", stiffness: 360, damping: 26 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 360,
+                          damping: 26,
+                        }}
                         className="group relative overflow-hidden rounded-2xl border border-border/75 bg-card"
                       >
                         <img
                           src={photo.url}
                           alt={photo.file.name}
-                          className={cn("w-full object-cover", photos.length > 1 ? "aspect-square" : "max-h-80")}
+                          className={cn(
+                            "w-full object-cover",
+                            photos.length > 1 ? "aspect-square" : "max-h-80",
+                          )}
                         />
                         <button
                           type="button"
@@ -586,13 +714,21 @@ export function NotesStep({
                   }}
                   onDragOver={(event) => event.preventDefault()}
                   onDragLeave={(event) => {
-                    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                    if (
+                      !event.currentTarget.contains(
+                        event.relatedTarget as Node | null,
+                      )
+                    ) {
                       setDragActive(false);
                     }
                   }}
                   onDrop={onDrop}
                   animate={dragActive ? { scale: [1, 1.015, 1] } : { scale: 1 }}
-                  transition={dragActive ? { duration: 1.2, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
+                  transition={
+                    dragActive
+                      ? { duration: 1.2, repeat: Infinity, ease: "easeInOut" }
+                      : { duration: 0.2 }
+                  }
                   className={cn(
                     "grid min-h-64 w-full place-items-center rounded-2xl border-2 border-dashed p-6 text-center transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
                     dragActive
@@ -607,8 +743,12 @@ export function NotesStep({
                     >
                       <Camera className="size-6" strokeWidth={1.6} />
                     </motion.span>
-                    <span className="mt-4 block font-heading text-lg font-semibold">{t("dropTitle")}</span>
-                    <span className="mt-1 block text-sm text-muted-foreground">{t("dropCopy")}</span>
+                    <span className="mt-4 block font-heading text-lg font-semibold">
+                      {t("dropTitle")}
+                    </span>
+                    <span className="mt-1 block text-sm text-muted-foreground">
+                      {t("dropCopy")}
+                    </span>
                     <span className="mt-3 block text-xs text-muted-foreground/80">
                       {t("photoLimit", { max: maxPhotos })}
                     </span>
@@ -682,10 +822,17 @@ export function NotesStep({
             <ArrowLeft />
           </Button>
         )}
-        <Button type="submit" size="lg" disabled={saving} className="group min-w-44">
+        <Button
+          type="submit"
+          size="lg"
+          disabled={saving}
+          className="group min-w-44"
+        >
           {saving ? <Loader2 className="animate-spin" /> : null}
           {saving ? t("submitting") : t("submit")}
-          {!saving ? <ArrowRight className="transition-transform group-hover:translate-x-0.5" /> : null}
+          {!saving ? (
+            <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
+          ) : null}
         </Button>
       </div>
     </form>

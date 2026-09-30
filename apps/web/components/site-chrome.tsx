@@ -3,6 +3,7 @@ import Link from "next/link";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@tmr/ui/components/button";
+import { CtaIcon } from "@tmr/ui/components/cta-icon";
 import { Toaster } from "@tmr/ui/components/sonner";
 import {
   Avatar,
@@ -35,9 +36,9 @@ export async function SiteChrome({ children }: { children: ReactNode }) {
     <ThemeProvider>
       <NextIntlClientProvider>
         <header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/72">
-          <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-            <BrandMark />
-            <div className="flex items-center gap-2 text-sm">
+          <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4 sm:gap-4 sm:px-6 lg:px-8">
+            <BrandMark className="shrink-0" />
+            <div className="flex items-center gap-2 text-sm max-[360px]:gap-1 max-[360px]:[&_select]:max-w-[4.5rem] max-[360px]:[&_select]:px-1.5">
               {user ? (
                 <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
                   <a href="/classrooms">{t("classrooms")}</a>
@@ -91,8 +92,11 @@ export async function SiteChrome({ children }: { children: ReactNode }) {
                   <Link className="hidden text-muted-foreground hover:text-foreground sm:inline" href="/signin">
                     {t("signIn")}
                   </Link>
-                  <Button asChild size="sm">
-                    <Link href="/signup">{t("createAccount")}</Link>
+                  <Button asChild size="sm" className="max-[360px]:px-2 max-[360px]:text-xs">
+                    <Link href="/signup">
+                      <CtaIcon kind="signup" className="max-[360px]:size-4" />
+                      {t("createAccount")}
+                    </Link>
                   </Button>
                 </>
               )}

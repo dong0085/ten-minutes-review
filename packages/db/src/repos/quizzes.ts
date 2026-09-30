@@ -58,7 +58,10 @@ export async function createQuizWithQuestions(db: Db, input: NewQuizInput) {
         isNull(classrooms.pausedAt),
       ];
       if (input.dailySendAt) {
-        const encodedSendAt = sql.param(input.dailySendAt, classrooms.createdAt);
+        const encodedSendAt = sql.param(
+          input.dailySendAt,
+          classrooms.createdAt,
+        );
         conditions.push(
           sql`COALESCE(${classrooms.dailyResumedAt}, ${classrooms.createdAt}) < ${encodedSendAt}`,
         );
@@ -123,7 +126,11 @@ export async function getQuizForUser(db: Db, userId: string, quizId: string) {
   return quiz ?? null;
 }
 
-export async function hasDeletedDailyQuiz(db: Db, classroomId: string, quizDate: string) {
+export async function hasDeletedDailyQuiz(
+  db: Db,
+  classroomId: string,
+  quizDate: string,
+) {
   const [row] = await db
     .select({ id: deletedDailyQuizzes.id })
     .from(deletedDailyQuizzes)
@@ -137,7 +144,11 @@ export async function hasDeletedDailyQuiz(db: Db, classroomId: string, quizDate:
   return row !== undefined;
 }
 
-export async function deleteQuizForUser(db: Db, userId: string, quizId: string) {
+export async function deleteQuizForUser(
+  db: Db,
+  userId: string,
+  quizId: string,
+) {
   const quiz = await getQuizForUser(db, userId, quizId);
   if (!quiz) {
     return false;
@@ -160,7 +171,11 @@ export async function deleteQuizForUser(db: Db, userId: string, quizId: string) 
   return true;
 }
 
-export async function getQuizWithQuestionsForUser(db: Db, userId: string, quizId: string) {
+export async function getQuizWithQuestionsForUser(
+  db: Db,
+  userId: string,
+  quizId: string,
+) {
   const quiz = await getQuizForUser(db, userId, quizId);
   if (!quiz) {
     return null;
@@ -190,7 +205,9 @@ export async function listQuizzesForClassroom(
     })
     .from(quizzes)
     .leftJoin(attempts, eq(attempts.quizId, quizzes.id))
-    .where(and(eq(quizzes.classroomId, classroomId), eq(quizzes.userId, userId)))
+    .where(
+      and(eq(quizzes.classroomId, classroomId), eq(quizzes.userId, userId)),
+    )
     .groupBy(quizzes.id)
     .orderBy(desc(quizzes.composedAt));
 }
@@ -211,10 +228,7 @@ export async function listUntakenOnDemandQuizzes(
     .from(quizzes)
     .leftJoin(attempts, eq(attempts.quizId, quizzes.id))
     .where(
-      and(
-        eq(quizzes.classroomId, classroomId),
-        eq(quizzes.kind, "manual"),
-      ),
+      and(eq(quizzes.classroomId, classroomId), eq(quizzes.kind, "manual")),
     )
     .groupBy(quizzes.id)
     .having(sql`count(${attempts.id}) = 0`)
@@ -308,7 +322,11 @@ export async function createAttemptWithAnswers(db: Db, input: NewAttemptInput) {
   });
 }
 
-export async function getAttemptForUser(db: Db, userId: string, attemptId: string) {
+export async function getAttemptForUser(
+  db: Db,
+  userId: string,
+  attemptId: string,
+) {
   const [attempt] = await db
     .select()
     .from(attempts)
@@ -333,7 +351,11 @@ export type ReviewAnswer = {
   explanation: string;
 };
 
-export async function getAttemptReview(db: Db, userId: string, attemptId: string) {
+export async function getAttemptReview(
+  db: Db,
+  userId: string,
+  attemptId: string,
+) {
   const attempt = await getAttemptForUser(db, userId, attemptId);
   if (!attempt) {
     return null;
@@ -356,7 +378,10 @@ export async function getAttemptReview(db: Db, userId: string, attemptId: string
     })
     .from(attemptAnswers)
     .innerJoin(questions, eq(attemptAnswers.questionId, questions.id))
-    .leftJoin(knowledgePoints, eq(questions.knowledgePointId, knowledgePoints.id))
+    .leftJoin(
+      knowledgePoints,
+      eq(questions.knowledgePointId, knowledgePoints.id),
+    )
     .where(eq(attemptAnswers.attemptId, attemptId))
     .orderBy(asc(questions.position));
   return { attempt, answers: rows as ReviewAnswer[] };
@@ -398,7 +423,10 @@ export async function getExamReviewInput(db: Db, attemptId: string) {
     })
     .from(attemptAnswers)
     .innerJoin(questions, eq(attemptAnswers.questionId, questions.id))
-    .leftJoin(knowledgePoints, eq(questions.knowledgePointId, knowledgePoints.id))
+    .leftJoin(
+      knowledgePoints,
+      eq(questions.knowledgePointId, knowledgePoints.id),
+    )
     .where(eq(attemptAnswers.attemptId, attemptId))
     .orderBy(asc(questions.position));
   return { ...head, answers };
@@ -416,12 +444,47 @@ export async function saveAttemptReview(
     .where(eq(attempts.id, attemptId));
 }
 
-export async function listAttemptsForQuiz(db: Db, userId: string, quizId: string) {
+export async function listAttemptsForQuiz(
+  db: Db,
+  userId: string,
+  quizId: string,
+) {
   return db
     .select()
     .from(attempts)
     .where(and(eq(attempts.quizId, quizId), eq(attempts.userId, userId)))
     .orderBy(desc(attempts.submittedAt));
+}
+
+/** The most recent short review submitted today, including on-demand practice. */
+export async function getLatestReviewForClassroomOnDate(
+  db: Db,
+  userId: string,
+  classroomId: string,
+  date: string,
+  timezone: string,
+) {
+  const [review] = await db
+    .select({
+      attemptId: attempts.id,
+      quizId: quizzes.id,
+      correctCount: attempts.correctCount,
+      questionCount: attempts.questionCount,
+    })
+    .from(attempts)
+    .innerJoin(quizzes, eq(attempts.quizId, quizzes.id))
+    .where(
+      and(
+        eq(attempts.userId, userId),
+        eq(quizzes.userId, userId),
+        eq(quizzes.classroomId, classroomId),
+        sql`${quizzes.kind} IN ('daily', 'manual')`,
+        sql`(${attempts.submittedAt} AT TIME ZONE ${timezone})::date = ${date}::date`,
+      ),
+    )
+    .orderBy(desc(attempts.submittedAt))
+    .limit(1);
+  return review ?? null;
 }
 
 export async function countAttemptsForQuizOnDate(

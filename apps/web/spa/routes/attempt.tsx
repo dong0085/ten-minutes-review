@@ -6,6 +6,7 @@ import { Button } from "@tmr/ui/components/button";
 import { Card, CardContent } from "@tmr/ui/components/card";
 import { ExamReviewPanel } from "@/spa/components/quiz/exam-review";
 import { QuestionReviewCard } from "@/spa/components/quiz/question-review";
+import { LessonSources } from "@/spa/components/lesson-sources";
 import { FullPageSpinner } from "@/spa/app/shell";
 import { isNotFound } from "@/spa/lib/api";
 import { formatQuizDate } from "@/spa/lib/format";
@@ -37,28 +38,46 @@ export function AttemptPage() {
   }
   const { attempt } = review;
   const scorePercent =
-    attempt.questionCount > 0 ? Math.round((attempt.correctCount / attempt.questionCount) * 100) : 0;
-  const scoreTone = scorePercent >= 80 ? "success" : scorePercent >= 50 ? "warning" : "destructive";
+    attempt.questionCount > 0
+      ? Math.round((attempt.correctCount / attempt.questionCount) * 100)
+      : 0;
+  const scoreTone =
+    scorePercent >= 80
+      ? "success"
+      : scorePercent >= 50
+        ? "warning"
+        : "destructive";
   const totalSeconds = Math.round(attempt.durationMs / 1000);
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   const duration =
-    minutes > 0 ? t("durationMinutes", { minutes, seconds }) : t("durationSeconds", { seconds });
+    minutes > 0
+      ? t("durationMinutes", { minutes, seconds })
+      : t("durationSeconds", { seconds });
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <Card className="relative overflow-hidden border-primary/15 bg-primary/[0.04]">
-        <div aria-hidden="true" className="absolute inset-x-10 top-0 h-px bg-primary/30" />
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-10 top-0 h-px bg-primary/30"
+        />
         <CardContent className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
+            <p className="eyebrow mb-2">{t("completed")}</p>
             <div className="flex items-center gap-3">
               <h1 className="font-heading text-3xl font-semibold tracking-[-0.025em]">
-                {t("correct", { correct: attempt.correctCount, total: attempt.questionCount })}
+                {t("correct", {
+                  correct: attempt.correctCount,
+                  total: attempt.questionCount,
+                })}
               </h1>
               <Badge variant={scoreTone}>{scorePercent}%</Badge>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              {quizData ? `${formatQuizDate(quizData.quiz.quizDate, locale)} · ` : null}
+              {quizData
+                ? `${formatQuizDate(quizData.quiz.quizDate, locale)} · `
+                : null}
               {duration} ·{" "}
               {t("submitted", {
                 when: format.dateTime(new Date(attempt.submittedAt), {
@@ -67,17 +86,25 @@ export function AttemptPage() {
                 }),
               })}
             </p>
+            <p className="mt-2 max-w-lg text-sm text-muted-foreground">
+              {t("completedBlurb")}
+            </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button asChild variant="outline">
-              <Link to={`/classrooms/${id}/quizzes/${quizId}/take`}>{t("retake")}</Link>
+              <Link to={`/classrooms/${id}/quizzes/${quizId}/take`}>
+                {t("retake")}
+              </Link>
             </Button>
-            <Button asChild variant="outline">
-              <Link to={`/classrooms/${id}?create=1`}>{t("createAnother")}</Link>
+            <Button asChild>
+              <Link to={`/classrooms/${id}`}>{t("finish")}</Link>
             </Button>
           </div>
         </CardContent>
       </Card>
+      {quizData ? (
+        <LessonSources classroomId={id} sources={quizData.quiz.sources} />
+      ) : null}
       {quizData?.quiz.kind === "exam" ? (
         <ExamReviewPanel
           attemptId={attemptId}
@@ -100,8 +127,13 @@ export function AttemptPage() {
             </span>
           </h2>
           {part.questions.map(({ question: answer, number }) => (
-            <div key={answer.questionId} id={`question-${number}`} className="scroll-mt-6">
+            <div
+              key={answer.questionId}
+              id={`question-${number}`}
+              className="scroll-mt-6"
+            >
               <QuestionReviewCard
+                classroomId={id}
                 question={{
                   position: number,
                   category: answer.category,

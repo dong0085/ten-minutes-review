@@ -4,6 +4,7 @@ import { useTranslations } from "use-intl";
 import { Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@tmr/ui/components/avatar";
 import { Button } from "@tmr/ui/components/button";
+import { CtaIcon } from "@tmr/ui/components/cta-icon";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -79,7 +80,10 @@ function TopBar() {
                 {t("signIn")}
               </a>
               <Button asChild size="sm">
-                <a href="/signup">{t("createAccount")}</a>
+                <a href="/signup">
+                  <CtaIcon kind="signup" />
+                  {t("createAccount")}
+                </a>
               </Button>
             </>
           )}

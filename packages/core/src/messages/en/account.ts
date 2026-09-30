@@ -3,7 +3,8 @@ export const account = {
   title: "Account",
   classroomsSection: "Classrooms",
   quizHistorySection: "Quiz history",
-  quizHistoryMore: "Showing your {count} most recent quizzes. Open a classroom to see all of its quizzes.",
+  quizHistoryMore:
+    "Showing your {count} most recent quizzes. Open a classroom to see all of its quizzes.",
   copyLink: "Copy link",
   linkCopied: "Copied",
   referralsSection: "Referrals",
@@ -22,16 +23,20 @@ export const account = {
   exportButton: "Export JSON",
   free: "Free",
   pro: "Pro",
-  planFreeBlurb: "3 classrooms and 1 notes upload a week. Pro lets you add notes after every lesson and edit your question bank, for $2.99/month.",
-  planProBlurb: "Add notes after every lesson, open as many classrooms as you like, and edit every knowledge point yourself.",
+  planFreeBlurb:
+    "3 classrooms and 1 notes upload a week. Pro lets you add notes after every lesson and edit your question bank, for $2.99/month.",
+  planProBlurb:
+    "Add notes after every lesson, open as many classrooms as you like, and edit every knowledge point yourself.",
   renewsOn: "Renews {date}",
   endsOn: "Ends {date}",
-  paymentIssue: "Your last payment didn't go through. Update your card to keep Pro.",
+  paymentIssue:
+    "Your last payment didn't go through. Update your card to keep Pro.",
   upgrade: "Upgrade to Pro",
   manageBilling: "Manage billing",
   openingBilling: "Opening Stripe…",
   billingError: "Could not open billing. Please try again.",
-  billingSuccess: "Thanks for subscribing! Your plan updates within a few seconds.",
+  billingSuccess:
+    "Thanks for subscribing! Your plan updates within a few seconds.",
   signedInAs: "Signed in as {email}",
   greeting: "Hi, {name}",
   Pages: {
@@ -61,7 +66,8 @@ export const account = {
   Postcard: {
     kicker: "Airmail",
     title: "Invite a friend",
-    earned: "{count, plural, =0 {No free months earned yet} one {# free month earned} other {# free months earned}}",
+    earned:
+      "{count, plural, =0 {No free months earned yet} one {# free month earned} other {# free months earned}}",
     code: "Code",
     to: "To",
     friend: "a friend who is learning a language",
@@ -97,7 +103,8 @@ export const account = {
   EmailPreferencesForm: {
     kicker: "Delivery",
     title: "Daily quiz email",
-    blurb: "Every morning we send a fresh quiz from your active classrooms.",
+    blurb:
+      "A short review from your active classrooms, ready between language lessons. Your next delivery time is shown below.",
     savingShort: "Saving…",
     onBlurb: "On. The next quiz arrives at the time on the postmark.",
     offBlurb: "Off. Quizzes still appear in your classrooms.",
@@ -110,17 +117,19 @@ export const account = {
     error: "Could not save your preferences.",
   },
   Stats: {
-    kicker: "Report card",
-    title: "How you're doing",
-    emptyTitle: "Your report card is still blank",
-    activeDaysTally: "{count, plural, =0 {Days studied in the last 30} one {# day studied in the last 30} other {# days studied in the last 30}}",
+    kicker: "Between lessons",
+    title: "Your practice so far",
+    emptyTitle: "Your first review starts with a lesson",
+    activeDaysTally:
+      "{count, plural, =0 {Days studied in the last 30} one {# day studied in the last 30} other {# days studied in the last 30}}",
     noActiveDays: "No study days in the last 30. Today is a good day to start.",
     trendTitle: "Score trend",
     trendEmpty: "Take two quizzes to draw your trend.",
     bankTitle: "Knowledge bank",
-    bankTotal: "{total, plural, one {# knowledge point} other {# knowledge points}}",
-    bankSolid: "Solid (right twice or more)",
-    bankLearning: "Still learning",
+    bankTotal:
+      "{total, plural, one {# knowledge point} other {# knowledge points}}",
+    bankSolid: "Answered right at least twice",
+    bankLearning: "Practised, worth revisiting",
     bankUnseen: "Not practiced yet",
     bankEmpty: "Add notes to fill your bank.",
     focusHere: "Focus here",
@@ -134,11 +143,13 @@ export const account = {
     notPracticed: "Not practiced yet: {categories}",
     recentMisses: "Recent misses",
     trend: "Last {count} attempts",
-    empty: "Take a quiz to see your activity and learning stats here.",
+    empty:
+      "Add your lesson notes and try a short review. Your practice and points to revisit will appear here.",
     goToClassrooms: "Go to classrooms",
   },
   Security: {
-    methods: "{count, plural, =0 {No sign-in methods} one {# way to sign in} other {# ways to sign in}}",
+    methods:
+      "{count, plural, =0 {No sign-in methods} one {# way to sign in} other {# ways to sign in}}",
     passwordOn: "Password is set",
     passwordOff: "No password yet",
     keyringKicker: "Key ring",
@@ -165,7 +176,8 @@ export const account = {
     unlinkGoogle: "Unlink",
     unlinking: "Unlinking…",
     unlinkNeedsPassword: "Set a password above before unlinking Google.",
-    linkErrorEmail: "That Google account uses a different email address than your account.",
+    linkErrorEmail:
+      "That Google account uses a different email address than your account.",
     linkErrorSession: "Your session changed. Please try linking again.",
   },
   ApiTokens: {

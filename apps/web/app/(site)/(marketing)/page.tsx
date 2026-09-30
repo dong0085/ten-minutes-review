@@ -13,8 +13,20 @@ import {
   Pause,
   Sparkles,
 } from "lucide-react";
-import { CN, ES, FR, GB, IN, JP, KR, PT, RU, VN } from "country-flag-icons/react/3x2";
+import {
+  CN,
+  ES,
+  FR,
+  GB,
+  IN,
+  JP,
+  KR,
+  PT,
+  RU,
+  VN,
+} from "country-flag-icons/react/3x2";
 import { Button } from "@tmr/ui/components/button";
+import { CtaIcon } from "@tmr/ui/components/cta-icon";
 import { Reveal } from "@/components/reveal";
 import { QuizFormCards } from "@/components/quiz-form-cards";
 import { env } from "@/lib/env";
@@ -89,9 +101,24 @@ export default async function HomePage() {
     ],
   };
   const steps = [
-    { icon: FileText, number: "01", title: t("steps.addTitle"), copy: t("steps.addCopy") },
-    { icon: Sparkles, number: "02", title: t("steps.shapeTitle"), copy: t("steps.shapeCopy") },
-    { icon: Clock3, number: "03", title: t("steps.reviewTitle"), copy: t("steps.reviewCopy") },
+    {
+      icon: FileText,
+      number: "01",
+      title: t("steps.addTitle"),
+      copy: t("steps.addCopy"),
+    },
+    {
+      icon: Sparkles,
+      number: "02",
+      title: t("steps.shapeTitle"),
+      copy: t("steps.shapeCopy"),
+    },
+    {
+      icon: Clock3,
+      number: "03",
+      title: t("steps.reviewTitle"),
+      copy: t("steps.reviewCopy"),
+    },
   ];
   // Signed-in learners upgrade from the plan page; everyone else signs up first.
   const plans = [
@@ -99,7 +126,12 @@ export default async function HomePage() {
       name: t("pricing.freeName"),
       price: t("pricing.freePrice"),
       blurb: t("pricing.freeBlurb"),
-      features: [t("pricing.free1"), t("pricing.free2"), t("pricing.free3"), t("pricing.free4")],
+      features: [
+        t("pricing.free1"),
+        t("pricing.free2"),
+        t("pricing.free3"),
+        t("pricing.free4"),
+      ],
       cta: t("pricing.freeCta"),
       href: user ? "/classrooms" : "/signup",
       featured: false,
@@ -108,7 +140,12 @@ export default async function HomePage() {
       name: t("pricing.proName"),
       price: t("pricing.proPrice"),
       blurb: t("pricing.proBlurb"),
-      features: [t("pricing.pro1"), t("pricing.pro2"), t("pricing.pro3"), t("pricing.pro4")],
+      features: [
+        t("pricing.pro1"),
+        t("pricing.pro2"),
+        t("pricing.pro3"),
+        t("pricing.pro4"),
+      ],
       cta: t("pricing.proCta"),
       href: user && !user.isGuest ? "/account/plan" : "/signup",
       featured: true,
@@ -141,9 +178,11 @@ export default async function HomePage() {
       <section className="section-band band-dots relative grid min-h-[34rem] items-center gap-12 py-8 lg:grid-cols-[1.02fr_0.98fr] lg:gap-16 lg:py-14">
         <Reveal className="relative z-10 max-w-2xl">
           <p className="eyebrow">{t("eyebrow")}</p>
-          <h1 className="mt-5 max-w-3xl font-heading text-5xl leading-[0.98] font-semibold tracking-[-0.045em] text-balance sm:text-6xl lg:text-[4.6rem]">
+          <h1 className="mt-5 max-w-3xl font-heading text-4xl leading-[0.98] font-semibold tracking-[-0.045em] text-balance sm:text-6xl lg:text-[4rem]">
             {t.rich("title", {
-              highlight: (chunks) => <span className="marker-swipe">{chunks}</span>,
+              highlight: (chunks) => (
+                <span className="marker-swipe">{chunks}</span>
+              ),
             })}
           </h1>
           <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
@@ -166,35 +205,50 @@ export default async function HomePage() {
                   </a>
                 </Button>
                 <Button asChild size="lg" variant="outline">
-                  <Link href="/signup">{t("createAccount")}</Link>
+                  <Link href="/signup">
+                    <CtaIcon kind="signup" />
+                    {t("createAccount")}
+                  </Link>
                 </Button>
                 <Button asChild size="lg" variant="ghost">
-                  <Link href="/signin">{t("signIn")}</Link>
+                  <Link href="#how-it-works">{t("howItWorksKicker")}</Link>
                 </Button>
               </>
             )}
           </div>
+          {!user ? (
+            <p className="mt-3 text-xs leading-5 text-muted-foreground">
+              {t("trialHint")}
+            </p>
+          ) : null}
           <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium text-muted-foreground">
-            {[t("proof.handwriting"), t("proof.fresh"), t("proof.tenMinutes")].map(
-              (item, index) => (
-                <li
-                  key={item}
-                  className={`flex items-center gap-1.5 ${
-                    index === 1 ? "-rotate-1 rounded-full bg-primary/[0.07] px-2.5 py-1" : ""
-                  }`}
-                >
-                  <Check className="size-3.5 text-primary" strokeWidth={2} />
-                  {item}
-                </li>
-              ),
-            )}
+            {[
+              t("proof.handwriting"),
+              t("proof.fresh"),
+              t("proof.tenMinutes"),
+            ].map((item, index) => (
+              <li
+                key={item}
+                className={`flex items-center gap-1.5 ${
+                  index === 1
+                    ? "-rotate-1 rounded-full bg-primary/[0.07] px-2.5 py-1"
+                    : ""
+                }`}
+              >
+                <Check className="size-3.5 text-primary" strokeWidth={2} />
+                {item}
+              </li>
+            ))}
           </ul>
         </Reveal>
 
-        <Reveal delay={150} className="relative mx-auto w-full max-w-[34rem] lg:mx-0">
+        <Reveal
+          delay={150}
+          className="relative mx-auto w-full max-w-[34rem] lg:mx-0"
+        >
           <div
             aria-hidden="true"
-            className="absolute -inset-8 -z-10 rounded-full bg-primary/[0.07] blur-3xl"
+            className="absolute inset-0 -z-10 rounded-full bg-primary/[0.07] blur-3xl sm:-inset-8"
           />
           <div className="editorial-surface paper-lines relative overflow-hidden rounded-[2rem] p-4 sm:p-6">
             <div className="mb-5 flex items-center justify-between border-b border-border/70 pb-4">
@@ -211,13 +265,20 @@ export default async function HomePage() {
 
             <div className="relative ml-1 max-w-[88%] -rotate-[1.4deg] rounded-xl border border-border bg-card px-4 py-4 shadow-[0_10px_32px_rgb(var(--shadow-colour)/0.08)] sm:px-5">
               <div className="flex items-center justify-between gap-4">
-                <span className="text-xs font-semibold">{t("preview.notes")}</span>
-                <span className="text-[0.65rem] text-muted-foreground">{t("preview.session")}</span>
+                <span className="text-xs font-semibold">
+                  {t("preview.notes")}
+                </span>
+                <span className="text-[0.65rem] text-muted-foreground">
+                  {t("preview.session")}
+                </span>
               </div>
               <div className="mt-3 space-y-2 font-heading text-[0.96rem] italic text-foreground/82">
                 <p>prendre soin de — to take care of</p>
                 <p>la confiance — confidence</p>
                 <p>il faut + infinitif</p>
+                <p className="border-t border-border/60 pt-2 text-sm">
+                  {t("preview.passage")}
+                </p>
               </div>
             </div>
 
@@ -227,7 +288,9 @@ export default async function HomePage() {
                   <p className="text-[0.65rem] font-semibold tracking-[0.16em] text-primary uppercase">
                     {t("preview.quiz")}
                   </p>
-                  <p className="mt-1 text-xs text-muted-foreground">{t("preview.question")}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {t("preview.question")}
+                  </p>
                 </div>
                 <span className="rounded-full bg-success/10 px-2.5 py-1 text-[0.65rem] font-semibold text-success">
                   {t("preview.ready")}
@@ -244,41 +307,34 @@ export default async function HomePage() {
               </div>
             </div>
           </div>
+          <ol
+            aria-label={t("preview.week.label")}
+            className="mt-5 grid grid-cols-2 gap-3"
+          >
+            {(["lesson", "first", "later", "next"] as const).map(
+              (step, index) => (
+                <li
+                  key={step}
+                  className="rounded-xl border border-border/60 bg-card/60 px-3 py-3"
+                >
+                  <span className="text-xs font-medium text-primary">
+                    {String(index + 1).padStart(2, "0")} ·{" "}
+                    {t(`preview.week.${step}`)}
+                  </span>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {t(`preview.week.${step}Copy`)}
+                  </p>
+                </li>
+              ),
+            )}
+          </ol>
         </Reveal>
       </section>
 
-      <section className="section-band band-airmail py-12 sm:py-14">
-        <Reveal className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-16">
-          <div>
-            <p className="eyebrow">{t("languagesKicker")}</p>
-            <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground">
-              {t("languagesCopy")}
-            </p>
-          </div>
-          <ul className="flex flex-wrap gap-2.5">
-            {GREETINGS.map(({ code, hello, Flag }, index) => (
-              <li
-                key={code}
-                lang={code}
-                className={`flex items-center gap-2 rounded-full border border-border/80 bg-card/70 px-3.5 py-1.5 ${
-                  index % 3 === 1 ? "-rotate-1" : index % 3 === 2 ? "rotate-1" : ""
-                }`}
-              >
-                <Flag
-                  aria-hidden="true"
-                  className="h-3 w-[1.125rem] shrink-0 rounded-[2px] shadow-[0_0_0_0.5px_rgb(0_0_0/0.15)]"
-                />
-                <span className="font-heading text-base font-semibold">{hello}</span>
-                <span className="text-[0.7rem] text-muted-foreground">
-                  {languageLabel(code, locale)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </Reveal>
-      </section>
-
-      <section id="how-it-works" className="section-band band-graph py-16 sm:py-20">
+      <section
+        id="how-it-works"
+        className="section-band band-graph py-16 sm:py-20"
+      >
         <Reveal className="max-w-2xl">
           <p className="eyebrow">{t("howItWorksKicker")}</p>
           <h2 className="mt-3 font-heading text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
@@ -295,14 +351,29 @@ export default async function HomePage() {
             >
               <div className="flex items-center justify-between">
                 <span className="grid size-10 place-items-center rounded-xl bg-primary/[0.08] text-primary transition-transform duration-200 group-hover:-translate-y-0.5">
-                  <Icon className="size-4.5" />
+                  {index < 2 ? (
+                    <CtaIcon
+                      kind={index === 0 ? "notes" : "generate"}
+                      className="size-6 text-foreground"
+                    />
+                  ) : (
+                    <Icon className="size-4.5" />
+                  )}
                 </span>
-                <span className="font-heading text-sm italic text-muted-foreground/65">{number}</span>
+                <span className="font-heading text-sm italic text-muted-foreground/65">
+                  {number}
+                </span>
               </div>
               <h3 className="mt-7 font-heading text-xl font-semibold">
-                {index === 1 ? <span className="marker-note">{title}</span> : title}
+                {index === 1 ? (
+                  <span className="marker-note">{title}</span>
+                ) : (
+                  title
+                )}
               </h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">{copy}</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                {copy}
+              </p>
             </Reveal>
           ))}
         </div>
@@ -313,7 +384,9 @@ export default async function HomePage() {
           <BookOpenCheck className="size-5 text-primary" />
           <h2 className="mt-5 font-heading text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
             {t.rich("categoriesTitle", {
-              highlight: (chunks) => <span className="marker-loop">{chunks}</span>,
+              highlight: (chunks) => (
+                <span className="marker-loop">{chunks}</span>
+              ),
             })}
           </h2>
           <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground">
@@ -344,11 +417,52 @@ export default async function HomePage() {
               >
                 <Icon className="size-4.5" />
               </span>
-              <h3 className="mt-5 font-heading text-xl font-semibold">{title}</h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">{copy}</p>
+              <h3 className="mt-5 font-heading text-xl font-semibold">
+                {title}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                {copy}
+              </p>
             </Reveal>
           ))}
         </div>
+      </section>
+
+      <section className="section-band band-airmail py-12 sm:py-14">
+        <Reveal className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-16">
+          <div>
+            <p className="eyebrow">{t("languagesKicker")}</p>
+            <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground">
+              {t("languagesCopy")}
+            </p>
+          </div>
+          <ul className="flex flex-wrap gap-2.5">
+            {GREETINGS.map(({ code, hello, Flag }, index) => (
+              <li
+                key={code}
+                lang={code}
+                className={`flex items-center gap-2 rounded-full border border-border/80 bg-card/70 px-3.5 py-1.5 ${
+                  index % 3 === 1
+                    ? "-rotate-1"
+                    : index % 3 === 2
+                      ? "rotate-1"
+                      : ""
+                }`}
+              >
+                <Flag
+                  aria-hidden="true"
+                  className="h-3 w-[1.125rem] shrink-0 rounded-[2px] shadow-[0_0_0_0.5px_rgb(0_0_0/0.15)]"
+                />
+                <span className="font-heading text-base font-semibold">
+                  {hello}
+                </span>
+                <span className="text-[0.7rem] text-muted-foreground">
+                  {languageLabel(code, locale)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Reveal>
       </section>
 
       {env.billingEnabled ? (
@@ -371,15 +485,23 @@ export default async function HomePage() {
                     : "flex flex-col rounded-2xl border border-border/70 bg-card/95 p-6 sm:p-8"
                 }
               >
-                <h3 className="font-heading text-xl font-semibold">{plan.name}</h3>
+                <h3 className="font-heading text-xl font-semibold">
+                  {plan.name}
+                </h3>
                 <p className="mt-3 flex items-baseline gap-1">
                   <span className="font-heading text-4xl font-semibold tracking-[-0.03em] tabular-nums">
                     {plan.price}
                   </span>
-                  <span className="text-sm text-muted-foreground">{t("pricing.perMonth")}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t("pricing.perMonth")}
+                  </span>
                 </p>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  {plan.featured ? <span className="marker-note">{plan.blurb}</span> : plan.blurb}
+                  {plan.featured ? (
+                    <span className="marker-note">{plan.blurb}</span>
+                  ) : (
+                    plan.blurb
+                  )}
                 </p>
                 <ul className="mt-6 flex-1 space-y-3 text-sm">
                   {plan.features.map((feature) => (
@@ -396,8 +518,9 @@ export default async function HomePage() {
                   className="mt-8 self-start"
                 >
                   <a href={plan.href}>
+                    {plan.featured ? <CtaIcon kind="pro" /> : null}
                     {plan.cta}
-                    <ArrowRight />
+                    {plan.featured ? null : <ArrowRight />}
                   </a>
                 </Button>
               </Reveal>
@@ -411,17 +534,23 @@ export default async function HomePage() {
         className="relative isolate overflow-hidden rounded-[2rem] border border-primary/15 bg-primary/[0.075] px-6 py-12 text-center sm:px-10 sm:py-16"
       >
         <div aria-hidden="true" className="cta-rays absolute inset-0 -z-10" />
-        <div aria-hidden="true" className="absolute inset-x-16 top-0 h-px bg-primary/25" />
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-16 top-0 h-px bg-primary/25"
+        />
         <p className="eyebrow">{t("closingKicker")}</p>
         <h2 className="mx-auto mt-4 max-w-2xl font-heading text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
           {t.rich("closingTitle", {
-            highlight: (chunks) => <span className="marker-swipe marker-swipe-alt">{chunks}</span>,
+            highlight: (chunks) => (
+              <span className="marker-swipe marker-swipe-alt">{chunks}</span>
+            ),
           })}
         </h2>
         <Button asChild size="lg" className="mt-7">
-          <a href={user ? "/classrooms" : "/signup"}>
-            {user ? t("goToClassrooms") : t("createAccount")}
-            <ArrowRight />
+          <a href={user ? "/classrooms" : "/classrooms/start"}>
+            {!user ? <CtaIcon kind="signup" /> : null}
+            {user ? t("goToClassrooms") : t("tryAsGuest")}
+            {user ? <ArrowRight /> : null}
           </a>
         </Button>
       </Reveal>

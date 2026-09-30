@@ -1,7 +1,8 @@
 import { Link, useParams } from "react-router";
 import { useFormatter, useTranslations } from "use-intl";
-import { ChevronRight, FileText, Image as ImageIcon, NotebookPen } from "lucide-react";
+import { ChevronRight, FileText, Image as ImageIcon } from "lucide-react";
 import { Button } from "@tmr/ui/components/button";
+import { CtaIcon } from "@tmr/ui/components/cta-icon";
 import { Card, CardContent } from "@tmr/ui/components/card";
 import {
   Empty,
@@ -38,7 +39,10 @@ export function NotesPage() {
         description={t("blurb")}
         actions={
           <Button asChild>
-            <Link to={`/classrooms/${id}/notes/new`}>{t("addNotes")}</Link>
+            <Link to={`/classrooms/${id}/notes/new`}>
+              <CtaIcon kind="notes" />
+              {t("addNotes")}
+            </Link>
           </Button>
         }
       />
@@ -48,14 +52,17 @@ export function NotesPage() {
             <Empty>
               <EmptyHeader>
                 <EmptyMedia variant="icon">
-                  <NotebookPen />
+                  <CtaIcon kind="notes" className="size-6" />
                 </EmptyMedia>
                 <EmptyTitle>{t("title")}</EmptyTitle>
                 <EmptyDescription>{t("empty")}</EmptyDescription>
               </EmptyHeader>
               <EmptyContent>
                 <Button asChild variant="outline" size="sm">
-                  <Link to={`/classrooms/${id}/notes/new`}>{t("addNotes")}</Link>
+                  <Link to={`/classrooms/${id}/notes/new`}>
+                    <CtaIcon kind="notes" />
+                    {t("addNotes")}
+                  </Link>
                 </Button>
               </EmptyContent>
             </Empty>

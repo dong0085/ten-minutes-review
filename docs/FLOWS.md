@@ -28,12 +28,11 @@ Google or email plus password. Forgot-password sends a reset link. After sign-in
 
 **Shown when:** a visitor, guest, or new account owns no classrooms and has not finished or skipped onboarding. The landing page's "Try it" button opens it at `/classrooms/start`, and the classroom list sends such users there. Accounts created before onboarding existed count as onboarded.
 
-A full-screen guide in four steps, with a three-part progress line and "Skip for now" in the header:
+A full-screen welcome followed by two steps, with a two-part progress line and "Skip for now" in the header:
 
-1. **Welcome** — one line on the product and the three steps ahead.
-2. **Language** — eleven cards, each greeting in its own script; the chosen one flies into the header as a chip. "I speak" defaults to the interface language.
-3. **How it works** — a sample paper in the chosen language, built into the app and never stored. A coach card walks through seven stops (the paper header, each of the three parts, the submit bar, the red-pen marks, the score) with Back, Next, and "Skip this part". A sample student fills in the answers as the tour goes, gets the last one wrong, and the paper is handed in and comes back marked, exactly as a real quiz does.
-4. **Your notes** — a photo (one for a guest) or pasted text, with sample notes in the language for someone without any at hand. Submitting creates the classroom ("My Spanish"), uploads the notes, shows them being read, then the points found. "Make my first quiz" writes an on-demand quiz and opens it in the runner. Guests see a prompt to create an account.
+1. **Welcome** — explain reviewing between language lessons: choose a language, add lesson notes, then keep practising before the next lesson.
+2. **Language** — eleven cards, each greeting in its own script; the chosen one flies into the header as a chip. "I speak" defaults to the interface language. Continue goes directly to notes. A secondary "See how a review works" action opens the existing seven-stop sample-paper tour; finishing it also goes to notes.
+3. **Your notes** — pasted text by default, or a photo (one for a guest), with sample notes in the chosen language when no notes are at hand. Submitting creates the classroom ("My Spanish"), uploads the notes, shows them being read, then the points found. "Start my first review" writes an on-demand quiz and opens it in the runner. Guests can practise now and create an account to retain notes and receive daily emails.
 
 Skipping, or creating the classroom, marks onboarding done: on the account for a signed-in user, in the browser for a visitor.
 
@@ -59,9 +58,11 @@ The default screen once a classroom exists. It answers one question — what do 
 
 - **Header** — the classroom name, its language pair, and its status stamp (Active, Dormant, Paused).
 - **Today's quiz** — take the daily quiz, or create one on demand. While a quiz is being written, the card shows live progress with Minimize and Cancel; when it is ready, it offers Take quiz. Progress comes back for up to an hour after the request when the user leaves and returns. With an empty bank the button explains what to add first.
+- **Today's completion** — after any short daily or on-demand review submitted today in the learner's timezone, the card shows "You've reviewed today", links to that attempt, and keeps extra practice secondary. An empty bank offers Add notes; pending notes explain preparation. Guests also have this review action, with a separate account prompt for saving and daily delivery.
 - **Add notes** — the primary action; opens the Add notes screen.
 - **On-demand cards** — each on-demand quiz from the last 24 hours gets its own card, up to three, newest first: when it was made and its size, with Take quiz, or once taken its best score and Review. A quiz that finishes while the user is away shows up here.
 - **Unfinished** — up to three older on-demand quizzes not taken yet, each one tap from the quiz runner.
+- **Before the next lesson** — an optional on-demand review from the same classroom, shown below the main content links when the bank has points. It uses the existing quiz composition and does not require a lesson date.
 - **In this classroom** — one row per deeper screen, each with a count:
   - **Notes** — uploads so far and when the last one arrived, plus a badge while notes are being read.
   - **Question bank** — knowledge points currently in quizzes.
@@ -86,6 +87,7 @@ Shown while `extraction_status` is `pending` or `running`.
 - A short line: the notes are being read.
 - The user can leave, close the tab, or upload more. Extraction continues in the worker.
 - On completion the bank summary updates and a count appears: how many points were added, and how many lines were skipped.
+- When new practice points are ready, show examples from the uploaded notes, with links to their details, and offer practice now or a look at the bank.
 - The skipped count is shown, not hidden. It reassures the user that `au bibeau` was ignored on purpose.
 
 On failure the upload shows an error with a retry action. The uploaded material is never lost.
@@ -142,6 +144,7 @@ After submit, the same sheet drops back down graded, with the marks written on i
 - **Deductions** — each wrong question shows the points lost (−2, −3) under its cross.
 - **Per question:** a tick or a cross beside the question, the correct option or True/False circled, a wrong choice struck through, the correct fill-in written under the blank, and a one-sentence explanation of why. Wrong answers are marked plainly, without scolding.
 - **Retake** — starts a fresh attempt on the same quiz. The previous attempt stays in history.
+- **Finish** — returns to the classroom and is the primary completion action. Retakes and extra practice stay optional. Each graded question links to its knowledge point and original note context. The saved attempt review also lists the uploads used in the quiz.
 - Every attempt is kept, so the same quiz can show three attempts with three scores.
 
 ## 12. Quizzes

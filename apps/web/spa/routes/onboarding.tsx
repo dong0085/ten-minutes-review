@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { Navigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { AnimatePresence, LayoutGroup, motion, type Variants } from "motion/react";
+import {
+  AnimatePresence,
+  LayoutGroup,
+  motion,
+  type Variants,
+} from "motion/react";
 import { useLocale, useTranslations } from "use-intl";
 import { isLanguageCode, type LanguageCode } from "@tmr/core";
 import { Button } from "@tmr/ui/components/button";
@@ -24,7 +29,11 @@ type Step = (typeof STEPS)[number];
 // Screens slide in from the side they come from, so Back feels like turning back a page.
 const SCREEN: Variants = {
   enter: (direction: number) => ({ opacity: 0, x: direction * 28 }),
-  shown: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 260, damping: 30 } },
+  shown: {
+    opacity: 1,
+    x: 0,
+    transition: { type: "spring", stiffness: 260, damping: 30 },
+  },
   leave: (direction: number) => ({
     opacity: 0,
     x: direction * -28,
@@ -42,7 +51,9 @@ export function OnboardingPage() {
   const { data: classroomList, isPending } = useClassrooms(Boolean(session));
   const [step, setStep] = useState<Step>("welcome");
   const [direction, setDirection] = useState(1);
-  const [targetLanguage, setTargetLanguage] = useState<LanguageCode | null>(null);
+  const [targetLanguage, setTargetLanguage] = useState<LanguageCode | null>(
+    null,
+  );
   const [nativeLanguage, setNativeLanguage] = useState<string>(() => {
     const preferred = session?.user.uiLanguage ?? locale;
     return isLanguageCode(preferred) ? preferred : "en";
@@ -56,7 +67,10 @@ export function OnboardingPage() {
   }
   // The guided start is for someone with nothing yet; everyone else lands on their classrooms.
   // The notes step creates the classroom, so it keeps the screen until it hands off.
-  if (step !== "notes" && !needsOnboarding(session, classroomList?.classrooms.length ?? 0)) {
+  if (
+    step !== "notes" &&
+    !needsOnboarding(session, classroomList?.classrooms.length ?? 0)
+  ) {
     return <Navigate to="/classrooms" replace />;
   }
 
@@ -71,7 +85,9 @@ export function OnboardingPage() {
     router.push("/classrooms");
   };
 
-  const languageName = targetLanguage ? languageLabel(targetLanguage, locale) : "";
+  const languageName = targetLanguage
+    ? languageLabel(targetLanguage, locale)
+    : "";
 
   return (
     <LayoutGroup>
@@ -80,9 +96,9 @@ export function OnboardingPage() {
           <BrandMark />
           <div className="min-w-0 flex-1">
             <StepRail
-              current={Math.max(0, STEPS.indexOf(step) - 1)}
+              current={step === "notes" ? 1 : 0}
               started={step !== "welcome"}
-              labels={[t("steps.language"), t("steps.tour"), t("steps.notes")]}
+              labels={[t("steps.language"), t("steps.notes")]}
             />
           </div>
           {committed && targetLanguage ? (
@@ -117,7 +133,9 @@ export function OnboardingPage() {
               exit="leave"
               className="flex flex-1 flex-col"
             >
-              {step === "welcome" ? <WelcomeStep onStart={() => go("language")} /> : null}
+              {step === "welcome" ? (
+                <WelcomeStep onStart={() => go("language")} />
+              ) : null}
               {step === "language" ? (
                 <LanguageStep
                   targetLanguage={targetLanguage}
@@ -129,6 +147,10 @@ export function OnboardingPage() {
                   }}
                   onNativeChange={setNativeLanguage}
                   onContinue={() => {
+                    setCommitted(true);
+                    go("notes");
+                  }}
+                  onExample={() => {
                     setCommitted(true);
                     go("tour");
                   }}
@@ -148,7 +170,7 @@ export function OnboardingPage() {
                   nativeLanguage={nativeLanguage}
                   languageName={languageName}
                   signedIn={signedIn}
-                  onBack={() => go("tour")}
+                  onBack={() => go("language")}
                 />
               ) : null}
             </motion.div>

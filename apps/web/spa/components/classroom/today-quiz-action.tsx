@@ -4,7 +4,9 @@ import { useRouter } from "@/spa/lib/router";
 import { useTranslations } from "use-intl";
 import { ArrowRight, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@tmr/ui/components/button";
+import { CtaIcon } from "@tmr/ui/components/cta-icon";
 import type { QuizJob } from "./use-quiz-job";
+import type { ClassroomOverview } from "@/spa/lib/queries";
 
 /**
  * Today's quiz, plus a button to write one on demand. The new quiz is written
@@ -15,6 +17,9 @@ export function TodayQuizAction({
   classroomId,
   dailyQuizId,
   bankSize,
+  pendingUploads,
+  latestReview,
+  minutes,
   paused,
   autoStart = false,
   job,
@@ -25,6 +30,9 @@ export function TodayQuizAction({
   classroomId: string;
   dailyQuizId: string | null;
   bankSize: number;
+  pendingUploads: number;
+  latestReview: ClassroomOverview["latestReview"];
+  minutes: number;
   paused: boolean;
   autoStart?: boolean;
   job: QuizJob;
@@ -33,6 +41,7 @@ export function TodayQuizAction({
   resetTomorrow: boolean;
 }) {
   const t = useTranslations("Classroom.TodayQuiz");
+  const tLength = useTranslations("Classroom.QuizLength");
   const router = useRouter();
   const autoStartedRef = useRef(false);
   const { start } = job;
@@ -53,7 +62,7 @@ export function TodayQuizAction({
 
   const createButton = (
     <Button
-      variant={dailyQuizId ? "outline" : "default"}
+      variant={dailyQuizId || latestReview ? "outline" : "default"}
       onClick={() => void start()}
       disabled={job.busy}
     >
@@ -64,8 +73,8 @@ export function TodayQuizAction({
         </>
       ) : (
         <>
+          <CtaIcon kind="generate" />
           {t("createNow")}
-          {dailyQuizId ? null : <ArrowRight />}
         </>
       )}
     </Button>
@@ -80,18 +89,34 @@ export function TodayQuizAction({
             {t("kicker")}
           </p>
           <h2 className="mt-2 font-heading text-3xl font-semibold tracking-[-0.03em]">
-            {t("title")}
+            {latestReview ? t("completedTitle") : t("title")}
           </h2>
         </div>
-        <span aria-hidden="true" className="font-heading text-4xl font-semibold italic text-primary/25">
-          10′
+        <span
+          aria-hidden="true"
+          className="font-heading text-4xl font-semibold italic text-primary/25"
+        >
+          {minutes}′
         </span>
       </div>
       <div>
         <p className="max-w-md text-sm leading-6 text-muted-foreground">
-          {paused ? t("paused") : dailyQuizId ? t("ready") : t("idle")}
+          {latestReview
+            ? t("completedBlurb")
+            : paused
+              ? t("paused")
+              : dailyQuizId
+                ? t("ready")
+                : bankSize === 0
+                  ? t(pendingUploads > 0 ? "processing" : "empty")
+                  : t("idle")}
         </p>
-        {!paused ? (
+        {!latestReview && bankSize > 0 ? (
+          <p className="mt-1 text-xs text-muted-foreground">
+            {tLength("minutes", { minutes })}
+          </p>
+        ) : null}
+        {!paused && bankSize > 0 ? (
           <p className="mt-1 text-xs text-muted-foreground/80">
             {resetTomorrow
               ? t("resetAtTomorrow", { local: resetLocal, utc: resetUtc })
@@ -100,10 +125,24 @@ export function TodayQuizAction({
         ) : null}
       </div>
       <div>
-        {dailyQuizId ? (
+        {latestReview ? (
           <div className="flex flex-wrap items-center gap-2">
             <Button asChild>
-              <Link to={`/classrooms/${classroomId}/quizzes/${dailyQuizId}/take`}>
+              <Link
+                to={`/classrooms/${classroomId}/quizzes/${latestReview.quizId}/attempts/${latestReview.attemptId}`}
+              >
+                <CtaIcon kind="review" />
+                {t("reviewResults")}
+              </Link>
+            </Button>
+            {createButton}
+          </div>
+        ) : dailyQuizId ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <Button asChild>
+              <Link
+                to={`/classrooms/${classroomId}/quizzes/${dailyQuizId}/take`}
+              >
                 {t("takeToday")}
                 <ArrowRight />
               </Link>
@@ -111,18 +150,19 @@ export function TodayQuizAction({
             {createButton}
           </div>
         ) : bankSize === 0 ? (
-          <div className="space-y-2">
-            <Button disabled>{t("createNow")}</Button>
-            <p className="text-xs text-muted-foreground">
-              <Link
-                className="underline hover:text-foreground"
-                to={`/classrooms/${classroomId}/notes/new`}
-              >
+          pendingUploads > 0 ? (
+            <Button disabled>
+              <Loader2 className="animate-spin" />
+              {t("writingTitle")}
+            </Button>
+          ) : (
+            <Button asChild>
+              <Link to={`/classrooms/${classroomId}/notes/new`}>
+                <CtaIcon kind="notes" />
                 {t("addNotes")}
-              </Link>{" "}
-              {t("addNotesSuffix")}
-            </p>
-          </div>
+              </Link>
+            </Button>
+          )
         ) : (
           createButton
         )}

@@ -15,20 +15,22 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     addNotes: "Ajouter des notes",
   },
   TodayQuiz: {
-    kicker: "Dix minutes pour réviser",
-    title: "Le quiz du jour",
-    ready: "Ton quiz du jour est prêt.",
-    idle: "Crée-le maintenant ou attends ton e-mail du matin.",
+    kicker: "Entre deux cours",
+    title: "La révision du jour",
+    ready:
+      "Révise tes notes de cours, avec des notions plus anciennes et des erreurs récentes.",
+    idle: "Ta prochaine révision quotidienne arrive le matin. Tu peux aussi pratiquer maintenant.",
     paused:
       "Les révisions quotidiennes sont en pause. Tu peux toujours créer un quiz quand tu le souhaites.",
-    resetAt: "Réinitialisation à {local} ({utc} UTC)",
-    resetAtTomorrow: "Réinitialisation demain à {local} ({utc} UTC)",
-    takeToday: "Faire le quiz du jour",
-    createNow: "Créer un quiz maintenant",
+    resetAt: "Prochaine révision : {local} ({utc} UTC)",
+    resetAtTomorrow: "Prochaine révision : demain à {local} ({utc} UTC)",
+    takeToday: "Commencer la révision du jour",
+    createNow: "Pratiquer maintenant",
     addNotes: "Ajoute des notes",
     addNotesSuffix: "pour créer un quiz.",
     writingTitle: "Rédaction du quiz…",
-    writingHint: "Environ une minute. Tu peux quitter cette page ; il apparaîtra ici.",
+    writingHint:
+      "Environ une minute. Tu peux quitter cette page ; il apparaîtra ici.",
     stepQueued: "En attente",
     stepWriting: "Préparation de ton quiz",
     hintLonger: "Cela prend un peu plus de temps que d'habitude.",
@@ -36,12 +38,22 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     stoppedTitle: "Arrêté",
     stoppedBlurb: "Aucun quiz n'a été créé. Tu peux recommencer quand tu veux.",
     failedTitle: "Impossible de créer le quiz.",
-    failedBlurb: "Une erreur est survenue pendant la rédaction. Réessaie dans un instant.",
+    failedBlurb:
+      "Une erreur est survenue pendant la rédaction. Réessaie dans un instant.",
     tryAgain: "Réessayer",
+    completedTitle: "Tu as révisé aujourd’hui",
+    completedBlurb:
+      "Tu peux t’arrêter ici pour aujourd’hui. Revois les explications ou pratique encore si tu le souhaites.",
+    reviewResults: "Voir ma révision",
+    processing:
+      "Nous préparons les exercices à partir de tes notes. Tu peux revenir quand ils seront prêts.",
+    empty:
+      "Commence par les notes de ton dernier cours. Colle le résumé de ton tuteur ou photographie une page.",
   },
   NewForm: {
     pageTitle: "Nouvelle classe",
-    pageBlurb: "Une classe contient tes notes, sa banque de questions et un quiz quotidien.",
+    pageBlurb:
+      "Garde les notes d’un même cours ici. Ajoute-les après chaque séance pour nourrir tes révisions quotidiennes.",
     name: "Nom",
     namePlaceholder: "Français avec Marie",
     learning: "J'apprends",
@@ -66,7 +78,7 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
   },
   QuizLength: {
     title: "Durée des quiz",
-    help: "Ajuste la durée des prochains quiz. Les questions de vocabulaire sont plus rapides, donc un quiz riche en vocabulaire peut compter davantage de questions.",
+    help: "Choisis une durée adaptée à ton rythme entre deux cours. La durée standard est d’environ dix minutes ; ton choix s’applique aux nouveaux quiz.",
     levelMuchShorter: "Très court",
     levelShorter: "Court",
     levelStandard: "Standard",
@@ -78,7 +90,7 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
   DailyReviews: {
     title: "Révisions quotidiennes",
     activeExplanation:
-      "Besoin d'une pause ? Mets en pause les quiz planifiés et les e-mails sans perdre tes notes ni ton historique.",
+      "Tu fais une pause dans tes cours ? Suspends les révisions et les e-mails. Tes notes et tes réponses seront là à ton retour.",
     pausedExplanation:
       "Les quiz planifiés et les e-mails sont en pause. Reprends quand tu veux ; la prochaine révision arrivera au prochain horaire d'envoi prévu.",
     pause: "Mettre les révisions en pause",
@@ -94,7 +106,8 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     title: "Archiver ou supprimer",
     blurb:
       "Archiver masque la classe et arrête ses e-mails. Supprimer efface tout ce qu'elle contient.",
-    archiveConfirm: "Archiver cette classe ? Les e-mails s'arrêtent et elle quitte ta liste.",
+    archiveConfirm:
+      "Archiver cette classe ? Les e-mails s'arrêtent et elle quitte ta liste.",
     deleteConfirm:
       "Supprimer cette classe ? Ses notes, sa banque de questions et ses quiz seront perdus. Cette action est irréversible.",
     archive: "Archiver la classe",
@@ -107,7 +120,8 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
   BankSummary: {
     kicker: "Ton contenu",
     title: "Banque de questions",
-    empty: "Aucune notion pour le moment. Ajoute des notes pour construire la banque.",
+    empty:
+      "Aucune notion pour le moment. Ajoute des notes pour construire la banque.",
     total:
       "{count, plural, one {# notion prête} other {# notions prêtes}} pour les prochains quiz.",
     manage: "Gérer la banque",
@@ -115,7 +129,8 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
   ListPage: {
     kicker: "Tes espaces d'apprentissage",
     title: "Classes",
-    blurb: "Chaque classe rassemble un fil de notes, de questions et de révisions quotidiennes.",
+    blurb:
+      "Choisis une classe pour la révision du jour. Ajoute les nouvelles notes à cette même classe après chaque cours.",
     activeSummary: "{active} sur {total} actives",
     activeCount: "{active} actives",
     activeHint:
@@ -124,15 +139,16 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
       "Forfait gratuit : {used} sur {limit, plural, one {# ajout de notes} other {# ajouts de notes}} cette semaine, toutes classes confondues. Avec Pro, ajoute tes notes après chaque cours.",
     newClassroom: "Nouvelle classe",
     proBadge: "Pro",
-    lockedLabel: "Nouvelle classe (limite du forfait gratuit atteinte, Pro requis)",
+    lockedLabel:
+      "Nouvelle classe (limite du forfait gratuit atteinte, Pro requis)",
     lockedTitle: "Tu as atteint la limite de 3 classes",
     lockedBody:
       "Le forfait gratuit comprend 3 classes et 1 ajout de notes par semaine. Pro lève ces deux limites et te laisse modifier ta banque de questions, pour 2,99 $/mois.",
     lockedClose: "Plus tard",
     emptyKicker: "Commence par un cours",
-    emptyTitle: "Tes notes deviennent un quiz de dix minutes",
+    emptyTitle: "Commence à réviser ton dernier cours",
     emptyBlurb:
-      "Crée une classe, colle ou photographie tes notes de cours, et chaque matin tu reçois un petit quiz tiré de ce que tu as étudié : vocabulaire, expressions, grammaire, idées et compréhension.",
+      "Crée une classe pour ton cours de langue, puis colle le résumé de ton tuteur ou photographie tes notes. Ta première révision commence là.",
     create: "Créer une classe",
   },
   Layout: {
@@ -149,13 +165,14 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     guestDailyQuizKicker: "Chaque matin",
     pinboardKicker: "Épinglé",
     logbookKicker: "Carnet de bord",
-    addNotesTitle: "Ajouter des notes",
+    addNotesTitle: "Après ton prochain cours",
     addNotesBlurb:
       "Colle tes notes ou ajoute des photos de tes notes manuscrites. Les nouvelles notions rejoignent la banque de questions.",
     addNotes: "Ajouter des notes",
     recentUploads: "Dernières notes ajoutées",
     viewHistory: "Voir l'historique",
-    noUploads: "Rien pour le moment. Ajoute tes premières notes pour commencer.",
+    noUploads:
+      "Rien pour le moment. Ajoute tes premières notes pour commencer.",
     textNotes: "Notes texte",
     imageNotes: "Notes en photo",
     text: "Texte",
@@ -169,7 +186,7 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     questions: "{count, plural, one {# question} other {# questions}}",
     take: "Faire",
     best: "Meilleur : {score} / {size}",
-    unfinished: "Inachevés",
+    unfinished: "Exercices à reprendre si tu le souhaites",
     unfinishedBlurb: "Des quiz que tu as créés mais pas encore faits.",
     recentMade: "Créé {when}",
     recentReady: "Prêt quand tu veux",
@@ -177,33 +194,42 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     guestBanner:
       "Tu explores en mode aperçu. Les notes et classes sont temporaires tant que tu ne crées pas de compte.",
     guestBannerAction: "S'inscrire pour enregistrer",
-    guestDailyQuizTitle: "Des quiz quotidiens livrés dans ta boîte de réception",
+    guestDailyQuizTitle:
+      "Des quiz quotidiens livrés dans ta boîte de réception",
     guestDailyQuizBlurb:
       "Chaque matin à 7 h (heure de l'Est), tu recevras un quiz de dix minutes basé sur ces notes. Inscris-toi pour activer les e-mails quotidiens de cette classe.",
     guestDailyQuizCta: "S'inscrire pour recevoir les quiz",
+      beforeLessonTitle: "Avant ton prochain cours",
+    beforeLessonCopy: "Envie de revoir les notions avant le cours ? Révise les notes de cette classe, avec des notions plus anciennes et des erreurs récentes.",
+    beforeLessonAction: "Réviser avant mon cours",
   },
   HistoryPage: {
-    title: "Historique des notes",
-    blurb: "Tout ce que tu as ajouté à cette classe, du plus récent au plus ancien.",
+    title: "Notes de cours",
+    blurb:
+      "Tes notes de cours originales, des ajouts les plus récents aux plus anciens. Ouvre une page pour retrouver le contexte.",
     addNotes: "Ajouter des notes",
-    empty: "Aucune note pour le moment. Ajoute tes premières notes et elles apparaîtront ici.",
+    empty:
+      "Aucune note pour le moment. Ajoute tes premières notes et elles apparaîtront ici.",
     textNotes: "Notes texte",
     image: "Image",
     imageAlt: "Note importée",
-    linesSkipped: "{count, plural, one {# ligne ignorée} other {# lignes ignorées}}",
+    linesSkipped:
+      "{count, plural, one {# ligne ignorée} other {# lignes ignorées}}",
     skippedDetail:
       "L'extraction a ignoré {count, plural, one {# ligne} other {# lignes}}.",
     statusProcessed: "Traité",
     statusFailed: "Échec",
     statusReading: "Traitement en cours",
     statusQueued: "En attente de traitement",
+    uploadedOn: "Ajouté le {date}",
+    practise: "Réviser cette classe",
   },
   BankPage: {
     title: "Banque de questions",
     blurb:
-      "Toutes les notions tirées de tes notes. Corrige une formulation ou écarte ce que tu maîtrises déjà pour ne plus le retrouver dans les prochains quiz.",
+      "Les mots, expressions et règles repérés dans tes cours. Ouvre une notion pour voir sa source et tes réponses, ou ajuster les prochaines révisions.",
     blurbFree:
-      "Toutes les notions tirées de tes notes. Passe à Pro pour corriger une formulation ou écarter ce que tu maîtrises déjà.",
+      "Les mots, expressions et règles repérés dans tes cours. Ouvre une notion pour voir sa source et tes réponses. Pro permet de modifier le contenu des prochaines révisions.",
     proBadge: "Pro",
     proTitle: "Ta banque, à ta façon, avec Pro",
     proBody:
@@ -249,15 +275,19 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     saveError: "Impossible d'enregistrer tes changements.",
     targetRequired: "Saisis le mot ou l'expression.",
     showMore: "Afficher {count} de plus",
+    openSource: "Ouvrir les notes de cours originales",
   },
   MistakeBook: {
     title: "Carnet d'erreurs",
-    blurb: "Chaque question ratée en quiz ou en examen ces {days} derniers jours, de la plus ancienne à la plus récente. Réponds juste et elle quitte le carnet ; rate-la de nouveau et elle revient.",
+    blurb:
+      "Chaque question ratée en quiz ou en examen ces {days} derniers jours, de la plus ancienne à la plus récente. Réponds juste et elle quitte le carnet ; rate-la de nouveau et elle revient.",
     progress: "{done} sur {total} corrigées",
     emptyTitle: "Rien à corriger",
-    emptyBlurb: "Aucune erreur ouverte sur les {days} derniers jours. Fais un quiz : ce que tu rates arrivera ici.",
+    emptyBlurb:
+      "Aucune erreur ouverte sur les {days} derniers jours. Fais un quiz : ce que tu rates arrivera ici.",
     allDoneTitle: "Tout est corrigé",
-    allDoneBlurb: "Toutes les erreurs du carnet sont corrigées. Les nouvelles arriveront après ton prochain quiz.",
+    allDoneBlurb:
+      "Tu as revu toutes les questions ici. Tu peux t’arrêter ; de nouvelles erreurs pourront apparaître après les prochaines révisions.",
     source: "{date} · {kind}",
     kindDaily: "Quiz du jour",
     kindManual: "Quiz",
@@ -271,8 +301,10 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     stillWrong: "Pas encore. Lis la note, puis réessaie.",
     checkError: "Impossible de vérifier cette réponse.",
     proTitle: "Le carnet d'erreurs fait partie de Pro",
-    proBlurb: "Pro garde un carnet glissant de {days} jours avec chaque question ratée, pour les corriger une à une.",
+    proBlurb:
+      "Pro garde un carnet glissant de {days} jours avec chaque question ratée, pour les corriger une à une.",
     upgrade: "Passer à Pro",
+    finish: "Terminer cette révision",
   },
   Tutor: {
     hint: "Un indice",
@@ -290,12 +322,12 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     askAgain: "Redemander",
   },
   ExamCard: {
-    kicker: "Examen",
+    kicker: "Un bilan plus long",
     lockedTitle: "Ajoute encore quelques notions pour débloquer l'examen",
     lockedBlurb:
       "Avec {required} notions, tu pourras passer un examen de {count} questions noté sur 100.",
     progress: "{count} notions sur {required}",
-    readyTitle: "Ta banque est prête pour un examen",
+    readyTitle: "Fais le point sur ce que tu retiens",
     readyBlurb:
       "{count} questions couvrant toute la banque, notées sur 100, pour environ {minutes} minutes. Les notions récemment manquées sont prioritaires.",
     start: "Commencer un examen",
@@ -316,8 +348,9 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
   QuizzesPage: {
     title: "Quiz",
     blurb:
-      "Un quiz quotidien chaque matin, plus ceux que tu crées à la demande. Les tentatives sont illimitées.",
-    empty: "Aucun quiz pour le moment. Ils sont composés après le traitement de tes notes.",
+      "Tes révisions quotidiennes et tes exercices supplémentaires, à retrouver quand tu le souhaites. Les nouvelles notes relient les prochaines révisions à tes cours.",
+    empty:
+      "Aucun quiz pour le moment. Ils sont composés après le traitement de tes notes.",
     emptyTitle: "Aucun quiz pour le moment",
     addNotes: "Ajouter des notes",
     onDemand: "À la demande",
@@ -335,10 +368,10 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     deleteError: "Impossible de supprimer ce quiz. Réessaie.",
   },
   UploadPage: {
-    kicker: "Enrichis la banque de questions",
+    kicker: "Après ton cours",
     title: "Ajouter des notes",
     blurb:
-      "Colle tes notes de cours ou joins des photos de tes notes manuscrites. Les notions rejoignent la banque dès que leur traitement est terminé.",
+      "Colle le résumé de ton tuteur ou photographie tes notes. Les nouvelles notions rejoignent les prochaines révisions avec celles des cours précédents.",
   },
   QuizPage: {
     allQuizzes: "← Tous les quiz",
@@ -354,5 +387,9 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     submitted: "terminé le {when}",
     durationMinutes: "{minutes} min {seconds} s",
     durationSeconds: "{seconds} s",
+    finish: "Terminer cette révision",
+    completed: "Révision terminée",
+    completedBlurb:
+      "Consulte les explications utiles, puis termine pour aujourd’hui. Tu peux revenir pratiquer quand tu le souhaites.",
   },
 };

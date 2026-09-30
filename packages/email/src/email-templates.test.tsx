@@ -64,19 +64,21 @@ describe("email templates", () => {
       ],
     });
 
-    expect(message.subject).toBe("Le quiz du jour : Français avec Marie");
+    expect(message.subject).toBe("Ta révision de cours : Français avec Marie");
     expect(message.html).toContain("Vocabulaire");
     expect(message.html).toContain("Grammaire");
     expect(message.html).toContain(">01<!-- -->");
     expect(message.html).toContain("Vrai");
     expect(message.html).toContain("Faux");
     expect(message.html).toContain("https://example.com/unsubscribe?token=abc");
-    expect(message.html).toContain("Marie &lt;script&gt;alert(1)&lt;/script&gt;");
+    expect(message.html).toContain(
+      "Marie &lt;script&gt;alert(1)&lt;/script&gt;",
+    );
     expect(message.html).not.toContain("Marie <script>");
-    expect(message.text).toContain("Ouvrir le quiz et répondre");
+    expect(message.text).toContain("Commencer ma révision");
     expect(message.text).toContain("https://example.com/quiz/1");
     expect(message.text).toContain("https://example.com/unsubscribe?token=abc");
-    expect(message.text.match(/LE QUIZ DU JOUR/g)).toHaveLength(1);
+    expect(message.text.match(/TA RÉVISION DE COURS/g)).toHaveLength(1);
     expect(message.text).toContain("A the clothes line");
     expect(message.html).not.toContain("correct answer");
     expect(message.text).not.toContain("correct answer");
@@ -178,7 +180,7 @@ describe("email templates", () => {
       ],
     });
 
-    expect(message.subject).toBe("Today's quizzes (2 classrooms)");
+    expect(message.subject).toBe("Review between lessons (2 classrooms)");
     expect(message.text).toContain("Hello,");
     expect(message.html).toContain("French");
     expect(message.html).toContain("Spanish");

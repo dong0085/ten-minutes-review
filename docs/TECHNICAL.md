@@ -381,6 +381,8 @@ Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve t
 
 Answers and explanations never leave the server before a submission. The quiz payload carries stems and options only. A browser-local draft holds the learner's own responses and position between refreshes.
 
+The quiz payload also carries `sources` (upload id, subject, and added-at timestamp), deduplicated through its questions' knowledge points. This metadata links reviews to original lesson notes without serializing prepared answers or explanations. Bank items carry `sourceUploadId` for the same navigation. The classroom overview includes `latestReview`, the latest daily/manual attempt submitted on the reader's current local date; exams do not set this completion state. These fields derive from existing rows and require no schema migration.
+
 ---
 
 ## 5. Multi-tenancy and security

@@ -10,19 +10,23 @@ export const onboarding: MessageShape<(typeof en)["Onboarding"]> = {
   },
   Welcome: {
     kicker: "Bienvenue",
-    title: "Dix minutes par jour, <highlight>à partir de vos notes</highlight>.",
-    blurb: "Trois étapes rapides, et votre premier quiz est en route.",
+    title:
+      "Retrouve ce que tu as appris en cours avec <highlight>un peu de pratique chaque jour.</highlight>",
+    blurb:
+      "Choisis ta langue, ajoute tes notes de cours et essaie ta première révision. Des notes d’exemple sont disponibles si besoin.",
     stepLanguage: "Choisissez la langue que vous apprenez",
-    stepTour: "Découvrez comment marche un quiz",
-    stepNotes: "Transformez vos notes en questions",
-    start: "C'est parti",
+    stepTour: "Révise avant ton prochain cours",
+    stepNotes: "Ajoute les notes de ton dernier cours",
+    start: "Commencer ma première révision",
   },
   Language: {
     kicker: "Étape 1",
     title: "Quelle langue apprenez-vous ?",
-    blurb: "Nous vous montrerons un quiz d'exemple dans cette langue.",
+    blurb:
+      "Ta classe réunira les notes et les révisions de tes cours dans cette langue.",
     speak: "Je parle",
-    continue: "Continuer",
+    continue: "Ajouter mes notes de cours",
+    seeExample: "Voir un exemple de révision",
   },
   Tour: {
     paperTitle: "Quiz d'exemple · {language}",
@@ -37,7 +41,7 @@ export const onboarding: MessageShape<(typeof en)["Onboarding"]> = {
     scoreLine: "{correct} sur {total} justes",
     header: {
       title: "Voici votre copie",
-      body: "Chaque quiz est une copie d'examen. En haut : le barème, le temps conseillé et une case de note vide.",
+      body: "Une révision rassemble quelques exercices tirés de tes notes. Regarde leur contenu et la durée conseillée avant de commencer.",
     },
     choice: {
       title: "Partie I · Choix multiple",
@@ -61,13 +65,14 @@ export const onboarding: MessageShape<(typeof en)["Onboarding"]> = {
     },
     score: {
       title: "Votre note",
-      body: "Les points de chaque partie et le total s'inscrivent dans la case de note. Refaites un quiz autant de fois que vous voulez.",
+      body: "Tes résultats indiquent quoi revoir. Après les explications, tu peux terminer pour aujourd’hui ou recommencer si tu le souhaites.",
     },
   },
   Notes: {
-    kicker: "Étape 3",
-    title: "Maintenant, vos propres notes",
-    blurb: "Photographiez une page de votre cahier ou collez ce que vous avez étudié. Nous en faisons des questions.",
+    kicker: "Tes notes de cours",
+    title: "Repars de ton dernier cours.",
+    blurb:
+      "Colle le résumé de ton tuteur ou photographie une page de ton cahier. Inutile de tout remettre au propre.",
     photoTab: "Photo",
     textTab: "Texte",
     dropTitle: "Prenez ou choisissez une photo",
@@ -75,27 +80,35 @@ export const onboarding: MessageShape<(typeof en)["Onboarding"]> = {
     photoLimit: "Jusqu'à {max, plural, one {# photo} other {# photos}}",
     addPhoto: "Ajouter une photo",
     remove: "Retirer",
-    textPlaceholder: "Collez les mots, expressions ou points de grammaire étudiés…",
+    textPlaceholder:
+      "Collez les mots, expressions ou points de grammaire étudiés…",
     useSample: "Pas de notes sous la main ? Utilisez des notes d'exemple",
     submit: "Lire mes notes",
     submitting: "Enregistrement…",
     classroomName: "Mon {language}",
     emptyForm: "Ajoutez d'abord une photo ou du texte.",
     readingTitle: "Lecture de vos notes…",
-    readingBlurb: "Nous repérons ce qui vaut la peine d'être révisé.",
-    slowHint: "Cela peut prendre une minute. Vous pouvez partir : vos notes continuent d'être traitées.",
-    doneTitle: "{count, plural, =0 {Rien à réviser pour l'instant} one {# élément à réviser} other {# éléments à réviser}}",
-    doneBlurb: "Votre premier quiz peut être rédigé à partir de ceux-ci.",
-    emptyBlurb: "Nous n'avons rien trouvé à réviser. Essayez une page avec des mots ou des expressions.",
+    readingBlurb:
+      "Nous repérons les mots, les expressions et la grammaire à réviser entre deux cours.",
+    slowHint:
+      "Cela peut prendre une minute. Vous pouvez partir : vos notes continuent d'être traitées.",
+    doneTitle:
+      "{count, plural, =0 {Rien à réviser pour l'instant} one {# élément à réviser} other {# éléments à réviser}}",
+    doneBlurb:
+      "Essaie une courte révision maintenant. Ces notes serviront aussi aux suivantes, avec les notions plus anciennes de ta classe.",
+    emptyBlurb:
+      "Nous n'avons rien trouvé à réviser. Essayez une page avec des mots ou des expressions.",
     failedTitle: "Impossible de lire ces notes",
-    makeQuiz: "Créer mon premier quiz",
+    makeQuiz: "Commencer ma première révision",
     openClassroom: "Aller à ma classe",
     tryAgain: "Essayer d'autres notes",
     guestTitle: "Gardez votre progression",
-    guestBlurb: "Créez un compte gratuit pour garder votre classe et recevoir un quiz par e-mail chaque matin.",
+    guestBlurb:
+      "Crée un compte gratuit pour conserver ces notes et ta progression, et activer les révisions quotidiennes par e-mail.",
     guestAction: "Créer un compte",
     composingTitle: "Rédaction de votre quiz…",
     composingBlurb: "Cela prend en général moins d'une minute.",
-    composeFailed: "Impossible de rédiger le quiz cette fois. Vous pouvez réessayer depuis votre classe.",
+    composeFailed:
+      "Impossible de rédiger le quiz cette fois. Vous pouvez réessayer depuis votre classe.",
   },
 };

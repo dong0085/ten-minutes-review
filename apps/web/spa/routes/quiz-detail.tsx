@@ -6,6 +6,7 @@ import { Badge } from "@tmr/ui/components/badge";
 import { Button } from "@tmr/ui/components/button";
 import { DeleteQuizButton } from "@/spa/components/classroom/delete-quiz-button";
 import { PageHeader, SectionTitle } from "@/spa/components/page";
+import { LessonSources } from "@/spa/components/lesson-sources";
 import { FullPageSpinner } from "@/spa/app/shell";
 import { formatQuizDate } from "@/spa/lib/format";
 import { useQuiz } from "@/spa/lib/queries";
@@ -36,12 +37,14 @@ export function QuizDetailPage() {
   }
   const { quiz, attempts } = data;
   const best = attempts.reduce<number | null>(
-    (top, attempt) => (top === null ? attempt.correctCount : Math.max(top, attempt.correctCount)),
+    (top, attempt) =>
+      top === null ? attempt.correctCount : Math.max(top, attempt.correctCount),
     null,
   );
   const categories = CATEGORIES.map((category) => ({
     category,
-    count: quiz.questions.filter((question) => question.category === category).length,
+    count: quiz.questions.filter((question) => question.category === category)
+      .length,
   })).filter((entry) => entry.count > 0);
 
   function duration(ms: number) {
@@ -60,7 +63,9 @@ export function QuizDetailPage() {
         description={
           <>
             {tQuizzes("questions", { count: quiz.size })}
-            {best !== null ? ` · ${tQuizzes("best", { score: best, size: quiz.size })}` : null}
+            {best !== null
+              ? ` · ${tQuizzes("best", { score: best, size: quiz.size })}`
+              : null}
           </>
         }
         actions={
@@ -73,11 +78,15 @@ export function QuizDetailPage() {
             </Button>
             <DeleteQuizButton
               quizId={quizId}
-              onDeleted={() => navigate(`/classrooms/${id}/quizzes`, { replace: true })}
+              onDeleted={() =>
+                navigate(`/classrooms/${id}/quizzes`, { replace: true })
+              }
             />
           </>
         }
       />
+
+      <LessonSources classroomId={id} sources={quiz.sources} />
 
       <section className="space-y-3">
         <SectionTitle>{t("covers")}</SectionTitle>
@@ -99,7 +108,10 @@ export function QuizDetailPage() {
         ) : (
           <ul className="divide-y divide-border/70 overflow-hidden rounded-2xl border border-border/70 bg-card/75">
             {attempts.map((attempt) => {
-              const ratio = attempt.questionCount > 0 ? attempt.correctCount / attempt.questionCount : 0;
+              const ratio =
+                attempt.questionCount > 0
+                  ? attempt.correctCount / attempt.questionCount
+                  : 0;
               return (
                 <li key={attempt.id}>
                   <Link
@@ -117,7 +129,15 @@ export function QuizDetailPage() {
                         {duration(attempt.durationMs)}
                       </span>
                     </span>
-                    <Badge variant={ratio >= 0.8 ? "success" : ratio >= 0.5 ? "warning" : "destructive"}>
+                    <Badge
+                      variant={
+                        ratio >= 0.8
+                          ? "success"
+                          : ratio >= 0.5
+                            ? "warning"
+                            : "destructive"
+                      }
+                    >
                       {tAttempt("correct", {
                         correct: attempt.correctCount,
                         total: attempt.questionCount,

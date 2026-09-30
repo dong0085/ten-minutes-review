@@ -11,7 +11,11 @@ const LIST: Variants = {
 
 const ITEM: Variants = {
   hidden: { opacity: 0, y: 10 },
-  shown: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 26 } },
+  shown: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 300, damping: 26 },
+  },
 };
 
 /** A small marked paper: it drops onto the desk and the teacher ticks it. */
@@ -31,7 +35,10 @@ function TickedPaper() {
           <div className="h-1 w-2/3 rounded-full bg-foreground/15" />
         </div>
         <MarksStart value={0.45}>
-          <PenMark correct className="absolute right-1 bottom-1 size-11 text-destructive" />
+          <PenMark
+            correct
+            className="absolute right-1 bottom-1 size-11 text-destructive"
+          />
         </MarksStart>
       </div>
     </motion.div>
@@ -40,7 +47,7 @@ function TickedPaper() {
 
 export function WelcomeStep({ onStart }: { onStart: () => void }) {
   const t = useTranslations("Onboarding.Welcome");
-  const steps = [t("stepLanguage"), t("stepTour"), t("stepNotes")];
+  const steps = [t("stepLanguage"), t("stepNotes"), t("stepTour")];
 
   return (
     <div className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center pb-16 text-center">
@@ -88,7 +95,12 @@ export function WelcomeStep({ onStart }: { onStart: () => void }) {
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.95, type: "spring", stiffness: 260, damping: 24 }}
+        transition={{
+          delay: 0.95,
+          type: "spring",
+          stiffness: 260,
+          damping: 24,
+        }}
         className="mt-9"
       >
         <Button size="lg" onClick={onStart} className="group min-w-44">

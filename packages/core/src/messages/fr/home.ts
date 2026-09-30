@@ -1,44 +1,58 @@
 export const home = {
-  eyebrow: "Pour celles et ceux qui apprennent une langue avec un tuteur ou en classe",
-  title: "Retiens l'essentiel de chaque cours avec un <highlight>quiz de dix minutes</highlight>",
+  eyebrow: "Pour celles et ceux qui suivent un cours de langue chaque semaine",
+  title:
+    "Prolonge chaque cours de langue avec <highlight>dix minutes de révision par jour.</highlight>",
   description:
-    "Colle les notes de ton tuteur ou prends ton cahier en photo. Chaque matin, révise les mots, les expressions et la grammaire de tes cours avec un petit quiz. De quoi t'en souvenir la semaine suivante.",
+    "Colle le résumé de ton tuteur ou photographie tes notes. Révise chaque jour les mots, les expressions et la grammaire abordés, pour préparer ton prochain cours.",
   goToClassrooms: "Voir mes classes",
   createAccount: "Créer un compte",
   signIn: "Se connecter",
-  tryAsGuest: "Essayer sans compte",
+  tryAsGuest: "Essayer avec mes notes de cours",
   proof: {
     handwriting: "Notes tapées ou manuscrites",
     fresh: "Basé sur tes propres cours",
     tenMinutes: "Dix minutes chaque matin",
   },
   preview: {
-    kicker: "À partir de ton dernier cours",
-    title: "Révision du mardi",
+    kicker: "Un cours qui continue",
+    title: "Tes notes de cours → ta révision",
     notes: "Notes du cours",
-    session: "Français · 16 h 20",
+    session: "Cours de français · exemple",
     quiz: "Quiz quotidien",
     question: "Question 3 sur 8",
     ready: "Prêt",
+    passage: "Marie prend soin de sa sœur. Il faut avoir confiance.",
+    week: {
+      label: "Une semaine de révision, en exemple",
+      lesson: "Après ton cours",
+      lessonCopy: "Ajoute tes notes",
+      first: "Le lendemain matin",
+      firstCopy: "Retrouve les mots",
+      later: "Les jours suivants",
+      laterCopy: "Pratique les expressions et la grammaire",
+      next: "Avant le prochain cours",
+      nextCopy: "Revois les points à travailler",
+    },
   },
   languagesKicker: "Quelle que soit la langue",
   languagesCopy:
     "Français, espagnol, mandarin, japonais, coréen et bien d'autres. Ton quiz suit la langue de tes notes.",
   howItWorksKicker: "Entre deux cours",
-  howItWorksTitle: "Ne laisse pas les mots du dernier cours s'envoler.",
+  howItWorksTitle: "Continue à pratiquer entre deux cours.",
   steps: {
-    addTitle: "Ajoute tes notes de cours",
-    addCopy: "Colle le résumé de ton tuteur ou photographie une page de ton cahier.",
-    shapeTitle: "Nous repérons ce qu'il faut retenir",
+    addTitle: "Après le cours, ajoute tes notes.",
+    addCopy:
+      "Colle le résumé de ton tuteur ou photographie une page de ton cahier.",
+    shapeTitle: "Tes exercices sont prêts pour toi.",
     shapeCopy:
-      "Les nouveaux mots, les expressions toutes faites, les points de grammaire et les courts textes forment ta propre banque de questions.",
-    reviewTitle: "Révise avant le prochain cours",
+      "Nous repérons les mots, les expressions et la grammaire de tes notes pour en faire des exercices. Tu n’as pas à créer les questions.",
+    reviewTitle: "Un peu de pratique avant le prochain cours.",
     reviewCopy:
       "Chaque matin, un nouveau quiz de dix minutes t'aide à retrouver ce que tu as appris avant le prochain cours.",
   },
-  categoriesTitle: "Bien plus que des <highlight>cartes mémoire.</highlight>",
+  categoriesTitle: "Pratique ce que <highlight>tu as vu en cours.</highlight>",
   categoriesCopy:
-    "Reconnais un mot, emploie-le dans une phrase, applique une règle de grammaire, lis un court texte. Révise pour vraiment utiliser la langue.",
+    "Ces exemples viennent des notes de français ci-dessus : retrouve un mot, complète une expression, applique une règle et vérifie ta compréhension.",
   forms: {
     mcq: "Choix multiple",
     fillBlank: "Texte à trous",
@@ -49,24 +63,24 @@ export const home = {
     false: "Faux",
     stems: {
       mcq: "Quel mot correspond à l'anglais « confidence » ?",
-      trueFalse: "Dans le texte, Marie prend le train avant le déjeuner.",
+      trueFalse: "Dans les notes, Marie prend soin de sa sœur.",
       photo: "Quelle expression ton tuteur a-t-il entourée ?",
     },
   },
   highlights: {
     kicker: "Pensé pour les apprenants",
-    title: "S'adapte à tes cours.",
+    title: "Un rythme qui s’adapte à tes cours.",
     noPressure: {
-      title: "Aucune série à maintenir.",
-      copy: "Pas de points, pas de classements, pas de rappels culpabilisants. Juste une révision calme de ce que tu as appris cette semaine.",
+      title: "Aucun exercice à préparer.",
+      copy: "Apporte le résumé de ton tuteur ou tes propres notes. Ta prochaine révision part de ce que tu as déjà.",
     },
     pause: {
-      title: "Fais une pause entre deux périodes de cours.",
-      copy: "Mets les révisions en pause pendant les vacances ou une pause dans tes cours. Tes mots t'attendront à ton retour.",
+      title: "Une révision qui a une fin.",
+      copy: "Une courte révision suffit pour aujourd’hui. Tu peux en faire plus si tu le souhaites, ou suspendre les révisions pendant une pause dans tes cours.",
     },
     notes: {
-      title: "Garde une trace de chaque cours.",
-      copy: "Tes notes et tes photos restent dans ta classe. Tu peux revoir ce que tu as étudié à tout moment.",
+      title: "Ajoute les notes de chaque cours.",
+      copy: "Ajoute les nouvelles notes à la même classe. Les notions récentes, les plus anciennes et les erreurs récentes nourrissent tes révisions.",
     },
   },
   pricing: {
@@ -90,6 +104,9 @@ export const home = {
     freeCta: "Commencer gratuitement",
     proCta: "Passer à Pro",
   },
-  closingKicker: "Ton prochain cours commence ici",
-  closingTitle: "Accorde <highlight>dix minutes de plus</highlight> au cours d'aujourd'hui avant qu'il ne s'efface.",
+  closingKicker: "Commence par ton dernier cours",
+  closingTitle:
+    "Accorde encore <highlight>dix minutes</highlight> à ton dernier cours.",
+  trialHint:
+    "Essaie sans compte. Inscris-toi pour conserver tes notes et recevoir les révisions par e-mail.",
 } as const;

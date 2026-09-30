@@ -26,7 +26,8 @@ export const quiz: MessageShape<(typeof en)["Quiz"]> = {
     numerals: "I,II,III",
     examSubtitle: "{date} · Examen",
     partCount: "{count, plural, one {# question} other {# questions}}",
-    partInfo: "({count, plural, one {# question} other {# questions}}, {points, plural, one {# point} other {# points}} chacune, {total} points)",
+    partInfo:
+      "({count, plural, one {# question} other {# questions}}, {points, plural, one {# point} other {# points}} chacune, {total} points)",
     questionPoints: "({points, plural, one {# point} other {# points}})",
     fullMarks: "Total : {total} points",
     suggestedTime: "Durée conseillée : {minutes} minutes",
@@ -52,7 +53,8 @@ export const quiz: MessageShape<(typeof en)["Quiz"]> = {
     correctMark: "Réponse sélectionnée",
     wrongMarks: "Autres marques non prises en compte",
     score: "Note",
-    writtenNote: "Réponds aux questions à trous sur le sujet : tes réponses apparaîtront ici.",
+    writtenNote:
+      "Réponds aux questions à trous sur le sujet : tes réponses apparaîtront ici.",
     tfMarks: "V,F",
     questionLabel: "Question {number}",
     optionLabel: "Question {number}, {option}",
@@ -62,7 +64,8 @@ export const quiz: MessageShape<(typeof en)["Quiz"]> = {
     title: "Analyse IA de tes erreurs",
     note: "Rédigée par l'IA à partir de tes mauvaises réponses. Les corrections en rouge de chaque question restent valables.",
     writing: "Lecture de tes erreurs…",
-    writingHint: "Cela prend environ une demi-minute. Tu peux relire la copie en attendant.",
+    writingHint:
+      "Cela prend environ une demi-minute. Tu peux relire la copie en attendant.",
     failed: "L'analyse n'a pas pu être rédigée.",
     retry: "Réessayer",
     patterns: "Tendances",
@@ -79,7 +82,8 @@ export const quiz: MessageShape<(typeof en)["Quiz"]> = {
     score: "{correct} bonnes réponses sur {total}",
     scoreLabel: "Note",
     everyAnswerLanded: "Toutes les réponses sont justes.",
-    reviewMissed: "Revois les erreurs ci-dessous, puis réessaie.",
+    reviewMissed:
+      "Révision terminée. Revois les questions corrigées si besoin, puis termine pour aujourd’hui.",
     retake: "Refaire",
     fullReview: "Voir toutes les explications",
     reviewTitle: "Retour sur les questions",
@@ -100,5 +104,11 @@ export const quiz: MessageShape<(typeof en)["Quiz"]> = {
     omitSuccess: "Notion exclue des prochains quiz.",
     restoreSuccess: "Notion réintégrée aux prochains quiz.",
     omitError: "Impossible de modifier ce point.",
+    finish: "Terminer pour aujourd’hui",
+    finishReview: "Terminer cette révision",
+    completed: "Révision terminée",
+    lessonSources: "À partir de tes notes de cours",
+    sourceDate: "Notes ajoutées le {date}",
+    openPoint: "Revoir cette notion dans mes notes",
   },
 };

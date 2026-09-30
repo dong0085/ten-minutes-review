@@ -31,7 +31,8 @@ export const app: MessageShape<(typeof en)["App"]> = {
     data: "你的数据",
   },
   Hub: {
-    addNotesBlurb: "粘贴笔记或添加照片。新内容会加入题库。",
+    addNotesBlurb:
+      "刚上完新课？把笔记加在这里。新内容会和以前学过的知识一起参与后续复习。",
     inside: "课堂内容",
     notes: "笔记",
     notesMeta: "{count, plural, other {共添加 # 次}} · 最近添加：{when}",
@@ -40,16 +41,17 @@ export const app: MessageShape<(typeof en)["App"]> = {
     bankMeta:
       "{count, plural, =0 {添加笔记后就会开始建题库} other {# 个知识点可参与出题}}",
     quizzes: "测验",
-    quizzesMeta: "{count, plural, other {# 份测验}} · 保留每次作答记录",
+    quizzesMeta: "{count} 份测验 · 想回顾时随时打开",
     mistakes: "错题本",
-    mistakesMeta: "{count, plural, =0 {近 30 天没有待订正的错题} other {# 道错题待订正}}",
+    mistakesMeta:
+      "{count, plural, =0 {近期没有需要回顾的错题} other {# 道近期错题，按需回顾}}",
     settings: "设置",
     settingsMeta: "名称、语言和每日复习",
   },
   QuizDetail: {
     take: "开始测验",
     retake: "重做",
-    covers: "涵盖内容",
+    covers: "这次复习练什么",
     attempts: "作答记录",
     noAttempts: "你还没做过这份测验。提交后可查看答案和解析。",
   },

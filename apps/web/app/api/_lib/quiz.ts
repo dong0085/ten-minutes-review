@@ -29,6 +29,7 @@ export type QuizPayload = {
   size: number;
   classroomId: string;
   classroomName: string;
+  sources: Array<{ id: string; subject: string | null; createdAt: string }>;
   questions: QuizQuestionPayload[];
 };
 
@@ -67,7 +68,10 @@ export async function buildQuizPayload(
     const imageRows = await db
       .select({ questionId: questions.id, storageKey: uploads.storageKey })
       .from(questions)
-      .innerJoin(knowledgePoints, eq(questions.knowledgePointId, knowledgePoints.id))
+      .innerJoin(
+        knowledgePoints,
+        eq(questions.knowledgePointId, knowledgePoints.id),
+      )
       .innerJoin(uploads, eq(knowledgePoints.sourceUploadId, uploads.id))
       .where(inArray(questions.id, imageQuestionIds));
     for (const imageRow of imageRows) {
@@ -77,15 +81,21 @@ export async function buildQuizPayload(
     }
   }
 
-  const pointIds = Array.from(new Set(row.questions.map((q) => q.knowledgePointId)));
+  const pointIds = Array.from(
+    new Set(row.questions.map((q) => q.knowledgePointId)),
+  );
   const pointRows =
     pointIds.length > 0
       ? await db
           .select({
             id: knowledgePoints.id,
             retiredAt: knowledgePoints.retiredAt,
+            uploadId: uploads.id,
+            subject: uploads.subject,
+            uploadedAt: uploads.createdAt,
           })
           .from(knowledgePoints)
+          .innerJoin(uploads, eq(knowledgePoints.sourceUploadId, uploads.id))
           .where(inArray(knowledgePoints.id, pointIds))
       : [];
   const retiredPointIds = new Set(
@@ -120,6 +130,18 @@ export async function buildQuizPayload(
     size: row.quiz.size,
     classroomId: row.quiz.classroomId,
     classroomName: classroom.name,
+    sources: Array.from(
+      new Map(
+        pointRows.map((point) => [
+          point.uploadId,
+          {
+            id: point.uploadId,
+            subject: point.subject,
+            createdAt: point.uploadedAt.toISOString(),
+          },
+        ]),
+      ).values(),
+    ).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     questions: questionPayloads,
   };
 }

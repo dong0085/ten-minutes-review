@@ -4,7 +4,7 @@ import type { auth as enAuth } from "../en/auth";
 export const auth: MessageShape<typeof enAuth> = {
   SignInPage: {
     title: "Se connecter",
-    subtitle: "Reprends là où tu en étais.",
+    subtitle: "Reprends tes révisions entre deux cours.",
     verified: "Ton e-mail est vérifié. Connecte-toi pour continuer.",
     signInError: "Connexion impossible. Réessaie.",
   },
@@ -22,7 +22,8 @@ export const auth: MessageShape<typeof enAuth> = {
   },
   SignUpPage: {
     title: "Crée ton compte",
-    subtitle: "Tes notes deviennent un quiz de dix minutes chaque matin.",
+    subtitle:
+      "Conserve tes notes de cours et ta progression, et reçois une courte révision chaque matin.",
   },
   SignUpForm: {
     email: "E-mail",
@@ -45,10 +46,12 @@ export const auth: MessageShape<typeof enAuth> = {
   },
   ForgotPage: {
     title: "Réinitialiser ton mot de passe",
-    subtitle: "Nous t'enverrons un lien par e-mail pour choisir un nouveau mot de passe.",
+    subtitle:
+      "Nous t'enverrons un lien par e-mail pour choisir un nouveau mot de passe.",
   },
   ForgotForm: {
-    intro: "Entre ton e-mail et nous t'enverrons un lien pour réinitialiser ton mot de passe.",
+    intro:
+      "Entre ton e-mail et nous t'enverrons un lien pour réinitialiser ton mot de passe.",
     sent: "Si un compte existe pour cet e-mail, nous avons envoyé un lien de réinitialisation.",
     back: "Retour à la connexion",
     sending: "Envoi…",
@@ -75,14 +78,16 @@ export const auth: MessageShape<typeof enAuth> = {
   VerifyView: {
     verifying: "Vérification de ton e-mail…",
     invalid: "Ce lien de vérification est invalide ou a expiré.",
-    invalidHelp: "Connecte-toi pour demander un nouveau lien, ou recrée un compte.",
+    invalidHelp:
+      "Connecte-toi pour demander un nouveau lien, ou recrée un compte.",
     success: "Ton e-mail est vérifié.",
     signIn: "Se connecter",
     createAccount: "Créer un compte",
   },
   UnsubscribePage: {
     invalidTitle: "Ce lien est invalide ou a expiré",
-    invalidBody: "Connecte-toi et ouvre ton compte pour gérer les préférences d'e-mail.",
+    invalidBody:
+      "Connecte-toi et ouvre ton compte pour gérer les préférences d'e-mail.",
     goToAccount: "Aller au compte",
     successTitle: "Tu es désabonné",
     successBody:

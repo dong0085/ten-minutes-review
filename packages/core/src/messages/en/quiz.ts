@@ -23,7 +23,8 @@ export const quiz = {
     numerals: "I,II,III",
     examSubtitle: "{date} · Exam",
     partCount: "{count, plural, one {# question} other {# questions}}",
-    partInfo: "({count, plural, one {# question} other {# questions}}, {points, plural, one {# point} other {# points}} each, {total} points)",
+    partInfo:
+      "({count, plural, one {# question} other {# questions}}, {points, plural, one {# point} other {# points}} each, {total} points)",
     questionPoints: "({points, plural, one {# point} other {# points}})",
     fullMarks: "Total: {total} points",
     suggestedTime: "Suggested time: {minutes} minutes",
@@ -49,7 +50,8 @@ export const quiz = {
     correctMark: "Correct mark",
     wrongMarks: "Incorrect marks",
     score: "Score",
-    writtenNote: "Write inside each box. Anything outside the box is not scored.",
+    writtenNote:
+      "Write inside each box. Anything outside the box is not scored.",
     tfMarks: "T,F",
     questionLabel: "Question {number}",
     optionLabel: "Question {number}, {option}",
@@ -59,7 +61,8 @@ export const quiz = {
     title: "AI review of your mistakes",
     note: "Written by AI from your wrong answers. The red-pen notes on each question still stand.",
     writing: "Reading your mistakes…",
-    writingHint: "This takes about half a minute. You can keep checking the paper meanwhile.",
+    writingHint:
+      "This takes about half a minute. You can keep checking the paper meanwhile.",
     failed: "The review could not be written.",
     retry: "Try again",
     patterns: "Patterns",
@@ -76,7 +79,8 @@ export const quiz = {
     score: "{correct} / {total} correct",
     scoreLabel: "Score",
     everyAnswerLanded: "Every answer landed.",
-    reviewMissed: "Review the missed ones below, then try again.",
+    reviewMissed:
+      "Review complete. Revisit the marked questions if you need, then finish for today.",
     retake: "Retake",
     fullReview: "Full review",
     reviewTitle: "Question review",
@@ -97,5 +101,11 @@ export const quiz = {
     omitSuccess: "Knowledge point omitted from future quizzes.",
     restoreSuccess: "Knowledge point restored to future quizzes.",
     omitError: "Could not update knowledge point.",
+    finish: "Finish for today",
+    finishReview: "Finish this review",
+    completed: "Review complete",
+    lessonSources: "From your lesson notes",
+    sourceDate: "Notes added {date}",
+    openPoint: "Revisit this point in my notes",
   },
 };

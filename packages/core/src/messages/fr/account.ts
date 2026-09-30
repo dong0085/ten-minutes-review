@@ -6,7 +6,8 @@ export const account: MessageShape<(typeof en)["Account"]> = {
   title: "Compte",
   classroomsSection: "Classes",
   quizHistorySection: "Historique des quiz",
-  quizHistoryMore: "Tes {count} quiz les plus récents. Ouvre une classe pour voir tous ses quiz.",
+  quizHistoryMore:
+    "Tes {count} quiz les plus récents. Ouvre une classe pour voir tous ses quiz.",
   copyLink: "Copier le lien",
   linkCopied: "Copié",
   referralsSection: "Parrainages",
@@ -25,16 +26,20 @@ export const account: MessageShape<(typeof en)["Account"]> = {
   exportButton: "Exporter en JSON",
   free: "Gratuit",
   pro: "Pro",
-  planFreeBlurb: "Le forfait gratuit comprend 3 classes et 1 ajout de notes par semaine. Pro te laisse ajouter tes notes après chaque cours et modifier ta banque de questions, pour 2,99 $/mois.",
-  planProBlurb: "Ajoute tes notes après chaque cours, crée autant de classes que tu veux et modifie toi-même chaque notion.",
+  planFreeBlurb:
+    "Le forfait gratuit comprend 3 classes et 1 ajout de notes par semaine. Pro te laisse ajouter tes notes après chaque cours et modifier ta banque de questions, pour 2,99 $/mois.",
+  planProBlurb:
+    "Ajoute tes notes après chaque cours, crée autant de classes que tu veux et modifie toi-même chaque notion.",
   renewsOn: "Renouvellement le {date}",
   endsOn: "Se termine le {date}",
-  paymentIssue: "Ton dernier paiement n'est pas passé. Mets ta carte à jour pour garder Pro.",
+  paymentIssue:
+    "Ton dernier paiement n'est pas passé. Mets ta carte à jour pour garder Pro.",
   upgrade: "Passer à Pro",
   manageBilling: "Gérer la facturation",
   openingBilling: "Ouverture de Stripe…",
   billingError: "Impossible d'ouvrir la facturation. Réessaie.",
-  billingSuccess: "Merci pour ton abonnement ! Ton forfait se met à jour dans quelques secondes.",
+  billingSuccess:
+    "Merci pour ton abonnement ! Ton forfait se met à jour dans quelques secondes.",
   signedInAs: "Connecté en tant que {email}",
   greeting: "Bonjour, {name}",
   Pages: {
@@ -64,7 +69,8 @@ export const account: MessageShape<(typeof en)["Account"]> = {
   Postcard: {
     kicker: "Invitation",
     title: "Invite un ami",
-    earned: "{count, plural, =0 {Aucun mois gratuit gagné pour l'instant} one {# mois gratuit gagné} other {# mois gratuits gagnés}}",
+    earned:
+      "{count, plural, =0 {Aucun mois gratuit gagné pour l'instant} one {# mois gratuit gagné} other {# mois gratuits gagnés}}",
     code: "Code",
     to: "À",
     friend: "un ami qui apprend une langue",
@@ -100,7 +106,8 @@ export const account: MessageShape<(typeof en)["Account"]> = {
   EmailPreferencesForm: {
     kicker: "Envoi des quiz",
     title: "E-mail quotidien du quiz",
-    blurb: "Chaque matin, reçois les quiz de tes classes actives par e-mail.",
+    blurb:
+      "Une courte révision de tes classes actives, pour pratiquer entre deux cours. L’heure du prochain envoi est indiquée ci-dessous.",
     savingShort: "Enregistrement…",
     onBlurb: "Activé. L'heure du prochain envoi est indiquée ci-dessous.",
     offBlurb: "Désactivé. Les quiz restent disponibles dans tes classes.",
@@ -113,17 +120,19 @@ export const account: MessageShape<(typeof en)["Account"]> = {
     error: "Impossible d'enregistrer tes préférences.",
   },
   Stats: {
-    kicker: "Bilan d'apprentissage",
-    title: "Tes progrès",
-    emptyTitle: "Ton bilan attend ton premier quiz",
-    activeDaysTally: "{count, plural, =0 {Aucun jour de révision sur les 30 derniers jours} one {# jour de révision sur les 30 derniers jours} other {# jours de révision sur les 30 derniers jours}}",
-    noActiveDays: "Aucune révision au cours des 30 derniers jours. Pourquoi ne pas commencer aujourd'hui ?",
+    kicker: "Entre deux cours",
+    title: "Tes révisions jusqu’ici",
+    emptyTitle: "Ta première révision commence par un cours",
+    activeDaysTally:
+      "{count, plural, =0 {Aucun jour de révision sur les 30 derniers jours} one {# jour de révision sur les 30 derniers jours} other {# jours de révision sur les 30 derniers jours}}",
+    noActiveDays:
+      "Aucune révision au cours des 30 derniers jours. Pourquoi ne pas commencer aujourd'hui ?",
     trendTitle: "Évolution des scores",
     trendEmpty: "Fais deux quiz pour voir l'évolution de tes scores.",
     bankTitle: "Maîtrise des notions",
     bankTotal: "{total, plural, one {# notion} other {# notions}}",
-    bankSolid: "Acquis (au moins deux bonnes réponses)",
-    bankLearning: "En cours",
+    bankSolid: "Répondu correctement au moins deux fois",
+    bankLearning: "Déjà pratiqué, à revoir",
     bankUnseen: "Pas encore pratiqué",
     bankEmpty: "Ajoute des notes pour créer ta banque de questions.",
     focusHere: "À travailler",
@@ -137,15 +146,18 @@ export const account: MessageShape<(typeof en)["Account"]> = {
     notPracticed: "Pas encore pratiqué : {categories}",
     recentMisses: "Erreurs récentes",
     trend: "{count} dernières tentatives",
-    empty: "Fais un quiz pour voir ton activité et ta progression ici.",
+    empty:
+      "Ajoute tes notes de cours et essaie une courte révision. Tes réponses et les points à revoir apparaîtront ici.",
     goToClassrooms: "Aller aux classes",
   },
   Security: {
-    methods: "{count, plural, =0 {Aucun moyen de connexion} one {# moyen de connexion} other {# moyens de connexion}}",
+    methods:
+      "{count, plural, =0 {Aucun moyen de connexion} one {# moyen de connexion} other {# moyens de connexion}}",
     passwordOn: "Mot de passe défini",
     passwordOff: "Pas encore de mot de passe",
     keyringKicker: "Trousseau",
-    connectionsBlurb: "Associe un compte que tu utilises déjà pour te connecter plus facilement.",
+    connectionsBlurb:
+      "Associe un compte que tu utilises déjà pour te connecter plus facilement.",
     checkLength: "Au moins 8 caractères",
     checkMatch: "Les mots de passe correspondent",
     passwordTitle: "Mot de passe",
@@ -167,7 +179,8 @@ export const account: MessageShape<(typeof en)["Account"]> = {
     linkGoogle: "Associer Google",
     unlinkGoogle: "Dissocier",
     unlinking: "Dissociation…",
-    unlinkNeedsPassword: "Définis d'abord un mot de passe ci-dessus pour dissocier Google.",
+    unlinkNeedsPassword:
+      "Définis d'abord un mot de passe ci-dessus pour dissocier Google.",
     linkErrorEmail:
       "Ce compte Google utilise une adresse e-mail différente de celle de ton compte.",
     linkErrorSession: "Ta session a changé. Réessaie d'associer Google.",
@@ -183,7 +196,8 @@ export const account: MessageShape<(typeof en)["Account"]> = {
     create: "Créer un jeton",
     copy: "Copier",
     copied: "Copié",
-    revealWarning: "Copie ce jeton maintenant. Il n'est affiché qu'une seule fois.",
+    revealWarning:
+      "Copie ce jeton maintenant. Il n'est affiché qu'une seule fois.",
     done: "Terminé",
     created: "Créé le {date}",
     lastUsed: "Dernière utilisation : {date}",

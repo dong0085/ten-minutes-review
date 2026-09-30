@@ -14,9 +14,14 @@ import {
   PauseCircle,
   Settings2,
 } from "lucide-react";
-import { classroomDailyStatus } from "@tmr/core";
+import {
+  classroomDailyStatus,
+  isQuizLength,
+  QUIZ_LENGTH_MINUTES,
+} from "@tmr/core";
 import { Badge } from "@tmr/ui/components/badge";
 import { Button } from "@tmr/ui/components/button";
+import { CtaIcon } from "@tmr/ui/components/cta-icon";
 import { cn } from "@tmr/ui/utils";
 import { STATUS_STAMP } from "@/spa/components/classroom/classroom-card";
 import { ExamCard } from "@/spa/components/classroom/exam-card";
@@ -26,7 +31,6 @@ import { TodayQuizAction } from "@/spa/components/classroom/today-quiz-action";
 import { useQuizJob } from "@/spa/components/classroom/use-quiz-job";
 import { GuestBanner } from "@/spa/components/guest-banner";
 import { DrillList, SectionTitle } from "@/spa/components/page";
-import { PencilIcon } from "@/spa/components/pencil-icon";
 import { FullPageSpinner } from "@/spa/app/shell";
 import { formatQuizDate } from "@/spa/lib/format";
 import { languageLabel } from "@/spa/lib/language-label";
@@ -50,7 +54,13 @@ export function ClassroomHubPage() {
   const [searchParams] = useSearchParams();
   const { data: session } = useSession();
   const { data: classroom } = useClassroom(id);
-  const { data: overview, dataUpdatedAt, error, isPending, refetch } = useOverview(id);
+  const {
+    data: overview,
+    dataUpdatedAt,
+    error,
+    isPending,
+    refetch,
+  } = useOverview(id);
 
   if (isPending || !classroom || !session) {
     return <FullPageSpinner />;
@@ -117,7 +127,8 @@ function ClassroomHub({
         <div className="flex flex-wrap items-center gap-3">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 py-1.5 text-xs text-muted-foreground">
             <Globe2 className="size-3.5 text-primary" />
-            {languageLabel(classroom.targetLanguage, locale)} <span aria-hidden="true">→</span>{" "}
+            {languageLabel(classroom.targetLanguage, locale)}{" "}
+            <span aria-hidden="true">→</span>{" "}
             {languageLabel(classroom.nativeLanguage, locale)}
           </span>
           <span
@@ -155,42 +166,24 @@ function ClassroomHub({
             <QuizMailbox date={leaf} />
           </div>
           <div className="px-6 py-6 sm:px-8">
-            {isGuest ? (
-              <div className="flex h-full flex-col justify-between gap-4">
-                <div>
-                  <p className="eyebrow flex items-center gap-1.5">
-                    <Clock3 className="size-3" />
-                    {t("guestDailyQuizKicker")}
-                  </p>
-                  <h2 className="mt-2 font-heading text-2xl font-semibold tracking-[-0.025em]">
-                    {t("guestDailyQuizTitle")}
-                  </h2>
-                  <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
-                    {t("guestDailyQuizBlurb")}
-                  </p>
-                </div>
-                <div>
-                  <Button asChild size="lg">
-                    <a href="/signup">
-                      {t("guestDailyQuizCta")}
-                      <ArrowRight />
-                    </a>
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <TodayQuizAction
-                classroomId={id}
-                dailyQuizId={overview.dailyQuizId}
-                bankSize={counts.bank}
-                paused={classroom.pausedAt !== null}
-                autoStart={autoStart}
-                job={quizJob}
-                resetLocal={reset.local}
-                resetUtc={reset.utc}
-                resetTomorrow={reset.tomorrow}
-              />
-            )}
+            <TodayQuizAction
+              classroomId={id}
+              dailyQuizId={overview.dailyQuizId}
+              bankSize={counts.bank}
+              pendingUploads={counts.pendingUploads}
+              latestReview={overview.latestReview}
+              minutes={
+                QUIZ_LENGTH_MINUTES[
+                  isQuizLength(classroom.quizLength) ? classroom.quizLength : 0
+                ]
+              }
+              paused={classroom.pausedAt !== null}
+              autoStart={autoStart}
+              job={quizJob}
+              resetLocal={reset.local}
+              resetUtc={reset.utc}
+              resetTomorrow={reset.tomorrow}
+            />
           </div>
         </motion.section>
 
@@ -205,15 +198,23 @@ function ClassroomHub({
               <div>
                 <motion.span
                   className="inline-block"
-                  variants={{ rest: { rotate: 0, x: 0, y: 0 }, open: { rotate: [0, -18, -8, -14], x: 2, y: -2 } }}
-                  transition={{ rotate: { duration: 0.6, ease: "easeInOut" }, default: PEEK_SPRING }}
+                  variants={{
+                    rest: { rotate: 0, x: 0, y: 0 },
+                    open: { rotate: [0, -18, -8, -14], x: 2, y: -2 },
+                  }}
+                  transition={{
+                    rotate: { duration: 0.6, ease: "easeInOut" },
+                    default: PEEK_SPRING,
+                  }}
                 >
-                  <PencilIcon className="size-6 text-primary" />
+                  <CtaIcon kind="notes" className="size-7 text-foreground" />
                 </motion.span>
                 <h2 className="mt-4 font-heading text-2xl font-semibold tracking-[-0.025em]">
                   {t("addNotesTitle")}
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-foreground/75">{tHub("addNotesBlurb")}</p>
+                <p className="mt-2 text-sm leading-6 text-foreground/75">
+                  {tHub("addNotesBlurb")}
+                </p>
               </div>
               <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
                 {t("addNotes")}
@@ -230,6 +231,23 @@ function ClassroomHub({
         </motion.div>
       </div>
 
+      {isGuest ? (
+        <section className="flex flex-col items-start justify-between gap-4 rounded-xl border border-primary/20 bg-primary/[0.04] p-5 sm:flex-row sm:items-center">
+          <div>
+            <p className="flex items-center gap-2 text-sm font-semibold">
+              <Clock3 className="size-4" />
+              {t("guestDailyQuizTitle")}
+            </p>
+            <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+              {t("guestDailyQuizBlurb")}
+            </p>
+          </div>
+          <Button asChild variant="outline" className="shrink-0">
+            <a href="/signup">{t("guestDailyQuizCta")}</a>
+          </Button>
+        </section>
+      ) : null}
+
       {/* Always mounted, so the first card animates in; it hides itself when empty. */}
       <RecentQuizCards
         classroomId={id}
@@ -237,16 +255,6 @@ function ClassroomHub({
         nowMs={nowMs}
         job={quizJob}
       />
-
-      {isGuest ? null : (
-        <ExamCard
-          classroomId={id}
-          bankSize={counts.bank}
-          exam={overview.exam}
-          isPaid={session.plan.isPaid}
-          billingEnabled={session.features.billing}
-        />
-      )}
 
       {overview.unfinished.length > 0 ? (
         <section className="space-y-3">
@@ -261,7 +269,9 @@ function ClassroomHub({
                   <span className="grid size-4.5 place-items-center rounded-[4px] border-[1.5px] border-foreground/45 transition-colors group-hover:border-primary">
                     <Check className="size-3 text-primary opacity-0 transition-opacity group-hover:opacity-100" />
                   </span>
-                  <span className="font-medium">{formatQuizDate(quiz.quizDate, locale)}</span>
+                  <span className="font-medium">
+                    {formatQuizDate(quiz.quizDate, locale)}
+                  </span>
                   <span className="text-xs text-muted-foreground">
                     {t("questions", { count: quiz.size })}
                   </span>
@@ -286,12 +296,16 @@ function ClassroomHub({
                   : overview.lastUploadAt
                     ? tHub("notesMeta", {
                         count: counts.uploads,
-                        when: format.relativeTime(new Date(overview.lastUploadAt)),
+                        when: format.relativeTime(
+                          new Date(overview.lastUploadAt),
+                        ),
                       })
                     : null,
               badge:
                 counts.pendingUploads > 0 ? (
-                  <Badge variant="warning">{tHub("reading", { count: counts.pendingUploads })}</Badge>
+                  <Badge variant="warning">
+                    {tHub("reading", { count: counts.pendingUploads })}
+                  </Badge>
                 ) : null,
             },
             {
@@ -316,7 +330,9 @@ function ClassroomHub({
                     to: `${base}/mistakes`,
                     icon: NotebookText,
                     title: tHub("mistakes"),
-                    meta: session.plan.isPaid ? tHub("mistakesMeta", { count: overview.mistakes }) : null,
+                    meta: session.plan.isPaid
+                      ? tHub("mistakesMeta", { count: overview.mistakes })
+                      : null,
                     badge: !session.plan.isPaid ? (
                       <Badge>{tExam("proBadge")}</Badge>
                     ) : overview.mistakes > 0 ? (
@@ -333,6 +349,25 @@ function ClassroomHub({
           ]}
         />
       </section>
+      {counts.bank > 0 ? (
+        <section className="rounded-xl border border-border/70 bg-muted/25 p-5">
+          <h2 className="font-heading text-lg font-semibold">{t("beforeLessonTitle")}</h2>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">{t("beforeLessonCopy")}</p>
+          <Button variant="outline" className="mt-4" disabled={quizJob.busy} onClick={() => void quizJob.start()}>
+            <CtaIcon kind="generate" />
+            {t("beforeLessonAction")}
+          </Button>
+        </section>
+      ) : null}
+      {isGuest ? null : (
+        <ExamCard
+          classroomId={id}
+          bankSize={counts.bank}
+          exam={overview.exam}
+          isPaid={session.plan.isPaid}
+          billingEnabled={session.features.billing}
+        />
+      )}
     </div>
   );
 }
