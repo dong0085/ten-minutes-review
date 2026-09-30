@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useTranslations } from "use-intl";
 import { Alert, AlertDescription } from "@tmr/ui/components/alert";
 import { Button } from "@tmr/ui/components/button";
+import { CtaIcon } from "@tmr/ui/components/cta-icon";
 import { readError } from "@/spa/lib/read-error";
 
 export function BillingButton({ action }: { action: "checkout" | "portal" }) {
@@ -33,6 +34,7 @@ export function BillingButton({ action }: { action: "checkout" | "portal" }) {
         onClick={open}
         disabled={loading}
       >
+        <CtaIcon kind={action === "checkout" ? "pro" : "billing"} />
         {loading ? t("openingBilling") : action === "checkout" ? t("upgrade") : t("manageBilling")}
       </Button>
       {error ? (

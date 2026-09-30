@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { useTranslations } from "use-intl";
 import { EyeOff, Loader2, Lock, RotateCcw } from "lucide-react";
 import { Badge } from "@tmr/ui/components/badge";
@@ -7,7 +7,10 @@ import { Button } from "@tmr/ui/components/button";
 import { Input } from "@tmr/ui/components/input";
 import { Label } from "@tmr/ui/components/label";
 import { Textarea } from "@tmr/ui/components/textarea";
-import { BankProDialog, useCanManageBank } from "@/spa/components/classroom/bank-pro-dialog";
+import {
+  BankProDialog,
+  useCanManageBank,
+} from "@/spa/components/classroom/bank-pro-dialog";
 import { BillingButton } from "@/spa/components/account/billing-button";
 import { PageHeader, SectionTitle } from "@/spa/components/page";
 import { FullPageSpinner } from "@/spa/app/shell";
@@ -40,7 +43,9 @@ export function PointDetailPage() {
         kicker={
           <span className="inline-flex flex-wrap items-center gap-1.5 normal-case tracking-normal">
             <Badge variant="secondary">{categoryT(item.category)}</Badge>
-            {item.isRetired ? <Badge variant="outline">{t("omittedBadge")}</Badge> : null}
+            {item.isRetired ? (
+              <Badge variant="outline">{t("omittedBadge")}</Badge>
+            ) : null}
             {item.inferred ? (
               <Badge variant="warning" title={t("inferredHint")}>
                 {t("inferredBadge")}
@@ -51,7 +56,9 @@ export function PointDetailPage() {
         title={<span className="break-words">{item.targetText}</span>}
         description={
           <>
-            {item.nativeText ? <span className="block text-base">{item.nativeText}</span> : null}
+            {item.nativeText ? (
+              <span className="block text-base">{item.nativeText}</span>
+            ) : null}
             <span className="mt-1 block text-xs tabular-nums">
               {item.answered > 0
                 ? t("stats", { answered: item.answered, missed: item.missed })
@@ -64,7 +71,9 @@ export function PointDetailPage() {
             <Button
               variant="outline"
               disabled={toggleOmit.isPending}
-              onClick={() => toggleOmit.mutate({ id: item.id, omit: !item.isRetired })}
+              onClick={() =>
+                toggleOmit.mutate({ id: item.id, omit: !item.isRetired })
+              }
               title={item.isRetired ? t("restoreHint") : t("omitHint")}
             >
               {toggleOmit.isPending ? (
@@ -88,14 +97,20 @@ export function PointDetailPage() {
         }
       />
 
-      {item.sourceExcerpt ? (
-        <section className="space-y-2">
-          <SectionTitle>{t("sourceLabel")}</SectionTitle>
+      <section className="space-y-2">
+        <SectionTitle>{t("sourceLabel")}</SectionTitle>
+        {item.sourceExcerpt ? (
           <p className="rounded-xl border border-border/70 bg-muted/40 p-4 text-sm leading-6 whitespace-pre-wrap text-muted-foreground">
             {item.sourceExcerpt}
           </p>
-        </section>
-      ) : null}
+        ) : null}
+        <Link
+          to={`/classrooms/${id}/notes/${item.sourceUploadId}`}
+          className="text-sm text-primary underline underline-offset-4"
+        >
+          {t("openSource")}
+        </Link>
+      </section>
 
       {!canManage && item.note ? (
         <section className="space-y-2">
@@ -121,7 +136,9 @@ export function PointDetailPage() {
               </p>
               <p className="text-sm text-muted-foreground">{t("proBody")}</p>
             </div>
-            {session?.features.billing ? <BillingButton action="checkout" /> : null}
+            {session?.features.billing ? (
+              <BillingButton action="checkout" />
+            ) : null}
           </div>
         )}
       </section>
@@ -129,7 +146,13 @@ export function PointDetailPage() {
   );
 }
 
-function EditPointForm({ classroomId, item }: { classroomId: string; item: BankItem }) {
+function EditPointForm({
+  classroomId,
+  item,
+}: {
+  classroomId: string;
+  item: BankItem;
+}) {
   const t = useTranslations("Classroom.BankPage");
   const tCommon = useTranslations("Common");
   const [targetText, setTargetText] = useState(item.targetText);

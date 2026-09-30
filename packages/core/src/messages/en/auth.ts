@@ -1,7 +1,7 @@
 export const auth = {
   SignInPage: {
     title: "Sign in",
-    subtitle: "Pick up where you left off.",
+    subtitle: "Pick up your review between lessons.",
     verified: "Your email is verified. Sign in to continue.",
     signInError: "We could not sign you in. Please try again.",
   },
@@ -19,7 +19,8 @@ export const auth = {
   },
   SignUpPage: {
     title: "Create your account",
-    subtitle: "Your notes become a ten-minute quiz every morning.",
+    subtitle:
+      "Keep your lesson notes and progress, and receive a short review each morning.",
   },
   SignUpForm: {
     email: "Email",
@@ -45,7 +46,8 @@ export const auth = {
     subtitle: "We will email you a link to choose a new password.",
   },
   ForgotForm: {
-    intro: "Enter your email and we will send you a link to reset your password.",
+    intro:
+      "Enter your email and we will send you a link to reset your password.",
     sent: "If an account exists for that email, we sent a reset link.",
     back: "Back to sign in",
     sending: "Sending…",

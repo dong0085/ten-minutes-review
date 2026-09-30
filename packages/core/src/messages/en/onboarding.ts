@@ -7,19 +7,23 @@ export const onboarding = {
   },
   Welcome: {
     kicker: "Welcome",
-    title: "Ten minutes a day, <highlight>from your own notes</highlight>.",
-    blurb: "Three short steps and your first quiz is on its way.",
+    title:
+      "Keep your last lesson fresh with <highlight>a little daily practice.</highlight>",
+    blurb:
+      "Choose your language, add your lesson notes, and try your first review. Sample notes are here if you need them.",
     stepLanguage: "Pick the language you're learning",
-    stepTour: "See how a quiz works",
-    stepNotes: "Turn your notes into questions",
-    start: "Let's start",
+    stepTour: "Practise before your next lesson",
+    stepNotes: "Add your last lesson’s notes",
+    start: "Start my first review",
   },
   Language: {
     kicker: "Step 1",
     title: "Which language are you learning?",
-    blurb: "We'll show you a sample quiz in it.",
+    blurb:
+      "Your classroom will keep this language’s lesson notes and reviews together.",
     speak: "I speak",
-    continue: "Continue",
+    continue: "Add my lesson notes",
+    seeExample: "See how a review works",
   },
   Tour: {
     paperTitle: "Sample quiz · {language}",
@@ -34,7 +38,7 @@ export const onboarding = {
     scoreLine: "{correct} of {total} correct",
     header: {
       title: "This is your quiz paper",
-      body: "Every quiz is one exam paper. The top shows full marks, a suggested time, and an empty score box.",
+      body: "A review brings together a few exercises from your notes. See what’s included and the suggested time before you start.",
     },
     choice: {
       title: "Part I · Multiple choice",
@@ -58,13 +62,14 @@ export const onboarding = {
     },
     score: {
       title: "Your score",
-      body: "Points for each part and the total go in the score box. You can retake any quiz as often as you like.",
+      body: "Your results show what to revisit. Once you’ve checked the explanations, you can finish for today or practise again if you want.",
     },
   },
   Notes: {
-    kicker: "Step 3",
-    title: "Now, your own notes",
-    blurb: "Snap a page of your notebook or paste what you studied. We turn it into questions for you.",
+    kicker: "Your lesson notes",
+    title: "Bring your last lesson with you.",
+    blurb:
+      "Paste your tutor’s recap or photograph a page from your notebook. No need to tidy it up first.",
     photoTab: "Photo",
     textTab: "Text",
     dropTitle: "Take or choose a photo",
@@ -79,20 +84,27 @@ export const onboarding = {
     classroomName: "My {language}",
     emptyForm: "Add a photo or some text first.",
     readingTitle: "Reading your notes…",
-    readingBlurb: "We're picking out what's worth practising.",
-    slowHint: "This can take a minute. You can leave: your notes keep processing.",
-    doneTitle: "{count, plural, =0 {Nothing to practise yet} one {# thing to practise} other {# things to practise}}",
-    doneBlurb: "Your first quiz is ready to be written from these.",
-    emptyBlurb: "We couldn't find anything to practise. Try a page with words or phrases.",
+    readingBlurb:
+      "We’re finding words, phrases, and grammar to practise between lessons.",
+    slowHint:
+      "This can take a minute. You can leave: your notes keep processing.",
+    doneTitle:
+      "{count, plural, =0 {Nothing to practise yet} one {# thing to practise} other {# things to practise}}",
+    doneBlurb:
+      "Try a short review now. These notes will also feed future reviews, alongside older material as your classroom grows.",
+    emptyBlurb:
+      "We couldn't find anything to practise. Try a page with words or phrases.",
     failedTitle: "We couldn't read these notes",
-    makeQuiz: "Make my first quiz",
+    makeQuiz: "Start my first review",
     openClassroom: "Go to my classroom",
     tryAgain: "Try other notes",
     guestTitle: "Keep your progress",
-    guestBlurb: "Create a free account to save your classroom and get a quiz by email every morning.",
+    guestBlurb:
+      "Create a free account to keep these lesson notes and your progress, and turn on daily review emails.",
     guestAction: "Create account",
     composingTitle: "Writing your quiz…",
     composingBlurb: "This usually takes under a minute.",
-    composeFailed: "We couldn't write the quiz this time. You can try again from your classroom.",
+    composeFailed:
+      "We couldn't write the quiz this time. You can try again from your classroom.",
   },
 };

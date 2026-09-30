@@ -1,7 +1,7 @@
-
 import { CATEGORIES, type Category } from "@tmr/core";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { useTranslations } from "use-intl";
+import { Link } from "react-router";
 import { Badge } from "@tmr/ui/components/badge";
 import { Card, CardContent } from "@tmr/ui/components/card";
 import { cn } from "@tmr/ui/utils";
@@ -34,6 +34,7 @@ export function QuestionReviewCard({
   isCorrect,
   explanation,
   onOmitToggle,
+  classroomId,
 }: {
   question: ReviewCardQuestion;
   response: AnswerShape;
@@ -41,15 +42,20 @@ export function QuestionReviewCard({
   isCorrect?: boolean;
   explanation?: string;
   onOmitToggle?: (pointId: string, omitted: boolean) => void;
+  classroomId?: string;
 }) {
   const t = useTranslations("Quiz.QuestionReview");
   const categoryT = useTranslations("Category");
-  const categoryLabel =
-    CATEGORIES.includes(question.category as Category)
-      ? categoryT(question.category as Category)
-      : question.category;
+  const tRunner = useTranslations("Quiz.Runner");
+  const categoryLabel = CATEGORIES.includes(question.category as Category)
+    ? categoryT(question.category as Category)
+    : question.category;
 
-  function formatAnswer(type: string, shape: AnswerShape, options: string[] | null): string {
+  function formatAnswer(
+    type: string,
+    shape: AnswerShape,
+    options: string[] | null,
+  ): string {
     if (!shape) {
       return t("noAnswer");
     }
@@ -69,10 +75,15 @@ export function QuestionReviewCard({
       return options?.[shape.index] ?? t("option", { number: shape.index + 1 });
     }
     const blanks = shape.blanks ?? [];
-    if (blanks.length === 0 || blanks.every((blank) => !blank || blank.trim() === "")) {
+    if (
+      blanks.length === 0 ||
+      blanks.every((blank) => !blank || blank.trim() === "")
+    ) {
       return t("noAnswer");
     }
-    return blanks.map((blank) => (blank && blank.trim() !== "" ? blank : "—")).join(", ");
+    return blanks
+      .map((blank) => (blank && blank.trim() !== "" ? blank : "—"))
+      .join(", ");
   }
 
   return (
@@ -103,7 +114,9 @@ export function QuestionReviewCard({
               <OmitKnowledgePointButton
                 knowledgePointId={question.knowledgePointId}
                 isOmitted={question.isKnowledgePointRetired}
-                onToggle={(omitted) => onOmitToggle?.(question.knowledgePointId!, omitted)}
+                onToggle={(omitted) =>
+                  onOmitToggle?.(question.knowledgePointId!, omitted)
+                }
               />
             ) : null}
           </div>
@@ -129,7 +142,12 @@ export function QuestionReviewCard({
             <dt className="text-[0.68rem] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
               {t("yourAnswer")}
             </dt>
-            <dd className={cn("mt-1.5", isCorrect === false && "font-medium text-destructive")}>
+            <dd
+              className={cn(
+                "mt-1.5",
+                isCorrect === false && "font-medium text-destructive",
+              )}
+            >
               {formatAnswer(question.type, response, question.options)}
             </dd>
           </div>
@@ -146,8 +164,18 @@ export function QuestionReviewCard({
         </dl>
         {explanation ? (
           <div className="border-t border-border/65 pt-4">
-            <p className="text-sm leading-6 text-muted-foreground">{explanation}</p>
+            <p className="text-sm leading-6 text-muted-foreground">
+              {explanation}
+            </p>
           </div>
+        ) : null}
+        {classroomId && question.knowledgePointId ? (
+          <Link
+            to={`/classrooms/${classroomId}/bank/${question.knowledgePointId}`}
+            className="text-sm text-primary underline underline-offset-4"
+          >
+            {tRunner("openPoint")}
+          </Link>
         ) : null}
       </CardContent>
     </Card>

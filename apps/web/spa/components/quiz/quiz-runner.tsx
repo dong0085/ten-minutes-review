@@ -1,9 +1,20 @@
-
 import { Link } from "react-router";
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { motion, type Variants } from "motion/react";
 import { useTranslations } from "use-intl";
-import { Loader2, PanelLeftClose, PanelLeftOpen, Printer, ScanLine } from "lucide-react";
+import {
+  Loader2,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Printer,
+  ScanLine,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   CATEGORIES,
@@ -18,6 +29,7 @@ import {
 } from "@tmr/core";
 import { Alert, AlertDescription } from "@tmr/ui/components/alert";
 import { Button } from "@tmr/ui/components/button";
+import { CtaIcon } from "@tmr/ui/components/cta-icon";
 import { Card, CardContent } from "@tmr/ui/components/card";
 import {
   Dialog,
@@ -38,7 +50,12 @@ import {
 } from "@/spa/lib/quiz-draft";
 import { ExamReviewPanel } from "./exam-review";
 import { LAST_MARK, PopMark, ScoreStamp } from "./marks";
-import { blankCount, isAnswered, QuestionSheetItem, type QuestionGrade } from "./question-sheet-item";
+import {
+  blankCount,
+  isAnswered,
+  QuestionSheetItem,
+  type QuestionGrade,
+} from "./question-sheet-item";
 import { Scantron } from "./scantron";
 import type { LocalResponse, QuizQuestion } from "./types";
 
@@ -56,7 +73,9 @@ const HAND_IN_MS = 700;
 
 function emptyResponse(question: QuizQuestion): LocalResponse {
   if (question.type === "fill_blank") {
-    return { blanks: Array.from({ length: blankCount(question.stem) }, () => "") };
+    return {
+      blanks: Array.from({ length: blankCount(question.stem) }, () => ""),
+    };
   }
   if (question.type === "true_false") {
     return { value: null };
@@ -89,7 +108,9 @@ function buildOptionOrders(
 ): QuizOptionOrders {
   return Object.fromEntries(
     questions
-      .filter((question) => question.type === "mcq" || question.type === "image")
+      .filter(
+        (question) => question.type === "mcq" || question.type === "image",
+      )
       .map((question) => {
         const count = question.options?.length ?? 0;
         const restoredOrder = restored[question.id];
@@ -118,7 +139,10 @@ async function readError(response: Response): Promise<ApiRequestError | null> {
     const message = (data as { error?: unknown }).error;
     if (typeof message === "string") {
       const code = (data as { code?: unknown }).code;
-      return new ApiRequestError(message, typeof code === "string" ? code : undefined);
+      return new ApiRequestError(
+        message,
+        typeof code === "string" ? code : undefined,
+      );
     }
   }
   return null;
@@ -154,25 +178,30 @@ export function QuizRunner({
   const tPaper = useTranslations("Quiz.Paper");
   const categoryT = useTranslations("Category");
   const categoryLabel = (category: string) =>
-    CATEGORIES.includes(category as Category) ? categoryT(category as Category) : category;
+    CATEGORIES.includes(category as Category)
+      ? categoryT(category as Category)
+      : category;
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [attemptToken, setAttemptToken] = useState<string | null>(null);
   const [responses, setResponses] = useState<Record<string, LocalResponse>>({});
   const [optionOrders, setOptionOrders] = useState<QuizOptionOrders>({});
   const [current, setCurrent] = useState(0);
-  const [phase, setPhase] = useState<"loading" | "taking" | "submitting" | "results" | "error">(
-    "loading",
-  );
+  const [phase, setPhase] = useState<
+    "loading" | "taking" | "submitting" | "results" | "error"
+  >("loading");
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SubmitResult | null>(null);
   const [handedBack, setHandedBack] = useState(false);
   const [showAnswerSheet, setShowAnswerSheet] = useState(true);
   // Floating keeps the sheet folded to its tab and lays it over the paper on hover.
-  const [floatAnswerSheet, setFloatAnswerSheet] = useState(readFloatAnswerSheet);
+  const [floatAnswerSheet, setFloatAnswerSheet] =
+    useState(readFloatAnswerSheet);
   const [peekAnswerSheet, setPeekAnswerSheet] = useState(false);
   const [peekLeft, setPeekLeft] = useState(16);
   const [elapsedMs, setElapsedMs] = useState(0);
-  const [omittedPointIds, setOmittedPointIds] = useState<Set<string>>(new Set());
+  const [omittedPointIds, setOmittedPointIds] = useState<Set<string>>(
+    new Set(),
+  );
   // Pencil marks rubbed out on the answer sheet, as "questionId:choice".
   const [erased, setErased] = useState<Set<string>>(new Set());
   const startedAt = useRef(0);
@@ -216,9 +245,13 @@ export function QuizRunner({
       if (draft) {
         const response = await fetch(`/api/quizzes/${quizId}`);
         if (!response.ok) {
-          throw (await readError(response)) ?? new ApiRequestError(t("startError"));
+          throw (
+            (await readError(response)) ?? new ApiRequestError(t("startError"))
+          );
         }
-        const data = (await response.json()) as { quiz: { questions: QuizQuestion[] } };
+        const data = (await response.json()) as {
+          quiz: { questions: QuizQuestion[] };
+        };
         const restoredQuestions = paperOrder(data.quiz.questions);
         const restoredOptionOrders = buildOptionOrders(
           restoredQuestions,
@@ -238,7 +271,9 @@ export function QuizRunner({
         saveQuizOptionOrders(userId, quizId, restoredOptionOrders);
         setResponses(draft.responses);
         setErased(new Set(draft.erased ?? []));
-        setCurrent(Math.max(0, Math.min(draft.current, restoredQuestions.length - 1)));
+        setCurrent(
+          Math.max(0, Math.min(draft.current, restoredQuestions.length - 1)),
+        );
         scrollToRestored.current = draft.current > 0;
         durations.current = draft.durations;
         startedAt.current = draft.startedAt;
@@ -246,11 +281,18 @@ export function QuizRunner({
         setPhase("taking");
         return;
       }
-      const response = await fetch(`/api/quizzes/${quizId}/attempts`, { method: "POST" });
+      const response = await fetch(`/api/quizzes/${quizId}/attempts`, {
+        method: "POST",
+      });
       if (!response.ok) {
-        throw (await readError(response)) ?? new ApiRequestError(t("startError"));
+        throw (
+          (await readError(response)) ?? new ApiRequestError(t("startError"))
+        );
       }
-      const data = (await response.json()) as { attemptToken: string; questions: QuizQuestion[] };
+      const data = (await response.json()) as {
+        attemptToken: string;
+        questions: QuizQuestion[];
+      };
       data.questions = paperOrder(data.questions);
       const nextOptionOrders = buildOptionOrders(
         data.questions,
@@ -273,7 +315,9 @@ export function QuizRunner({
       questionStartedAt.current = now;
       setPhase("taking");
     } catch (startError) {
-      setError(startError instanceof Error ? startError.message : t("startError"));
+      setError(
+        startError instanceof Error ? startError.message : t("startError"),
+      );
       setPhase("error");
     }
   }, [quizId, userId, t, onGraded]);
@@ -312,7 +356,9 @@ export function QuizRunner({
     const before = responses[questionId]?.index ?? responses[questionId]?.value;
     const after = response.index ?? response.value;
     if (before !== undefined && before !== null && before !== after) {
-      setErased((previous) => new Set(previous).add(`${questionId}:${String(before)}`));
+      setErased((previous) =>
+        new Set(previous).add(`${questionId}:${String(before)}`),
+      );
     }
     setResponses((previous) => ({ ...previous, [questionId]: response }));
   };
@@ -333,7 +379,16 @@ export function QuizRunner({
       erased: [...erased],
       savedAt: Date.now(),
     });
-  }, [attemptToken, current, erased, optionOrders, phase, quizId, responses, userId]);
+  }, [
+    attemptToken,
+    current,
+    erased,
+    optionOrders,
+    phase,
+    quizId,
+    responses,
+    userId,
+  ]);
 
   useEffect(() => {
     if (phase !== "taking" || !scrollToRestored.current) {
@@ -358,7 +413,8 @@ export function QuizRunner({
       if (!paper || !layout) {
         return;
       }
-      const inMargin = event.clientX < paper.left && event.clientY > Math.max(0, layout.top);
+      const inMargin =
+        event.clientX < paper.left && event.clientY > Math.max(0, layout.top);
       const inSheet = peekRef.current?.contains(event.target as Node) ?? false;
       if (inMargin) {
         setPeekLeft(Math.max(16, paper.left - 32 - 368));
@@ -409,7 +465,9 @@ export function QuizRunner({
         }),
       });
       if (!response.ok) {
-        throw (await readError(response)) ?? new ApiRequestError(t("submitError"));
+        throw (
+          (await readError(response)) ?? new ApiRequestError(t("submitError"))
+        );
       }
       const data = (await response.json()) as SubmitResult;
       clearQuizDraft(userId, quizId);
@@ -420,8 +478,12 @@ export function QuizRunner({
       setPhase("results");
       onGraded?.(data.attemptId);
     } catch (submitError) {
-      const message = submitError instanceof Error ? submitError.message : t("submitError");
-      if (submitError instanceof ApiRequestError && submitError.code === "attempt_invalid") {
+      const message =
+        submitError instanceof Error ? submitError.message : t("submitError");
+      if (
+        submitError instanceof ApiRequestError &&
+        submitError.code === "attempt_invalid"
+      ) {
         clearQuizDraft(userId, quizId);
       }
       await handedIn;
@@ -430,14 +492,27 @@ export function QuizRunner({
       setPhase("taking");
       toast.error(message);
     }
-  }, [attemptToken, current, questions, quizId, responses, t, trackTime, userId, onGraded]);
+  }, [
+    attemptToken,
+    current,
+    questions,
+    quizId,
+    responses,
+    t,
+    trackTime,
+    userId,
+    onGraded,
+  ]);
 
   const focusQuestion = useCallback((questionId: string) => {
     const container = questionRefs.current[questionId];
     const target =
       container?.querySelector<HTMLElement>(
         '[data-quiz-answer] [data-state="checked"], [data-quiz-answer] [aria-pressed="true"]',
-      ) ?? container?.querySelector<HTMLElement>("[data-quiz-answer] :is(input, button)");
+      ) ??
+      container?.querySelector<HTMLElement>(
+        "[data-quiz-answer] :is(input, button)",
+      );
     target?.focus({ preventScroll: true });
     container?.scrollIntoView({ block: "center", behavior: "smooth" });
   }, []);
@@ -484,7 +559,9 @@ export function QuizRunner({
           <div className="flex flex-wrap gap-2">
             <Button onClick={() => void startAttempt()}>{t("tryAgain")}</Button>
             <Button asChild variant="outline">
-              <Link to={`/classrooms/${classroomId}/quizzes`}>{t("backToQuizzes")}</Link>
+              <Link to={`/classrooms/${classroomId}/quizzes`}>
+                {t("backToQuizzes")}
+              </Link>
             </Button>
           </div>
         </CardContent>
@@ -502,11 +579,13 @@ export function QuizRunner({
   const fullMarks = parts.reduce((sum, part) => sum + part.totalPoints, 0);
   const earnedIn = (part: (typeof parts)[number]) =>
     part.questions.reduce(
-      (sum, { question }) => sum + (gradeFor(question.id)?.isCorrect ? part.pointsEach : 0),
+      (sum, { question }) =>
+        sum + (gradeFor(question.id)?.isCorrect ? part.pointsEach : 0),
       0,
     );
   const earnedTotal = parts.reduce((sum, part) => sum + earnedIn(part), 0);
-  const numeral = (partNumber: number) => partNumeral(tPaper("numerals"), partNumber);
+  const numeral = (partNumber: number) =>
+    partNumeral(tPaper("numerals"), partNumber);
   const redMark = "font-heading font-semibold text-destructive";
   const submitting = phase === "submitting";
   // Totals land once the last question on the paper has its mark.
@@ -529,7 +608,9 @@ export function QuizRunner({
       earned={graded ? earnedTotal : null}
       activeQuestionId={questions[current]?.id ?? null}
       onAnswer={(questionId, next) => {
-        const index = questions.findIndex((question) => question.id === questionId);
+        const index = questions.findIndex(
+          (question) => question.id === questionId,
+        );
         if (index >= 0) {
           activate(index);
         }
@@ -552,8 +633,14 @@ export function QuizRunner({
     <div className="flex items-center justify-between gap-2 pb-1.5 pl-1">
       <p className="text-xs text-muted-foreground tabular-nums">
         {graded
-          ? t("score", { correct: graded.correctCount, total: graded.questionCount })
-          : t("answeredProgress", { answered: answeredCount, total: questions.length })}
+          ? t("score", {
+              correct: graded.correctCount,
+              total: graded.questionCount,
+            })
+          : t("answeredProgress", {
+              answered: answeredCount,
+              total: questions.length,
+            })}
       </p>
       {docked ? (
         <Button
@@ -652,7 +739,9 @@ export function QuizRunner({
         </aside>
       ) : null}
       {scantron && !docked ? (
-        <div className="hidden lg:sticky lg:top-6 lg:block print:hidden">{sheetTab}</div>
+        <div className="hidden lg:sticky lg:top-6 lg:block print:hidden">
+          {sheetTab}
+        </div>
       ) : null}
       {scantron && floatAnswerSheet && peekAnswerSheet ? (
         <div
@@ -673,251 +762,333 @@ export function QuizRunner({
         </div>
       ) : null}
       <div ref={paperColumnRef} className="relative min-w-0 space-y-5">
-      {phase === "submitting" ? (
-        <div
-          role="status"
-          className="absolute inset-x-0 top-16 z-10 flex justify-center print:hidden motion-safe:animate-in motion-safe:fade-in motion-safe:delay-300 motion-safe:fill-mode-both"
+        {phase === "submitting" ? (
+          <div
+            role="status"
+            className="absolute inset-x-0 top-16 z-10 flex justify-center print:hidden motion-safe:animate-in motion-safe:fade-in motion-safe:delay-300 motion-safe:fill-mode-both"
+          >
+            <span className="flex items-center gap-2 rounded-full border border-border/70 bg-card px-4 py-2 text-sm text-muted-foreground shadow-sm">
+              <Loader2 className="size-4 animate-spin" />
+              {t("grading")}
+            </span>
+          </div>
+        ) : null}
+        {error && phase === "taking" ? (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : null}
+        <HandInSheet
+          key={graded ? graded.attemptId : "sheet"}
+          submitting={submitting}
+          handedBack={handedBack}
+          className="quiz-paper-stack"
         >
-          <span className="flex items-center gap-2 rounded-full border border-border/70 bg-card px-4 py-2 text-sm text-muted-foreground shadow-sm">
-            <Loader2 className="size-4 animate-spin" />
-            {t("grading")}
-          </span>
-        </div>
-      ) : null}
-      {error && phase === "taking" ? (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      ) : null}
-      <HandInSheet
-        key={graded ? graded.attemptId : "sheet"}
-        submitting={submitting}
-        handedBack={handedBack}
-        className="quiz-paper-stack"
-      >
-        <article className="quiz-paper">
-          <header className="px-6 pt-8 sm:px-12 sm:pt-10">
-            <p className="eyebrow text-center">{tLayout("title")}</p>
-            <h2 className="mt-3 text-center font-heading text-2xl font-semibold tracking-[-0.025em] sm:text-3xl">
-              {title}
-            </h2>
-            <p className="mt-1 text-center text-sm text-muted-foreground">{subtitle}</p>
-            <div className="mt-6 flex flex-col gap-4 border-b-[3px] border-double border-foreground/60 pb-4 sm:flex-row sm:items-end sm:justify-between">
-              <div className="space-y-1 text-sm">
-                {graded ? (
-                  <PopMark as="p" className="font-heading text-base text-destructive italic">
-                    {graded.correctCount === graded.questionCount
-                      ? t("everyAnswerLanded")
-                      : t("reviewMissed")}
-                  </PopMark>
-                ) : (
-                  <p className="text-muted-foreground">{instructions}</p>
-                )}
-                <p className="text-muted-foreground">
-                  {tPaper("fullMarks", { total: fullMarks })}
+          <article className="quiz-paper">
+            <header className="px-6 pt-8 sm:px-12 sm:pt-10">
+              <p className="eyebrow text-center">{tLayout("title")}</p>
+              <h2 className="mt-3 text-center font-heading text-2xl font-semibold tracking-[-0.025em] sm:text-3xl">
+                {title}
+              </h2>
+              <p className="mt-1 text-center text-sm text-muted-foreground">
+                {subtitle}
+              </p>
+              <div className="mt-6 flex flex-col gap-4 border-b-[3px] border-double border-foreground/60 pb-4 sm:flex-row sm:items-end sm:justify-between">
+                <div className="space-y-1 text-sm">
                   {graded ? (
-                    <>
-                      {" · "}
-                      {tPaper("timeTaken", {
-                        minutes: Math.floor(elapsedMs / 60000),
-                        seconds: Math.floor((elapsedMs % 60000) / 1000),
-                      })}
-                    </>
-                  ) : suggestedMinutes ? (
-                    <>
-                      {" · "}
-                      {tPaper("suggestedTime", { minutes: suggestedMinutes })}
-                    </>
-                  ) : null}
-                </p>
-              </div>
-              <table className="shrink-0 border-collapse self-start text-center text-sm sm:self-auto">
-                <thead>
-                  <tr>
-                    <th className="border border-foreground/60 px-2.5 py-1 font-medium">
-                      {tPaper("partHeader")}
-                    </th>
-                    {parts.map((part) => (
-                      <th
-                        key={part.section}
-                        className="border border-foreground/60 px-2.5 py-1 font-heading font-medium"
-                      >
-                        {numeral(part.partNumber)}
+                    <PopMark
+                      as="p"
+                      className="font-heading text-base text-destructive italic"
+                    >
+                      {graded.correctCount === graded.questionCount
+                        ? t("everyAnswerLanded")
+                        : t("reviewMissed")}
+                    </PopMark>
+                  ) : (
+                    <p className="text-muted-foreground">{instructions}</p>
+                  )}
+                  <p className="text-muted-foreground">
+                    {tPaper("fullMarks", { total: fullMarks })}
+                    {graded ? (
+                      <>
+                        {" · "}
+                        {tPaper("timeTaken", {
+                          minutes: Math.floor(elapsedMs / 60000),
+                          seconds: Math.floor((elapsedMs % 60000) / 1000),
+                        })}
+                      </>
+                    ) : suggestedMinutes ? (
+                      <>
+                        {" · "}
+                        {tPaper("suggestedTime", { minutes: suggestedMinutes })}
+                      </>
+                    ) : null}
+                  </p>
+                </div>
+                <table className="shrink-0 border-collapse self-start text-center text-sm sm:self-auto">
+                  <thead>
+                    <tr>
+                      <th className="border border-foreground/60 px-2.5 py-1 font-medium">
+                        {tPaper("partHeader")}
                       </th>
-                    ))}
-                    <th className="border border-foreground/60 px-2.5 py-1 font-medium">
-                      {tPaper("totalHeader")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th className="border border-foreground/60 px-2.5 py-1 font-medium">
-                      {t("scoreLabel")}
-                    </th>
-                    {parts.map((part) => (
-                      <td key={part.section} className="h-11 min-w-11 border border-foreground/60">
+                      {parts.map((part) => (
+                        <th
+                          key={part.section}
+                          className="border border-foreground/60 px-2.5 py-1 font-heading font-medium"
+                        >
+                          {numeral(part.partNumber)}
+                        </th>
+                      ))}
+                      <th className="border border-foreground/60 px-2.5 py-1 font-medium">
+                        {tPaper("totalHeader")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th className="border border-foreground/60 px-2.5 py-1 font-medium">
+                        {t("scoreLabel")}
+                      </th>
+                      {parts.map((part) => (
+                        <td
+                          key={part.section}
+                          className="h-11 min-w-11 border border-foreground/60"
+                        >
+                          {graded ? (
+                            <PopMark
+                              order={lastMark}
+                              className={cn(redMark, "text-lg")}
+                            >
+                              {earnedIn(part)}
+                            </PopMark>
+                          ) : null}
+                        </td>
+                      ))}
+                      <td className="h-11 min-w-14 border border-foreground/60">
                         {graded ? (
-                          <PopMark order={lastMark} className={cn(redMark, "text-lg")}>
-                            {earnedIn(part)}
-                          </PopMark>
+                          <ScoreStamp
+                            after={lastMark}
+                            className={cn(redMark, "text-2xl")}
+                          >
+                            {earnedTotal}
+                          </ScoreStamp>
                         ) : null}
                       </td>
-                    ))}
-                    <td className="h-11 min-w-14 border border-foreground/60">
-                      {graded ? (
-                        <ScoreStamp after={lastMark} className={cn(redMark, "text-2xl")}>{earnedTotal}</ScoreStamp>
-                      ) : null}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </header>
-          {graded && isExam ? (
-            <ExamReviewPanel
-              attemptId={graded.attemptId}
-              initiallyWriting={graded.reviewPending}
-              onJump={(number) => {
-                const target = parts
-                  .flatMap((part) => part.questions)
-                  .find((entry) => entry.number === number);
-                if (target) {
-                  focusQuestion(target.question.id);
-                }
-              }}
-              className="mx-6 mt-8 sm:mx-12"
-            />
-          ) : null}
-          <div className="space-y-10 px-6 pt-8 pb-10 sm:px-12">
-            {parts.map((part) => (
-              <section key={part.section} aria-labelledby={`part-${part.section}`}>
-                <h3
-                  id={`part-${part.section}`}
-                  className="flex flex-wrap items-baseline gap-x-2 font-heading text-lg font-semibold"
-                >
-                  {tPaper("part", { numeral: numeral(part.partNumber), title: tPaper(part.section) })}
-                  <span className="text-sm font-normal text-muted-foreground">
-                    {tPaper("partInfo", {
-                      count: part.questions.length,
-                      points: part.pointsEach,
-                      total: part.totalPoints,
-                    })}
-                  </span>
-                  {graded ? (
-                    <PopMark order={lastMark} className={cn(redMark, "ml-1 -rotate-6 text-xl")}>
-                      {earnedIn(part)}
-                    </PopMark>
-                  ) : null}
-                </h3>
-                <ol className="mt-5 space-y-9">
-                  {part.questions.map(({ question, number }) => {
-                    const index = number - 1;
-                    const grade = gradeFor(question.id);
-                    const pointId = question.knowledgePointId ?? grade?.knowledgePointId;
-                    return (
-                      <QuestionSheetItem
-                        key={question.id}
-                        ref={(element) => {
-                          questionRefs.current[question.id] = element;
-                        }}
-                        question={question}
-                        number={number}
-                        points={part.pointsEach}
-                        isLast={index === questions.length - 1}
-                        response={responses[question.id]}
-                        optionOrder={optionOrders[question.id]}
-                        categoryLabel={categoryLabel(question.category)}
-                        pointId={pointId}
-                        isOmitted={
-                          pointId
-                            ? omittedPointIds.has(pointId)
-                            : (grade?.isKnowledgePointRetired ?? false)
-                        }
-                        grade={grade}
-                        markOrder={Math.min(number, 12)}
-                        onToggleOmit={handleToggleOmit}
-                        onAnswer={(next) => setAnswer(question.id, next)}
-                        onActivate={() => activate(index)}
-                        onAdvance={() => advance(index)}
-                      />
-                    );
-                  })}
-                </ol>
-              </section>
-            ))}
-          </div>
-        </article>
-      </HandInSheet>
-      <div className="sticky bottom-3 z-20 flex items-center gap-2 print:hidden rounded-2xl border border-border/75 bg-background/85 p-2 pl-4 shadow-[0_10px_36px_rgb(var(--shadow-colour)/0.1)] backdrop-blur-xl">
-        {graded ? (
-          <>
-            <p className="min-w-0 flex-1 text-sm font-medium">
-              {t("score", { correct: graded.correctCount, total: graded.questionCount })}
-            </p>
-            {scantron ? (
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="lg:hidden" aria-label={t("answerSheet")}>
-                    <ScanLine />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-h-[90dvh] overflow-y-auto p-3 sm:max-w-md">
-                  <DialogTitle className="sr-only">{t("answerSheet")}</DialogTitle>
-                  {scantron}
-                </DialogContent>
-              </Dialog>
-            ) : null}
-            <Button variant="ghost" size="icon" aria-label={t("print")} onClick={() => window.print()}>
-              <Printer />
-            </Button>
-            <Button variant="outline" onClick={() => void startAttempt()}>
-              {t("retake")}
-            </Button>
-            <Button asChild variant="outline">
-              <Link to={`/classrooms/${classroomId}/quizzes/${quizId}/attempts/${graded.attemptId}`}>
-                {t("fullReview")}
-              </Link>
-            </Button>
-          </>
-        ) : (
-          <>
-            <div className="mr-2 min-w-0 flex-1">
-              <p className="text-xs font-medium text-muted-foreground">
-                {t("answeredProgress", { answered: answeredCount, total: questions.length })}
-              </p>
-              <Progress
-                className="mt-1.5"
-                value={questions.length > 0 ? (answeredCount / questions.length) * 100 : 0}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </header>
+            {graded && isExam ? (
+              <ExamReviewPanel
+                attemptId={graded.attemptId}
+                initiallyWriting={graded.reviewPending}
+                onJump={(number) => {
+                  const target = parts
+                    .flatMap((part) => part.questions)
+                    .find((entry) => entry.number === number);
+                  if (target) {
+                    focusQuestion(target.question.id);
+                  }
+                }}
+                className="mx-6 mt-8 sm:mx-12"
               />
-            </div>
-            {scantron ? (
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="lg:hidden" aria-label={t("answerSheet")}>
-                    <ScanLine />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-h-[90dvh] overflow-y-auto p-3 sm:max-w-md">
-                  <DialogTitle className="sr-only">{t("answerSheet")}</DialogTitle>
-                  {scantron}
-                </DialogContent>
-              </Dialog>
             ) : null}
-            <Button variant="ghost" size="icon" aria-label={t("print")} onClick={() => window.print()}>
-              <Printer />
-            </Button>
-            <Button
-              ref={submitRef}
-              onClick={() => void submit()}
-              disabled={phase === "submitting"}
-            >
-              {phase === "submitting" ? <Loader2 className="animate-spin" /> : null}
-              {phase === "submitting" ? t("submitting") : t("submit")}
-            </Button>
-          </>
-        )}
-      </div>
+            <div className="space-y-10 px-6 pt-8 pb-10 sm:px-12">
+              {parts.map((part) => (
+                <section
+                  key={part.section}
+                  aria-labelledby={`part-${part.section}`}
+                >
+                  <h3
+                    id={`part-${part.section}`}
+                    className="flex flex-wrap items-baseline gap-x-2 font-heading text-lg font-semibold"
+                  >
+                    {tPaper("part", {
+                      numeral: numeral(part.partNumber),
+                      title: tPaper(part.section),
+                    })}
+                    <span className="text-sm font-normal text-muted-foreground">
+                      {tPaper("partInfo", {
+                        count: part.questions.length,
+                        points: part.pointsEach,
+                        total: part.totalPoints,
+                      })}
+                    </span>
+                    {graded ? (
+                      <PopMark
+                        order={lastMark}
+                        className={cn(redMark, "ml-1 -rotate-6 text-xl")}
+                      >
+                        {earnedIn(part)}
+                      </PopMark>
+                    ) : null}
+                  </h3>
+                  <ol className="mt-5 space-y-9">
+                    {part.questions.map(({ question, number }) => {
+                      const index = number - 1;
+                      const grade = gradeFor(question.id);
+                      const pointId =
+                        question.knowledgePointId ?? grade?.knowledgePointId;
+                      return (
+                        <QuestionSheetItem
+                          key={question.id}
+                          ref={(element) => {
+                            questionRefs.current[question.id] = element;
+                          }}
+                          question={question}
+                          number={number}
+                          points={part.pointsEach}
+                          isLast={index === questions.length - 1}
+                          response={responses[question.id]}
+                          optionOrder={optionOrders[question.id]}
+                          categoryLabel={categoryLabel(question.category)}
+                          pointId={pointId}
+                          isOmitted={
+                            pointId
+                              ? omittedPointIds.has(pointId)
+                              : (grade?.isKnowledgePointRetired ?? false)
+                          }
+                          grade={grade}
+                          markOrder={Math.min(number, 12)}
+                          onToggleOmit={handleToggleOmit}
+                          onAnswer={(next) => setAnswer(question.id, next)}
+                          onActivate={() => activate(index)}
+                          onAdvance={() => advance(index)}
+                        >
+                          {graded && pointId ? (
+                            <Link
+                              to={`/classrooms/${classroomId}/bank/${pointId}`}
+                              className="text-sm text-primary underline underline-offset-4 print:hidden"
+                            >
+                              {t("openPoint")}
+                            </Link>
+                          ) : null}
+                        </QuestionSheetItem>
+                      );
+                    })}
+                  </ol>
+                </section>
+              ))}
+            </div>
+          </article>
+        </HandInSheet>
+        <div className="sticky bottom-3 z-20 flex flex-wrap items-center gap-2 print:hidden rounded-2xl border border-border/75 bg-background/85 p-2 pl-4 shadow-[0_10px_36px_rgb(var(--shadow-colour)/0.1)] backdrop-blur-xl">
+          {graded ? (
+            <>
+              <p className="min-w-0 flex-1 text-sm font-medium">
+                {t("score", {
+                  correct: graded.correctCount,
+                  total: graded.questionCount,
+                })}
+              </p>
+              {scantron ? (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="lg:hidden"
+                      aria-label={t("answerSheet")}
+                    >
+                      <ScanLine />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-h-[90dvh] overflow-y-auto p-3 sm:max-w-md">
+                    <DialogTitle className="sr-only">
+                      {t("answerSheet")}
+                    </DialogTitle>
+                    {scantron}
+                  </DialogContent>
+                </Dialog>
+              ) : null}
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={t("print")}
+                onClick={() => window.print()}
+              >
+                <Printer />
+              </Button>
+              <Button variant="outline" onClick={() => void startAttempt()}>
+                <CtaIcon kind="retake" />
+                {t("retake")}
+              </Button>
+              <Button asChild variant="outline">
+                <Link
+                  to={`/classrooms/${classroomId}/quizzes/${quizId}/attempts/${graded.attemptId}`}
+                >
+                  <CtaIcon kind="review" />
+                  {t("fullReview")}
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link to={`/classrooms/${classroomId}`}>
+                  {isExam ? t("finishReview") : t("finish")}
+                </Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <div className="mr-2 min-w-0 flex-1">
+                <p className="text-xs font-medium text-muted-foreground">
+                  {t("answeredProgress", {
+                    answered: answeredCount,
+                    total: questions.length,
+                  })}
+                </p>
+                <Progress
+                  className="mt-1.5"
+                  value={
+                    questions.length > 0
+                      ? (answeredCount / questions.length) * 100
+                      : 0
+                  }
+                />
+              </div>
+              {scantron ? (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="lg:hidden"
+                      aria-label={t("answerSheet")}
+                    >
+                      <ScanLine />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-h-[90dvh] overflow-y-auto p-3 sm:max-w-md">
+                    <DialogTitle className="sr-only">
+                      {t("answerSheet")}
+                    </DialogTitle>
+                    {scantron}
+                  </DialogContent>
+                </Dialog>
+              ) : null}
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={t("print")}
+                onClick={() => window.print()}
+              >
+                <Printer />
+              </Button>
+              <Button
+                ref={submitRef}
+                onClick={() => void submit()}
+                disabled={phase === "submitting"}
+              >
+                {phase === "submitting" ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <CtaIcon kind="submit" />
+                )}
+                {phase === "submitting" ? t("submitting") : t("submit")}
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -932,7 +1103,12 @@ const SHEET: Variants = {
     opacity: 0.6,
     transition: { duration: 0.5, ease: [0.55, 0, 0.75, 0.2] },
   },
-  rest: { y: 0, rotate: 0, opacity: 1, transition: { type: "spring", stiffness: 170, damping: 19 } },
+  rest: {
+    y: 0,
+    rotate: 0,
+    opacity: 1,
+    transition: { type: "spring", stiffness: 170, damping: 19 },
+  },
 };
 
 /** A sheet that flies up when handed in and drops back once it is marked. */

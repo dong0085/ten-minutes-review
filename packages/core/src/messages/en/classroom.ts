@@ -4,26 +4,30 @@ export const classroom = {
     active: "Active",
     dormant: "Dormant",
     paused: "Paused",
-    knowledgePoints: "{count, plural, one {# knowledge point} other {# knowledge points}} in the bank",
+    knowledgePoints:
+      "{count, plural, one {# knowledge point} other {# knowledge points}} in the bank",
     daysRemaining:
       "{count, plural, =0 {Last day of quizzes} one {# more day of quizzes} other {# more days of quizzes}}",
     takeToday: "Take today's quiz",
     addNotes: "Add notes",
   },
   TodayQuiz: {
-    kicker: "A fresh ten minutes",
-    title: "Today's quiz",
-    ready: "Your quiz for today is ready.",
-    idle: "Create one now, or wait for your morning email.",
-    paused: "Daily reviews are paused. You can still create a quiz whenever you like.",
-    resetAt: "Resets at {local} ({utc} UTC)",
-    resetAtTomorrow: "Resets tomorrow at {local} ({utc} UTC)",
-    takeToday: "Take today's quiz",
-    createNow: "Create a quiz now",
+    kicker: "Between lessons",
+    title: "Today’s review",
+    ready:
+      "Practise your lesson notes, with older material and recent mistakes mixed in.",
+    idle: "Your next daily review arrives in the morning. You can also practise now.",
+    paused:
+      "Daily reviews are paused. You can still create a quiz whenever you like.",
+    resetAt: "Next daily review: {local} ({utc} UTC)",
+    resetAtTomorrow: "Next daily review: tomorrow at {local} ({utc} UTC)",
+    takeToday: "Start today’s review",
+    createNow: "Practise now",
     addNotes: "Add notes",
     addNotesSuffix: "to create a quiz.",
     writingTitle: "Writing a quiz…",
-    writingHint: "About a minute. You can leave this page; it will show up here.",
+    writingHint:
+      "About a minute. You can leave this page; it will show up here.",
     stepQueued: "Queued",
     stepWriting: "Writing your quiz",
     hintLonger: "Taking a little longer than usual.",
@@ -31,12 +35,22 @@ export const classroom = {
     stoppedTitle: "Stopped",
     stoppedBlurb: "No quiz was created. You can start again any time.",
     failedTitle: "Couldn't create the quiz.",
-    failedBlurb: "Something went wrong while writing it. Try again in a moment.",
+    failedBlurb:
+      "Something went wrong while writing it. Try again in a moment.",
     tryAgain: "Try again",
+    completedTitle: "You’ve reviewed today",
+    completedBlurb:
+      "A good place to finish for today. Revisit the explanations, or practise more when you want.",
+    reviewResults: "View my review",
+    processing:
+      "We’re preparing practice from your notes. You can leave and come back when it’s ready.",
+    empty:
+      "Start with your last lesson’s notes. Paste your tutor’s recap or photograph a page.",
   },
   NewForm: {
     pageTitle: "New classroom",
-    pageBlurb: "A classroom holds your notes, its question bank, and a daily quiz.",
+    pageBlurb:
+      "Keep one language course here. Add notes after each lesson; your daily reviews draw from them over time.",
     name: "Name",
     namePlaceholder: "French with Marie",
     learning: "I'm learning",
@@ -61,7 +75,7 @@ export const classroom = {
   },
   QuizLength: {
     title: "Quiz length",
-    help: "Sets how long each quiz runs. Vocabulary questions are quick, so vocabulary-heavy days get more of them. Applies to quizzes composed from now on.",
+    help: "Choose a review length that fits between lessons. Standard is about ten minutes; new quizzes use your choice.",
     levelMuchShorter: "Much shorter",
     levelShorter: "Shorter",
     levelStandard: "Standard",
@@ -73,7 +87,7 @@ export const classroom = {
   DailyReviews: {
     title: "Daily reviews",
     activeExplanation:
-      "Need a break? Pause scheduled quizzes and emails without losing your notes or history.",
+      "Taking a break from lessons? Pause daily reviews and emails. Your notes and practice history will be here when you return.",
     pausedExplanation:
       "Scheduled quizzes and emails are paused. Resume whenever you're ready; your next daily review will start the following morning.",
     pause: "Pause daily reviews",
@@ -89,7 +103,8 @@ export const classroom = {
     title: "Archive or delete",
     blurb:
       "Archiving hides the classroom and stops its emails. Deleting removes everything in it.",
-    archiveConfirm: "Archive this classroom? Emails stop, and it leaves your list.",
+    archiveConfirm:
+      "Archive this classroom? Emails stop, and it leaves your list.",
     deleteConfirm:
       "Delete this classroom? Its uploads, question bank, and quizzes will be lost. This cannot be undone.",
     archive: "Archive classroom",
@@ -103,13 +118,15 @@ export const classroom = {
     kicker: "Your material",
     title: "Question bank",
     empty: "No knowledge points yet. Add notes to build the bank.",
-    total: "{count, plural, one {# knowledge point} other {# knowledge points}} ready to draw from.",
+    total:
+      "{count, plural, one {# knowledge point} other {# knowledge points}} ready to draw from.",
     manage: "Manage the bank",
   },
   ListPage: {
     kicker: "Your learning spaces",
     title: "Classrooms",
-    blurb: "Each classroom keeps one stream of notes, questions, and daily reviews together.",
+    blurb:
+      "Pick a classroom for today’s review. Keep adding new notes to the same classroom after each lesson.",
     activeSummary: "{active} of {total} active",
     activeCount: "{active} active",
     activeHint:
@@ -124,9 +141,9 @@ export const classroom = {
       "The free plan includes 3 classrooms and 1 notes upload a week. Pro removes both limits and lets you edit your question bank, for $2.99/month.",
     lockedClose: "Not now",
     emptyKicker: "Begin with one lesson",
-    emptyTitle: "Your notes become a ten-minute quiz",
+    emptyTitle: "Start reviewing your last lesson",
     emptyBlurb:
-      "Create a classroom, paste or photograph your tutoring notes, and every morning you get a short quiz drawn from what you studied: vocabulary, phrases, grammar, ideas, and comprehension.",
+      "Create a classroom for your language course, then paste your tutor’s recap or photograph your notes. Your first review starts there.",
     create: "Create a classroom",
   },
   Layout: {
@@ -142,7 +159,7 @@ export const classroom = {
     guestDailyQuizKicker: "Every morning",
     pinboardKicker: "Pinned up",
     logbookKicker: "Logbook",
-    addNotesTitle: "Add notes",
+    addNotesTitle: "After your next lesson",
     addNotesBlurb:
       "Paste your notes or add photos of your handwriting. New material joins the question bank.",
     addNotes: "Add notes",
@@ -161,7 +178,7 @@ export const classroom = {
     questions: "{count, plural, one {# question} other {# questions}}",
     take: "Take",
     best: "Best {score} / {size}",
-    unfinished: "Unfinished",
+    unfinished: "Optional practice to return to",
     unfinishedBlurb: "Quizzes you created but have not taken yet.",
     recentMade: "Made {when}",
     recentReady: "Ready when you are",
@@ -173,28 +190,35 @@ export const classroom = {
     guestDailyQuizBlurb:
       "Every morning at 7:00 AM, you'll receive a 10-minute quiz tailored to these notes. Sign up to activate daily quizzes for this classroom.",
     guestDailyQuizCta: "Sign up to receive daily quizzes",
+      beforeLessonTitle: "Before your next lesson",
+    beforeLessonCopy: "Want another look before class? Practise from this classroom’s notes, with earlier material and recent mistakes mixed in.",
+    beforeLessonAction: "Review before my lesson",
   },
   HistoryPage: {
-    title: "Upload history",
-    blurb: "Everything you have fed into this classroom, newest first.",
+    title: "Lesson notes",
+    blurb:
+      "Your original lesson notes, newest uploads first. Open a page to revisit its context.",
     addNotes: "Add notes",
     empty: "No uploads yet. Add your first notes and they will show up here.",
     textNotes: "Text notes",
     image: "Image",
     imageAlt: "Uploaded note",
     linesSkipped: "{count, plural, one {# line} other {# lines}} skipped",
-    skippedDetail: "{count, plural, one {# line was} other {# lines were}} skipped during extraction.",
+    skippedDetail:
+      "{count, plural, one {# line was} other {# lines were}} skipped during extraction.",
     statusProcessed: "Processed",
     statusFailed: "Failed",
     statusReading: "Reading",
     statusQueued: "Queued",
+    uploadedOn: "Added {date}",
+    practise: "Practise from this classroom",
   },
   BankPage: {
     title: "Question bank",
     blurb:
-      "Every knowledge point your notes produced. Fix a wording, or omit what you already know so daily quizzes skip it.",
+      "The words, expressions, and grammar found in your lessons. Open a point to see its source and practice record, or adjust future reviews.",
     blurbFree:
-      "Every knowledge point your notes produced. Upgrade to Pro to fix a wording or leave out what you already know.",
+      "The words, expressions, and grammar found in your lessons. Open a point to see its source and practice record. Pro lets you edit future review content.",
     proBadge: "Pro",
     proTitle: "Make the bank yours with Pro",
     proBody:
@@ -217,7 +241,8 @@ export const classroom = {
     categoryLabel: "Category",
     omittedBadge: "Omitted",
     inferredBadge: "Inferred",
-    inferredHint: "The meaning was filled in by the AI because your notes left it out.",
+    inferredHint:
+      "The meaning was filled in by the AI because your notes left it out.",
     stats: "Answered {answered} · missed {missed}",
     notAsked: "Not quizzed yet",
     omit: "Omit",
@@ -229,7 +254,8 @@ export const classroom = {
     toggleError: "Could not update this knowledge point.",
     edit: "Edit",
     editTitle: "Edit knowledge point",
-    editBlurb: "Changes apply to quizzes composed from now on. Past quizzes keep their wording.",
+    editBlurb:
+      "Changes apply to quizzes composed from now on. Past quizzes keep their wording.",
     targetLabel: "Word or phrase",
     nativeLabel: "Meaning",
     noteLabel: "Note",
@@ -239,15 +265,19 @@ export const classroom = {
     saveError: "Could not save your changes.",
     targetRequired: "Enter the word or phrase.",
     showMore: "Show {count} more",
+    openSource: "Open the original lesson notes",
   },
   MistakeBook: {
     title: "Corrections",
-    blurb: "Every question you missed in a quiz or exam over the last {days} days, oldest first. Answer one right and it drops off the list; miss it again later and it comes back.",
+    blurb:
+      "Every question you missed in a quiz or exam over the last {days} days, oldest first. Answer one right and it drops off the list; miss it again later and it comes back.",
     progress: "{done} of {total} corrected",
     emptyTitle: "Nothing to correct",
-    emptyBlurb: "Nothing missed in the last {days} days. Take a quiz and anything you miss lands here.",
+    emptyBlurb:
+      "Nothing missed in the last {days} days. Take a quiz and anything you miss lands here.",
     allDoneTitle: "All corrected",
-    allDoneBlurb: "Every missed question is put right. New ones will show up after your next quiz.",
+    allDoneBlurb:
+      "You’ve revisited every question here. A good place to stop; new mistakes may appear after later reviews.",
     source: "{date} · {kind}",
     kindDaily: "Daily quiz",
     kindManual: "Quiz",
@@ -261,8 +291,10 @@ export const classroom = {
     stillWrong: "Not yet. Read the note, then try again.",
     checkError: "Could not check this answer.",
     proTitle: "Corrections are part of Pro",
-    proBlurb: "Pro keeps every question you missed in the last {days} days, so you can correct them one by one.",
+    proBlurb:
+      "Pro keeps every question you missed in the last {days} days, so you can correct them one by one.",
     upgrade: "Upgrade to Pro",
+    finish: "Finish this review",
   },
   Tutor: {
     hint: "Get a hint",
@@ -280,12 +312,12 @@ export const classroom = {
     askAgain: "Ask again",
   },
   ExamCard: {
-    kicker: "Exam",
+    kicker: "A longer check-in",
     lockedTitle: "An exam unlocks with a fuller bank",
     lockedBlurb:
       "At {required} knowledge points, you can sit a {count}-question exam worth 100 points.",
     progress: "{count} of {required} knowledge points",
-    readyTitle: "Your bank is ready for an exam",
+    readyTitle: "Check what has stuck over time",
     readyBlurb:
       "{count} questions across the whole bank, worth 100 points, about {minutes} minutes. Recent misses come first.",
     start: "Start an exam",
@@ -306,7 +338,7 @@ export const classroom = {
   QuizzesPage: {
     title: "Quizzes",
     blurb:
-      "One daily quiz each morning, plus any you create on demand. Attempts are unlimited.",
+      "Your daily and extra practice, kept for whenever you want to revisit it. New notes keep future reviews connected to your lessons.",
     empty: "No quizzes yet. They are composed after your notes are processed.",
     emptyTitle: "No quizzes yet",
     addNotes: "Add notes",
@@ -325,10 +357,10 @@ export const classroom = {
     deleteError: "Could not delete this quiz. Please try again.",
   },
   UploadPage: {
-    kicker: "Build the question bank",
+    kicker: "After your lesson",
     title: "Add notes",
     blurb:
-      "Paste your session notes or attach photos of your handwriting. Points join the bank as soon as extraction finishes.",
+      "Paste your tutor’s recap or photograph your notes. New material joins future reviews alongside earlier lessons.",
   },
   QuizPage: {
     allQuizzes: "← All quizzes",
@@ -344,5 +376,9 @@ export const classroom = {
     submitted: "submitted {when}",
     durationMinutes: "{minutes}m {seconds}s",
     durationSeconds: "{seconds}s",
+    finish: "Finish this review",
+    completed: "Review complete",
+    completedBlurb:
+      "Check any explanations you need, then finish for today. You can come back for more practice whenever you want.",
   },
 };

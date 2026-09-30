@@ -46,7 +46,7 @@ export function QuizFormCards() {
   return (
     <div ref={ref} data-dealt={dealt ? "true" : "false"} className="grid gap-6 sm:grid-cols-2">
       {CARDS.map((card, index) => (
-        <div key={card.form} className={cn(card.tilt, index % 2 === 1 && "lg:mt-12")}>
+        <div key={card.form} className={cn("mx-2 sm:mx-0", card.tilt, index % 2 === 1 && "lg:mt-12")}>
           <div className="[perspective:1200px]">
             <div className="deal-inner" style={{ transitionDelay: `${index * 130}ms` }}>
               <SampleCardView card={card} index={index} />

@@ -13,14 +13,15 @@ export const email: MessageShape<(typeof en)["Email"]> = {
   greetingNamed: "Bonjour {name},",
   greetingAnonymous: "Bonjour,",
   yourClassroom: "ta classe",
-  dailySubjectOne: "Le quiz du jour : {classroom}",
-  dailySubjectMany: "Les quiz du jour ({count} classes)",
+  dailySubjectOne: "Ta révision de cours : {classroom}",
+  dailySubjectMany: "Révisions entre deux cours ({count} classes)",
   dailyIntro:
-    "Voici ton quiz du jour. Tu peux réfléchir aux réponses dans cet e-mail ou ouvrir le site pour répondre, voir ton score et lire les explications.",
+    "Continue à pratiquer tes notes de cours avec une courte révision. Réfléchis aux questions ici, ou ouvre la révision pour répondre et lire les explications.",
   dailyIntroMany:
-    "Voici les quiz du jour. Tu peux réfléchir aux réponses dans cet e-mail ou ouvrir le site pour répondre, voir ton score et lire les explications.",
-  answerOnWeb: "Ouvrir le quiz et répondre",
+    "Choisis une classe pour une courte révision aujourd’hui. Réfléchis aux questions ici, ou ouvre la révision pour répondre et lire les explications.",
+  answerOnWeb: "Commencer ma révision",
   answersHeading: "Réponses",
-  unsubscribeWhy: "Tu reçois cet e-mail parce que les quiz quotidiens sont activés.",
+  unsubscribeWhy:
+    "Tu reçois cet e-mail parce que les quiz quotidiens sont activés.",
   unsubscribeAction: "Se désabonner",
 };

@@ -7,6 +7,8 @@
 
 A web app (a single-page app for everything after sign-in) that turns a tutoring session's notes — text or images — into a daily quiz that takes under 10 minutes. The user answers on the site, and can optionally receive the quiz by email every morning. Every quiz belongs to a classroom.
 
+The primary audience is a language learner with regular lessons, existing lesson notes, and little preparation time between lessons. The core flow is lesson → notes → short daily review → explanations → next lesson → new notes in the same classroom. Homepage, onboarding, email, and the signed-in app use this same framing. One review is a natural stopping point; more practice stays optional. The homepage's example week illustrates this routine, rather than prescribing fixed content for each day.
+
 ## Classrooms
 
 - A **classroom** = one note set + one question bank + one daily quiz series.
@@ -49,6 +51,8 @@ A web app (a single-page app for everything after sign-in) that turns a tutoring
 - **The 10-minute promise is the binding constraint.** 20 is a ceiling, not a target; a quiz heavy on fill-in-the-blank questions stays shorter than one made of quick MCQs.
 - **Composition:** code picks each quiz's points: up to 2 recent misses, about half from points added in the last 7 days, and the rest from older points that have gone longest without a quiz, with randomness in every group so quizzes vary day to day. Question order is shuffled. Full spaced repetition stays out of MVP.
 - **Attempts:** unlimited for now. Every attempt is recorded — answers, correctness, time taken. The answer and explanation are revealed after submit.
+- **Completion:** the hub recognizes a daily or on-demand review submitted today in the user's timezone and offers its results, with extra practice secondary. Results offer an explicit finish action back to the classroom. Longer exams remain an optional progress check and do not mark the short daily review complete.
+- **Sources:** a quiz lists the original uploads that supplied its knowledge points. Results link to each knowledge point, and knowledge points link back to the original notes. Dates identify when notes were added; the app does not infer a lesson date or next-lesson schedule.
 - **Deleting a quiz:** the quizzes list carries a Delete control. Confirming removes the quiz, its questions, and every attempt against it. A deleted daily quiz stays gone for that day; the scheduler does not compose a replacement.
 - On the web, quizzes stay available on demand after a classroom goes dormant or is manually paused. Scheduled emails stop; access continues. On-demand quizzes are unlimited for now. Each creation is counted over rolling 24-hour, 7-day, and 30-day windows so fair-use limits can be introduced later.
 - **On-demand quizzes** are created from the classroom hub: a button opens a small progress modal (Queued → Writing your quiz → Ready) that can be minimized into the card or cancelled. Cancelling never counts and writes no quiz. Each generated on-demand quiz sends its own email with just that quiz, subject to the same email preferences. It appears in the quizzes list tagged "On demand", and for 24 hours it also has its own card on the classroom hub, taken or not.

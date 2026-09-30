@@ -11,15 +11,15 @@ export const classroom = {
     addNotes: "添加笔记",
   },
   TodayQuiz: {
-    kicker: "今天也花十分钟",
-    title: "今日测验",
-    ready: "今天的测验准备好了，随时可以开始。",
-    idle: "现在就生成一份，或等待早上的邮件。",
+    kicker: "两节课之间",
+    title: "今天的复习",
+    ready: "接着练上课笔记，也穿插旧知识和近期易错点。",
+    idle: "下一份每日复习会在早上准备好。你也可以现在先练一份。",
     paused: "每日复习已暂停。你仍然可以随时生成测验。",
-    resetAt: "将于 {local}（UTC {utc}）重置",
-    resetAtTomorrow: "将于明天 {local}（UTC {utc}）重置",
-    takeToday: "做今天的测验",
-    createNow: "立即生成测验",
+    resetAt: "下次每日复习：{local}（{utc} UTC）",
+    resetAtTomorrow: "下次每日复习：明天 {local}（{utc} UTC）",
+    takeToday: "开始今天的复习",
+    createNow: "现在练一份",
     addNotes: "添加笔记",
     addNotesSuffix: "即可生成测验。",
     writingTitle: "正在出题…",
@@ -33,10 +33,17 @@ export const classroom = {
     failedTitle: "无法生成测验。",
     failedBlurb: "出题时出了点问题，请稍后重试。",
     tryAgain: "重试",
+    completedTitle: "今天已复习",
+    completedBlurb:
+      "可以安心结束今天的复习。想回顾时查看解析，想多练时再继续。",
+    reviewResults: "查看这次回顾",
+    processing: "正在从笔记中准备复习内容。你可以先离开，准备好后再回来。",
+    empty: "先添加上节课的笔记：粘贴老师总结，或拍下一页笔记。",
   },
   NewForm: {
     pageTitle: "新建课堂",
-    pageBlurb: "把同一门课的笔记、题库和每日测验放在一起。",
+    pageBlurb:
+      "把同一门语言课放在这里。每次上课后添加笔记，持续用这些内容做每日复习。",
     name: "名称",
     namePlaceholder: "和 Marie 学法语",
     learning: "我在学",
@@ -52,7 +59,8 @@ export const classroom = {
     learning: "我在学",
     speak: "我会说",
     autoStop: "多久没有新笔记后暂停每日出题",
-    autoStopHelp: "超过设定天数没有添加笔记，每日出题会自动停止。打开课堂或添加笔记就能恢复。",
+    autoStopHelp:
+      "超过设定天数没有添加笔记，每日出题会自动停止。打开课堂或添加笔记就能恢复。",
     daysRange: "请选择 1 到 90 之间的天数。",
     saved: "已保存。",
     saveChanges: "保存更改",
@@ -60,7 +68,7 @@ export const classroom = {
   },
   QuizLength: {
     title: "测验长度",
-    help: "调整之后生成的测验长度。词汇题通常做得快，所以词汇题多时，题目数量也会多一些。",
+    help: "选择适合课后节奏的复习长度。标准约十分钟，你的选择会用于之后生成的测验。",
     levelMuchShorter: "最短",
     levelShorter: "较短",
     levelStandard: "标准",
@@ -71,8 +79,10 @@ export const classroom = {
   },
   DailyReviews: {
     title: "每日复习",
-    activeExplanation: "想休息一阵？可以暂停每日自动出题和邮件，笔记与作答记录都会保留。",
-    pausedExplanation: "每日自动出题和邮件已暂停。恢复后，会从下一个符合发送时间的早晨继续。",
+    activeExplanation:
+      "暂时休课？可以暂停每日复习和邮件，回来时笔记和练习记录都还在。",
+    pausedExplanation:
+      "每日自动出题和邮件已暂停。恢复后，会从下一个符合发送时间的早晨继续。",
     pause: "暂停每日复习",
     resume: "恢复每日复习",
     pausing: "正在暂停…",
@@ -85,7 +95,8 @@ export const classroom = {
     title: "归档或删除",
     blurb: "归档会隐藏课堂并停止发送邮件。删除会移除其中的所有内容。",
     archiveConfirm: "归档这个课堂？邮件将停止发送，课堂也会从列表中移除。",
-    deleteConfirm: "删除这个课堂？其中的上传内容、题库和测验都将丢失，且无法恢复。",
+    deleteConfirm:
+      "删除这个课堂？其中的上传内容、题库和测验都将丢失，且无法恢复。",
     archive: "归档课堂",
     archiving: "正在归档…",
     delete: "删除课堂",
@@ -103,7 +114,7 @@ export const classroom = {
   ListPage: {
     kicker: "你的学习空间",
     title: "课堂",
-    blurb: "一门课建一个课堂，笔记、题库和每日复习都放在这里。",
+    blurb: "今天选一个课堂复习即可。每次上完新课，把笔记接着加进同一个课堂。",
     activeSummary: "{total} 个中有 {active} 个进行中",
     activeCount: "{active} 个进行中",
     activeHint:
@@ -118,9 +129,9 @@ export const classroom = {
       "免费版可创建 3 个课堂，每周上传 1 次笔记。Pro 每月 2.99 美元，解除这两项限制，还能自己修改题库。",
     lockedClose: "以后再说",
     emptyKicker: "从一节课开始",
-    emptyTitle: "你的语言课笔记，变成十分钟测验",
+    emptyTitle: "从上节课开始复习",
     emptyBlurb:
-      "创建一个课堂，粘贴上课笔记或拍下手写内容。每天早上，用一份小测验复习词汇、短语、语法、表达和阅读。",
+      "为这门语言课创建一个课堂，粘贴老师总结或拍下自己的笔记，就能开始第一次复习。",
     create: "创建课堂",
   },
   Layout: {
@@ -135,7 +146,7 @@ export const classroom = {
     guestDailyQuizKicker: "每天早上",
     pinboardKicker: "课堂速览",
     logbookKicker: "学习日志",
-    addNotesTitle: "添加笔记",
+    addNotesTitle: "上完新课，接着加笔记",
     addNotesBlurb: "粘贴笔记或添加手写笔记的照片。新内容会加入题库。",
     addNotes: "添加笔记",
     recentUploads: "最近上传",
@@ -153,7 +164,7 @@ export const classroom = {
     questions: "{count, plural, other {# 道题}}",
     take: "开始",
     best: "最佳 {score} / {size}",
-    unfinished: "未完成",
+    unfinished: "想继续时再打开",
     unfinishedBlurb: "你已生成但还没做的测验。",
     recentMade: "生成于{when}",
     recentReady: "随时可以开始",
@@ -164,10 +175,13 @@ export const classroom = {
     guestDailyQuizBlurb:
       "每天美东时间早上 7:00，你会收到一份根据这些笔记出的十分钟测验。注册后即可开启每日测验邮件。",
     guestDailyQuizCta: "注册以接收每日测验",
+      beforeLessonTitle: "下次上课前，再回顾一下",
+    beforeLessonCopy: "想在上课前再练一份？用这个课堂的笔记复习，也穿插旧知识和近期易错点。",
+    beforeLessonAction: "上课前再练一份",
   },
   HistoryPage: {
-    title: "上传记录",
-    blurb: "你添加到这个课堂的所有内容，最新的在前。",
+    title: "上课笔记",
+    blurb: "每次添加的上课笔记，按上传时间排列。打开原件，回看当时学过的内容。",
     addNotes: "添加笔记",
     empty: "还没有上传。添加第一份笔记后会显示在这里。",
     textNotes: "文字笔记",
@@ -179,12 +193,15 @@ export const classroom = {
     statusFailed: "失败",
     statusReading: "读取中",
     statusQueued: "排队中",
+    uploadedOn: "添加于 {date}",
+    practise: "复习这个课堂的内容",
   },
   BankPage: {
     title: "题库",
-    blurb: "这里收着从笔记中整理出的知识点。可以修改内容，也可以把已掌握的知识点排除在以后测验之外。",
+    blurb:
+      "从上课笔记中整理的词汇、表达和语法。打开知识点查看来源和练习记录，也可以调整以后的复习内容。",
     blurbFree:
-      "这里收着从笔记中整理出的知识点。升级 Pro 后，可以修改内容，也可以排除已掌握的知识点。",
+      "从上课笔记中整理的词汇、表达和语法。打开知识点查看来源和练习记录；Pro 可以修改后续复习内容。",
     proBadge: "Pro",
     proTitle: "升级 Pro，让题库完全属于你",
     proBody:
@@ -229,15 +246,18 @@ export const classroom = {
     saveError: "无法保存修改。",
     targetRequired: "请输入词语或短语。",
     showMore: "再显示 {count} 个",
+    openSource: "打开原始上课笔记",
   },
   MistakeBook: {
     title: "错题本",
-    blurb: "近 {days} 天测验和考试中做错的题，按时间从早到晚排列。答对就移出错题本；以后再错，会重新出现。",
+    blurb:
+      "近 {days} 天测验和考试中做错的题，按时间从早到晚排列。答对就移出错题本；以后再错，会重新出现。",
     progress: "已订正 {done} / {total}",
     emptyTitle: "没有待订正的错题",
     emptyBlurb: "近 {days} 天没有错题。做一次测验，答错的题会出现在这里。",
     allDoneTitle: "全部订正完毕",
-    allDoneBlurb: "错题本里的题都已订正。下次测验后，新的错题会出现在这里。",
+    allDoneBlurb:
+      "这里的错题都已回顾，可以先结束。以后复习中出现的新错题会继续收录。",
     source: "{date} · {kind}",
     kindDaily: "每日测验",
     kindManual: "测验",
@@ -253,6 +273,7 @@ export const classroom = {
     proTitle: "错题本是 Pro 功能",
     proBlurb: "Pro 会保留近 {days} 天所有做错的题，让你一道一道订正。",
     upgrade: "升级到 Pro",
+    finish: "结束这次回顾",
   },
   Tutor: {
     hint: "给我一点提示",
@@ -270,12 +291,14 @@ export const classroom = {
     askAgain: "再问一次",
   },
   ExamCard: {
-    kicker: "考试",
+    kicker: "阶段检查",
     lockedTitle: "再积累一些知识点，就能参加考试",
-    lockedBlurb: "知识点达到 {required} 个后，可以参加一场 {count} 道题、满分 100 分的考试。",
+    lockedBlurb:
+      "知识点达到 {required} 个后，可以参加一场 {count} 道题、满分 100 分的考试。",
     progress: "已有 {count} / {required} 个知识点",
-    readyTitle: "题库已准备好，可以考试了",
-    readyBlurb: "{count} 道题覆盖整个题库，满分 100 分，约 {minutes} 分钟。最近答错的知识点优先出题。",
+    readyTitle: "看看这段时间记住了多少",
+    readyBlurb:
+      "{count} 道题覆盖整个题库，满分 100 分，约 {minutes} 分钟。最近答错的知识点优先出题。",
     start: "开始考试",
     retry: "重试",
     take: "去考试",
@@ -287,12 +310,14 @@ export const classroom = {
     viewLatest: "查看",
     proBadge: "Pro",
     proTitle: "考试是 Pro 功能",
-    proBody: "升级 Pro 可参加满分 100 分的考试，查看错题分析，并使用带提示的错题本。",
+    proBody:
+      "升级 Pro 可参加满分 100 分的考试，查看错题分析，并使用带提示的错题本。",
     close: "以后再说",
   },
   QuizzesPage: {
     title: "测验",
-    blurb: "每天早上自动生成一份测验，也可以随时自己生成。想重做几次都可以。",
+    blurb:
+      "每日复习和自主加练都保存在这里，想回顾时随时打开。继续添加新笔记，让后续复习接着你的语言课。",
     empty: "还没有测验。添加笔记并等待处理完成，就能开始出题。",
     emptyTitle: "还没有测验",
     addNotes: "添加笔记",
@@ -310,9 +335,10 @@ export const classroom = {
     deleteError: "无法删除这份测验，请重试。",
   },
   UploadPage: {
-    kicker: "建立题库",
+    kicker: "上完课之后",
     title: "添加笔记",
-    blurb: "粘贴上课笔记或附上手写笔记的照片。提取完成后，知识点会立即加入题库。",
+    blurb:
+      "粘贴老师的课后总结，或拍下自己的笔记。新内容会和以前学过的知识一起参与后续复习。",
   },
   QuizPage: {
     allQuizzes: "← 所有测验",
@@ -328,5 +354,8 @@ export const classroom = {
     submitted: "{when}提交",
     durationMinutes: "{minutes} 分 {seconds} 秒",
     durationSeconds: "{seconds} 秒",
+    finish: "结束这次复习",
+    completed: "这次复习完成了",
+    completedBlurb: "按需看看解析，就可以结束今天的复习。想多练时，随时回来。",
   },
 };

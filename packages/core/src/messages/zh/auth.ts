@@ -1,7 +1,7 @@
 export const auth = {
   SignInPage: {
     title: "登录",
-    subtitle: "从上次停下的地方继续。",
+    subtitle: "接着复习课上学过的内容。",
     verified: "你的邮箱已验证，请登录继续。",
     signInError: "登录失败，请重试。",
   },
@@ -19,7 +19,7 @@ export const auth = {
   },
   SignUpPage: {
     title: "创建你的账户",
-    subtitle: "把上课笔记变成每天十分钟的小测验。",
+    subtitle: "保存上课笔记和复习进度，每天早上接着练一点。",
   },
   SignUpForm: {
     email: "邮箱",
@@ -81,7 +81,8 @@ export const auth = {
     invalidBody: "请登录并打开账户页面管理邮件偏好。",
     goToAccount: "前往账户",
     successTitle: "你已退订",
-    successBody: "此账户的每日测验邮件已关闭。你的课堂、测验和记录都还在，随时可以回来。",
+    successBody:
+      "此账户的每日测验邮件已关闭。你的课堂、测验和记录都还在，随时可以回来。",
     manage: "管理邮件设置",
   },
   GoogleButton: {

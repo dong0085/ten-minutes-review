@@ -1,6 +1,7 @@
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { useFormatter, useTranslations } from "use-intl";
 import { Alert, AlertDescription } from "@tmr/ui/components/alert";
+import { Button } from "@tmr/ui/components/button";
 import { PageHeader } from "@/spa/components/page";
 import { UploadStatusBadge } from "@/spa/components/upload-status";
 import { FullPageSpinner } from "@/spa/app/shell";
@@ -41,7 +42,9 @@ export function NoteDetailPage() {
         />
       ) : (
         <div className="editorial-surface paper-lines rounded-2xl px-6 py-6 sm:px-8">
-          <p className="text-sm leading-7 whitespace-pre-wrap">{upload.textContent}</p>
+          <p className="text-sm leading-7 whitespace-pre-wrap">
+            {upload.textContent}
+          </p>
         </div>
       )}
       {upload.discardedCount > 0 ? (
@@ -53,6 +56,11 @@ export function NoteDetailPage() {
         <Alert variant="destructive">
           <AlertDescription>{upload.extractionError}</AlertDescription>
         </Alert>
+      ) : null}
+      {upload.extractionStatus === "done" ? (
+        <Button asChild variant="outline">
+          <Link to={`/classrooms/${id}?create=1`}>{t("practise")}</Link>
+        </Button>
       ) : null}
     </div>
   );

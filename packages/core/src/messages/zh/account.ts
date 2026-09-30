@@ -21,7 +21,8 @@ export const account = {
   exportButton: "导出 JSON",
   free: "免费",
   pro: "Pro",
-  planFreeBlurb: "免费版可创建 3 个课堂，每周上传 1 次笔记。Pro 每月 2.99 美元：每节课后都能上传笔记，还能自己修改题库。",
+  planFreeBlurb:
+    "免费版可创建 3 个课堂，每周上传 1 次笔记。Pro 每月 2.99 美元：每节课后都能上传笔记，还能自己修改题库。",
   planProBlurb: "每节课后都能上传笔记，课堂数量不限，每个知识点都能自己修改。",
   renewsOn: "{date} 续订",
   endsOn: "{date} 到期",
@@ -60,7 +61,8 @@ export const account = {
   Postcard: {
     kicker: "寄一份邀请",
     title: "邀请朋友",
-    earned: "{count, plural, =0 {还没有获得免费月份} other {已获得 # 个月免费使用}}",
+    earned:
+      "{count, plural, =0 {还没有获得免费月份} other {已获得 # 个月免费使用}}",
     code: "邀请码",
     to: "收件人",
     friend: "正在学语言的朋友",
@@ -96,7 +98,8 @@ export const account = {
   EmailPreferencesForm: {
     kicker: "收件设置",
     title: "每日测验邮件",
-    blurb: "每天早上，把正在学习的课堂测验发到你的邮箱。",
+    blurb:
+      "用活跃课堂里的笔记，在两节课之间做短复习。下方显示下一次邮件发送时间。",
     savingShort: "正在保存…",
     onBlurb: "已开启。下方显示下一封邮件的发送时间。",
     offBlurb: "已关闭。每天的测验仍会保存在课堂里。",
@@ -109,17 +112,17 @@ export const account = {
     error: "无法保存你的偏好设置。",
   },
   Stats: {
-    kicker: "学习报告",
-    title: "你的学习情况",
-    emptyTitle: "你的学习报告还在等第一份测验",
+    kicker: "两节课之间",
+    title: "你已经练过的内容",
+    emptyTitle: "从一节课开始，留下复习记录",
     activeDaysTally: "过去 30 天学习了 {count} 天",
     noActiveDays: "过去 30 天还没有作答记录。做一份测验，从今天开始吧。",
     trendTitle: "分数走势",
     trendEmpty: "完成两次测验后就能看到走势。",
     bankTitle: "题库掌握情况",
     bankTotal: "{total} 个知识点",
-    bankSolid: "已掌握（答对两次以上）",
-    bankLearning: "正在学习",
+    bankSolid: "至少答对过两次",
+    bankLearning: "已经练过，可以继续回顾",
     bankUnseen: "还没练习",
     bankEmpty: "添加笔记，开始建立题库。",
     focusHere: "重点练习",
@@ -133,7 +136,8 @@ export const account = {
     notPracticed: "尚未练习：{categories}",
     recentMisses: "最近答错",
     trend: "最近 {count} 次作答",
-    empty: "完成第一份测验后，这里就会显示你的学习记录。",
+    empty:
+      "添加上课笔记，先做一份短复习。练过的内容和需要回顾的地方会显示在这里。",
     goToClassrooms: "前往课堂",
   },
   Security: {
@@ -170,7 +174,8 @@ export const account = {
     once: "仅显示一次",
     newToken: "新令牌",
     title: "API 令牌",
-    blurb: "创建 API 令牌，让浏览器扩展或其他应用访问你的账户。你可以随时撤销。",
+    blurb:
+      "创建 API 令牌，让浏览器扩展或其他应用访问你的账户。你可以随时撤销。",
     nameLabel: "名称",
     namePlaceholder: "浏览器扩展",
     create: "创建令牌",
@@ -187,9 +192,11 @@ export const account = {
   },
   DeleteAccount: {
     kicker: "删除账户",
-    description: "删除账户会移除你的课堂、上传内容、知识点、测验、作答记录和已存储的图片。",
+    description:
+      "删除账户会移除你的课堂、上传内容、知识点、测验、作答记录和已存储的图片。",
     deleteAccount: "删除账户",
-    warning: "这将移除所有课堂、上传内容、知识点、测验、作答记录和已存储的图片，且无法恢复。",
+    warning:
+      "这将移除所有课堂、上传内容、知识点、测验、作答记录和已存储的图片，且无法恢复。",
     deleting: "正在删除…",
     confirm: "确定，全部删除",
     error: "无法删除你的账户。",

@@ -180,6 +180,39 @@
 }
 
 @layer components {
+  /* A little coloured ink and translucent wash, like drawings in a notebook. */
+  .cta-icon {
+    --cta-hue: 235;
+    --cta-lightness: 0.55;
+    --cta-accent: oklch(var(--cta-lightness) 0.13 var(--cta-hue));
+    --cta-detail: oklch(var(--cta-lightness) 0.12 78);
+  }
+
+  .cta-icon[data-kind="notes"] { --cta-hue: 175; }
+  .cta-icon[data-kind="generate"] { --cta-hue: 300; }
+  .cta-icon[data-kind="submit"] { --cta-hue: 155; }
+  .cta-icon[data-kind="pro"] { --cta-hue: 78; }
+  .cta-icon[data-kind="retake"] { --cta-hue: 175; }
+
+  .dark .cta-icon { --cta-lightness: 0.77; }
+
+  /* Follow the foreground on solid buttons, including dark-mode light buttons. */
+  [data-slot="button"][data-variant="default"] .cta-icon {
+    --cta-accent: color-mix(in oklch, currentColor 76%, oklch(0.75 0.14 var(--cta-hue)));
+    --cta-detail: color-mix(in oklch, currentColor 76%, oklch(0.8 0.14 78));
+  }
+
+  .cta-icon-wash {
+    fill: color-mix(in oklch, var(--cta-accent) 28%, transparent);
+  }
+
+  .cta-icon-accent { stroke: var(--cta-accent); }
+
+  .cta-icon-detail {
+    fill: color-mix(in oklch, var(--cta-detail) 40%, transparent);
+    stroke: var(--cta-detail);
+  }
+
   .eyebrow {
     @apply text-primary text-[0.68rem] font-semibold tracking-[0.2em] uppercase;
   }

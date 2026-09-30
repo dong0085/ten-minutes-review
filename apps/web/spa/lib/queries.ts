@@ -62,8 +62,23 @@ export type QuizListItem = {
 export type ClassroomOverview = {
   today: string;
   dailyQuizId: string | null;
-  composeJob: { id: string; status: "pending" | "running"; requestedAt: string } | null;
-  counts: { uploads: number; pendingUploads: number; bank: number; quizzes: number };
+  latestReview: {
+    attemptId: string;
+    quizId: string;
+    correctCount: number;
+    questionCount: number;
+  } | null;
+  composeJob: {
+    id: string;
+    status: "pending" | "running";
+    requestedAt: string;
+  } | null;
+  counts: {
+    uploads: number;
+    pendingUploads: number;
+    bank: number;
+    quizzes: number;
+  };
   bankByCategory: Record<Category, number>;
   lastUploadAt: string | null;
   /** On-demand quizzes made in the last 24 hours, taken or not, newest first. */
@@ -72,8 +87,17 @@ export type ClassroomOverview = {
   mistakes: number;
   exam: {
     requiredPoints: number;
-    composeJob: { id: string; status: "pending" | "running"; requestedAt: string } | null;
-    latest: { id: string; quizDate: string; attemptCount: number; bestScore: number | null } | null;
+    composeJob: {
+      id: string;
+      status: "pending" | "running";
+      requestedAt: string;
+    } | null;
+    latest: {
+      id: string;
+      quizDate: string;
+      attemptCount: number;
+      bestScore: number | null;
+    } | null;
   };
 };
 
@@ -98,6 +122,7 @@ export type BankItem = {
   note: string | null;
   inferred: boolean;
   sourceExcerpt: string | null;
+  sourceUploadId: string;
   isRetired: boolean;
   retiredAt: string | null;
   createdAt: string;
@@ -124,6 +149,7 @@ export type Quiz = {
   size: number;
   classroomId: string;
   classroomName: string;
+  sources: Array<{ id: string; subject: string | null; createdAt: string }>;
   questions: QuizQuestion[];
 };
 
@@ -162,7 +188,8 @@ export const keys = {
   quizzes: (id: string) => ["classroom", id, "quizzes"] as const,
   quiz: (quizId: string) => ["quiz", quizId] as const,
   attempt: (attemptId: string) => ["attempt", attemptId] as const,
-  attemptReview: (attemptId: string) => ["attempt", attemptId, "review"] as const,
+  attemptReview: (attemptId: string) =>
+    ["attempt", attemptId, "review"] as const,
   mistakes: (id: string) => ["classroom", id, "mistakes"] as const,
 };
 
@@ -177,7 +204,9 @@ export function useClassrooms(enabled = true) {
 export function useClassroom(id: string) {
   return useQuery({
     queryKey: keys.classroom(id),
-    queryFn: async () => (await api.get<{ classroom: Classroom }>(`/api/classrooms/${id}`)).classroom,
+    queryFn: async () =>
+      (await api.get<{ classroom: Classroom }>(`/api/classrooms/${id}`))
+        .classroom,
   });
 }
 
@@ -185,13 +214,20 @@ export function useOverview(id: string) {
   return useQuery({
     queryKey: keys.overview(id),
     queryFn: () => api.get<ClassroomOverview>(`/api/classrooms/${id}/overview`),
+    refetchInterval: (query) =>
+      (query.state.data?.counts.pendingUploads ?? 0) > 0
+        ? READING_POLL_MS
+        : false,
   });
 }
 
 const READING_POLL_MS = 4000;
 
 export function isReading(upload: Upload) {
-  return upload.extractionStatus === "pending" || upload.extractionStatus === "running";
+  return (
+    upload.extractionStatus === "pending" ||
+    upload.extractionStatus === "running"
+  );
 }
 
 /** Polls while the worker is still reading an upload. */
@@ -199,18 +235,23 @@ export function useUploads(id: string) {
   return useQuery({
     queryKey: keys.uploads(id),
     queryFn: async () =>
-      (await api.get<{ uploads: Upload[] }>(`/api/classrooms/${id}/uploads`)).uploads,
+      (await api.get<{ uploads: Upload[] }>(`/api/classrooms/${id}/uploads`))
+        .uploads,
     refetchInterval: (query) =>
       query.state.data?.some(isReading) ? READING_POLL_MS : false,
   });
 }
 
-export function useBank(id: string) {
+export function useBank(id: string, enabled = true) {
   return useQuery({
     queryKey: keys.bank(id),
     queryFn: async () =>
-      (await api.get<{ knowledgePoints: BankItem[] }>(`/api/classrooms/${id}/knowledge-points`))
-        .knowledgePoints,
+      (
+        await api.get<{ knowledgePoints: BankItem[] }>(
+          `/api/classrooms/${id}/knowledge-points`,
+        )
+      ).knowledgePoints,
+    enabled,
   });
 }
 
@@ -218,7 +259,11 @@ export function useQuizzes(id: string) {
   return useQuery({
     queryKey: keys.quizzes(id),
     queryFn: async () =>
-      (await api.get<{ quizzes: QuizListItem[] }>(`/api/classrooms/${id}/quizzes`)).quizzes,
+      (
+        await api.get<{ quizzes: QuizListItem[] }>(
+          `/api/classrooms/${id}/quizzes`,
+        )
+      ).quizzes,
   });
 }
 
@@ -243,7 +288,8 @@ const REVIEW_POLL_MS = 2500;
 export function useAttemptReview(attemptId: string, enabled = true) {
   return useQuery({
     queryKey: keys.attemptReview(attemptId),
-    queryFn: () => api.get<AttemptReviewState>(`/api/attempts/${attemptId}/review`),
+    queryFn: () =>
+      api.get<AttemptReviewState>(`/api/attempts/${attemptId}/review`),
     enabled,
     refetchInterval: (query) =>
       query.state.data?.status === "writing" ? REVIEW_POLL_MS : false,
@@ -278,7 +324,10 @@ export type TutorNote = {
 export function useMistakes(id: string, enabled = true) {
   return useQuery({
     queryKey: keys.mistakes(id),
-    queryFn: () => api.get<{ windowDays: number; mistakes: Mistake[] }>(`/api/classrooms/${id}/mistakes`),
+    queryFn: () =>
+      api.get<{ windowDays: number; mistakes: Mistake[] }>(
+        `/api/classrooms/${id}/mistakes`,
+      ),
     enabled,
   });
 }

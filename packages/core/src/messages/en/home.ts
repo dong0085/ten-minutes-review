@@ -1,44 +1,58 @@
 export const home = {
-  eyebrow: "For language learners with a tutor or class",
-  title: "Keep every language lesson with a <highlight>ten-minute quiz</highlight>",
+  eyebrow: "For language learners with a weekly lesson",
+  title:
+    "Turn one language lesson into <highlight>a week of ten-minute reviews.</highlight>",
   description:
-    "Paste your tutor's notes or photograph your notebook. Every morning you get a short quiz on the words, phrases, and grammar from your own lessons, so they stick past next week.",
+    "Paste your tutor’s recap or photograph your notes. Get a short daily quiz on the words, phrases, and grammar you covered, ready for your next lesson.",
   goToClassrooms: "Go to my classrooms",
   createAccount: "Create account",
   signIn: "Sign in",
-  tryAsGuest: "Try without an account",
+  tryAsGuest: "Try your lesson notes",
   proof: {
     handwriting: "Typed or handwritten notes",
     fresh: "Built from your own lessons",
     tenMinutes: "Ten minutes a morning",
   },
   preview: {
-    kicker: "From your last lesson",
-    title: "Tuesday's review",
+    kicker: "One lesson, continued",
+    title: "Your lesson notes → your review",
     notes: "Tutor notes",
-    session: "French · 4:20 pm",
+    session: "French lesson · example",
     quiz: "Daily quiz",
     question: "Question 3 of 8",
     ready: "Ready",
+    passage: "Marie prend soin de sa sœur. Il faut avoir confiance.",
+    week: {
+      label: "An example week between lessons",
+      lesson: "After your lesson",
+      lessonCopy: "Add your notes",
+      first: "The next morning",
+      firstCopy: "Recall the words",
+      later: "Over the next few days",
+      laterCopy: "Practise phrases and grammar",
+      next: "Before your next lesson",
+      nextCopy: "Revisit what needs practice",
+    },
   },
   languagesKicker: "Whatever you're learning",
   languagesCopy:
     "French, Spanish, Mandarin, Japanese, Korean, and more. Your quiz follows the language in your notes.",
   howItWorksKicker: "Between lessons",
-  howItWorksTitle: "Keep last lesson's words from fading.",
+  howItWorksTitle: "Keep practising between lessons.",
   steps: {
-    addTitle: "Add your lesson notes",
-    addCopy: "Paste your tutor's recap or photograph a page from your notebook.",
-    shapeTitle: "We pick out what to remember",
+    addTitle: "Finish your lesson. Add your notes.",
+    addCopy:
+      "Paste your tutor's recap or photograph a page from your notebook.",
+    shapeTitle: "Your practice is prepared for you.",
     shapeCopy:
-      "New words, set phrases, grammar points, and short passages become your own question bank.",
-    reviewTitle: "Review before the next lesson",
+      "We pick out words, phrases, and grammar from your notes and turn them into practice. No questions to write yourself.",
+    reviewTitle: "A little practice before the next lesson.",
     reviewCopy:
       "A fresh quiz each morning, sized for ten minutes, keeps the lesson alive until you see your tutor again.",
   },
-  categoriesTitle: "More than a <highlight>flashcard deck.</highlight>",
+  categoriesTitle: "Practise what <highlight>your lesson covered.</highlight>",
   categoriesCopy:
-    "Recognize a word, use it in a sentence, apply the grammar, read a short passage. Each review works the language the way a good lesson does.",
+    "These examples come from the French notes above: recall a word, complete a phrase, apply a rule, and check your understanding.",
   forms: {
     mcq: "Multiple choice",
     fillBlank: "Fill the blank",
@@ -49,24 +63,24 @@ export const home = {
     false: "False",
     stems: {
       mcq: "Which word means “confidence”?",
-      trueFalse: "In the passage, Marie takes the train before lunch.",
+      trueFalse: "In the notes, Marie takes care of her sister.",
       photo: "Which expression did your tutor circle?",
     },
   },
   highlights: {
     kicker: "Made for learners",
-    title: "Fits around your lessons.",
+    title: "A routine that fits between lessons.",
     noPressure: {
-      title: "No streaks to protect.",
-      copy: "No points, leaderboards, or guilt-trip reminders. Just a calm review of what you learned this week.",
+      title: "No practice to prepare.",
+      copy: "Bring your tutor’s recap or your own notes. Your next review is built from material you already have.",
     },
     pause: {
-      title: "Take a break between terms.",
-      copy: "Pause daily reviews for holidays or time off from lessons. Your words will be waiting when you return.",
+      title: "A clear finish for today.",
+      copy: "One short review is a good place to stop. You can practise more when you want, or pause daily reviews while lessons are on hold.",
     },
     notes: {
-      title: "Every lesson, kept.",
-      copy: "Your notes and photos stay in your classroom, a running record of everything you have covered.",
+      title: "Keep adding each lesson.",
+      copy: "Add new notes to the same classroom. Recent material, older points, and recent mistakes all have a place in your reviews.",
     },
   },
   pricing: {
@@ -90,6 +104,9 @@ export const home = {
     freeCta: "Start free",
     proCta: "Go Pro",
   },
-  closingKicker: "Your next lesson starts here",
-  closingTitle: "Give today's lesson <highlight>ten more minutes</highlight> before it fades.",
+  closingKicker: "Start with your last lesson",
+  closingTitle:
+    "Give your last lesson <highlight>ten more minutes.</highlight>",
+  trialHint:
+    "No account needed to try. Sign up to keep your notes and receive daily emails.",
 } as const;

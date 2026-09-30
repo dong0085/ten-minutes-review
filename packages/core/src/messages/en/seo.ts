@@ -1,8 +1,8 @@
 export const seo = {
-  homeTitle: "Ten Minutes Review — a daily ten-minute quiz from your language lessons",
+  homeTitle: "Ten Minutes Review — daily review between language lessons",
   homeDescription:
-    "For language learners: paste your tutor's notes or photograph your notebook, and get a short quiz each morning on the words, phrases, and grammar you studied.",
-  ogImageTitle: "Your language lessons become a ten-minute quiz",
+    "For learners with a tutor or language class. Turn lesson notes into short daily quizzes on your words, phrases, and grammar, ready for your next lesson.",
+  ogImageTitle: "Keep practising between language lessons",
   ogImageTagline: "Ten Minutes Review",
   aboutTitle: "About",
   aboutDescription:

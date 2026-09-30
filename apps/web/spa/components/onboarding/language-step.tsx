@@ -83,7 +83,12 @@ function LanguageCard({
       </motion.span>
       {selected ? (
         <span className="absolute top-3 right-3 grid size-6 place-items-center rounded-full bg-primary text-primary-foreground">
-          <svg viewBox="0 0 24 24" fill="none" className="size-3.5" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            className="size-3.5"
+            aria-hidden="true"
+          >
             <motion.path
               d="M5 12.5 10 17.5 19 7"
               stroke="currentColor"
@@ -108,6 +113,7 @@ export function LanguageStep({
   onTargetChange,
   onNativeChange,
   onContinue,
+  onExample,
 }: {
   targetLanguage: LanguageCode | null;
   nativeLanguage: string;
@@ -115,6 +121,7 @@ export function LanguageStep({
   onTargetChange: (code: LanguageCode) => void;
   onNativeChange: (code: string) => void;
   onContinue: () => void;
+  onExample: () => void;
 }) {
   const t = useTranslations("Onboarding.Language");
   const locale = useLocale();
@@ -128,6 +135,13 @@ export function LanguageStep({
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">{t("blurb")}</p>
       </div>
+      {targetLanguage ? (
+        <div className="mt-4 text-center">
+          <Button variant="ghost" onClick={onExample}>
+            {t("seeExample")}
+          </Button>
+        </div>
+      ) : null}
 
       <motion.div
         variants={GRID}
@@ -172,7 +186,11 @@ export function LanguageStep({
               exit={{ opacity: 0, y: 8 }}
               transition={{ type: "spring", stiffness: 320, damping: 26 }}
             >
-              <Button size="lg" onClick={onContinue} className="group sm:min-w-40">
+              <Button
+                size="lg"
+                onClick={onContinue}
+                className="group sm:min-w-40"
+              >
                 {t("continue")}
                 <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
               </Button>

@@ -1,4 +1,3 @@
-
 import { Link } from "react-router";
 import {
   useCallback,
@@ -11,7 +10,15 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useFormatter, useTranslations } from "use-intl";
-import { ArrowRight, FileText, ImagePlus, Loader2, Lock, UploadCloud, X } from "lucide-react";
+import {
+  ArrowRight,
+  FileText,
+  ImagePlus,
+  Loader2,
+  Lock,
+  UploadCloud,
+  X,
+} from "lucide-react";
 import { MAX_IMAGE_BYTES } from "@tmr/core";
 import { PEEK_SPRING } from "@/spa/lib/use-peek";
 import { Alert, AlertDescription } from "@tmr/ui/components/alert";
@@ -29,7 +36,7 @@ import {
 import { Label } from "@tmr/ui/components/label";
 import { Textarea } from "@tmr/ui/components/textarea";
 import { BillingButton } from "@/spa/components/account/billing-button";
-import { keys, useClassrooms } from "@/spa/lib/queries";
+import { keys, useBank, useClassrooms } from "@/spa/lib/queries";
 import { readApiError } from "@/spa/lib/read-error";
 import { useSession } from "@/spa/lib/session";
 
@@ -38,7 +45,10 @@ const MAX_FILES = 10;
 /** The free weekly allowance ran out; the API answered with `pro_required`. */
 class UploadLimitError extends Error {}
 
-async function uploadFailure(response: Response, fallback: string): Promise<Error> {
+async function uploadFailure(
+  response: Response,
+  fallback: string,
+): Promise<Error> {
   const { message, code } = await readApiError(response);
   return code === "pro_required"
     ? new UploadLimitError(message ?? fallback)
@@ -120,7 +130,13 @@ function StatusBadge({ status }: { status: ExtractionStatus }) {
   return <Badge variant="warning">{t("queued")}</Badge>;
 }
 
-function SelectedFilePreview({ file, onRemove }: { file: File; onRemove: () => void }) {
+function SelectedFilePreview({
+  file,
+  onRemove,
+}: {
+  file: File;
+  onRemove: () => void;
+}) {
   const t = useTranslations("Upload.Panel");
 
   return (
@@ -179,7 +195,8 @@ export function UploadPanel({
   const { data: classroomList } = useClassrooms(!isGuest);
   const limits = classroomList?.limits ?? null;
   const outOfUploads =
-    limitReached || (limits !== null && limits.uploadsThisWeek >= limits.uploadsPerWeek);
+    limitReached ||
+    (limits !== null && limits.uploadsThisWeek >= limits.uploadsPerWeek);
 
   const loadUploads = useCallback(async () => {
     const response = await fetch(`/api/classrooms/${classroomId}/uploads`);
@@ -207,12 +224,28 @@ export function UploadPanel({
     });
   }, [loadBankTotal]);
 
-  const sessionUploads = uploads.filter((upload) => sessionIds.includes(upload.id));
+  const sessionUploads = uploads.filter((upload) =>
+    sessionIds.includes(upload.id),
+  );
   const processing = sessionUploads.some(
-    (upload) => upload.extractionStatus === "pending" || upload.extractionStatus === "running",
+    (upload) =>
+      upload.extractionStatus === "pending" ||
+      upload.extractionStatus === "running",
   );
   const pointsDelta =
-    bankBefore !== null && bankAfter !== null ? Math.max(0, bankAfter - bankBefore) : null;
+    bankBefore !== null && bankAfter !== null
+      ? Math.max(0, bankAfter - bankBefore)
+      : null;
+  const readyForReview =
+    sessionUploads.length > 0 &&
+    !processing &&
+    pointsDelta !== null &&
+    pointsDelta > 0;
+  const { data: bankPoints } = useBank(classroomId, readyForReview);
+  const newPoints =
+    bankPoints
+      ?.filter((point) => sessionIds.includes(point.sourceUploadId))
+      .slice(0, 8) ?? [];
 
   useEffect(() => {
     if (!processing) {
@@ -229,15 +262,34 @@ export function UploadPanel({
   }, [processing, loadUploads]);
 
   useEffect(() => {
-    if (sessionIds.length === 0 || processing || bankAfter !== null || bankBefore === null) {
+    if (
+      sessionIds.length === 0 ||
+      processing ||
+      bankAfter !== null ||
+      bankBefore === null
+    ) {
       return;
     }
     void loadBankTotal().then((total) => {
       if (total !== null) {
         setBankAfter(total);
+        void queryClient.invalidateQueries({
+          queryKey: keys.bank(classroomId),
+        });
+        void queryClient.invalidateQueries({
+          queryKey: keys.overview(classroomId),
+        });
       }
     });
-  }, [sessionIds.length, processing, bankAfter, bankBefore, loadBankTotal]);
+  }, [
+    sessionIds.length,
+    processing,
+    bankAfter,
+    bankBefore,
+    loadBankTotal,
+    classroomId,
+    queryClient,
+  ]);
 
   const refresh = async () => {
     const rows = await loadUploads();
@@ -333,7 +385,9 @@ export function UploadPanel({
       if (error instanceof UploadLimitError) {
         setLimitReached(true);
       } else {
-        setFormError(error instanceof Error ? error.message : tCommon("genericError"));
+        setFormError(
+          error instanceof Error ? error.message : tCommon("genericError"),
+        );
       }
     } finally {
       setSubmitting(false);
@@ -356,10 +410,15 @@ export function UploadPanel({
                     <FileText className="size-4" />
                   </span>
                   <div>
-                    <Label htmlFor="note-text" className="mb-0 font-heading text-lg font-semibold">
+                    <Label
+                      htmlFor="note-text"
+                      className="mb-0 font-heading text-lg font-semibold"
+                    >
                       {t("pasteLabel")}
                     </Label>
-                    <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("textHint")}</p>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      {t("textHint")}
+                    </p>
                   </div>
                 </div>
                 <Textarea
@@ -395,7 +454,11 @@ export function UploadPanel({
                   }}
                   onDragOver={(event) => event.preventDefault()}
                   onDragLeave={(event) => {
-                    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                    if (
+                      !event.currentTarget.contains(
+                        event.relatedTarget as Node | null,
+                      )
+                    ) {
                       setDragActive(false);
                     }
                   }}
@@ -409,13 +472,20 @@ export function UploadPanel({
                   <div>
                     <motion.span
                       className="block"
-                      animate={dragActive ? { y: -6, scale: 1.2 } : { y: 0, scale: 1 }}
+                      animate={
+                        dragActive ? { y: -6, scale: 1.2 } : { y: 0, scale: 1 }
+                      }
                       transition={PEEK_SPRING}
                     >
-                      <UploadCloud className="mx-auto size-6 text-primary" strokeWidth={1.6} />
+                      <UploadCloud
+                        className="mx-auto size-6 text-primary"
+                        strokeWidth={1.6}
+                      />
                     </motion.span>
                     <p className="mt-4 text-sm font-medium">{t("dropTitle")}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{t("dropCopy")}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {t("dropCopy")}
+                    </p>
                     <Label
                       htmlFor={`note-images-${fileInputKey}`}
                       className="mx-auto mt-4 inline-flex h-9 w-fit cursor-pointer items-center rounded-[0.7rem] border border-border bg-card px-3.5 text-sm shadow-sm transition hover:border-primary/25 hover:bg-accent"
@@ -433,7 +503,9 @@ export function UploadPanel({
                     />
                   </div>
                 </motion.div>
-                {fileError ? <p className="mt-2 text-sm text-destructive">{fileError}</p> : null}
+                {fileError ? (
+                  <p className="mt-2 text-sm text-destructive">{fileError}</p>
+                ) : null}
                 <ul className="mt-3 grid grid-cols-2 gap-2 empty:hidden sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
                   <AnimatePresence initial={false}>
                     {files.map((file, index) => (
@@ -442,7 +514,9 @@ export function UploadPanel({
                         file={file}
                         onRemove={() =>
                           setFiles((current) =>
-                            current.filter((_, fileIndex) => fileIndex !== index),
+                            current.filter(
+                              (_, fileIndex) => fileIndex !== index,
+                            ),
                           )
                         }
                       />
@@ -458,7 +532,9 @@ export function UploadPanel({
                     <AlertDescription>{formError}</AlertDescription>
                   </Alert>
                 ) : (
-                  <p className="text-xs text-muted-foreground">{t("backgroundHint")}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("backgroundHint")}
+                  </p>
                 )}
               </div>
               <Button type="submit" size="lg" disabled={submitting}>
@@ -476,97 +552,156 @@ export function UploadPanel({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={PEEK_SPRING}
         >
-          <Card className="border-primary/15 bg-primary/[0.035]" aria-live="polite">
+          <Card
+            className="border-primary/15 bg-primary/[0.035]"
+            aria-live="polite"
+          >
             <CardContent>
               <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="eyebrow">{t("statusKicker")}</p>
-                <h2 className="mt-2 font-heading text-2xl font-semibold">
-                  {processing ? t("readingNotes") : t("processingFinished")}
-                </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {processing ? t("processingBlurb") : t("finishedBlurb")}
-                </p>
-              </div>
-              <Button variant="outline" size="sm" onClick={() => void refresh()}>
-                {t("checkStatus")}
-              </Button>
-            </div>
-            <ul className="mt-4 space-y-3">
-              {sessionUploads.length === 0 ? (
-                <li className="text-sm text-muted-foreground">{t("waiting")}</li>
-              ) : null}
-              {sessionUploads.map((upload) => {
-                const showPoints =
-                  pointsDelta !== null &&
-                  upload.extractionStatus === "done" &&
-                  sessionUploads.length === 1;
-                return (
-                  <li key={upload.id} className="rounded-xl border border-border/70 bg-card/65 p-3.5">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="min-w-0 truncate text-sm">
-                        {upload.subject ??
-                          (upload.kind === "image"
-                            ? (upload.originalFilename ?? t("image"))
-                            : firstLine(upload.textContent, t("textNotes")))}
-                      </p>
-                      <motion.span
-                        key={upload.extractionStatus}
-                        className="shrink-0"
-                        initial={{ opacity: 0, scale: 0.6 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={PEEK_SPRING}
-                      >
-                        <StatusBadge status={upload.extractionStatus} />
-                      </motion.span>
-                    </div>
-                    {upload.extractionStatus === "done" ? (
-                      <p className="mt-2 text-sm text-success">
-                        {showPoints ? t("pointsPrefix", { points: pointsDelta }) : ""}
-                        {t("linesSkipped", { count: upload.discardedCount })}
-                      </p>
-                    ) : null}
-                    {upload.extractionStatus === "failed" ? (
-                      <div className="mt-2 space-y-1">
-                        <p className="text-sm text-destructive">
-                          {upload.extractionError ?? t("extractionFailed")}
-                        </p>
-                        <p className="text-xs text-muted-foreground">{t("keptBlurb")}</p>
-                      </div>
-                    ) : null}
-                  </li>
-                );
-              })}
-            </ul>
-            {!processing && pointsDelta !== null && sessionUploads.length > 1 ? (
-              <p className="mt-3 text-sm text-success">
-                {t("pointsAdded", { count: pointsDelta })}
-              </p>
-            ) : null}
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm">
-              <Link
-                className="inline-flex items-center gap-1 font-medium text-muted-foreground transition hover:text-foreground"
-                to={`/classrooms/${classroomId}/notes`}
-              >
-                {t("viewHistory")}
-                <ArrowRight className="size-3.5" />
-              </Link>
-            </div>
-
-            {isGuest ? (
-              <div className="mt-5 flex flex-col items-start justify-between gap-3 rounded-xl border border-primary/25 bg-primary/[0.08] p-4 sm:flex-row sm:items-center">
                 <div>
-                  <p className="text-sm font-semibold text-foreground">{t("guestStatusPrompt")}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{t("guestModalDescription")}</p>
+                  <p className="eyebrow">{t("statusKicker")}</p>
+                  <h2 className="mt-2 font-heading text-2xl font-semibold">
+                    {processing ? t("readingNotes") : t("processingFinished")}
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {processing ? t("processingBlurb") : t("finishedBlurb")}
+                  </p>
                 </div>
-                <Button asChild size="sm" className="shrink-0">
-                  <a href="/signup">
-                    {t("guestModalSignUp")}
-                    <ArrowRight className="ml-1 size-3.5" />
-                  </a>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void refresh()}
+                >
+                  {t("checkStatus")}
                 </Button>
               </div>
-            ) : null}
+              <ul className="mt-4 space-y-3">
+                {sessionUploads.length === 0 ? (
+                  <li className="text-sm text-muted-foreground">
+                    {t("waiting")}
+                  </li>
+                ) : null}
+                {sessionUploads.map((upload) => {
+                  const showPoints =
+                    pointsDelta !== null &&
+                    upload.extractionStatus === "done" &&
+                    sessionUploads.length === 1;
+                  return (
+                    <li
+                      key={upload.id}
+                      className="rounded-xl border border-border/70 bg-card/65 p-3.5"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="min-w-0 truncate text-sm">
+                          {upload.subject ??
+                            (upload.kind === "image"
+                              ? (upload.originalFilename ?? t("image"))
+                              : firstLine(upload.textContent, t("textNotes")))}
+                        </p>
+                        <motion.span
+                          key={upload.extractionStatus}
+                          className="shrink-0"
+                          initial={{ opacity: 0, scale: 0.6 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={PEEK_SPRING}
+                        >
+                          <StatusBadge status={upload.extractionStatus} />
+                        </motion.span>
+                      </div>
+                      {upload.extractionStatus === "done" ? (
+                        <p className="mt-2 text-sm text-success">
+                          {showPoints
+                            ? t("pointsPrefix", { points: pointsDelta })
+                            : ""}
+                          {t("linesSkipped", { count: upload.discardedCount })}
+                        </p>
+                      ) : null}
+                      {upload.extractionStatus === "failed" ? (
+                        <div className="mt-2 space-y-1">
+                          <p className="text-sm text-destructive">
+                            {upload.extractionError ?? t("extractionFailed")}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {t("keptBlurb")}
+                          </p>
+                        </div>
+                      ) : null}
+                    </li>
+                  );
+                })}
+              </ul>
+              {!processing &&
+              pointsDelta !== null &&
+              sessionUploads.length > 1 ? (
+                <p className="mt-3 text-sm text-success">
+                  {t("pointsAdded", { count: pointsDelta })}
+                </p>
+              ) : null}
+              {readyForReview && newPoints.length > 0 ? (
+                <ul
+                  className="mt-4 flex flex-wrap gap-2"
+                  aria-label={t("openBank")}
+                >
+                  {newPoints.map((point) => (
+                    <li key={point.id}>
+                      <Link
+                        to={`/classrooms/${classroomId}/bank/${point.id}`}
+                        className="inline-block rounded-lg border border-primary/15 bg-card px-3 py-2 text-sm hover:border-primary/40"
+                      >
+                        <span className="font-medium">{point.targetText}</span>
+                        {point.nativeText ? (
+                          <span className="ml-2 text-muted-foreground">
+                            {point.nativeText}
+                          </span>
+                        ) : null}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm">
+                {readyForReview ? (
+                  <div className="flex flex-wrap gap-2">
+                    <Button asChild>
+                      <Link to={`/classrooms/${classroomId}?create=1`}>
+                        {t("startReview")}
+                        <ArrowRight />
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outline">
+                      <Link to={`/classrooms/${classroomId}/bank`}>
+                        {t("openBank")}
+                      </Link>
+                    </Button>
+                  </div>
+                ) : null}
+                <Link
+                  className="inline-flex items-center gap-1 font-medium text-muted-foreground transition hover:text-foreground"
+                  to={`/classrooms/${classroomId}/notes`}
+                >
+                  {t("viewHistory")}
+                  <ArrowRight className="size-3.5" />
+                </Link>
+              </div>
+
+              {isGuest ? (
+                <div className="mt-5 flex flex-col items-start justify-between gap-3 rounded-xl border border-primary/25 bg-primary/[0.08] p-4 sm:flex-row sm:items-center">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">
+                      {t("guestStatusPrompt")}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {t("guestModalDescription")}
+                    </p>
+                  </div>
+                  <Button asChild size="sm" className="shrink-0">
+                    <a href="/signup">
+                      {t("guestModalSignUp")}
+                      <ArrowRight className="ml-1 size-3.5" />
+                    </a>
+                  </Button>
+                </div>
+              ) : null}
             </CardContent>
           </Card>
         </motion.div>

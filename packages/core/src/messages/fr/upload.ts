@@ -10,7 +10,8 @@ export const upload: MessageShape<(typeof en)["Upload"]> = {
     reading: "Traitement en cours",
     queued: "En attente de traitement",
     pasteLabel: "Colle ou écris tes notes",
-    textHint: "Les notes imparfaites sont les bienvenues : nous gardons ce qui est utile.",
+    textHint:
+      "Colle le résumé de ton tuteur ou tes notes de cours. Les langues mélangées et les notes en vrac conviennent aussi.",
     pastePlaceholder: "Colle ici les notes de ta séance",
     attachImages: "Joindre des images",
     upToImages: "Jusqu'à {max} images, 10 Mo chacune.",
@@ -30,28 +31,36 @@ export const upload: MessageShape<(typeof en)["Upload"]> = {
     limitBody:
       "Avec Pro, ajoute tes notes après chaque cours pour que ton quiz du jour ait toujours du nouveau. 2,99 $/mois.",
     limitNext: "Prochain ajout gratuit : {date}.",
-    backgroundHint: "Tu peux quitter cette page après l'ajout. Le traitement continue en arrière-plan.",
-    statusKicker: "Traitement des notes",
-    readingNotes: "Nous préparons les notions à réviser…",
+    backgroundHint:
+      "Tu peux quitter cette page après l'ajout. Le traitement continue en arrière-plan.",
+    statusKicker: "Préparation de ta révision",
+    readingNotes: "Nous repérons les points à pratiquer…",
     processingFinished: "Traitement terminé",
     processingBlurb:
       "Tes notes sont traitées en arrière-plan. Tu peux quitter cette page ou en ajouter d'autres.",
-    finishedBlurb: "Ces notes restent dans ta classe et tu peux les retrouver à tout moment.",
+    finishedBlurb:
+      "Ces notes sont enregistrées. Les nouvelles notions rejoignent les révisions avec les plus anciennes et les erreurs récentes.",
     checkStatus: "Vérifier l'état",
     waiting: "Nous cherchons les notes que tu viens d'ajouter…",
     pointsPrefix: "{points, plural, one {+# notion, } other {+# notions, }}",
-    linesSkipped: "{count, plural, one {# ligne ignorée} other {# lignes ignorées}}",
+    linesSkipped:
+      "{count, plural, one {# ligne ignorée} other {# lignes ignorées}}",
     extractionFailed: "Le traitement des notes a échoué.",
     keptBlurb:
       "Tes notes sont enregistrées. Le traitement reprendra automatiquement et tu peux retrouver le contenu dans l'historique.",
-    pointsAdded: "{count, plural, one {# nouvelle notion tirée de ces notes.} other {# nouvelles notions tirées de ces notes.}}",
+    pointsAdded:
+      "{count, plural, one {# nouvelle notion tirée de ces notes.} other {# nouvelles notions tirées de ces notes.}}",
     viewHistory: "Voir l'historique des notes",
     guestModalTitle: "Notes ajoutées !",
     guestModalDescription:
       "Nous transformons tes notes en notions à réviser. Crée un compte pour recevoir ton quiz quotidien de dix minutes et conserver tes notes.",
     guestModalSignUp: "S'inscrire pour recevoir le quiz",
     guestModalContinue: "Continuer l'aperçu",
-    guestStatusPrompt: "Notes ajoutées ! Crée un compte pour recevoir ton quiz quotidien et conserver ta classe.",
-    guestUploadLimit: "L'essai sans compte est limité à un ajout de notes. Crée un compte pour en ajouter d'autres.",
+    guestStatusPrompt:
+      "Notes ajoutées ! Crée un compte pour recevoir ton quiz quotidien et conserver ta classe.",
+    guestUploadLimit:
+      "L'essai sans compte est limité à un ajout de notes. Crée un compte pour en ajouter d'autres.",
+    startReview: "Pratiquer maintenant",
+    openBank: "Voir les notions repérées",
   },
 };

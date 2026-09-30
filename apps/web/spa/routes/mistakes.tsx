@@ -3,9 +3,15 @@ import { Link, useParams } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
 import { useLocale, useTranslations } from "use-intl";
-import { CircleCheckBig, Loader2, NotebookText, RotateCcw } from "lucide-react";
-import { CATEGORIES, MISTAKE_WINDOW_DAYS, shuffledIndexOrder, type Category } from "@tmr/core";
+import { CircleCheckBig, Loader2, NotebookText } from "lucide-react";
+import {
+  CATEGORIES,
+  MISTAKE_WINDOW_DAYS,
+  shuffledIndexOrder,
+  type Category,
+} from "@tmr/core";
 import { Button } from "@tmr/ui/components/button";
+import { CtaIcon } from "@tmr/ui/components/cta-icon";
 import { Card, CardContent } from "@tmr/ui/components/card";
 import {
   Empty,
@@ -83,7 +89,9 @@ export function MistakeBookPage() {
                   <NotebookText />
                 </EmptyMedia>
                 <EmptyTitle>{t("proTitle")}</EmptyTitle>
-                <EmptyDescription>{t("proBlurb", { days: MISTAKE_WINDOW_DAYS })}</EmptyDescription>
+                <EmptyDescription>
+                  {t("proBlurb", { days: MISTAKE_WINDOW_DAYS })}
+                </EmptyDescription>
               </EmptyHeader>
               {session.features.billing ? (
                 <EmptyContent>
@@ -103,7 +111,13 @@ export function MistakeBookPage() {
     return <ErrorPanel onRetry={() => void refetch()} />;
   }
   // Keyed on the fetch, so a refetch after corrections starts a fresh sheet.
-  return <MistakeSheet key={data.mistakes.map((m) => m.question.id).join()} classroomId={id} {...data} />;
+  return (
+    <MistakeSheet
+      key={data.mistakes.map((m) => m.question.id).join()}
+      classroomId={id}
+      {...data}
+    />
+  );
 }
 
 function MistakeSheet({
@@ -130,7 +144,9 @@ function MistakeSheet({
     ),
   );
 
-  const corrected = mistakes.filter((mistake) => entries[mistake.question.id]?.grade?.isCorrect).length;
+  const corrected = mistakes.filter(
+    (mistake) => entries[mistake.question.id]?.grade?.isCorrect,
+  ).length;
 
   const update = (questionId: string, patch: Partial<Entry>) =>
     setEntries((previous) => ({
@@ -153,7 +169,9 @@ function MistakeSheet({
       });
       if (result.isCorrect) {
         setTimeout(() => update(questionId, { folded: true }), FOLD_AFTER_MS);
-        void queryClient.invalidateQueries({ queryKey: keys.overview(classroomId) });
+        void queryClient.invalidateQueries({
+          queryKey: keys.overview(classroomId),
+        });
       }
     } catch {
       update(questionId, { checking: false, error: true });
@@ -163,7 +181,10 @@ function MistakeSheet({
   if (mistakes.length === 0) {
     return (
       <div className="space-y-6">
-        <PageHeader title={t("title")} description={t("blurb", { days: windowDays })} />
+        <PageHeader
+          title={t("title")}
+          description={t("blurb", { days: windowDays })}
+        />
         <Card>
           <CardContent>
             <Empty>
@@ -172,7 +193,9 @@ function MistakeSheet({
                   <CircleCheckBig />
                 </EmptyMedia>
                 <EmptyTitle>{t("emptyTitle")}</EmptyTitle>
-                <EmptyDescription>{t("emptyBlurb", { days: windowDays })}</EmptyDescription>
+                <EmptyDescription>
+                  {t("emptyBlurb", { days: windowDays })}
+                </EmptyDescription>
               </EmptyHeader>
             </Empty>
           </CardContent>
@@ -183,12 +206,18 @@ function MistakeSheet({
 
   return (
     <div className="space-y-6">
-      <PageHeader title={t("title")} description={t("blurb", { days: windowDays })} />
+      <PageHeader
+        title={t("title")}
+        description={t("blurb", { days: windowDays })}
+      />
       <div className="sticky top-17 z-10 flex items-center gap-3 rounded-2xl border border-border/75 bg-background/85 px-4 py-2.5 shadow-[0_10px_36px_rgb(var(--shadow-colour)/0.08)] backdrop-blur-xl sm:top-19">
         <p className="shrink-0 text-sm font-medium tabular-nums">
           {t("progress", { done: corrected, total: mistakes.length })}
         </p>
-        <Progress value={(corrected / mistakes.length) * 100} className="h-1.5" />
+        <Progress
+          value={(corrected / mistakes.length) * 100}
+          className="h-1.5"
+        />
       </div>
 
       <article className="mistake-book">
@@ -197,7 +226,10 @@ function MistakeSheet({
             {mistakes.map((mistake, index) => {
               const questionId = mistake.question.id;
               const entry = entries[questionId] ?? EMPTY_ENTRY;
-              const question: QuizQuestion = { ...mistake.question, position: index };
+              const question: QuizQuestion = {
+                ...mistake.question,
+                position: index,
+              };
               const category = mistake.question.category;
               const kind =
                 mistake.source.kind === "exam"
@@ -238,12 +270,18 @@ function MistakeSheet({
                               aria-hidden="true"
                               initial={{ scaleX: 0 }}
                               animate={{ scaleX: 1 }}
-                              transition={{ delay: 0.2, duration: 0.35, ease: [0.3, 0, 0.2, 1] }}
+                              transition={{
+                                delay: 0.2,
+                                duration: 0.35,
+                                ease: [0.3, 0, 0.2, 1],
+                              }}
                               className="absolute inset-x-0 top-1/2 h-0.5 origin-left rounded-full bg-destructive/70"
                             />
                           </span>
                         </span>
-                        <span className="mistake-stamp shrink-0 text-xs">{t("corrected")}</span>
+                        <span className="mistake-stamp shrink-0 text-xs">
+                          {t("corrected")}
+                        </span>
                       </motion.button>
                     ) : (
                       <motion.div
@@ -264,10 +302,18 @@ function MistakeSheet({
                                 to={`/classrooms/${classroomId}/quizzes/${mistake.source.quizId}`}
                                 className="underline-offset-2 hover:text-foreground hover:underline"
                               >
-                                {t("source", { date: formatQuizDate(mistake.source.quizDate, locale), kind })}
+                                {t("source", {
+                                  date: formatQuizDate(
+                                    mistake.source.quizDate,
+                                    locale,
+                                  ),
+                                  kind,
+                                })}
                               </Link>
                               <span aria-hidden="true">·</span>
-                              <span className="text-destructive">{t("missCount", { count: mistake.missCount })}</span>
+                              <span className="text-destructive">
+                                {t("missCount", { count: mistake.missCount })}
+                              </span>
                             </p>
                           }
                           question={question}
@@ -276,16 +322,23 @@ function MistakeSheet({
                           response={entry.response}
                           optionOrder={optionOrders[questionId]}
                           categoryLabel={
-                            CATEGORIES.includes(category as Category) ? categoryT(category) : category
+                            CATEGORIES.includes(category as Category)
+                              ? categoryT(category)
+                              : category
                           }
                           pointId={undefined}
                           isOmitted={false}
                           grade={entry.grade}
                           markOrder={1}
-                          onAnswer={(response) => update(questionId, { response, error: false })}
+                          onAnswer={(response) =>
+                            update(questionId, { response, error: false })
+                          }
                           onActivate={() => {}}
                           onAdvance={() => {
-                            if (!entry.grade && isAnswered(question, entry.response)) {
+                            if (
+                              !entry.grade &&
+                              isAnswered(question, entry.response)
+                            ) {
                               void check(questionId);
                             }
                           }}
@@ -294,21 +347,38 @@ function MistakeSheet({
                             classroomId={classroomId}
                             questionId={questionId}
                             initial={mistake.tutor}
-                            wrongResponse={entry.grade && !right ? (entry.response ?? {}) : null}
-                            wrongAt={entry.grade && !right ? entry.gradedAt : null}
+                            wrongResponse={
+                              entry.grade && !right
+                                ? (entry.response ?? {})
+                                : null
+                            }
+                            wrongAt={
+                              entry.grade && !right ? entry.gradedAt : null
+                            }
                             corrected={right}
                           >
                             {!entry.grade ? (
                               <Button
                                 size="sm"
-                                disabled={entry.checking || !isAnswered(question, entry.response)}
+                                disabled={
+                                  entry.checking ||
+                                  !isAnswered(question, entry.response)
+                                }
                                 onClick={() => void check(questionId)}
                               >
-                                {entry.checking ? <Loader2 className="animate-spin" /> : null}
+                                {entry.checking ? (
+                                  <Loader2 className="animate-spin" />
+                                ) : (
+                                  <CtaIcon kind="submit" />
+                                )}
                                 {entry.checking ? t("checking") : t("check")}
                               </Button>
                             ) : right ? (
-                              <ScoreStamp after={1} tilt={0} className="mistake-stamp">
+                              <ScoreStamp
+                                after={1}
+                                tilt={0}
+                                className="mistake-stamp"
+                              >
                                 {t("corrected")}
                               </ScoreStamp>
                             ) : (
@@ -316,16 +386,26 @@ function MistakeSheet({
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => update(questionId, { grade: undefined, response: undefined })}
+                                  onClick={() =>
+                                    update(questionId, {
+                                      grade: undefined,
+                                      response: undefined,
+                                    })
+                                  }
                                 >
-                                  <RotateCcw />
+                                  <CtaIcon kind="retake" />
                                   {t("tryAgain")}
                                 </Button>
-                                <span className="text-sm text-muted-foreground">{t("stillWrong")}</span>
+                                <span className="text-sm text-muted-foreground">
+                                  {t("stillWrong")}
+                                </span>
                               </>
                             )}
                             {entry.error ? (
-                              <span role="alert" className="text-sm text-destructive">
+                              <span
+                                role="alert"
+                                className="text-sm text-destructive"
+                              >
                                 {t("checkError")}
                               </span>
                             ) : null}
@@ -346,8 +426,15 @@ function MistakeSheet({
             transition={{ ...FOLD, delay: FOLD_AFTER_MS / 1000 + 0.3 }}
             className="mt-12 text-center"
           >
-            <p className="font-heading text-xl font-semibold">{t("allDoneTitle")}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{t("allDoneBlurb")}</p>
+            <p className="font-heading text-xl font-semibold">
+              {t("allDoneTitle")}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t("allDoneBlurb")}
+            </p>
+            <Button asChild className="mt-4">
+              <Link to={`/classrooms/${classroomId}`}>{t("finish")}</Link>
+            </Button>
           </motion.div>
         ) : null}
       </article>
