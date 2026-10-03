@@ -212,30 +212,6 @@ export async function listQuizzesForClassroom(
     .orderBy(desc(quizzes.composedAt));
 }
 
-export async function listUntakenOnDemandQuizzes(
-  db: Db,
-  classroomId: string,
-  limit = 3,
-) {
-  return db
-    .select({
-      id: quizzes.id,
-      quizDate: quizzes.quizDate,
-      kind: quizzes.kind,
-      size: quizzes.size,
-      composedAt: quizzes.composedAt,
-    })
-    .from(quizzes)
-    .leftJoin(attempts, eq(attempts.quizId, quizzes.id))
-    .where(
-      and(eq(quizzes.classroomId, classroomId), eq(quizzes.kind, "manual")),
-    )
-    .groupBy(quizzes.id)
-    .having(sql`count(${attempts.id}) = 0`)
-    .orderBy(desc(quizzes.composedAt))
-    .limit(limit);
-}
-
 export async function countManualQuizzes(
   db: Db,
   userId: string,
@@ -454,37 +430,6 @@ export async function listAttemptsForQuiz(
     .from(attempts)
     .where(and(eq(attempts.quizId, quizId), eq(attempts.userId, userId)))
     .orderBy(desc(attempts.submittedAt));
-}
-
-/** The most recent short review submitted today, including on-demand practice. */
-export async function getLatestReviewForClassroomOnDate(
-  db: Db,
-  userId: string,
-  classroomId: string,
-  date: string,
-  timezone: string,
-) {
-  const [review] = await db
-    .select({
-      attemptId: attempts.id,
-      quizId: quizzes.id,
-      correctCount: attempts.correctCount,
-      questionCount: attempts.questionCount,
-    })
-    .from(attempts)
-    .innerJoin(quizzes, eq(attempts.quizId, quizzes.id))
-    .where(
-      and(
-        eq(attempts.userId, userId),
-        eq(quizzes.userId, userId),
-        eq(quizzes.classroomId, classroomId),
-        sql`${quizzes.kind} IN ('daily', 'manual')`,
-        sql`(${attempts.submittedAt} AT TIME ZONE ${timezone})::date = ${date}::date`,
-      ),
-    )
-    .orderBy(desc(attempts.submittedAt))
-    .limit(1);
-  return review ?? null;
 }
 
 export async function countAttemptsForQuizOnDate(

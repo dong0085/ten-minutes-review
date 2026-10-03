@@ -40,8 +40,6 @@ export const app: MessageShape<(typeof en)["App"]> = {
     bank: "题库",
     bankMeta:
       "{count, plural, =0 {添加笔记后就会开始建题库} other {# 个知识点可参与出题}}",
-    quizzes: "测验",
-    quizzesMeta: "{count} 份测验 · 想回顾时随时打开",
     mistakes: "错题本",
     mistakesMeta:
       "{count, plural, =0 {近期没有需要回顾的错题} other {# 道近期错题，按需回顾}}",

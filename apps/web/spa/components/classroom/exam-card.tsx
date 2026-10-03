@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router";
 import { motion } from "motion/react";
-import { useLocale, useTranslations } from "use-intl";
+import { useTranslations } from "use-intl";
 import { ArrowRight, Loader2, Lock, ScrollText } from "lucide-react";
 import { EXAM_MINUTES, EXAM_QUESTION_COUNT } from "@tmr/core";
 import { Badge } from "@tmr/ui/components/badge";
@@ -18,7 +18,6 @@ import {
 } from "@tmr/ui/components/dialog";
 import { BillingButton } from "@/spa/components/account/billing-button";
 import { ApiError, api } from "@/spa/lib/api";
-import { formatQuizDate } from "@/spa/lib/format";
 import type { ClassroomOverview } from "@/spa/lib/queries";
 import { useRouter } from "@/spa/lib/router";
 import { PEEK_SPRING, usePeek } from "@/spa/lib/use-peek";
@@ -29,8 +28,9 @@ const POLL_MS = 2500;
 type Phase = "idle" | "writing" | "ready" | "failed";
 
 /**
- * The exam on the classroom hub. It counts up to the bank size an exam needs,
- * says so once the bank gets there, and writes one on request.
+ * The exam tile in the hub's quizzes section. It counts up to the bank size
+ * an exam needs, says so once the bank gets there, and writes one on request.
+ * Past exams show in the list under it.
  */
 export function ExamCard({
   classroomId,
@@ -46,7 +46,6 @@ export function ExamCard({
   billingEnabled: boolean;
 }) {
   const t = useTranslations("Classroom.ExamCard");
-  const locale = useLocale();
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>(exam.composeJob ? "writing" : "idle");
   const [jobId, setJobId] = useState<string | null>(exam.composeJob?.id ?? null);
@@ -103,64 +102,55 @@ export function ExamCard({
   }, [classroomId]);
 
   return (
-    <motion.section
+    <motion.div
       {...peek}
-      className="editorial-surface flex flex-col gap-5 rounded-[1.6rem] px-6 py-6 sm:flex-row sm:items-center sm:gap-7 sm:px-8"
+      className="editorial-surface flex flex-col justify-between gap-5 rounded-[1.4rem] px-6 py-5"
     >
-      <ExamStack
-        unlocked={unlocked}
-        open={peek.animate === "open"}
-        writing={phase === "writing"}
-        label={t("kicker")}
-      />
-      <div className="min-w-0 flex-1">
-        <p className="eyebrow flex items-center gap-1.5">
-          <ScrollText className="size-3" />
-          {t("kicker")}
-        </p>
-        <h2 className="mt-2 font-heading text-2xl font-semibold tracking-[-0.025em]">
-          {unlocked ? t("readyTitle") : t("lockedTitle")}
-        </h2>
-        <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-          {unlocked
-            ? t("readyBlurb", { count: EXAM_QUESTION_COUNT, minutes: EXAM_MINUTES })
-            : t("lockedBlurb", { required: exam.requiredPoints, count: EXAM_QUESTION_COUNT })}
-        </p>
-        {!unlocked ? (
-          <div className="mt-4 max-w-sm">
-            <div className="flex justify-between text-xs font-medium text-muted-foreground">
-              <span>{t("progress", { count: bankSize, required: exam.requiredPoints })}</span>
-              <span>{Math.round((bankSize / exam.requiredPoints) * 100)}%</span>
-            </div>
-            <div
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={Math.round((bankSize / exam.requiredPoints) * 100)}
-              className="mt-1.5 h-2 overflow-hidden rounded-full bg-primary/20"
-            >
-              <motion.div
-                className="h-full origin-left rounded-full bg-primary"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: Math.min(1, bankSize / exam.requiredPoints) }}
-                transition={{ type: "spring", stiffness: 90, damping: 16, delay: 0.2 }}
-              />
-            </div>
-          </div>
-        ) : null}
-        {exam.latest && phase !== "writing" ? (
-          <p className="mt-3 text-xs text-muted-foreground">
-            {t("latest", { date: formatQuizDate(exam.latest.quizDate, locale) })} ·{" "}
-            <Link
-              to={`/classrooms/${classroomId}/quizzes/${exam.latest.id}`}
-              className="font-medium text-primary underline-offset-4 hover:underline"
-            >
-              {t("viewLatest")}
-            </Link>
+      <div className="flex gap-5">
+        <div className="min-w-0 flex-1">
+          <p className="eyebrow flex items-center gap-1.5">
+            <ScrollText className="size-3" />
+            {t("kicker")}
           </p>
-        ) : null}
-        {error ? <p className="mt-3 text-sm text-destructive">{error}</p> : null}
-        {phase === "failed" ? <p className="mt-3 text-sm text-destructive">{t("failed")}</p> : null}
+          <h3 className="mt-2 font-heading text-xl font-semibold tracking-[-0.02em]">
+            {unlocked ? t("readyTitle") : t("lockedTitle")}
+          </h3>
+          <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
+            {unlocked
+              ? t("readyBlurb", { count: EXAM_QUESTION_COUNT, minutes: EXAM_MINUTES })
+              : t("lockedBlurb", { required: exam.requiredPoints, count: EXAM_QUESTION_COUNT })}
+          </p>
+          {!unlocked ? (
+            <div className="mt-4 max-w-sm">
+              <div className="flex justify-between text-xs font-medium text-muted-foreground">
+                <span>{t("progress", { count: bankSize, required: exam.requiredPoints })}</span>
+                <span>{Math.round((bankSize / exam.requiredPoints) * 100)}%</span>
+              </div>
+              <div
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round((bankSize / exam.requiredPoints) * 100)}
+                className="mt-1.5 h-2 overflow-hidden rounded-full bg-primary/20"
+              >
+                <motion.div
+                  className="h-full origin-left rounded-full bg-primary"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: Math.min(1, bankSize / exam.requiredPoints) }}
+                  transition={{ type: "spring", stiffness: 90, damping: 16, delay: 0.2 }}
+                />
+              </div>
+            </div>
+          ) : null}
+          {error ? <p className="mt-3 text-sm text-destructive">{error}</p> : null}
+          {phase === "failed" ? <p className="mt-3 text-sm text-destructive">{t("failed")}</p> : null}
+        </div>
+        <ExamStack
+          unlocked={unlocked}
+          open={peek.animate === "open"}
+          writing={phase === "writing"}
+          label={t("kicker")}
+        />
       </div>
 
       {unlocked ? (
@@ -202,21 +192,21 @@ export function ExamCard({
               </Button>
             </div>
           ) : untakenId ? (
-            <Button asChild size="lg">
+            <Button asChild>
               <Link to={`/classrooms/${classroomId}/quizzes/${untakenId}/take`}>
                 {t("take")}
                 <ArrowRight />
               </Link>
             </Button>
           ) : (
-            <Button size="lg" onClick={() => void start()}>
+            <Button variant="outline" onClick={() => void start()}>
               {phase === "failed" ? t("retry") : t("start")}
               <ArrowRight />
             </Button>
           )}
         </div>
       ) : null}
-    </motion.section>
+    </motion.div>
   );
 }
 
@@ -243,7 +233,7 @@ function ExamStack({
       aria-hidden="true"
       initial="messy"
       animate={open ? "open" : unlocked ? "rest" : "messy"}
-      className="relative hidden h-28 w-22 shrink-0 sm:block"
+      className="relative mt-1 mr-1 hidden h-24 w-19 shrink-0 sm:block"
     >
       <motion.div
         variants={{
@@ -276,7 +266,7 @@ function ExamStack({
           {label}
         </p>
         {writing ? (
-          <WritingLines width={72} left={8} firstLine={30} lineGap={10} lines={4} pencil={14} />
+          <WritingLines width={60} left={7} firstLine={26} lineGap={9} lines={4} pencil={13} />
         ) : (
           <div className="space-y-1.5 px-2 pt-2">
             <span className="block h-1 w-4/5 rounded-full bg-foreground/15" />

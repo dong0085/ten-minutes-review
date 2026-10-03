@@ -43,9 +43,6 @@ export const app: MessageShape<(typeof en)["App"]> = {
     bank: "Banque de questions",
     bankMeta:
       "{count, plural, =0 {Ajoute des notes pour commencer} one {# notion prête pour les quiz} other {# notions prêtes pour les quiz}}",
-    quizzes: "Quiz",
-    quizzesMeta:
-      "{count, plural, one {# révision} other {# révisions}} · à revoir quand tu veux",
     mistakes: "Carnet d'erreurs",
     mistakesMeta:
       "{count, plural, =0 {Aucune erreur récente à revoir} one {# question récente à revoir} other {# questions récentes à revoir}}",

@@ -12,19 +12,19 @@ export const classroom = {
     addNotes: "Add notes",
   },
   TodayQuiz: {
-    kicker: "Between lessons",
-    title: "Today’s review",
-    ready:
-      "Practise your lesson notes, with older material and recent mistakes mixed in.",
-    idle: "Your next daily review arrives in the morning. You can also practise now.",
     paused:
       "Daily reviews are paused. You can still create a quiz whenever you like.",
     resetAt: "Next daily review: {local} ({utc} UTC)",
     resetAtTomorrow: "Next daily review: tomorrow at {local} ({utc} UTC)",
-    takeToday: "Start today’s review",
-    createNow: "Practise now",
+    readyLine: "Your quiz is here",
+    open: "Open",
+    doneLine: "Done for today",
+    processingLine: "Reading your notes…",
+    emptyLine: "Add notes to get your first quiz",
+    pausedLine: "Daily quizzes are paused",
+    pausedAction: "Open settings",
+    idleLine: "Nothing in the box yet",
     addNotes: "Add notes",
-    addNotesSuffix: "to create a quiz.",
     writingTitle: "Writing a quiz…",
     writingHint:
       "About a minute. You can leave this page; it will show up here.",
@@ -38,9 +38,6 @@ export const classroom = {
     failedBlurb:
       "Something went wrong while writing it. Try again in a moment.",
     tryAgain: "Try again",
-    completedTitle: "You’ve reviewed today",
-    completedBlurb:
-      "A good place to finish for today. Revisit the explanations, or practise more when you want.",
     reviewResults: "View my review",
     processing:
       "We’re preparing practice from your notes. You can leave and come back when it’s ready.",
@@ -178,11 +175,14 @@ export const classroom = {
     questions: "{count, plural, one {# question} other {# questions}}",
     take: "Take",
     best: "Best {score} / {size}",
-    unfinished: "Optional practice to return to",
-    unfinishedBlurb: "Quizzes you created but have not taken yet.",
-    recentMade: "Made {when}",
-    recentReady: "Ready when you are",
     review: "Review",
+    quizzesTitle: "Your quizzes and exams",
+    seeAllQuizzes: "See all ({count})",
+    notStarted: "Not started",
+    onDemandTitle: "A fresh quiz, whenever you want",
+    onDemandBlurb: "Written from this classroom’s notes, with earlier material and recent mistakes mixed in. Ready in about a minute.",
+    onDemandEmpty: "Add notes first; quizzes are written from them.",
+    onDemandAction: "Create a quiz",
     guestBanner:
       "You are exploring in preview mode. Notes and classrooms are temporary until you create an account.",
     guestBannerAction: "Sign up to save",
@@ -190,9 +190,6 @@ export const classroom = {
     guestDailyQuizBlurb:
       "Every morning at 7:00 AM, you'll receive a 10-minute quiz tailored to these notes. Sign up to activate daily quizzes for this classroom.",
     guestDailyQuizCta: "Sign up to receive daily quizzes",
-      beforeLessonTitle: "Before your next lesson",
-    beforeLessonCopy: "Want another look before class? Practise from this classroom’s notes, with earlier material and recent mistakes mixed in.",
-    beforeLessonAction: "Review before my lesson",
   },
   HistoryPage: {
     title: "Lesson notes",

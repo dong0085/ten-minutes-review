@@ -388,7 +388,7 @@ Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve t
 | `GET` | `/api/classrooms/:id/uploads` | Timeline, with each note's re-read state |
 | `GET` `PATCH` | `/api/classrooms/:id/uploads/:uploadId` | One note with its live points (line order) and edits left; `PATCH { text }` saves an edit and reads the changed lines again (`202`; `409` while a reading runs; `403 pro_required` past the free cap) |
 | `POST` `DELETE` | `/api/classrooms/:id/uploads/:uploadId/reread` | Read the note again, or Try again after a failure; `DELETE` discards a failed re-read |
-| `GET` | `/api/classrooms/:id/overview` | Classroom hub: today's daily quiz id, a compose job still in flight from the last hour, on-demand quizzes from the last 24 hours, older untaken ones, and counts of uploads, bank points, and quizzes |
+| `GET` | `/api/classrooms/:id/overview` | Classroom hub: today's daily quiz id and its latest attempt, a compose job still in flight from the last hour, the five latest quizzes and exams of every kind with their best score, the exam state, and counts of uploads, bank points, and quizzes |
 | `GET` | `/api/classrooms/:id/bank` | Counts per category |
 | `GET` | `/api/classrooms/:id/knowledge-points` | Every knowledge point, omitted and replaced ones included (`isSuperseded`; the bank screens hide replaced ones), with answered/missed counts |
 | `PATCH` | `/api/knowledge-points/:id` | Edit target text, meaning, or note (Pro; `403 pro_required` otherwise); sets `user_edited_at`; `409` on a replaced point |
@@ -421,7 +421,7 @@ Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve t
 
 Answers and explanations never leave the server before a submission. The quiz payload carries stems and options only. A browser-local draft holds the learner's own responses and position between refreshes.
 
-The quiz payload also carries `sources` (upload id, subject, and added-at timestamp), deduplicated through its questions' knowledge points. This metadata links reviews to original lesson notes without serializing prepared answers or explanations. Bank items carry `sourceUploadId` for the same navigation. The classroom overview includes `latestReview`, the latest daily/manual attempt submitted on the reader's current local date; exams do not set this completion state. These fields derive from existing rows and require no schema migration.
+The quiz payload also carries `sources` (upload id, subject, and added-at timestamp), deduplicated through its questions' knowledge points. This metadata links reviews to original lesson notes without serializing prepared answers or explanations. Bank items carry `sourceUploadId` for the same navigation. The classroom overview includes `dailyReview`, the latest attempt at today's daily quiz; on-demand quizzes and exams leave this completion state alone. These fields derive from existing rows and require no schema migration.
 
 ---
 

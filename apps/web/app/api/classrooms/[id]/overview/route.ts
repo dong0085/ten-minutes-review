@@ -1,8 +1,7 @@
 import {
   COMPOSE_REHYDRATE_MS,
   EXAM_MIN_POINTS,
-  RECENT_ON_DEMAND_LIMIT,
-  RECENT_ON_DEMAND_MS,
+  HUB_RECENT_QUIZ_LIMIT,
   type Category,
 } from "@tmr/core";
 import {
@@ -11,9 +10,8 @@ import {
   getClassroom,
   getDailyQuizByClassroomAndDate,
   getLatestComposeJob,
-  getLatestReviewForClassroomOnDate,
+  listAttemptsForQuiz,
   listQuizzesForClassroom,
-  listUntakenOnDemandQuizzes,
   listUploadsForUser,
 } from "@tmr/db";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/api";
@@ -23,8 +21,9 @@ import { localDateFor } from "@/app/api/_lib/quiz";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-// Everything the classroom hub shows in one round trip: today's quiz state,
-// a compose job still in flight, and the counts behind each drill-down row.
+// Everything the classroom hub shows in one round trip: today's daily quiz and
+// how it went, the latest quizzes and exams, a compose job still in flight,
+// and the counts behind each drill-down row.
 export async function GET(_request: Request, context: RouteContext) {
   try {
     const current = await getCurrentUserOrGuest();
@@ -39,46 +38,33 @@ export async function GET(_request: Request, context: RouteContext) {
       return jsonError("Not found", 404);
     }
     const today = localDateFor(user.timezone);
-    let timezone = "UTC";
-    try {
-      timezone = new Intl.DateTimeFormat("en", {
-        timeZone: user.timezone,
-      }).resolvedOptions().timeZone;
-    } catch {
-      // Match localDateFor's UTC fallback for a legacy invalid timezone.
-    }
     const [
       categoryRows,
       dailyQuiz,
       uploads,
       quizzes,
-      unfinished,
       composeJob,
       examJob,
       mistakes,
-      latestReview,
     ] = await Promise.all([
       countBankByCategory(db, user.id, id),
       getDailyQuizByClassroomAndDate(db, id, today),
       listUploadsForUser(db, user.id, id),
       listQuizzesForClassroom(db, user.id, id),
-      listUntakenOnDemandQuizzes(db, id, 3 + RECENT_ON_DEMAND_LIMIT),
       getLatestComposeJob(db, id, COMPOSE_REHYDRATE_MS),
       getLatestComposeJob(db, id, COMPOSE_REHYDRATE_MS, "exam"),
       countOpenMistakes(db, user.id, id),
-      getLatestReviewForClassroomOnDate(db, user.id, id, today, timezone),
     ]);
     const latestExam = quizzes.find((quiz) => quiz.kind === "exam");
-    // On-demand quizzes from the last day get their own card, taken or not;
-    // older untaken ones stay in the Unfinished row.
-    const recentSince = Date.now() - RECENT_ON_DEMAND_MS;
-    const recentOnDemand = quizzes
-      .filter(
-        (quiz) =>
-          quiz.kind === "manual" && quiz.composedAt.getTime() >= recentSince,
-      )
-      .slice(0, RECENT_ON_DEMAND_LIMIT);
-    const recentIds = new Set(recentOnDemand.map((quiz) => quiz.id));
+    // Today's daily quiz counts as done once it has any attempt; the hub
+    // links to the latest one.
+    const dailyTaken = quizzes.some(
+      (quiz) => quiz.id === dailyQuiz?.id && quiz.attemptCount > 0,
+    );
+    const [dailyAttempt] =
+      dailyQuiz && dailyTaken
+        ? await listAttemptsForQuiz(db, user.id, dailyQuiz.id)
+        : [];
     const bankByCategory: Record<Category, number> = {
       vocabulary: 0,
       phrase: 0,
@@ -97,7 +83,14 @@ export async function GET(_request: Request, context: RouteContext) {
     return jsonOk({
       today,
       dailyQuizId: dailyQuiz?.id ?? null,
-      latestReview,
+      dailyReview: dailyAttempt
+        ? {
+            attemptId: dailyAttempt.id,
+            quizId: dailyAttempt.quizId,
+            correctCount: dailyAttempt.correctCount,
+            questionCount: dailyAttempt.questionCount,
+          }
+        : null,
       composeJob: composeJob
         ? {
             id: composeJob.id,
@@ -135,10 +128,7 @@ export async function GET(_request: Request, context: RouteContext) {
             }
           : null,
       },
-      recentOnDemand,
-      unfinished: unfinished
-        .filter((quiz) => !recentIds.has(quiz.id))
-        .slice(0, 3),
+      recentQuizzes: quizzes.slice(0, HUB_RECENT_QUIZ_LIMIT),
     });
   } catch (error) {
     return handleRouteError(error);
