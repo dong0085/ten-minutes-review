@@ -78,6 +78,7 @@ export const onboarding: MessageShape<(typeof en)["Onboarding"]> = {
     addPhoto: "添加照片",
     remove: "移除",
     textPlaceholder: "粘贴你学过的单词、短语或语法……",
+    lineCount: "{count} 行 · 每行一项效果最好",
     useSample: "手边没有笔记？用示例笔记试试",
     submit: "读取我的笔记",
     submitting: "正在保存……",

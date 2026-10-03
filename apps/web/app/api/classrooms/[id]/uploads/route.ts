@@ -16,9 +16,10 @@ import {
 } from "@tmr/db";
 import { handleRouteError, jsonError, jsonOk, readJson } from "@/lib/api";
 import { getDb } from "@/lib/db";
-import { processUploadExtraction } from "@/lib/extract";
+import { processExtractJob } from "@/lib/extract";
 import { getCurrentUserOrGuest } from "@/lib/session";
-import { objectUrl, putObject } from "@/lib/storage";
+import { putObject } from "@/lib/storage";
+import { toUploadJson } from "@/lib/uploads";
 
 export const maxDuration = 60;
 
@@ -75,26 +76,7 @@ export async function GET(_request: Request, context: RouteContext) {
       return jsonError("Not found", 404);
     }
     const rows = await listUploadsForUser(db, user.id, id);
-    const uploads = await Promise.all(
-      rows.map(async ({ upload }) => ({
-        id: upload.id,
-        kind: upload.kind,
-        textContent: upload.textContent,
-        originalFilename: upload.originalFilename,
-        mimeType: upload.mimeType,
-        byteSize: upload.byteSize,
-        extractionStatus: upload.extractionStatus,
-        extractedAt: upload.extractedAt,
-        extractionError: upload.extractionError,
-        subject: upload.subject,
-        discardedCount: upload.discarded.length,
-        createdAt: upload.createdAt,
-        imageUrl:
-          upload.kind === "image" && upload.storageKey
-            ? await objectUrl(upload.storageKey).catch(() => null)
-            : null,
-      })),
-    );
+    const uploads = await Promise.all(rows.map(({ upload }) => toUploadJson(upload)));
     return jsonOk({ uploads });
   } catch (error) {
     return handleRouteError(error);
@@ -206,9 +188,7 @@ export async function POST(request: Request, context: RouteContext) {
     // Schedule real-time extraction in Next.js background via after()
     after(async () => {
       for (const item of scheduled) {
-        await processUploadExtraction(item.uploadId, item.jobId).catch((err) =>
-          console.error("[web-after] extraction failed", err),
-        );
+        await processExtractJob(item.jobId, user.id);
       }
     });
 

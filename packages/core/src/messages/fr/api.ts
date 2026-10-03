@@ -32,4 +32,11 @@ export const api: MessageShape<(typeof en)["Api"]> = {
   invalidTimezone: "Fuseau horaire invalide",
   passwordIncorrect: "Ton mot de passe actuel est incorrect.",
   unlinkWithoutPassword: "Définis un mot de passe avant de dissocier Google.",
+  pointSuperseded: "Cette notion a été remplacée quand ses notes ont été modifiées",
+  noteBusy: "Ces notes sont déjà en cours de lecture",
+  noteNotReady: "Ces notes n’ont pas encore été lues",
+  noteUnchanged: "Aucune modification à enregistrer",
+  noteNotText: "Seules les notes tapées peuvent être modifiées",
+  noteNothingToDiscard: "Rien à annuler",
+  noteRereadLimit: "L’offre gratuite permet {count, plural, one {# relecture} other {# relectures}} par note. Avec Pro, modifie tes notes autant que tu veux, pour 2,99 $/mois.",
 };

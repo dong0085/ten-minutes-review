@@ -34,6 +34,7 @@ export async function setKnowledgePointRetired(
       classroomId: knowledgePoints.classroomId,
       retiredAt: knowledgePoints.retiredAt,
       targetText: knowledgePoints.targetText,
+      supersededAt: knowledgePoints.supersededAt,
     })
     .from(knowledgePoints)
     .innerJoin(classrooms, eq(knowledgePoints.classroomId, classrooms.id))
@@ -42,6 +43,10 @@ export async function setKnowledgePointRetired(
 
   if (!point) {
     return null;
+  }
+  // An edit to its note replaced this point; it stays retired.
+  if (point.supersededAt) {
+    return "superseded" as const;
   }
 
   const retiredAt = retired ? new Date() : null;
@@ -66,7 +71,7 @@ export async function updateKnowledgePointText(
   fields: { targetText?: string; nativeText?: string | null; note?: string | null },
 ) {
   const [point] = await db
-    .select({ id: knowledgePoints.id })
+    .select({ id: knowledgePoints.id, supersededAt: knowledgePoints.supersededAt })
     .from(knowledgePoints)
     .innerJoin(classrooms, eq(knowledgePoints.classroomId, classrooms.id))
     .where(and(eq(knowledgePoints.id, knowledgePointId), eq(classrooms.userId, userId)))
@@ -75,18 +80,23 @@ export async function updateKnowledgePointText(
   if (!point) {
     return null;
   }
+  if (point.supersededAt) {
+    return "superseded" as const;
+  }
 
+  // Marking the edit keeps later re-reads of the note from overwriting it.
   const [updated] = await db
     .update(knowledgePoints)
-    .set(fields)
+    .set({ ...fields, userEditedAt: new Date() })
     .where(eq(knowledgePoints.id, knowledgePointId))
     .returning();
 
   return updated ?? null;
 }
 
-// Every knowledge point in the classroom, omitted ones included, with how often
-// the learner answered questions built on it.
+// Every knowledge point in the classroom, omitted and replaced ones included, with
+// how often the learner answered questions built on it. Replaced points stay so
+// links from past quizzes still open; the bank screens hide them.
 export async function listBankForUser(db: Db, userId: string, classroomId: string) {
   return db
     .select({

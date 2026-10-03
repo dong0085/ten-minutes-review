@@ -82,6 +82,7 @@ export const onboarding: MessageShape<(typeof en)["Onboarding"]> = {
     remove: "Retirer",
     textPlaceholder:
       "Collez les mots, expressions ou points de grammaire étudiés…",
+    lineCount: "{count, plural, one {# ligne} other {# lignes}} · un élément par ligne, c’est l’idéal",
     useSample: "Pas de notes sous la main ? Utilisez des notes d'exemple",
     submit: "Lire mes notes",
     submitting: "Enregistrement…",

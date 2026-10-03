@@ -29,4 +29,11 @@ export const api = {
   invalidTimezone: "Invalid timezone",
   passwordIncorrect: "Your current password is incorrect.",
   unlinkWithoutPassword: "Set a password before unlinking Google.",
+  pointSuperseded: "This point was replaced when its notes were edited",
+  noteBusy: "These notes are already being read",
+  noteNotReady: "These notes have not been read yet",
+  noteUnchanged: "No changes to save",
+  noteNotText: "Only typed notes can be edited",
+  noteNothingToDiscard: "Nothing to discard",
+  noteRereadLimit: "The free plan allows {count, plural, one {# re-read} other {# re-reads}} per note. Pro lets you edit your notes as often as you like, for $2.99/month.",
 };

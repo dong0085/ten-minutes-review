@@ -8,7 +8,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-import type { ExtractionDiscard, UploadKind } from "@tmr/core";
+import type { ExtractionDiscard, NoteRereadResult, UploadKind } from "@tmr/core";
 import { users } from "./users";
 
 export const classrooms = pgTable(
@@ -55,6 +55,18 @@ export const uploads = pgTable(
     extractionError: text("extraction_error"),
     subject: text("subject"),
     discarded: jsonb("discarded").$type<ExtractionDiscard[]>().notNull().default([]),
+    // A re-read in progress. The note's text and points stay as they are until it
+    // succeeds; reread_id names the request, so a stale or repeated job changes nothing.
+    rereadId: uuid("reread_id"),
+    rereadStatus: text("reread_status").$type<"pending" | "running" | "failed">(),
+    /** The edited text waiting to be read; null when re-reading the note as it stands. */
+    pendingText: text("pending_text"),
+    rereadError: text("reread_error"),
+    /** What the last re-read changed, for the note screen. */
+    rereadResult: jsonb("reread_result").$type<NoteRereadResult>(),
+    /** Successful edits and re-reads, for the free plan's per-note cap. */
+    rereadCount: integer("reread_count").notNull().default(0),
+    editedAt: timestamp("edited_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index("uploads_classroom_created_idx").on(table.classroomId, table.createdAt)],

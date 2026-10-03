@@ -32,7 +32,7 @@ A full-screen welcome followed by two steps, with a two-part progress line and "
 
 1. **Welcome** — explain reviewing between language lessons: choose a language, add lesson notes, then keep practising before the next lesson.
 2. **Language** — eleven cards, each greeting in its own script; the chosen one flies into the header as a chip. "I speak" defaults to the interface language. Continue goes directly to notes. A secondary "See how a review works" action opens the existing seven-stop sample-paper tour; finishing it also goes to notes.
-3. **Your notes** — pasted text by default, or a photo (one for a guest), with sample notes in the chosen language when no notes are at hand. Submitting creates the classroom ("My Spanish"), uploads the notes, shows them being read, then the points found. "Start my first review" writes an on-demand quiz and opens it in the runner. Guests can practise now and create an account to retain notes and receive daily emails.
+3. **Your notes** — pasted text by default, or a photo (one for a guest), with sample notes in the chosen language when no notes are at hand. A line count under the text box suggests one item per line; onboarding skips the upload preview to keep the first run quick. Submitting creates the classroom ("My Spanish"), uploads the notes, shows them being read, then the points found. "Start my first review" writes an on-demand quiz and opens it in the runner. Guests can practise now and create an account to retain notes and receive daily emails.
 
 Skipping, or creating the classroom, marks onboarding done: on the account for a signed-in user, in the browser for a visitor.
 
@@ -75,10 +75,12 @@ A dormant classroom shows a note under the header: emails have stopped, add note
 
 Two inputs on one screen:
 
-- **Paste or type text.**
+- **Paste or type text.** The hint asks for one word, phrase, or rule per line.
 - **Attach images** — photos of handwritten notes, up to 10 MB each.
 
-The user submits. The upload row is written immediately and the screen moves to the processing state. Nothing blocks on the LLM.
+**Upload notes** with text opens a preview before anything is saved: each line with the number the reading uses (the same numbers the edit screen shows later), blank lines included. It counts the lines that will be read, plus any attached images. A line long enough to hold several items is flagged, and **Split into lines** breaks it at semicolons, bullets, and sentence ends (never at the dash or equals sign joining a term to its meaning), with Undo. Free users see what confirming uses of this week's uploads. **Back to edit** returns to the form; **Read N lines** uploads. The preview counts lines, not points: only the reading knows how many points the notes hold. Images alone skip the preview.
+
+On confirm, the upload row is written immediately and the screen moves to the processing state. Nothing blocks on the LLM.
 
 ## 7. Processing
 
@@ -96,7 +98,13 @@ On failure the upload shows an error with a retry action. The uploaded material 
 
 Opened from the Notes row on the classroom hub.
 
-One row per upload, newest first: date, kind (text or image), the AI-written subject line naming the topic (falling back to the first line of the text or a thumbnail of the image until extraction finishes), the discard count, and its reading status. The list refreshes itself while anything is still being read. Tapping a row opens that upload on its own screen with the original material in full — for an image, the image itself — plus the discard count and any extraction error.
+One row per upload, newest first: date, kind (text or image), the AI-written subject line naming the topic (falling back to the first line of the text or a thumbnail of the image until extraction finishes), the discard count, and its reading status (Re-reading while an edit is being read). The list refreshes itself while anything is still being read. Tapping a row opens that upload on its own screen with the original material in full — for an image, the image itself — plus the discard count, any extraction error, and the points it gave, in line order, each linking to its point screen.
+
+**Editing a note.** On a typed note that has been read, **Edit notes** turns the text into a text box. The learner fixes, adds, or deletes lines and chooses **Save and read again**. Only the changed lines are read again: points from untouched lines keep their wording, history, and omits; a point on a changed line is corrected in place or removed; new lines can add points; points whose lines were deleted leave the bank. Points the learner edited by hand stay as written, and the note says how many. **Read again** reads the whole note again as it stands, and is the only option for an image.
+
+While the edit is read, the screen shows the edited text under "Reading your changes…", and reviews keep using the current points. When it finishes, a line sums up what changed ("1 updated · 1 new · 0 removed"). If reading fails, the note and its points stay as they were; **Try again** reads the same edit again and **Discard edit** drops it. A note whose first reading failed shows **Try again** too, which reads it again for free.
+
+Free users can edit or re-read each note 3 times; the screen shows how many are left, and past the cap the Pro prompt appears with an upgrade button. Pro has no per-note cap. Edits leave the classroom's active window alone.
 
 This is the classroom's memory. Everything the user ever fed in stays readable here.
 
@@ -108,7 +116,7 @@ One row per knowledge point, newest first: the target text, its meaning, categor
 
 Each row carries a quick **Omit / Restore** switch — the same switch as the review screen's omit control. Omitted points stay listed under Omitted and drop out of future composition; Restore brings them back.
 
-Tapping a row opens the knowledge point on its own screen: its category and badges, the answered/missed record, Omit / Restore, the source excerpt from the notes, and an edit form for the target text, meaning, and note. The category stays fixed, since grammar and comprehension points carry structured detail tied to it. Edits reach quizzes composed afterwards; past quizzes keep their wording.
+Tapping a row opens the knowledge point on its own screen: its category and badges, the answered/missed record, Omit / Restore, the source excerpt from the notes, and an edit form for the target text, meaning, and note. A point that an edit to its note replaced no longer appears in the list; links to it from past quizzes still open its screen, marked Replaced, without Omit or the edit form. The category stays fixed, since grammar and comprehension points carry structured detail tied to it. Edits reach quizzes composed afterwards; past quizzes keep their wording.
 
 Omit is the removal path. Past quiz questions and attempts hang off each knowledge point, so the bank keeps every point it ever produced.
 

@@ -29,4 +29,11 @@ export const api = {
   invalidTimezone: "时区无效",
   passwordIncorrect: "当前密码不正确。",
   unlinkWithoutPassword: "请先设置密码，再取消关联 Google。",
+  pointSuperseded: "这个知识点已在笔记修改后被替换",
+  noteBusy: "这份笔记正在读取中",
+  noteNotReady: "这份笔记还没有读取完成",
+  noteUnchanged: "没有需要保存的修改",
+  noteNotText: "只有输入的文字笔记可以修改",
+  noteNothingToDiscard: "没有可放弃的内容",
+  noteRereadLimit: "免费版每份笔记可重新读取 {count} 次。升级 Pro（每月 2.99 美元），可随时修改笔记。",
 };

@@ -44,6 +44,9 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (!updated) {
       return jsonError("Not found", 404);
     }
+    if (updated === "superseded") {
+      return jsonError("This point was replaced when its notes were edited", 409);
+    }
 
     return jsonOk({ knowledgePoint: toKnowledgePointJson(updated) });
   } catch (error) {

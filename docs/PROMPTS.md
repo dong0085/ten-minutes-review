@@ -14,8 +14,10 @@ Both are versioned. Every question row stores the `prompt_version` that produced
 ## 1. Extraction
 
 **Runs:** once per upload, in the worker, right after the upload is stored.
-**Input:** the upload's text, plus any attached images.
-**Output:** a short subject line, knowledge points, passages, and an explicit list of discarded lines.
+**Input:** the upload's text as numbered lines (`12| text`, blank lines keep their number), or the image.
+**Output:** a short subject line, knowledge points, passages, and an explicit list of discarded lines. Every point and passage cites the `lines` it came from.
+
+The prompt in code is `EXTRACTION_PROMPT_V3` (`v3`): the V2 rules below plus rule 10, which asks for `lines`. The server checks each cited number against the note; an item whose numbers do not exist is linked by matching its `source_excerpt` to a line, and an item that matches none is saved without lines. Image notes have no lines.
 
 ### The five categories
 
@@ -152,6 +154,14 @@ Taken from the trial run in `TRIAL-RUN.md`:
 - A knowledge point with no `target_text` → drop it, log it.
 - A `passage_ref` pointing at a missing passage → drop the dependent point.
 - Every discard is stored on the upload row so the behaviour is auditable.
+
+### Re-reading an edited note
+
+**Runs:** when the learner edits a typed note or asks to read a note again (`REREAD_PROMPT_V1`, `reread-v1`).
+**Input:** JSON with the changed part of the note — `lines` as `{ n, text, editable }`, where editable lines changed or belong to points under review and the rest are a few lines of context — the existing `points` on those lines, each with a short `ref`, and `other_points` from the same note, which the model must not repeat. `full` is true when the whole note is read again.
+**Output:** `updates` (same item, corrected, by `ref`), `removals` (refs), new `knowledge_points` and `passages`, and `discarded`. A point left out of the reply stays as it is.
+
+The model only sees points the plan allows it to change, and the server keeps only what that plan allows: an update or removal must name a ref it was shown, a ref named twice or both updated and removed is left alone, every line number must be one it was shown, a new item must cite an editable line, and a new point that repeats a kept point is dropped. Points the learner edited by hand are sent as `other_points` only.
 
 ---
 
@@ -341,6 +351,6 @@ The judge runs on the same model it grades and reads some native cues as giveawa
 
 ## 3. Versioning
 
-- The prompts live in code as named constants: `EXTRACTION_PROMPT_V2`, `COMPOSITION_PROMPT_V4`, `EXAM_PROMPT_V2`, `EXAM_REVIEW_PROMPT_V1`, `TUTOR_HINT_PROMPT_V1`, `TUTOR_ANALYSIS_PROMPT_V1` (both `tutor-v1`).
-- Every `knowledge_point` and every `question` row stores the version that produced it, and an attempt's review stores its own in `review_prompt_version`.
+- The prompts live in code as named constants: `EXTRACTION_PROMPT_V3` (built from V2's rules), `REREAD_PROMPT_V1`, `COMPOSITION_PROMPT_V4`, `EXAM_PROMPT_V2`, `EXAM_REVIEW_PROMPT_V1`, `TUTOR_HINT_PROMPT_V1`, `TUTOR_ANALYSIS_PROMPT_V1` (both `tutor-v1`).
+- Every `knowledge_point` and every `question` row stores the version that produced it (a point updated by a re-read carries `reread-v1`), and an attempt's review stores its own in `review_prompt_version`.
 - Bumping a version affects new work only. Existing rows keep their original version, so old and new output can be compared side by side.

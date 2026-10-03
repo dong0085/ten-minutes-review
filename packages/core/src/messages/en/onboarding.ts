@@ -78,6 +78,7 @@ export const onboarding = {
     addPhoto: "Add a photo",
     remove: "Remove",
     textPlaceholder: "Paste words, phrases, or grammar you studied…",
+    lineCount: "{count, plural, one {# line} other {# lines}} · one item per line works best",
     useSample: "No notes at hand? Use sample notes",
     submit: "Read my notes",
     submitting: "Saving…",

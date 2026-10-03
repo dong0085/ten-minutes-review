@@ -30,6 +30,9 @@ export async function POST(request: Request, context: RouteContext) {
     if (!updated) {
       return jsonError("Not found", 404);
     }
+    if (updated === "superseded") {
+      return jsonError("This point was replaced when its notes were edited", 409);
+    }
 
     return jsonOk({
       ok: true,

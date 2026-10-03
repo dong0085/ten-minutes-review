@@ -82,12 +82,15 @@ export type ExtractionKnowledgePoint = {
   grammar: GrammarDetail | null;
   passage_ref: number | null;
   source_excerpt: string | null;
+  /** 1-based numbers of the note lines the point came from; empty for images. */
+  lines?: number[];
 };
 
 export type ExtractionPassage = {
   target_text: string;
   native_text: string | null;
   source_excerpt: string | null;
+  lines?: number[];
 };
 
 export type ExtractionDiscard = {
@@ -99,6 +102,18 @@ export type ExtractionResult = {
   subject: string | null;
   target_language: string;
   native_language: string;
+  knowledge_points: ExtractionKnowledgePoint[];
+  passages: ExtractionPassage[];
+  discarded: ExtractionDiscard[];
+};
+
+export type RereadUpdate = ExtractionKnowledgePoint & { ref: string };
+
+/** What the model returns when it re-reads the edited part of a note. */
+export type RereadResult = {
+  subject: string | null;
+  updates: RereadUpdate[];
+  removals: string[];
   knowledge_points: ExtractionKnowledgePoint[];
   passages: ExtractionPassage[];
   discarded: ExtractionDiscard[];

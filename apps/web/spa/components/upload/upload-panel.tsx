@@ -38,6 +38,7 @@ import { Textarea } from "@tmr/ui/components/textarea";
 import { BillingButton } from "@/spa/components/account/billing-button";
 import { keys, useBank, useClassrooms } from "@/spa/lib/queries";
 import { readApiError } from "@/spa/lib/read-error";
+import { NotesPreviewDialog } from "./notes-preview-dialog";
 import { useSession } from "@/spa/lib/session";
 
 const MAX_FILES = 10;
@@ -190,6 +191,7 @@ export function UploadPanel({
   const [dragActive, setDragActive] = useState(false);
   const [showGuestModal, setShowGuestModal] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const queryClient = useQueryClient();
   // Free accounts get `limits`; paid accounts and guests get null.
   const { data: classroomList } = useClassrooms(!isGuest);
@@ -329,14 +331,24 @@ export function UploadPanel({
     addFiles(Array.from(event.dataTransfer.files));
   };
 
-  const handleSubmit = async (event: FormEvent) => {
+  // Typed notes open the preview first, so the learner sees the numbered lines
+  // the reading will use; images alone have no lines and upload straight away.
+  const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     setFormError(null);
-    const trimmed = text.trim();
-    if (!trimmed && files.length === 0) {
+    if (!text.trim() && files.length === 0) {
       setFormError(t("emptyForm"));
       return;
     }
+    if (text.trim()) {
+      setPreviewOpen(true);
+      return;
+    }
+    void upload();
+  };
+
+  const upload = async () => {
+    const trimmed = text.trim();
     setSubmitting(true);
     const before = bankBefore ?? (await loadBankTotal());
     if (before !== null) {
@@ -373,6 +385,7 @@ export function UploadPanel({
         ids.push(...data.uploadIds);
       }
       setSessionIds(ids);
+      setPreviewOpen(false);
       if (isGuest && ids.length > 0) {
         setShowGuestModal(true);
       }
@@ -382,6 +395,7 @@ export function UploadPanel({
       const rows = await loadUploads();
       setUploads(rows ?? []);
     } catch (error) {
+      setPreviewOpen(false);
       if (error instanceof UploadLimitError) {
         setLimitReached(true);
       } else {
@@ -546,6 +560,18 @@ export function UploadPanel({
           </Card>
         </form>
       )}
+      <NotesPreviewDialog
+        open={previewOpen}
+        text={text}
+        imageCount={files.length}
+        freeUploadsLeft={
+          limits ? Math.max(0, limits.uploadsPerWeek - limits.uploadsThisWeek) : null
+        }
+        submitting={submitting}
+        onTextChange={setText}
+        onBack={() => setPreviewOpen(false)}
+        onConfirm={() => void upload()}
+      />
       {sessionIds.length > 0 ? (
         <motion.div
           initial={{ opacity: 0, y: -16, scale: 0.98 }}

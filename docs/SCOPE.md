@@ -25,6 +25,7 @@ The primary audience is a language learner with regular lessons, existing lesson
 - Images are the same kind of material as text notes — just handwritten. OCR/vision processing reads them and produces knowledge points for the bank.
 - Uploads are **retained**. The user browses every past upload as a timeline, behind a history (clock) control on the classroom.
 - Image upload serves other users, not the primary user, who types notes. Both paths are in MVP.
+- **Notes can be edited.** Typed notes are stored line by line, and every knowledge point links to the lines it came from. Editing a note reads only the changed lines again: points on untouched lines keep their wording, history, and omits; points on changed lines are corrected or removed; hand-edited points are never overwritten. Image notes can be read again as a whole. Free users get 3 edits or re-reads per note; Pro has no per-note cap. Re-reads count toward the 50-uploads-a-day safety limit, not the weekly upload cap.
 
 ## Question generation
 
