@@ -18,7 +18,7 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import { DEMO_PAPERS, MAX_IMAGE_BYTES, type LanguageCode } from "@tmr/core";
+import { DEMO_PAPERS, MAX_IMAGE_BYTES, previewNoteLines, type LanguageCode } from "@tmr/core";
 import { Alert, AlertDescription } from "@tmr/ui/components/alert";
 import { Button } from "@tmr/ui/components/button";
 import { Textarea } from "@tmr/ui/components/textarea";
@@ -783,6 +783,11 @@ export function NotesStep({
                 aria-label={t("textTab")}
                 className="paper-lines min-h-64 resize-y bg-card/60 leading-8"
               />
+              {text.trim() ? (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {t("lineCount", { count: previewNoteLines(text).filledCount })}
+                </p>
+              ) : null}
             </motion.div>
           )}
         </AnimatePresence>

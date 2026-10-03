@@ -125,6 +125,11 @@ Bearer tokens for native clients. `id` uuid pk, `user_id` fk → users, `token_h
 | `extracted_at` / `extraction_error` | | |
 | `subject` | text | Short AI-written title for the upload, null until extraction completes |
 | `discarded` | jsonb | The discard list the extraction returned |
+| `reread_id` / `reread_status` | uuid / text | The re-read in progress: `pending`, `running`, or `failed`; both null when there is none |
+| `pending_text` | text | Edited text waiting to be read; null when re-reading the note as it stands |
+| `reread_error` / `reread_result` | text / jsonb | Why the last re-read failed; what the last one changed (`updated`, `added`, `removed`, `keptEditedPointIds`) |
+| `reread_count` | int | Successful edits and re-reads, for the free plan's per-note cap |
+| `edited_at` | timestamptz | Last time the learner's edit was saved |
 | `created_at` | timestamptz | |
 
 ### knowledge_points
@@ -144,14 +149,22 @@ The bank. One row per studyable item.
 | `detail` | jsonb | Grammar rule and examples, or a passage reference |
 | `source_excerpt` | text | The note fragment it came from |
 | `prompt_version` | text | |
-| `retired_at` | timestamptz | Null while in play |
+| `retired_at` | timestamptz | Null while in play; set when the learner omits the point or an edit replaces it |
+| `superseded_at` | timestamptz | Set, with `retired_at`, when an edit to its note replaced the point. The row stays so past questions and answers keep it |
+| `user_edited_at` | timestamptz | Set when the learner edits the point by hand; re-reads never change it |
 | `created_at` | timestamptz | Marks a point as recent for composition selection |
 
 Index: `(classroom_id, created_at desc)`.
 
 ### passages
 
-Long text that several questions can hang off: `id`, `classroom_id`, `source_upload_id`, `target_text`, `native_text`, `source_excerpt`, `created_at`.
+Long text that several questions can hang off: `id`, `classroom_id`, `source_upload_id`, `target_text`, `native_text`, `source_excerpt`, `superseded_at`, `created_at`.
+
+### note_lines, knowledge_point_lines, passage_lines
+
+A typed note is stored as lines: `note_lines` holds `id`, `upload_id`, `position`, `text`, with blank lines kept so the lines join back into `uploads.text_content`. `knowledge_point_lines` and `passage_lines` link each point and passage to the lines it came from (many to many: a grammar rule can span lines, and one line can give a word and a rule). Image notes have no lines. Notes read before lines existed get them on their first edit, with points linked by matching `source_excerpt` to a line; a point that matches none stays unlinked.
+
+Questions point at knowledge points with `ON DELETE CASCADE`, so points are never deleted by an edit: a replaced point gets `superseded_at` and `retired_at`, which every existing "in play" filter already skips.
 
 ### quizzes
 
@@ -268,12 +281,37 @@ Compose jobs carry `classroomId`, `userId`, `localDate`, and `source` (`daily`, 
 
 ```
 upload stored
-  → enqueue job(extract, { upload_id })
-  → worker: load text + images
-  → LLM extraction (EXTRACTION_PROMPT_V2)
-  → write knowledge_points, passages, uploads.discarded, uploads.subject
-  → uploads.extraction_status = 'done'
+  → enqueue job(extract, { uploadId })
+  → worker (or the request's after()): split text into lines, load images
+  → LLM extraction (EXTRACTION_PROMPT_V3), points cite line numbers
+  → one transaction: note_lines, knowledge_points, passages and their line links,
+    uploads.discarded, uploads.subject, uploads.extraction_status = 'done'
 ```
+
+The worker handler and the web's `after()` path both call `runExtractJob` in `packages/db/src/note-reading.ts`. The transaction skips a note that is already `done`, so a retried job adds nothing twice.
+
+### Editing a note
+
+```
+PATCH /uploads/:uploadId { text }   or   POST /uploads/:uploadId/reread
+  → claim: UPDATE uploads SET reread_id, reread_status = 'pending', pending_text
+           WHERE reread_status IS NULL OR 'failed'        (the only lock)
+  → enqueue job(extract, { uploadId, rereadId })
+  → diff old and new lines (planNoteEdit in packages/core/src/note-lines.ts)
+      unchanged lines keep their id; a removed line next to an added one is "changed"
+      points only on unchanged lines: untouched
+      points on changed lines: sent to the model (REREAD_PROMPT_V1) to keep, update, or remove
+      points whose lines are all gone: replaced without a model call
+      passages on changed lines: replaced, with their comprehension points
+      hand-edited points: never changed; reported when their lines changed
+  → resolveReread keeps only what the plan allows
+  → one transaction, only while reread_id still matches and the note's lines are
+    the ones the plan started from: lines, points, links, then uploads.text_content
+```
+
+The note's text and points stay as they were until the re-read succeeds. A failed re-read sets `reread_status = 'failed'` and leaves the note untouched; Try again re-runs it with the same `pending_text`, and Discard clears it. A stale or repeated job finds a different `reread_id` and changes nothing. Updated points keep their id, so their answer history, omit, and quiz links stay. Image notes have no lines: reading one again replaces every point the learner has not edited, and an omit carries over only when exactly one old and one new point share category and wording.
+
+A note whose first reading failed is simply read again (with corrected text when the learner edited it) and costs nothing. Otherwise free users get `FREE_NOTE_REREADS` (3) successful edits or re-reads per note, Pro has no per-note cap, and every re-read counts toward the shared 50-a-day upload limit. Edits leave the classroom's active window alone.
 
 Images are sent to the model as image content and read the same way text is. Nothing distinguishes a handwritten page from a typed one downstream.
 
@@ -347,12 +385,14 @@ Next.js route handlers. `getSessionUser` (and `getCurrentUserOrGuest`) resolve t
 | `GET` `POST` | `/api/classrooms` | List (with daily status and free-plan limits), create |
 | `GET` `PATCH` `DELETE` | `/api/classrooms/:id` | Read, rename/settings (including the dedicated `paused` transition), delete |
 | `POST` | `/api/classrooms/:id/uploads` | Text body or multipart image |
-| `GET` | `/api/classrooms/:id/uploads` | Timeline |
+| `GET` | `/api/classrooms/:id/uploads` | Timeline, with each note's re-read state |
+| `GET` `PATCH` | `/api/classrooms/:id/uploads/:uploadId` | One note with its live points (line order) and edits left; `PATCH { text }` saves an edit and reads the changed lines again (`202`; `409` while a reading runs; `403 pro_required` past the free cap) |
+| `POST` `DELETE` | `/api/classrooms/:id/uploads/:uploadId/reread` | Read the note again, or Try again after a failure; `DELETE` discards a failed re-read |
 | `GET` | `/api/classrooms/:id/overview` | Classroom hub: today's daily quiz id, a compose job still in flight from the last hour, on-demand quizzes from the last 24 hours, older untaken ones, and counts of uploads, bank points, and quizzes |
 | `GET` | `/api/classrooms/:id/bank` | Counts per category |
-| `GET` | `/api/classrooms/:id/knowledge-points` | Every knowledge point, omitted ones included, with answered/missed counts |
-| `PATCH` | `/api/knowledge-points/:id` | Edit target text, meaning, or note (Pro; `403 pro_required` otherwise) |
-| `POST` | `/api/knowledge-points/:id/omit` | Omit from (`{ omit: true }`) or restore to future quizzes |
+| `GET` | `/api/classrooms/:id/knowledge-points` | Every knowledge point, omitted and replaced ones included (`isSuperseded`; the bank screens hide replaced ones), with answered/missed counts |
+| `PATCH` | `/api/knowledge-points/:id` | Edit target text, meaning, or note (Pro; `403 pro_required` otherwise); sets `user_edited_at`; `409` on a replaced point |
+| `POST` | `/api/knowledge-points/:id/omit` | Omit from (`{ omit: true }`) or restore to future quizzes; `409` on a replaced point |
 | `GET` | `/api/classrooms/:id/quizzes/today` | Today's daily quiz plus any in-flight compose job, answers withheld |
 | `POST` | `/api/classrooms/:id/quizzes` | Create an on-demand quiz (enqueues a compose job, or reuses the one in flight, and returns its `jobId`) |
 | `GET` | `/api/classrooms/:id/quizzes/jobs/:jobId` | Status of one compose job; once `done`, `quizId` names the on-demand quiz it wrote |

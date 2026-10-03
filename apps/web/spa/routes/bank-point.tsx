@@ -43,7 +43,9 @@ export function PointDetailPage() {
         kicker={
           <span className="inline-flex flex-wrap items-center gap-1.5 normal-case tracking-normal">
             <Badge variant="secondary">{categoryT(item.category)}</Badge>
-            {item.isRetired ? (
+            {item.isSuperseded ? (
+              <Badge variant="outline">{t("supersededBadge")}</Badge>
+            ) : item.isRetired ? (
               <Badge variant="outline">{t("omittedBadge")}</Badge>
             ) : null}
             {item.inferred ? (
@@ -67,7 +69,7 @@ export function PointDetailPage() {
           </>
         }
         actions={
-          canManage ? (
+          item.isSuperseded ? null : canManage ? (
             <Button
               variant="outline"
               disabled={toggleOmit.isPending}
@@ -119,29 +121,33 @@ export function PointDetailPage() {
         </section>
       ) : null}
 
-      <section className="space-y-3">
-        <SectionTitle>{t("editTitle")}</SectionTitle>
-        {canManage ? (
-          <>
-            <p className="text-sm text-muted-foreground">{t("editBlurb")}</p>
-            <EditPointForm key={item.id} classroomId={id} item={item} />
-          </>
-        ) : (
-          <div className="space-y-4 rounded-2xl border border-border/70 bg-card/75 p-5">
-            <div className="space-y-1.5">
-              <p className="flex items-center gap-2 font-medium">
-                <Lock className="size-4 text-muted-foreground" />
-                {t("proTitle")}
-                <Badge>{t("proBadge")}</Badge>
-              </p>
-              <p className="text-sm text-muted-foreground">{t("proBody")}</p>
+      {item.isSuperseded ? (
+        <p className="text-sm text-muted-foreground">{t("supersededBlurb")}</p>
+      ) : (
+        <section className="space-y-3">
+          <SectionTitle>{t("editTitle")}</SectionTitle>
+          {canManage ? (
+            <>
+              <p className="text-sm text-muted-foreground">{t("editBlurb")}</p>
+              <EditPointForm key={item.id} classroomId={id} item={item} />
+            </>
+          ) : (
+            <div className="space-y-4 rounded-2xl border border-border/70 bg-card/75 p-5">
+              <div className="space-y-1.5">
+                <p className="flex items-center gap-2 font-medium">
+                  <Lock className="size-4 text-muted-foreground" />
+                  {t("proTitle")}
+                  <Badge>{t("proBadge")}</Badge>
+                </p>
+                <p className="text-sm text-muted-foreground">{t("proBody")}</p>
+              </div>
+              {session?.features.billing ? (
+                <BillingButton action="checkout" />
+              ) : null}
             </div>
-            {session?.features.billing ? (
-              <BillingButton action="checkout" />
-            ) : null}
-          </div>
-        )}
-      </section>
+          )}
+        </section>
+      )}
     </div>
   );
 }

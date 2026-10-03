@@ -1,5 +1,8 @@
 import {
+  REREAD_PROMPT_V1,
   languageName,
+  mockLineExtraction,
+  mockReread,
   parseJsonFromLlmText,
   usageFromChatCompletion,
 } from "@tmr/core";
@@ -621,7 +624,13 @@ function mockTutor(payload: TutorPayload) {
 export function createMockProvider(): LlmProvider {
   return {
     async extract(input) {
-      return mockExtraction(input);
+      if (input.systemPrompt === REREAD_PROMPT_V1) {
+        return mockReread(JSON.parse(input.text ?? "{}"));
+      }
+      const fromLines = input.text
+        ? mockLineExtraction(input.text, { target: input.targetHint ?? "fr", native: "en" })
+        : null;
+      return fromLines ?? mockExtraction(input);
     },
     async compose(input) {
       const payload = asRecord(input.payload);

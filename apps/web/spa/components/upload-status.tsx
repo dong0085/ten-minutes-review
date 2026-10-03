@@ -1,9 +1,13 @@
 import { useTranslations } from "use-intl";
 import { Badge } from "@tmr/ui/components/badge";
-import type { Upload } from "@/spa/lib/queries";
+import { isRereading, type Upload } from "@/spa/lib/queries";
 
-export function UploadStatusBadge({ status }: { status: Upload["extractionStatus"] }) {
+export function UploadStatusBadge({ upload }: { upload: Upload }) {
   const t = useTranslations("Classroom.HistoryPage");
+  const status = upload.extractionStatus;
+  if (isRereading(upload)) {
+    return <Badge variant="warning">{t("statusRereading")}</Badge>;
+  }
   if (status === "done") {
     return <Badge variant="success">{t("statusProcessed")}</Badge>;
   }

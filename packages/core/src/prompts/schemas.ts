@@ -2,8 +2,10 @@ import { z } from "zod";
 import type {
   CompositionQuestion,
   CompositionResult,
+  ExtractionKnowledgePoint,
   ExtractionResult,
   QuestionAnswer,
+  RereadResult,
   QuestionType,
 } from "../types";
 import { CATEGORIES, QUESTION_TYPES } from "../types";
@@ -19,44 +21,65 @@ const grammarDetailSchema = z.object({
   examples: z.array(grammarExampleSchema).optional().default([]),
 });
 
+// Line numbers the model cites. A malformed list counts as no lines rather than
+// failing the whole reading; the caller decides what an unanchored item means.
+const lineNumbersSchema = z
+  .array(z.union([z.number(), z.string()]))
+  .transform((values) =>
+    values.map((value) => Number(value)).filter((value) => Number.isInteger(value) && value > 0),
+  )
+  .optional()
+  .default([])
+  .catch([]);
+
+const extractionPointSchema = z.object({
+  category: z.enum(CATEGORIES),
+  target_text: z.string().nullable().optional().default(null),
+  native_text: z.string().nullable().optional().default(null),
+  inferred: z.boolean().optional().default(false),
+  note: z.string().nullable().optional().default(null),
+  grammar: grammarDetailSchema.nullable().optional().default(null),
+  passage_ref: z.number().int().nullable().optional().default(null),
+  source_excerpt: z.string().nullable().optional().default(null),
+  lines: lineNumbersSchema,
+});
+
+const extractionPassageSchema = z.object({
+  target_text: z.string(),
+  native_text: z.string().nullable().optional().default(null),
+  source_excerpt: z.string().nullable().optional().default(null),
+  lines: lineNumbersSchema,
+});
+
+const discardedSchema = z
+  .array(
+    z.object({
+      line: z.string(),
+      reason: z.string(),
+    }),
+  )
+  .optional()
+  .default([]);
+
 export const extractionResultSchema = z.object({
   subject: z.string().nullable().optional().default(null),
   target_language: z.string(),
   native_language: z.string(),
-  knowledge_points: z
-    .array(
-      z.object({
-        category: z.enum(CATEGORIES),
-        target_text: z.string().nullable().optional().default(null),
-        native_text: z.string().nullable().optional().default(null),
-        inferred: z.boolean().optional().default(false),
-        note: z.string().nullable().optional().default(null),
-        grammar: grammarDetailSchema.nullable().optional().default(null),
-        passage_ref: z.number().int().nullable().optional().default(null),
-        source_excerpt: z.string().nullable().optional().default(null),
-      }),
-    )
+  knowledge_points: z.array(extractionPointSchema).optional().default([]),
+  passages: z.array(extractionPassageSchema).optional().default([]),
+  discarded: discardedSchema,
+});
+
+export const rereadResultSchema = z.object({
+  subject: z.string().nullable().optional().default(null),
+  updates: z
+    .array(extractionPointSchema.extend({ ref: z.string() }))
     .optional()
     .default([]),
-  passages: z
-    .array(
-      z.object({
-        target_text: z.string(),
-        native_text: z.string().nullable().optional().default(null),
-        source_excerpt: z.string().nullable().optional().default(null),
-      }),
-    )
-    .optional()
-    .default([]),
-  discarded: z
-    .array(
-      z.object({
-        line: z.string(),
-        reason: z.string(),
-      }),
-    )
-    .optional()
-    .default([]),
+  removals: z.array(z.string()).optional().default([]),
+  knowledge_points: z.array(extractionPointSchema).optional().default([]),
+  passages: z.array(extractionPassageSchema).optional().default([]),
+  discarded: discardedSchema,
 });
 
 export const compositionResultSchema = z.object({
@@ -77,26 +100,51 @@ export const compositionResultSchema = z.object({
     .default([]),
 });
 
+function toExtractionPoint(
+  point: z.infer<typeof extractionPointSchema>,
+): ExtractionKnowledgePoint {
+  return {
+    category: point.category,
+    target_text: point.target_text,
+    native_text: point.native_text,
+    inferred: point.inferred,
+    note: point.note,
+    grammar: point.grammar,
+    passage_ref: point.passage_ref,
+    source_excerpt: point.source_excerpt,
+    lines: point.lines,
+  };
+}
+
 export function parseExtractionResult(json: unknown): ExtractionResult {
   const parsed = extractionResultSchema.parse(json);
   return {
     subject: parsed.subject,
     target_language: parsed.target_language,
     native_language: parsed.native_language,
-    knowledge_points: parsed.knowledge_points.map((point) => ({
-      category: point.category,
-      target_text: point.target_text,
-      native_text: point.native_text,
-      inferred: point.inferred,
-      note: point.note,
-      grammar: point.grammar,
-      passage_ref: point.passage_ref,
-      source_excerpt: point.source_excerpt,
-    })),
+    knowledge_points: parsed.knowledge_points.map(toExtractionPoint),
     passages: parsed.passages.map((passage) => ({
       target_text: passage.target_text,
       native_text: passage.native_text,
       source_excerpt: passage.source_excerpt,
+      lines: passage.lines,
+    })),
+    discarded: parsed.discarded,
+  };
+}
+
+export function parseRereadResult(json: unknown): RereadResult {
+  const parsed = rereadResultSchema.parse(json);
+  return {
+    subject: parsed.subject,
+    updates: parsed.updates.map((update) => ({ ...toExtractionPoint(update), ref: update.ref })),
+    removals: parsed.removals,
+    knowledge_points: parsed.knowledge_points.map(toExtractionPoint),
+    passages: parsed.passages.map((passage) => ({
+      target_text: passage.target_text,
+      native_text: passage.native_text,
+      source_excerpt: passage.source_excerpt,
+      lines: passage.lines,
     })),
     discarded: parsed.discarded,
   };

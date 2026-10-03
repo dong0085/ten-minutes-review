@@ -103,7 +103,7 @@ export function NotesPage() {
                         : null}
                     </span>
                   </span>
-                  <UploadStatusBadge status={upload.extractionStatus} />
+                  <UploadStatusBadge upload={upload} />
                   <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
                 </Link>
               </li>

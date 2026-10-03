@@ -1,7 +1,13 @@
 export {
   EXTRACTION_PROMPT_V2,
+  EXTRACTION_PROMPT_V3,
   EXTRACTION_PROMPT_VERSION,
+  REREAD_PROMPT_V1,
+  REREAD_PROMPT_VERSION,
+  buildRereadPayload,
   parseExtractionResponse,
+  parseRereadResponse,
+  renderNumberedLines,
 } from "./extraction";
 export {
   COMPOSITION_PROMPT_V4,
@@ -14,6 +20,8 @@ export {
   extractionResultSchema,
   compositionResultSchema,
   parseExtractionResult,
+  parseRereadResult,
+  rereadResultSchema,
   parseCompositionResult,
   sanitizeCompositionQuestions,
 } from "./schemas";

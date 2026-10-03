@@ -111,7 +111,35 @@ export type Upload = {
   subject: string | null;
   discardedCount: number;
   createdAt: string;
+  editedAt: string | null;
   imageUrl: string | null;
+  /** A re-read waiting, running, or failed; null when there is none. */
+  reread: {
+    status: "pending" | "running" | "failed";
+    error: string | null;
+    pendingText: string | null;
+  } | null;
+  rereadResult: {
+    updated: number;
+    added: number;
+    removed: number;
+    keptEditedPointIds: string[];
+  } | null;
+  rereadCount: number;
+};
+
+export type NoteDetail = {
+  upload: Upload;
+  points: Array<{
+    id: string;
+    category: Category;
+    targetText: string;
+    nativeText: string | null;
+    isRetired: boolean;
+    userEdited: boolean;
+  }>;
+  /** Edits or re-reads left on this note; null when the plan has no cap. */
+  rereadsLeft: number | null;
 };
 
 export type BankItem = {
@@ -125,6 +153,9 @@ export type BankItem = {
   sourceUploadId: string;
   isRetired: boolean;
   retiredAt: string | null;
+  /** Replaced by an edit to its notes; kept only so links from past quizzes open. */
+  isSuperseded: boolean;
+  userEdited: boolean;
   createdAt: string;
   answered: number;
   missed: number;
@@ -184,6 +215,7 @@ export const keys = {
   classroom: (id: string) => ["classroom", id] as const,
   overview: (id: string) => ["classroom", id, "overview"] as const,
   uploads: (id: string) => ["classroom", id, "uploads"] as const,
+  note: (id: string, uploadId: string) => ["classroom", id, "uploads", uploadId] as const,
   bank: (id: string) => ["classroom", id, "bank"] as const,
   quizzes: (id: string) => ["classroom", id, "quizzes"] as const,
   quiz: (quizId: string) => ["quiz", quizId] as const,
@@ -230,6 +262,22 @@ export function isReading(upload: Upload) {
   );
 }
 
+export function isRereading(upload: Upload) {
+  return upload.reread?.status === "pending" || upload.reread?.status === "running";
+}
+
+/** One note with its points; polls while it is being read or re-read. */
+export function useNote(id: string, uploadId: string) {
+  return useQuery({
+    queryKey: keys.note(id, uploadId),
+    queryFn: () => api.get<NoteDetail>(`/api/classrooms/${id}/uploads/${uploadId}`),
+    refetchInterval: (query) => {
+      const upload = query.state.data?.upload;
+      return upload && (isReading(upload) || isRereading(upload)) ? READING_POLL_MS : false;
+    },
+  });
+}
+
 /** Polls while the worker is still reading an upload. */
 export function useUploads(id: string) {
   return useQuery({
@@ -238,7 +286,9 @@ export function useUploads(id: string) {
       (await api.get<{ uploads: Upload[] }>(`/api/classrooms/${id}/uploads`))
         .uploads,
     refetchInterval: (query) =>
-      query.state.data?.some(isReading) ? READING_POLL_MS : false,
+      query.state.data?.some((upload) => isReading(upload) || isRereading(upload))
+        ? READING_POLL_MS
+        : false,
   });
 }
 

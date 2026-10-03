@@ -12,6 +12,9 @@ export type KnowledgePointJson = {
   sourceUploadId: string;
   isRetired: boolean;
   retiredAt: string | null;
+  /** An edit to its note replaced the point; it stays for links from past quizzes. */
+  isSuperseded: boolean;
+  userEdited: boolean;
   createdAt: string;
 };
 
@@ -35,6 +38,8 @@ export function toKnowledgePointJson(
     sourceUploadId: point.sourceUploadId,
     isRetired: point.retiredAt !== null,
     retiredAt: point.retiredAt ? point.retiredAt.toISOString() : null,
+    isSuperseded: point.supersededAt !== null,
+    userEdited: point.userEditedAt !== null,
     createdAt: point.createdAt.toISOString(),
   };
 }

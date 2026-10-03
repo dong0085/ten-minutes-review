@@ -7,8 +7,8 @@ Specs live in `docs/`: `SCOPE.md` (every product decision), `PROMPTS.md` (the tw
 - `apps/web` — Next.js 16 on Vercel: API routes, the server-rendered landing, auth, and unsubscribe pages in `app/(site)/`, and the signed-in app.
 - `apps/web/spa` — React Router app for every screen under `/classrooms`, `/account`, and `/admin`. `app/(app)/layout.tsx` mounts it in the browser only, and the catch-all pages under `app/(app)/` claim those paths for Next. Navigation drills down with breadcrumbs, one job per screen.
 - `apps/worker` — job loop (`extract`, `compose`, `send_email`) plus the 15-minute scheduler and a `/health` HTTP server, runs on Render with `tsx`, applies migrations on boot.
-- `packages/core` — domain types, prompt constants (`EXTRACTION_PROMPT_V2`, `COMPOSITION_PROMPT_V4`), grading, quiz sizing.
-- `packages/db` — Drizzle schema, SQL migrations in `drizzle/`, repositories.
+- `packages/core` — domain types, prompt constants (`EXTRACTION_PROMPT_V3`, `REREAD_PROMPT_V1`, `COMPOSITION_PROMPT_V4`), note lines and edit planning, grading, quiz sizing.
+- `packages/db` — Drizzle schema, SQL migrations in `drizzle/`, repositories, and `note-reading.ts`, which reads and re-reads notes for both the worker and the web.
 - `packages/email` — React Email templates, localized HTML/text rendering, and browser previews.
 - `packages/ui` — shadcn components, `cn`, and `globals.css`, shared by the Next pages and the SPA.
 - `deploy/` — Docker Compose stack (Caddy, web, worker, optional Postgres and MinIO) that pulls the images `.github/workflows/images.yml` publishes to GHCR.

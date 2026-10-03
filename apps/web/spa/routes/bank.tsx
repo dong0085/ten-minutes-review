@@ -21,7 +21,8 @@ import { ErrorPanel } from "./errors";
 export function BankPage() {
   const { id } = useParams() as { id: string };
   const t = useTranslations("Classroom.BankPage");
-  const { data: items, isPending, error, refetch } = useBank(id);
+  const { data, isPending, error, refetch } = useBank(id);
+  const items = data?.filter((item) => !item.isSuperseded);
   const canManage = useCanManageBank();
 
   if (isPending) {

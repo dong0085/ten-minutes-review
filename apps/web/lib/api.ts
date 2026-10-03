@@ -29,6 +29,12 @@ const MESSAGE_KEYS: Record<string, ApiMessageKey> = {
   "Invalid timezone": "invalidTimezone",
   "Current password is incorrect": "passwordIncorrect",
   "Set a password before unlinking Google": "unlinkWithoutPassword",
+  "This point was replaced when its notes were edited": "pointSuperseded",
+  "These notes are already being read": "noteBusy",
+  "These notes have not been read yet": "noteNotReady",
+  "No changes to save": "noteUnchanged",
+  "Only typed notes can be edited": "noteNotText",
+  "Nothing to discard": "noteNothingToDiscard",
 };
 
 const TOO_LARGE = /^(.+) is larger than 10MB$/;
@@ -37,6 +43,7 @@ const COUNTED: [RegExp, ApiMessageKey][] = [
   [/^Free plan is limited to (\d+) classrooms$/, "freePlanLimit"],
   [/^Upload limit reached: (\d+) uploads per day$/, "uploadLimit"],
   [/^Free plan is limited to (\d+) notes uploads per week$/, "freeUploadLimit"],
+  [/^Free plan allows (\d+) re-reads per note$/, "noteRereadLimit"],
 ];
 const WRONG_TYPE = /^(.+) must be a JPEG, PNG, WebP, GIF, AVIF, or HEIC image$/;
 

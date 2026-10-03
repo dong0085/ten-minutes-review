@@ -1,4 +1,10 @@
-import { parseJsonFromLlmText, usageFromChatCompletion } from "@tmr/core";
+import {
+  REREAD_PROMPT_V1,
+  mockLineExtraction,
+  mockReread,
+  parseJsonFromLlmText,
+  usageFromChatCompletion,
+} from "@tmr/core";
 import { reportLlmUsage, withLlmTracking } from "@tmr/db";
 import type { ExtractionResult } from "@tmr/core";
 import { env } from "./env";
@@ -123,7 +129,13 @@ export function getLlmProvider() {
   return withLlmTracking(
     {
       async extract(input: ExtractInput) {
-        return mockExtraction(input);
+        if (input.systemPrompt === REREAD_PROMPT_V1) {
+          return mockReread(JSON.parse(input.text ?? "{}"));
+        }
+        const fromLines = input.text
+          ? mockLineExtraction(input.text, { target: input.targetHint ?? "fr", native: "en" })
+          : null;
+        return fromLines ?? mockExtraction(input);
       },
     },
     { provider: "mock", model: "mock" },
