@@ -62,7 +62,8 @@ export type QuizListItem = {
 export type ClassroomOverview = {
   today: string;
   dailyQuizId: string | null;
-  latestReview: {
+  /** The latest attempt at today's daily quiz, once it has been taken. */
+  dailyReview: {
     attemptId: string;
     quizId: string;
     correctCount: number;
@@ -81,9 +82,6 @@ export type ClassroomOverview = {
   };
   bankByCategory: Record<Category, number>;
   lastUploadAt: string | null;
-  /** On-demand quizzes made in the last 24 hours, taken or not, newest first. */
-  recentOnDemand: QuizListItem[];
-  unfinished: Array<Omit<QuizListItem, "bestScore" | "attemptCount">>;
   mistakes: number;
   exam: {
     requiredPoints: number;
@@ -99,6 +97,8 @@ export type ClassroomOverview = {
       bestScore: number | null;
     } | null;
   };
+  /** The latest quizzes and exams of every kind, newest first. */
+  recentQuizzes: QuizListItem[];
 };
 
 export type Upload = {

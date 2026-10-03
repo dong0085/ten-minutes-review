@@ -40,9 +40,6 @@ export const app = {
     bank: "Question bank",
     bankMeta:
       "{count, plural, =0 {Empty until your first notes are read} one {# knowledge point in quizzes} other {# knowledge points in quizzes}}",
-    quizzes: "Quizzes",
-    quizzesMeta:
-      "{count, plural, one {# review} other {# reviews}} · revisit whenever you want",
     mistakes: "Corrections",
     mistakesMeta:
       "{count, plural, =0 {No recent mistakes to revisit} one {# recent question to revisit} other {# recent questions to revisit}}",

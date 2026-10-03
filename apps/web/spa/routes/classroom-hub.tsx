@@ -3,9 +3,6 @@ import { motion } from "motion/react";
 import { useFormatter, useLocale, useTranslations } from "use-intl";
 import {
   ArrowRight,
-  BookOpen,
-  Check,
-  Clock3,
   Globe2,
   Library,
   Moon,
@@ -20,19 +17,15 @@ import {
   QUIZ_LENGTH_MINUTES,
 } from "@tmr/core";
 import { Badge } from "@tmr/ui/components/badge";
-import { Button } from "@tmr/ui/components/button";
 import { CtaIcon } from "@tmr/ui/components/cta-icon";
 import { cn } from "@tmr/ui/utils";
 import { STATUS_STAMP } from "@/spa/components/classroom/classroom-card";
-import { ExamCard } from "@/spa/components/classroom/exam-card";
-import { QuizMailbox } from "@/spa/components/classroom/quiz-mailbox";
-import { RecentQuizCards } from "@/spa/components/classroom/recent-quiz-cards";
-import { TodayQuizAction } from "@/spa/components/classroom/today-quiz-action";
+import { QuizzesSection } from "@/spa/components/classroom/quizzes-section";
+import { TodayQuizCard } from "@/spa/components/classroom/today-quiz-card";
 import { useQuizJob } from "@/spa/components/classroom/use-quiz-job";
 import { GuestBanner } from "@/spa/components/guest-banner";
 import { DrillList, SectionTitle } from "@/spa/components/page";
 import { FullPageSpinner } from "@/spa/app/shell";
-import { formatQuizDate } from "@/spa/lib/format";
 import { languageLabel } from "@/spa/lib/language-label";
 import {
   useClassroom,
@@ -46,8 +39,10 @@ import { PEEK_SPRING, usePeek } from "@/spa/lib/use-peek";
 import { ErrorPanel } from "./errors";
 
 /**
- * The classroom's front page. It answers one question — what do I do today? —
- * and lists the deeper screens (notes, bank, quizzes, settings) as rows.
+ * The classroom's front page, built around why people open it: today's quiz
+ * (the mailbox), adding notes (the notepad), and every quiz and exam in one
+ * section. The deeper screens (notes, bank, corrections, settings) follow as
+ * rows.
  */
 export function ClassroomHubPage() {
   const { id } = useParams() as { id: string };
@@ -56,7 +51,6 @@ export function ClassroomHubPage() {
   const { data: classroom } = useClassroom(id);
   const {
     data: overview,
-    dataUpdatedAt,
     error,
     isPending,
     refetch,
@@ -74,7 +68,6 @@ export function ClassroomHubPage() {
       classroom={classroom}
       session={session}
       overview={overview}
-      nowMs={dataUpdatedAt}
       autoStart={searchParams.get("create") === "1"}
     />
   );
@@ -86,14 +79,12 @@ function ClassroomHub({
   classroom,
   session,
   overview,
-  nowMs,
   autoStart,
 }: {
   id: string;
   classroom: Classroom;
   session: Session;
   overview: ClassroomOverview;
-  nowMs: number;
   autoStart: boolean;
 }) {
   const t = useTranslations("Classroom.HomePage");
@@ -102,7 +93,6 @@ function ClassroomHub({
   const tExam = useTranslations("Classroom.ExamCard");
   const locale = useLocale();
   const format = useFormatter();
-  const mailPeek = usePeek();
   const padPeek = usePeek();
   const quizJob = useQuizJob(id, overview.composeJob);
 
@@ -112,7 +102,6 @@ function ClassroomHub({
     pausedAt: classroom.pausedAt ? new Date(classroom.pausedAt) : null,
   });
   const reset = formatResetTime(locale, session.user.timezone);
-  const leaf = new Date(`${overview.today}T00:00:00Z`);
   const base = `/classrooms/${id}`;
   const { counts } = overview;
 
@@ -157,44 +146,33 @@ function ClassroomHub({
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_17rem]">
-        {/* Today's quiz waits in a letterbox; hovering the card slides the sheet out. */}
-        <motion.section
-          {...mailPeek}
-          className="editorial-surface grid overflow-hidden rounded-[1.6rem] sm:grid-cols-[9rem_minmax(0,1fr)]"
-        >
-          <div className="relative hidden items-end justify-center border-r border-border/70 bg-muted/40 px-5 pt-6 pb-7 sm:flex">
-            <QuizMailbox date={leaf} />
-          </div>
-          <div className="px-6 py-6 sm:px-8">
-            <TodayQuizAction
-              classroomId={id}
-              dailyQuizId={overview.dailyQuizId}
-              bankSize={counts.bank}
-              pendingUploads={counts.pendingUploads}
-              latestReview={overview.latestReview}
-              minutes={
-                QUIZ_LENGTH_MINUTES[
-                  isQuizLength(classroom.quizLength) ? classroom.quizLength : 0
-                ]
-              }
-              paused={classroom.pausedAt !== null}
-              autoStart={autoStart}
-              job={quizJob}
-              resetLocal={reset.local}
-              resetUtc={reset.utc}
-              resetTomorrow={reset.tomorrow}
-            />
-          </div>
-        </motion.section>
+        <TodayQuizCard
+          classroomId={id}
+          today={overview.today}
+          dailyQuizId={overview.dailyQuizId}
+          dailyReview={overview.dailyReview}
+          bankSize={counts.bank}
+          pendingUploads={counts.pendingUploads}
+          minutes={
+            QUIZ_LENGTH_MINUTES[
+              isQuizLength(classroom.quizLength) ? classroom.quizLength : 0
+            ]
+          }
+          paused={classroom.pausedAt !== null}
+          isGuest={isGuest}
+          resetLocal={reset.local}
+          resetUtc={reset.utc}
+          resetTomorrow={reset.tomorrow}
+        />
 
-        {/* Add notes on a torn-off legal pad. */}
+        {/* Add notes on a torn-off legal pad, taped to the desk. */}
         <motion.div
           {...padPeek}
           variants={{ rest: { y: 0, rotate: 0.8 }, open: { y: -5, rotate: 0 } }}
           transition={PEEK_SPRING}
         >
           <Link to={`${base}/notes/new`} className="relative block h-full">
-            <div className="torn-top notepad flex h-full min-h-48 flex-col justify-between gap-4 rounded-b-2xl px-6 pt-8 pb-6 shadow-[0_1px_2px_rgb(var(--shadow-colour)/0.06),0_14px_30px_rgb(var(--shadow-colour)/0.08)]">
+            <div className="torn-top notepad flex h-full min-h-48 flex-col justify-between gap-4 rounded-b-2xl px-6 pt-8 pb-6 shadow-[0_1px_2px_rgb(var(--shadow-colour)/0.1),0_4px_10px_rgb(var(--shadow-colour)/0.08),0_18px_36px_rgb(var(--shadow-colour)/0.14)]">
               <div>
                 <motion.span
                   className="inline-block"
@@ -227,60 +205,26 @@ function ClassroomHub({
                 </motion.span>
               </span>
             </div>
+            <span
+              aria-hidden="true"
+              className="tape absolute -top-2 left-1/2 h-6 w-20 -translate-x-1/2 -rotate-3 rounded-[2px]"
+            />
           </Link>
         </motion.div>
       </div>
 
-      {isGuest ? (
-        <section className="flex flex-col items-start justify-between gap-4 rounded-xl border border-primary/20 bg-primary/[0.04] p-5 sm:flex-row sm:items-center">
-          <div>
-            <p className="flex items-center gap-2 text-sm font-semibold">
-              <Clock3 className="size-4" />
-              {t("guestDailyQuizTitle")}
-            </p>
-            <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-              {t("guestDailyQuizBlurb")}
-            </p>
-          </div>
-          <Button asChild variant="outline" className="shrink-0">
-            <a href="/signup">{t("guestDailyQuizCta")}</a>
-          </Button>
-        </section>
-      ) : null}
-
-      {/* Always mounted, so the first card animates in; it hides itself when empty. */}
-      <RecentQuizCards
+      <QuizzesSection
         classroomId={id}
-        quizzes={overview.recentOnDemand}
-        nowMs={nowMs}
+        quizzes={overview.recentQuizzes}
+        totalQuizzes={counts.quizzes}
+        bankSize={counts.bank}
+        exam={overview.exam}
+        isGuest={isGuest}
+        isPaid={session.plan.isPaid}
+        billingEnabled={session.features.billing}
+        autoStart={autoStart}
         job={quizJob}
       />
-
-      {overview.unfinished.length > 0 ? (
-        <section className="space-y-3">
-          <SectionTitle>{t("unfinished")}</SectionTitle>
-          <ul className="flex flex-wrap gap-2">
-            {overview.unfinished.map((quiz) => (
-              <li key={quiz.id}>
-                <Link
-                  to={`${base}/quizzes/${quiz.id}/take`}
-                  className="group inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/70 py-1.5 pr-3.5 pl-2 text-sm transition hover:border-primary/40"
-                >
-                  <span className="grid size-4.5 place-items-center rounded-[4px] border-[1.5px] border-foreground/45 transition-colors group-hover:border-primary">
-                    <Check className="size-3 text-primary opacity-0 transition-opacity group-hover:opacity-100" />
-                  </span>
-                  <span className="font-medium">
-                    {formatQuizDate(quiz.quizDate, locale)}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {t("questions", { count: quiz.size })}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
 
       <section className="space-y-3">
         <SectionTitle>{tHub("inside")}</SectionTitle>
@@ -314,15 +258,6 @@ function ClassroomHub({
               title: tHub("bank"),
               meta: tHub("bankMeta", { count: counts.bank }),
             },
-            {
-              to: `${base}/quizzes`,
-              icon: BookOpen,
-              title: tHub("quizzes"),
-              meta:
-                counts.quizzes === 0
-                  ? t("noQuizzes")
-                  : tHub("quizzesMeta", { count: counts.quizzes }),
-            },
             ...(isGuest
               ? []
               : [
@@ -349,25 +284,6 @@ function ClassroomHub({
           ]}
         />
       </section>
-      {counts.bank > 0 ? (
-        <section className="rounded-xl border border-border/70 bg-muted/25 p-5">
-          <h2 className="font-heading text-lg font-semibold">{t("beforeLessonTitle")}</h2>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">{t("beforeLessonCopy")}</p>
-          <Button variant="outline" className="mt-4" disabled={quizJob.busy} onClick={() => void quizJob.start()}>
-            <CtaIcon kind="generate" />
-            {t("beforeLessonAction")}
-          </Button>
-        </section>
-      ) : null}
-      {isGuest ? null : (
-        <ExamCard
-          classroomId={id}
-          bankSize={counts.bank}
-          exam={overview.exam}
-          isPaid={session.plan.isPaid}
-          billingEnabled={session.features.billing}
-        />
-      )}
     </div>
   );
 }

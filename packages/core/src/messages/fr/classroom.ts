@@ -15,19 +15,19 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     addNotes: "Ajouter des notes",
   },
   TodayQuiz: {
-    kicker: "Entre deux cours",
-    title: "La révision du jour",
-    ready:
-      "Révise tes notes de cours, avec des notions plus anciennes et des erreurs récentes.",
-    idle: "Ta prochaine révision quotidienne arrive le matin. Tu peux aussi pratiquer maintenant.",
     paused:
       "Les révisions quotidiennes sont en pause. Tu peux toujours créer un quiz quand tu le souhaites.",
     resetAt: "Prochaine révision : {local} ({utc} UTC)",
     resetAtTomorrow: "Prochaine révision : demain à {local} ({utc} UTC)",
-    takeToday: "Commencer la révision du jour",
-    createNow: "Pratiquer maintenant",
+    readyLine: "Ton quiz est arrivé",
+    open: "Ouvrir",
+    doneLine: "Fini pour aujourd’hui",
+    processingLine: "Lecture de tes notes…",
+    emptyLine: "Ajoute des notes pour ton premier quiz",
+    pausedLine: "Les quiz quotidiens sont en pause",
+    pausedAction: "Ouvrir les réglages",
+    idleLine: "Rien dans la boîte pour l’instant",
     addNotes: "Ajoute des notes",
-    addNotesSuffix: "pour créer un quiz.",
     writingTitle: "Rédaction du quiz…",
     writingHint:
       "Environ une minute. Tu peux quitter cette page ; il apparaîtra ici.",
@@ -41,9 +41,6 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     failedBlurb:
       "Une erreur est survenue pendant la rédaction. Réessaie dans un instant.",
     tryAgain: "Réessayer",
-    completedTitle: "Tu as révisé aujourd’hui",
-    completedBlurb:
-      "Tu peux t’arrêter ici pour aujourd’hui. Revois les explications ou pratique encore si tu le souhaites.",
     reviewResults: "Voir ma révision",
     processing:
       "Nous préparons les exercices à partir de tes notes. Tu peux revenir quand ils seront prêts.",
@@ -186,11 +183,14 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     questions: "{count, plural, one {# question} other {# questions}}",
     take: "Faire",
     best: "Meilleur : {score} / {size}",
-    unfinished: "Exercices à reprendre si tu le souhaites",
-    unfinishedBlurb: "Des quiz que tu as créés mais pas encore faits.",
-    recentMade: "Créé {when}",
-    recentReady: "Prêt quand tu veux",
     review: "Revoir",
+    quizzesTitle: "Tes quiz et examens",
+    seeAllQuizzes: "Tout voir ({count})",
+    notStarted: "Pas commencé",
+    onDemandTitle: "Un nouveau quiz, quand tu veux",
+    onDemandBlurb: "Rédigé à partir des notes de cette classe, avec des notions plus anciennes et des erreurs récentes. Prêt en une minute environ.",
+    onDemandEmpty: "Ajoute d’abord des notes : les quiz sont rédigés à partir d’elles.",
+    onDemandAction: "Créer un quiz",
     guestBanner:
       "Tu explores en mode aperçu. Les notes et classes sont temporaires tant que tu ne crées pas de compte.",
     guestBannerAction: "S'inscrire pour enregistrer",
@@ -199,9 +199,6 @@ export const classroom: MessageShape<(typeof en)["Classroom"]> = {
     guestDailyQuizBlurb:
       "Chaque matin à 7 h (heure de l'Est), tu recevras un quiz de dix minutes basé sur ces notes. Inscris-toi pour activer les e-mails quotidiens de cette classe.",
     guestDailyQuizCta: "S'inscrire pour recevoir les quiz",
-      beforeLessonTitle: "Avant ton prochain cours",
-    beforeLessonCopy: "Envie de revoir les notions avant le cours ? Révise les notes de cette classe, avec des notions plus anciennes et des erreurs récentes.",
-    beforeLessonAction: "Réviser avant mon cours",
   },
   HistoryPage: {
     title: "Notes de cours",

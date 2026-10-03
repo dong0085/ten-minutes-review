@@ -7,6 +7,7 @@
 
 @theme inline {
     --font-heading: var(--font-editorial);
+    --font-hand: var(--font-handwriting);
     --font-sans: var(--font-sans);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
@@ -578,22 +579,32 @@
       conic-gradient(from 135deg at 50% 0, black 90deg, transparent 0) 0 0 / calc(var(--tooth) * 2) var(--tooth) repeat-x;
   }
 
-  /* Warm legal-pad yellow with a red double margin; follows the theme in dark mode. */
+  /* Canary legal-pad yellow with faint blue rules and a red double margin.
+     The yellow is stronger than the cream page, so the pad reads as an object
+     on the desk; dark mode uses a muted olive version. */
   .notepad {
     --margin-ink: color-mix(in oklch, var(--destructive), transparent 55%);
-    background-color: color-mix(in oklch, var(--warning), var(--card) 88%);
-    background-image: linear-gradient(
-      to right,
-      transparent 0.8rem,
-      var(--margin-ink) 0.8rem calc(0.8rem + 1px),
-      transparent calc(0.8rem + 1px) calc(0.8rem + 4px),
-      var(--margin-ink) calc(0.8rem + 4px) calc(0.8rem + 5px),
-      transparent calc(0.8rem + 5px)
-    );
+    --rule-ink: oklch(0.6 0.08 240 / 0.2);
+    background-color: oklch(0.955 0.08 100);
+    background-image:
+      linear-gradient(
+        to right,
+        transparent 0.8rem,
+        var(--margin-ink) 0.8rem calc(0.8rem + 1px),
+        transparent calc(0.8rem + 1px) calc(0.8rem + 4px),
+        var(--margin-ink) calc(0.8rem + 4px) calc(0.8rem + 5px),
+        transparent calc(0.8rem + 5px)
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0 1.5rem,
+        var(--rule-ink) 1.5rem calc(1.5rem + 1px)
+      );
   }
 
   .dark .notepad {
-    background-color: color-mix(in oklch, var(--warning), var(--card) 90%);
+    --rule-ink: oklch(0.85 0.05 240 / 0.1);
+    background-color: oklch(0.31 0.05 98);
   }
 
   /* Strip of translucent tape holding a slip to the page. */
@@ -705,4 +716,9 @@
 
 :lang(zh) h1.font-heading {
   line-height: 1.2;
+}
+
+/* The handwriting font covers Latin letters only, so Chinese keeps the regular type. */
+:lang(zh) .font-hand {
+  font-family: var(--font-sans);
 }

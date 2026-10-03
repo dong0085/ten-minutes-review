@@ -5,13 +5,19 @@ import { env } from "@/lib/env";
 import { getLayoutUser } from "@/lib/layout-user";
 import { SITE_NAME } from "@/lib/seo";
 import { getTheme } from "@/lib/theme-server";
-import { Geist, Source_Serif_4 } from "next/font/google";
+import { Caveat, Geist, Source_Serif_4 } from "next/font/google";
 import { cn } from "@tmr/ui/utils";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
   variable: "--font-editorial",
+  display: "swap",
+});
+// Handwriting for the classroom hub's mailbox and its date.
+const caveat = Caveat({
+  subsets: ["latin"],
+  variable: "--font-handwriting",
   display: "swap",
 });
 
@@ -40,7 +46,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang={locale}
       data-theme={theme}
-      className={cn("font-sans", geist.variable, sourceSerif.variable)}
+      className={cn(
+        "font-sans",
+        geist.variable,
+        sourceSerif.variable,
+        caveat.variable,
+      )}
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col bg-background text-foreground antialiased">

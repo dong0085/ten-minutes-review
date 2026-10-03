@@ -54,20 +54,29 @@ Both languages stay editable, and extraction corrects them if the notes disagree
 
 ## 5. Classroom hub
 
-The default screen once a classroom exists. It answers one question — what do I do today? — and leads to everything else one level down. Shows:
+The default screen once a classroom exists. It is built around the four reasons people open a classroom: take today's quiz, add notes, check their quizzes and exams, and take an exam. Shows:
 
 - **Header** — the classroom name, its language pair, and its status stamp (Active, Dormant, Paused).
-- **Today's quiz** — take the daily quiz, or create one on demand. While a quiz is being written, the card shows live progress with Minimize and Cancel; when it is ready, it offers Take quiz. Progress comes back for up to an hour after the request when the user leaves and returns. With an empty bank the button explains what to add first.
-- **Today's completion** — after any short daily or on-demand review submitted today in the learner's timezone, the card shows "You've reviewed today", links to that attempt, and keeps extra practice secondary. An empty bank offers Add notes; pending notes explain preparation. Guests also have this review action, with a separate account prompt for saving and daily delivery.
-- **Add notes** — the primary action; opens the Add notes screen.
-- **On-demand cards** — each on-demand quiz from the last 24 hours gets its own card, up to three, newest first: when it was made and its size, with Take quiz, or once taken its best score and Review. A quiz that finishes while the user is away shows up here.
-- **Unfinished** — up to three older on-demand quizzes not taken yet, each one tap from the quiz runner.
-- **Before the next lesson** — an optional on-demand review from the same classroom, shown below the main content links when the bank has points. It uses the existing quiz composition and does not require a lesson date.
+- **Today's quiz** — a mailbox in the middle of a large card, with a handwritten line above it and today's date in handwriting below. When there is somewhere to go, the whole card is one link: hovering or focusing it slides the dated quiz sheet out, raises the flag, and lifts the button. The card is only about today's daily quiz:
+  - **Ready** — "Your quiz is here", the quiz length, and Open; the card opens the quiz.
+  - **Taken** — once today's daily quiz has an attempt: "Done for today", the sheet sits out of the box stamped with the latest score, and the card opens that attempt's review.
+  - **No quiz yet** — an empty box with the next delivery time in the learner's timezone, UTC in parentheses. The card is informational.
+  - **Notes being read** — "Reading your notes…" while the first upload is processed.
+  - **Empty bank** — "Add notes to get your first quiz"; the card opens Add notes.
+  - **Paused** — "Daily quizzes are paused"; the card opens Settings.
+  - **Guest** — daily quizzes come with an account; the card opens sign-up.
+- **Add notes** — a canary-yellow legal pad taped to the page; opens the Add notes screen.
+- **Your quizzes and exams** — one section for everything beyond today's quiz:
+  - **On demand** — a tile that creates a quiz from the classroom's notes (see § 9). It is the only place that starts one.
+  - **Exam** — the exam tile (see § 12b). Hidden for guests.
+  - **The list** — the five latest quizzes and exams of every kind, newest first, each with its date, a Daily, On demand, or Exam tag, its size, and Not started or its best score. An untaken one opens the quiz runner; a taken one opens its quiz screen. "See all" opens the Quizzes screen.
 - **In this classroom** — one row per deeper screen, each with a count:
   - **Notes** — uploads so far and when the last one arrived, plus a badge while notes are being read.
   - **Question bank** — knowledge points currently in quizzes.
-  - **Quizzes** — quizzes so far.
+  - **Corrections** — see § 12c.
   - **Settings** — name, languages, the auto-stop window, quiz length, and Daily reviews. Quiz length is a row of five steps (`<<` `<` `*` `>` `>>`, about 5 to 20 minutes) that saves on click or arrow key and applies to quizzes composed afterwards.
+
+The handwriting font covers Latin letters only; in Chinese the same lines use the regular type.
 
 A dormant classroom shows a note under the header: emails have stopped, add notes or open the classroom to resume them. A manually paused classroom instead shows a paused note and keeps that status even when the classroom is opened or notes are uploaded.
 
@@ -127,7 +136,7 @@ Omit is the removal path. Past quiz questions and attempts hang off each knowled
 - **From the email.** The email carries the questions inline, plus a link. The link opens the web quiz. If the user is signed out, it routes through sign-in and returns them to the quiz.
 - **From the site.** The classroom hub shows today's quiz. A list of classrooms, each showing whether today's quiz is ready.
 
-**On demand.** The classroom hub can create a quiz at any time. The quiz is written in the background, so the user never waits: a dashed card slides in at the head of the on-demand row, a pencil writing on a small sheet in its corner, with its progress (Queued → Writing your quiz) and a Cancel button, while the Create button shows it is busy. The user can leave the page; coming back picks the job up again. When it is done, the card gives way to the new quiz's own card, which drops in with a short glow and Take quiz, and a failed or stopped quiz says so on the card with Try again or Close. A ready quiz never redirects on its own. Each on-demand quiz also sends an email carrying just that quiz, subject to the user's email preferences, and stays tagged On demand everywhere.
+**On demand.** The classroom hub can create a quiz at any time. The quiz is written in the background, so the user never waits: a row slides in at the head of the quizzes list, a pencil writing on a small sheet beside it, with its progress (Queued → Writing your quiz) and a Cancel button, while the Create a quiz button shows it is busy. The user can leave the page; coming back picks the job up again. When it is done, the row gives way to the new quiz's own row, which drops in with a short glow and Take, and a failed or stopped quiz says so on the row with Try again or Close. A ready quiz never redirects on its own. Each on-demand quiz also sends an email carrying just that quiz, subject to the user's email preferences, and stays tagged On demand everywhere.
 
 **With several classrooms:** the site shows a menu, one entry per classroom with today's quiz available. The user picks one. One classroom per day is the intended rhythm — the others stay available, and their quizzes keep accumulating.
 
@@ -167,7 +176,7 @@ The quiz screen also carries a **Delete** control. Confirming removes the quiz, 
 
 A longer paper that checks what has stuck, for Pro members.
 
-- **Unlock.** The classroom hub carries an Exam card. Below 80 active knowledge points it shows progress toward 80; at 80 it says the bank is ready. That card is the reminder — nothing is sent.
+- **Unlock.** The classroom hub carries an Exam tile in its quizzes section, beside the on-demand tile; past exams appear in the list under it. Below 80 active knowledge points it shows progress toward 80; at 80 it says the bank is ready. That card is the reminder — nothing is sent.
 - **Pro only.** A free member sees the Start button locked with the Pro badge; tapping it explains what Pro adds and offers checkout.
 - **Writing.** Start an exam writes one in the background (about a minute) with Cancel, while a pencil writes on the top sheet of the card's exam stack; the card turns into Take the exam when it is ready. An untaken exam keeps offering Take the exam.
 - **The paper.** Always 40 questions worth 100 points: I. Multiple choice, 20 × 2; II. True or false, 10 × 2; III. Fill in the blanks, 10 × 4. Suggested time 30 minutes. It covers the whole bank, recent misses first. No email is sent.
