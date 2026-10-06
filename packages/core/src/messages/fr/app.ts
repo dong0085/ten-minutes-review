@@ -74,4 +74,11 @@ export const app: MessageShape<(typeof en)["App"]> = {
     data: "Tes données",
     dataMeta: "Tout exporter, ou supprimer votre compte",
   },
+  FirefoxAddon: {
+    action: "Obtenir l'extension Firefox",
+    notesHint:
+      "Tu lis quelque chose en ligne ? L'extension Firefox enregistre le texte sélectionné comme note dans l'une de tes classes.",
+    tokensHint:
+      "L'extension Firefox enregistre le texte que tu sélectionnes sur n'importe quelle page comme note. Connecte-toi depuis sa fenêtre avec ton e-mail et ton mot de passe, ou colle un jeton créé ici.",
+  },
 };

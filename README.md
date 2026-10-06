@@ -93,7 +93,7 @@ Copy `.env.example`, keep the defaults for local work, and add provider credenti
 
 ## Browser extension
 
-`apps/extension` holds a Chrome/Firefox extension — select text on any page, right-click, save it as a note. Build and load it unpacked:
+`apps/extension` holds a Chrome/Firefox extension — select text on any page, right-click, save it as a note. The Firefox build is published on [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/ten-minute-review/); the site links to it from the footer, the Add notes screen, and Account → API tokens. For development, build and load it unpacked:
 
 ```sh
 pnpm build:extension

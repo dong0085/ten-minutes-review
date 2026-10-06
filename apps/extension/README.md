@@ -4,6 +4,9 @@ Save selected text from any web page as a study note: select text, right-click,
 "Save selection as note", pick a classroom. The note text keeps a source footer
 with the page title and URL.
 
+Published for Firefox at
+<https://addons.mozilla.org/firefox/addon/ten-minute-review/>.
+
 ## Build
 
 ```sh

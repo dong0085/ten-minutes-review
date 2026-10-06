@@ -36,3 +36,6 @@ export const MIN_USABLE_QUESTIONS = 5;
 
 /** How long an unsubmitted attempt token, and the browser draft behind it, stays valid. */
 export const ATTEMPT_TTL_MS = 2 * 60 * 60 * 1000;
+
+/** The browser extension's Firefox Add-ons listing; the site picks the reader's language. */
+export const FIREFOX_ADDON_URL = "https://addons.mozilla.org/firefox/addon/ten-minute-review/";

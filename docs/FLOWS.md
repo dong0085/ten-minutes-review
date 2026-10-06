@@ -87,6 +87,8 @@ Two inputs on one screen:
 - **Paste or type text.** The hint asks for one word, phrase, or rule per line.
 - **Attach images** — photos of handwritten notes, up to 10 MB each.
 
+Below the form, signed-in users see a pointer to the Firefox add-on, which saves text selected on any page as a note.
+
 **Upload notes** with text opens a preview before anything is saved: each line with the number the reading uses (the same numbers the edit screen shows later), blank lines included. It counts the lines that will be read, plus any attached images. A line long enough to hold several items is flagged, and **Split into lines** breaks it at semicolons, bullets, and sentence ends (never at the dash or equals sign joining a term to its meaning), with Undo. Free users see what confirming uses of this week's uploads. **Back to edit** returns to the form; **Read N lines** uploads. The preview counts lines, not points: only the reading knows how many points the notes hold. Images alone skip the preview.
 
 On confirm, the upload row is written immediately and the screen moves to the processing state. Nothing blocks on the LLM.
@@ -233,7 +235,7 @@ Settings screens, one job each:
 - **Email** — daily email on or off, unsubscribe status, and the next send time in the user's timezone.
 - **Plan & usage** — current plan and status, this week's usage against the free limits, and the Stripe checkout or billing portal. Stripe returns here.
 - **Referrals** — the user's code, the share link, and who signed up with it.
-- **API tokens** — create and revoke tokens for the browser extension.
+- **API tokens** — create and revoke tokens for the browser extension, with a link to the Firefox add-on.
 - **Your data** — export everything, or delete the account.
 
 Classrooms are managed from the classroom list and each classroom's Settings.

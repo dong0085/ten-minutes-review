@@ -71,4 +71,11 @@ export const app = {
     data: "Your data",
     dataMeta: "Export everything, or delete your account",
   },
+  FirefoxAddon: {
+    action: "Get the Firefox add-on",
+    notesHint:
+      "Reading something online? The Firefox add-on saves any text you select as a note in one of your classrooms.",
+    tokensHint:
+      "The Firefox add-on saves text you select on any page as a note. Sign in from its popup with your email and password, or paste a token from this page.",
+  },
 } as const;

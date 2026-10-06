@@ -70,4 +70,10 @@ export const app: MessageShape<(typeof en)["App"]> = {
     data: "你的数据",
     dataMeta: "导出全部数据，或删除账户",
   },
+  FirefoxAddon: {
+    action: "获取 Firefox 扩展",
+    notesHint: "在网上读到有用的内容？Firefox 扩展可以把你选中的文字存为任意课堂里的笔记。",
+    tokensHint:
+      "Firefox 扩展可以把任意网页上选中的文字存为笔记。在扩展弹窗里用邮箱和密码登录，或粘贴在这里创建的令牌。",
+  },
 };
