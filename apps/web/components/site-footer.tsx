@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { FIREFOX_ADDON_URL } from "@tmr/core";
 
 export async function SiteFooter() {
   const t = await getTranslations("Footer");
@@ -14,6 +15,15 @@ export async function SiteFooter() {
         <Link className="hover:text-foreground" href="/privacy">
           {t("privacy")}
         </Link>
+        <a
+          className="inline-flex items-center gap-1 hover:text-foreground"
+          href={FIREFOX_ADDON_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {t("firefoxAddon")}
+          <ArrowUpRight className="size-3.5" aria-hidden="true" />
+        </a>
         <a
           className="inline-flex items-center gap-1 hover:text-foreground"
           href="https://ericinottawa.ca"

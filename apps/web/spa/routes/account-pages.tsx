@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from "@tmr/ui/components/alert";
 import { Button } from "@tmr/ui/components/button";
 import { AccountHeader, SectionTitle } from "@/spa/components/account/account-header";
 import { ApiTokens } from "@/spa/components/account/api-tokens";
+import { FirefoxAddonHint } from "@/spa/components/firefox-addon-hint";
 import { DeleteAccount } from "@/spa/components/account/delete-account";
 import { EmailPreferencesForm } from "@/spa/components/account/email-preferences-form";
 import { GoogleConnection } from "@/spa/components/account/google-connection";
@@ -196,6 +197,7 @@ export function AccountTokensPage() {
         title={t("ApiTokens.title")}
         description={t("ApiTokens.blurb")}
       />
+      <FirefoxAddonHint hint="tokensHint" />
       <ApiTokens
         initialTokens={tokens.map((token) => ({
           id: token.id,

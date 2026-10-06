@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useParams } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "use-intl";
+import { FirefoxAddonHint } from "@/spa/components/firefox-addon-hint";
 import { PageHeader } from "@/spa/components/page";
 import { UploadPanel } from "@/spa/components/upload/upload-panel";
 import { useSession } from "@/spa/lib/session";
@@ -25,6 +26,8 @@ export function AddNotesPage() {
     <div className="space-y-6">
       <PageHeader kicker={t("kicker")} title={t("title")} description={t("blurb")} />
       <UploadPanel classroomId={id} isGuest={session?.isGuest ?? false} />
+      {/* The add-on signs in to an account, so guests skip the pointer. */}
+      {session && !session.isGuest ? <FirefoxAddonHint hint="notesHint" /> : null}
     </div>
   );
 }
