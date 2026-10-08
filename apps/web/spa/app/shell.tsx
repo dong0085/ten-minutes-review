@@ -73,16 +73,13 @@ function TopBar() {
             </DropdownMenu>
           ) : (
             <>
-              <a
-                className="hidden text-muted-foreground hover:text-foreground sm:inline"
-                href="/signin"
-              >
-                {t("signIn")}
-              </a>
-              <Button asChild size="sm">
+              <Button asChild variant="ghost" size="sm" className="max-[400px]:px-2">
+                <a href="/signin">{t("signIn")}</a>
+              </Button>
+              <Button asChild size="sm" className="max-[400px]:px-2">
                 <a href="/signup">
-                  <CtaIcon kind="signup" />
-                  {t("createAccount")}
+                  <CtaIcon kind="signup" className="max-[400px]:hidden" />
+                  {t("signUp")}
                 </a>
               </Button>
             </>

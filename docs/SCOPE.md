@@ -7,7 +7,7 @@
 
 A web app (a single-page app for everything after sign-in) that turns a tutoring session's notes — text or images — into a daily quiz that takes under 10 minutes. The user answers on the site, and can optionally receive the quiz by email every morning. Every quiz belongs to a classroom.
 
-The primary audience is a language learner with regular lessons, existing lesson notes, and little preparation time between lessons. The core flow is lesson → notes → short daily review → explanations → next lesson → new notes in the same classroom. Homepage, onboarding, email, and the signed-in app use this same framing. One review is a natural stopping point; more practice stays optional. The homepage's example week illustrates this routine, rather than prescribing fixed content for each day.
+The primary audience is a language learner with regular lessons, existing lesson notes, and little preparation time between lessons. The core flow is lesson → notes → short daily review → explanations → next lesson → new notes in the same classroom. Homepage, onboarding, email, and the signed-in app use this same framing. One review is a natural stopping point; more practice stays optional. The homepage's example week illustrates this routine, rather than prescribing fixed content for each day. Under the hero, a three-question sample review (multiple choice, true or false, fill in the blank) in the language the site is shown in lets visitors try a review before they sign up. It is graded in the browser with the same red-pen marks as a real quiz, and a right answer throws confetti.
 
 ## Classrooms
 

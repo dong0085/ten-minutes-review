@@ -20,6 +20,8 @@ Referral codes are unlimited-use. They credit the referrer and leave access unch
 
 ## 2. Sign in
 
+**Entry:** the "Sign in" button in the top bar, beside "Sign up", on every screen a visitor or guest sees, and the link under the landing page's hero.
+
 Google or email plus password. Forgot-password sends a reset link. After sign-in the user lands on the classroom list, or back on the screen that sent them to sign in.
 
 ---

@@ -5,7 +5,8 @@ export const home = {
   description:
     "Paste your tutor’s recap or photograph your notes. Get a short daily quiz on the words, phrases, and grammar you covered, ready for your next lesson.",
   goToClassrooms: "Go to my classrooms",
-  createAccount: "Create account",
+  signUp: "Sign up",
+  haveAccount: "Already have an account?",
   signIn: "Sign in",
   tryAsGuest: "Try your lesson notes",
   proof: {
@@ -103,6 +104,22 @@ export const home = {
     pro4: "100-point exams and corrections",
     freeCta: "Start free",
     proCta: "Go Pro",
+  },
+  sample: {
+    kicker: "Try a review",
+    title: "Three questions. <highlight>About a minute.</highlight>",
+    copy:
+      "Every morning’s review looks like this, built from your own lesson notes. Answer a question, check it, and see how it gets marked.",
+    paperKicker: "Sample review",
+    paperTitle: "English practice",
+    progress: "{done} of {total} correct",
+    check: "Check",
+    correct: "Correct!",
+    tryAgain: "Try again",
+    wrongHint: "Not quite. Read the note, then try again.",
+    doneTitle: "All three correct.",
+    footnote: "Your real reviews come from your own lesson notes.",
+    cta: "Try your lesson notes",
   },
   closingKicker: "Start with your last lesson",
   closingTitle:

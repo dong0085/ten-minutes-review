@@ -20,5 +20,5 @@ export const layout = {
   account: "账户",
   signOut: "退出登录",
   signIn: "登录",
-  createAccount: "创建账户",
+  signUp: "注册",
 } as const;

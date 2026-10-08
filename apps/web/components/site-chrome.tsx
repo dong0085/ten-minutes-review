@@ -38,14 +38,17 @@ export async function SiteChrome({ children }: { children: ReactNode }) {
         <header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/72">
           <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4 sm:gap-4 sm:px-6 lg:px-8">
             <BrandMark className="shrink-0" />
-            <div className="flex items-center gap-2 text-sm max-[360px]:gap-1 max-[360px]:[&_select]:max-w-[4.5rem] max-[360px]:[&_select]:px-1.5">
+            <div className="flex items-center gap-2 text-sm max-[400px]:gap-1 max-[400px]:[&_select]:max-w-[4.5rem] max-[400px]:[&_select]:px-1.5">
               {user ? (
                 <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
                   <a href="/classrooms">{t("classrooms")}</a>
                 </Button>
               ) : null}
               <LanguageSwitcher signedIn={signedIn} />
-              <ThemeSwitcher currentTheme={theme} signedIn={signedIn} />
+              {/* The smallest phones keep the account buttons and drop the theme picker. */}
+              <span className={signedIn ? "contents" : "contents max-[359px]:hidden"}>
+                <ThemeSwitcher currentTheme={theme} signedIn={signedIn} />
+              </span>
               {user && !isGuest ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -89,13 +92,13 @@ export async function SiteChrome({ children }: { children: ReactNode }) {
                 </DropdownMenu>
               ) : (
                 <>
-                  <Link className="hidden text-muted-foreground hover:text-foreground sm:inline" href="/signin">
-                    {t("signIn")}
-                  </Link>
-                  <Button asChild size="sm" className="max-[360px]:px-2 max-[360px]:text-xs">
+                  <Button asChild variant="ghost" size="sm" className="max-[400px]:px-2 max-[400px]:text-xs max-[360px]:px-1.5">
+                    <Link href="/signin">{t("signIn")}</Link>
+                  </Button>
+                  <Button asChild size="sm" className="max-[400px]:px-2 max-[400px]:text-xs max-[360px]:px-1.5">
                     <Link href="/signup">
-                      <CtaIcon kind="signup" className="max-[360px]:size-4" />
-                      {t("createAccount")}
+                      <CtaIcon kind="signup" className="max-[400px]:hidden" />
+                      {t("signUp")}
                     </Link>
                   </Button>
                 </>

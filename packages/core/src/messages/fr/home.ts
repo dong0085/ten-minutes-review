@@ -5,7 +5,8 @@ export const home = {
   description:
     "Colle le résumé de ton tuteur ou photographie tes notes. Révise chaque jour les mots, les expressions et la grammaire abordés, pour préparer ton prochain cours.",
   goToClassrooms: "Voir mes classes",
-  createAccount: "Créer un compte",
+  signUp: "S’inscrire",
+  haveAccount: "Tu as déjà un compte ?",
   signIn: "Se connecter",
   tryAsGuest: "Essayer avec mes notes de cours",
   proof: {
@@ -85,7 +86,8 @@ export const home = {
   },
   pricing: {
     kicker: "Formules",
-    title: "Commence gratuitement. Passe à Pro quand tes notes s'accumulent.",
+    title:
+      "Commence gratuitement. Passe à Pro quand tes notes s'accumulent.",
     perMonth: "/mois",
     freeName: "Gratuit",
     freePrice: "0 $",
@@ -103,6 +105,22 @@ export const home = {
     pro4: "Examens sur 100 points et carnet d'erreurs",
     freeCta: "Commencer gratuitement",
     proCta: "Passer à Pro",
+  },
+  sample: {
+    kicker: "Essaie une révision",
+    title: "Trois questions. <highlight>Une minute environ.</highlight>",
+    copy:
+      "Chaque révision du matin ressemble à ceci, préparée à partir de tes notes de cours. Réponds, vérifie, et regarde comment la correction se fait.",
+    paperKicker: "Exemple de révision",
+    paperTitle: "Pratique du français",
+    progress: "{done} sur {total} justes",
+    check: "Vérifier",
+    correct: "Juste !",
+    tryAgain: "Réessayer",
+    wrongHint: "Pas tout à fait. Lis la note, puis réessaie.",
+    doneTitle: "Les trois sont justes.",
+    footnote: "Tes vraies révisions viennent de tes notes de cours.",
+    cta: "Essayer avec mes notes de cours",
   },
   closingKicker: "Commence par ton dernier cours",
   closingTitle:
