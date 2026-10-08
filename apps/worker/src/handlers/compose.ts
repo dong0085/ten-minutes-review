@@ -1,5 +1,5 @@
 import {
-  COMPOSITION_PROMPT_V4,
+  COMPOSITION_PROMPT_V5,
   COMPOSITION_PROMPT_VERSION,
   EXAM_PROMPT_V2,
   EXAM_PROMPT_VERSION,
@@ -199,7 +199,7 @@ export async function handleComposeJob(
 
   const provider = getLlmProvider();
   const raw = await provider.compose({
-    systemPrompt: COMPOSITION_PROMPT_V4,
+    systemPrompt: COMPOSITION_PROMPT_V5,
     payload: compositionPayload,
   });
   const parsed = typeof raw === "string" ? parseCompositionResponse(raw) : parseCompositionResult(raw);

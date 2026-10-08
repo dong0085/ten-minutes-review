@@ -12,7 +12,7 @@ import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import {
-  COMPOSITION_PROMPT_V4,
+  COMPOSITION_PROMPT_V5,
   COMPOSITION_PROMPT_VERSION,
   EXAM_PROMPT_V2,
   EXAM_PROMPT_VERSION,
@@ -102,7 +102,7 @@ async function runCase(
     seconds: 0,
   };
   try {
-    const systemPrompt = promptOverride ?? (isExamCase(evalCase) ? EXAM_PROMPT_V2 : COMPOSITION_PROMPT_V4);
+    const systemPrompt = promptOverride ?? (isExamCase(evalCase) ? EXAM_PROMPT_V2 : COMPOSITION_PROMPT_V5);
     const raw = await provider.compose({ systemPrompt, payload: evalCase.payload });
     const parsed = typeof raw === "string" ? parseCompositionResponse(raw) : parseCompositionResult(raw);
     result.questions = parsed.questions;

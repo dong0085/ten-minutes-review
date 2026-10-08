@@ -1,7 +1,7 @@
 import { parseCompositionResult } from "./schemas";
 import type { CompositionResult } from "../types";
 
-export const COMPOSITION_PROMPT_VERSION = "v4";
+export const COMPOSITION_PROMPT_VERSION = "v5";
 
 export const COMPOSITION_SCHEMA = `{
   "quiz_date": "YYYY-MM-DD",
@@ -75,13 +75,17 @@ Rules:
    faire sécher le linge dehors ?" works; adding "… est un étendoir ?" gives it
    away. Wrong options are plausible mix-ups from the same topic, not
    obviously unrelated things.
+   An mcq has exactly one right option. Grade each wrong option the way a
+   teacher would: a synonym or another correct way to say the answer
+   ("chaque jour" beside "tous les jours") is a second right answer, so swap
+   it for a real mistake.
 
 10. Output JSON only, matching the schema below. No prose, no markdown fence.
 
 Schema:
 ${COMPOSITION_SCHEMA}`;
 
-export const COMPOSITION_PROMPT_V4 = COMPOSITION_PROMPT_BODY;
+export const COMPOSITION_PROMPT_V5 = COMPOSITION_PROMPT_BODY;
 
 export function parseCompositionResponse(text: string): CompositionResult {
   return parseCompositionResult(JSON.parse(text));
