@@ -231,6 +231,10 @@ Rules:
    faire sécher le linge dehors ?" works; adding "… est un étendoir ?" gives it
    away. Wrong options are plausible mix-ups from the same topic, not
    obviously unrelated things.
+   An mcq has exactly one right option. Grade each wrong option the way a
+   teacher would: a synonym or another correct way to say the answer
+   ("chaque jour" beside "tous les jours") is a second right answer, so swap
+   it for a real mistake.
 
 10. Output JSON only, matching the schema below. No prose, no markdown fence.
 
@@ -314,7 +318,7 @@ Points fill a time budget of `min(20, max(8, floor(bank_size / 8)))` standard qu
 
 `apps/worker/src/eval` scores the prompt on fixed cases, so a prompt or model change is measured before it ships. It reads and writes no database.
 
-- `pnpm --filter worker eval` runs every case: the four synthetic cases in `src/eval/cases`, plus real ones in `.eval/cases`. Flags: `--prompt <file>` tries a draft prompt, `--runs N` repeats each case, `--label`, `--only <name>`, `--no-judge`. `DEEPSEEK_MODEL` picks the model.
+- `pnpm --filter worker eval` runs every case: the synthetic cases in `src/eval/cases`, plus real ones in `.eval/cases`. Flags: `--prompt <file>` tries a draft prompt, `--runs N` repeats each case, `--label`, `--only <name>`, `--no-judge`. `DEEPSEEK_MODEL` picks the model.
 - Each question gets the worker's code checks (drops, option count, blank count, missing cue, repeated stem) and an LLM judge that checks it against a short list: answer correct, one right answer, no giveaway, plausible distractors, clear cue, natural language, and a 1–5 score.
 - Results land in `apps/worker/.eval/results/<time>-<label>/`: `report.md` lists every question with its flags, `results.json` holds the raw run.
 - `pnpm --filter worker eval:compare <dir> <dir>` puts two runs side by side.
@@ -351,6 +355,6 @@ The judge runs on the same model it grades and reads some native cues as giveawa
 
 ## 3. Versioning
 
-- The prompts live in code as named constants: `EXTRACTION_PROMPT_V3` (built from V2's rules), `REREAD_PROMPT_V1`, `COMPOSITION_PROMPT_V4`, `EXAM_PROMPT_V2`, `EXAM_REVIEW_PROMPT_V1`, `TUTOR_HINT_PROMPT_V1`, `TUTOR_ANALYSIS_PROMPT_V1` (both `tutor-v1`).
+- The prompts live in code as named constants: `EXTRACTION_PROMPT_V3` (built from V2's rules), `REREAD_PROMPT_V1`, `COMPOSITION_PROMPT_V5`, `EXAM_PROMPT_V2`, `EXAM_REVIEW_PROMPT_V1`, `TUTOR_HINT_PROMPT_V1`, `TUTOR_ANALYSIS_PROMPT_V1` (both `tutor-v1`).
 - Every `knowledge_point` and every `question` row stores the version that produced it (a point updated by a re-read carries `reread-v1`), and an attempt's review stores its own in `review_prompt_version`.
 - Bumping a version affects new work only. Existing rows keep their original version, so old and new output can be compared side by side.

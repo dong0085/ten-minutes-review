@@ -26,6 +26,11 @@ services:
         sync: false
       - key: DEEPSEEK_API_KEY
         sync: false
+      # Jev reviews each composed question and sends failures back for one rewrite.
+      - key: JUDGE_PROVIDER
+        value: jev
+      - key: JEV_API_KEY
+        sync: false
       - key: RESEND_API_KEY
         sync: false
       # Quiz sender, e.g. Ten Minutes Review <quiz@contact.tenminutesreview.study>.

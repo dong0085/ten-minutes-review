@@ -10,7 +10,7 @@ export {
   renderNumberedLines,
 } from "./extraction";
 export {
-  COMPOSITION_PROMPT_V4,
+  COMPOSITION_PROMPT_V5,
   COMPOSITION_PROMPT_VERSION,
   parseCompositionResponse,
 } from "./composition";

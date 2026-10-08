@@ -1,0 +1,79 @@
+{
+  "targetLanguage": "fr",
+  "nativeLanguage": "en",
+  "size": 7,
+  "knowledgePoints": [
+    {
+      "id": "r01",
+      "category": "expression",
+      "target": "Je m'étire tous les jours.",
+      "native": "I stretch every day.",
+      "detail": null
+    },
+    {
+      "id": "r02",
+      "category": "phrase",
+      "target": "d'habitude",
+      "native": "usually",
+      "detail": null
+    },
+    {
+      "id": "r03",
+      "category": "phrase",
+      "target": "se dépêcher",
+      "native": "to hurry",
+      "detail": null
+    },
+    {
+      "id": "r04",
+      "category": "expression",
+      "target": "Je suis crevé.",
+      "native": "I'm exhausted.",
+      "detail": null
+    },
+    {
+      "id": "r05",
+      "category": "vocabulary",
+      "target": "vite",
+      "native": "quickly",
+      "detail": null
+    },
+    {
+      "id": "r06",
+      "category": "phrase",
+      "target": "tous les matins",
+      "native": "every morning",
+      "detail": null
+    },
+    {
+      "id": "r07",
+      "category": "vocabulary",
+      "target": "commencer",
+      "native": "to start",
+      "detail": null
+    },
+    {
+      "id": "r08",
+      "category": "expression",
+      "target": "Ça m'est égal.",
+      "native": "I don't mind.",
+      "detail": null
+    },
+    {
+      "id": "r09",
+      "category": "vocabulary",
+      "target": "le petit-déjeuner",
+      "native": "breakfast",
+      "detail": null
+    },
+    {
+      "id": "r10",
+      "category": "phrase",
+      "target": "se brosser les dents",
+      "native": "to brush one's teeth",
+      "detail": null
+    }
+  ],
+  "alreadyAskedStems": [],
+  "recentMisses": []
+}
