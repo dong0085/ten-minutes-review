@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
+import { toUiLocale } from "@tmr/core";
 import {
   ArrowRight,
   BookOpenCheck,
@@ -29,6 +30,7 @@ import { Button } from "@tmr/ui/components/button";
 import { CtaIcon } from "@tmr/ui/components/cta-icon";
 import { Reveal } from "@/components/reveal";
 import { QuizFormCards } from "@/components/quiz-form-cards";
+import { SampleReview } from "@/components/sample-review/sample-review";
 import { env } from "@/lib/env";
 import { languageLabel } from "@/lib/language-label";
 import { pageMetadata, SITE_NAME } from "@/lib/seo";
@@ -207,7 +209,7 @@ export default async function HomePage() {
                 <Button asChild size="lg" variant="outline">
                   <Link href="/signup">
                     <CtaIcon kind="signup" />
-                    {t("createAccount")}
+                    {t("signUp")}
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="ghost">
@@ -219,6 +221,14 @@ export default async function HomePage() {
           {!user ? (
             <p className="mt-3 text-xs leading-5 text-muted-foreground">
               {t("trialHint")}
+              <br />
+              {t("haveAccount")}{" "}
+              <Link
+                href="/signin"
+                className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
+              >
+                {t("signIn")}
+              </Link>
             </p>
           ) : null}
           <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium text-muted-foreground">
@@ -328,6 +338,31 @@ export default async function HomePage() {
               ),
             )}
           </ol>
+        </Reveal>
+      </section>
+
+      <section
+        id="try"
+        className="section-band grid gap-10 py-16 sm:py-20 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:gap-16"
+      >
+        <Reveal className="lg:sticky lg:top-28">
+          <p className="eyebrow">{t("sample.kicker")}</p>
+          <h2 className="mt-3 font-heading text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+            {t.rich("sample.title", {
+              highlight: (chunks) => (
+                <span className="marker-note">{chunks}</span>
+              ),
+            })}
+          </h2>
+          <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground">
+            {t("sample.copy")}
+          </p>
+        </Reveal>
+        <Reveal delay={120}>
+          <SampleReview
+            locale={toUiLocale(locale)}
+            ctaHref={user ? "/classrooms" : "/classrooms/start"}
+          />
         </Reveal>
       </section>
 

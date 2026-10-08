@@ -20,5 +20,5 @@ export const layout = {
   account: "Account",
   signOut: "Sign out",
   signIn: "Sign in",
-  createAccount: "Create account",
+  signUp: "Sign up",
 } as const;
