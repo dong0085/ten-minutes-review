@@ -11,8 +11,12 @@ import {
 } from "@tmr/db";
 import { handleRouteError, jsonError, jsonOk, readJson } from "@/lib/api";
 import { getDb } from "@/lib/db";
+import { runJobAfterResponse } from "@/lib/jobs";
 import { getSessionUser } from "@/lib/session";
 import { tutorPayload } from "@/app/api/_lib/tutor";
+
+// Room for the job that runs after the response.
+export const maxDuration = 300;
 
 type RouteContext = { params: Promise<{ id: string; questionId: string }> };
 
@@ -22,7 +26,7 @@ const tutorSchema = z.object({
 });
 
 // Asks the AI tutor about a Corrections question: the next hint, or an analysis of a wrong answer.
-// The worker writes the reply; the page polls /api/tutor/:id.
+// The reply is written after the response; the page polls /api/tutor/:id.
 export async function POST(request: Request, context: RouteContext) {
   try {
     const user = await getSessionUser();
@@ -71,7 +75,10 @@ export async function POST(request: Request, context: RouteContext) {
     if (!created) {
       return jsonError("Could not ask the tutor", 500);
     }
-    await enqueueJob(db, { kind: "tutor", payload: { requestId: created.id } });
+    const job = await enqueueJob(db, { kind: "tutor", payload: { requestId: created.id } });
+    if (job) {
+      runJobAfterResponse(job.id);
+    }
     return jsonOk({ request: tutorPayload(created) }, 202);
   } catch (error) {
     return handleRouteError(error);

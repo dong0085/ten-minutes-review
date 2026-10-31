@@ -4,7 +4,10 @@ services:
     runtime: node
     plan: 0.5c-512mb
     rootDir: .
-    schedule: "*/10 * * * *"
+    # Hourly, a minute past, so the 7:00 AM Eastern send (11:00 or 12:00 UTC)
+    # is due on the first run. The web runs on-demand jobs right away, and an
+    # idle hour lets the Neon compute scale to zero.
+    schedule: "1 * * * *"
     buildCommand: npm install -g pnpm@10.15.0 && pnpm install --frozen-lockfile
     preDeployCommand: pnpm db:migrate
     startCommand: pnpm --filter worker once

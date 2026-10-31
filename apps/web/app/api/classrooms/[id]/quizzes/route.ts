@@ -7,8 +7,12 @@ import {
 } from "@tmr/db";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/api";
 import { getDb } from "@/lib/db";
+import { runJobAfterResponse } from "@/lib/jobs";
 import { getCurrentUserOrGuest } from "@/lib/session";
 import { localDateFor } from "@/app/api/_lib/quiz";
+
+// Room for the job that runs after the response.
+export const maxDuration = 300;
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -63,6 +67,9 @@ export async function POST(_request: Request, context: RouteContext) {
         sendEmail: false,
       },
     });
+    if (job) {
+      runJobAfterResponse(job.id);
+    }
     return jsonOk({ status: "pending", jobId: job?.id ?? null }, 202);
   } catch (error) {
     return handleRouteError(error);

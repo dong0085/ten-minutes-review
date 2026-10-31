@@ -45,6 +45,8 @@ services:
       PORT: 3000
       APP_ENV: ${APP_ENV:-production}
       EMAIL_FROM: ${WEB_EMAIL_FROM:?set WEB_EMAIL_FROM in .env}
+      # On-demand quizzes run in the web, and their email goes out as the worker's sender.
+      QUIZ_EMAIL_FROM: ${WORKER_EMAIL_FROM:?set WORKER_EMAIL_FROM in .env}
     depends_on:
       postgres:
         condition: service_healthy

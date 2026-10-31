@@ -13,8 +13,12 @@ import {
 import { handleRouteError, jsonError, jsonOk, readJson } from "@/lib/api";
 import { getDb } from "@/lib/db";
 import { env } from "@/lib/env";
+import { runJobAfterResponse } from "@/lib/jobs";
 import { getCurrentUserOrGuest } from "@/lib/session";
 import { verifyAttemptToken } from "@/lib/tokens";
+
+// Room for the job that runs after the response.
+export const maxDuration = 300;
 
 const submitSchema = z.object({
   attemptToken: z.string().min(1),
@@ -96,13 +100,16 @@ export async function POST(request: Request) {
       return jsonError("Could not record the attempt", 500);
     }
 
-    // A Pro exam with mistakes gets an AI review of their patterns, written by the worker.
+    // A Pro exam with mistakes gets an AI review of their patterns, written after the response.
     const wantsReview =
       row.quiz.kind === "exam" &&
       graded.correctCount < graded.questionCount &&
       (await hasPaidPlan(db, user.id));
     if (wantsReview) {
-      await enqueueJob(db, { kind: "summarize", payload: { attemptId: attempt.id } });
+      const job = await enqueueJob(db, { kind: "summarize", payload: { attemptId: attempt.id } });
+      if (job) {
+        runJobAfterResponse(job.id);
+      }
     }
 
     const pointIds = Array.from(new Set(row.questions.map((q) => q.knowledgePointId)));

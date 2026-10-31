@@ -8,7 +8,11 @@ import {
 import type { Db } from "@tmr/db";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/api";
 import { getDb } from "@/lib/db";
+import { runJobAfterResponse } from "@/lib/jobs";
 import { getSessionUser } from "@/lib/session";
+
+// Room for the job that runs after the response.
+export const maxDuration = 300;
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -47,7 +51,7 @@ export async function GET(_request: Request, context: RouteContext) {
   }
 }
 
-// Asks the worker to write the review again, after a failed run.
+// Writes the review again, after a failed run.
 export async function POST(_request: Request, context: RouteContext) {
   try {
     const user = await getSessionUser();
@@ -71,7 +75,10 @@ export async function POST(_request: Request, context: RouteContext) {
     if (!(await hasPaidPlan(db, user.id))) {
       return jsonError("Exams are a Pro feature", 403, "pro_required");
     }
-    await enqueueJob(db, { kind: "summarize", payload: { attemptId: attempt.id } });
+    const job = await enqueueJob(db, { kind: "summarize", payload: { attemptId: attempt.id } });
+    if (job) {
+      runJobAfterResponse(job.id);
+    }
     return jsonOk({ status: "writing", review: null }, 202);
   } catch (error) {
     return handleRouteError(error);

@@ -46,7 +46,12 @@ export const env = {
     "vercel",
     "s3",
   ] as const),
-  emailFrom: process.env.EMAIL_FROM ?? "Ten Minutes Review <onboarding@resend.dev>",
+  // The web runs some jobs too, and its EMAIL_FROM is the account-email sender,
+  // so it sets QUIZ_EMAIL_FROM for quiz email.
+  emailFrom:
+    process.env.QUIZ_EMAIL_FROM ||
+    process.env.EMAIL_FROM ||
+    "Ten Minutes Review <onboarding@resend.dev>",
   deepseekApiKey: process.env.DEEPSEEK_API_KEY ?? "",
   deepseekBaseUrl: process.env.DEEPSEEK_BASE_URL ?? "https://api.deepseek.com",
   deepseekModel: process.env.DEEPSEEK_MODEL ?? "deepseek-chat",

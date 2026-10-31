@@ -21,7 +21,7 @@ const appUrl = rawAppUrl
 const redirectLegacyHost = appUrl !== "" && new URL(appUrl).host !== LEGACY_HOST;
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@tmr/core", "@tmr/db", "@tmr/email", "@tmr/ui"],
+  transpilePackages: ["@tmr/core", "@tmr/db", "@tmr/email", "@tmr/ui", "worker"],
   serverExternalPackages: ["@node-rs/argon2", "postgres"],
   async redirects() {
     if (!redirectLegacyHost) {

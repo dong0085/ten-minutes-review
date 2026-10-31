@@ -40,6 +40,7 @@
     "stripe": "^22.6.2",
     "tw-animate-css": "^1.4.0",
     "use-intl": "4.14.4",
+    "worker": "workspace:*",
     "zod": "^4.6.2"
   },
   "devDependencies": {
