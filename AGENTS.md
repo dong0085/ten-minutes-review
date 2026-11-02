@@ -6,7 +6,7 @@ Specs live in `docs/`: `SCOPE.md` (every product decision), `PROMPTS.md` (the tw
 
 - `apps/web` — Next.js 16 on Vercel: API routes, the server-rendered landing, auth, and unsubscribe pages in `app/(site)/`, and the signed-in app.
 - `apps/web/spa` — React Router app for every screen under `/classrooms`, `/account`, and `/admin`. `app/(app)/layout.tsx` mounts it in the browser only, and the catch-all pages under `app/(app)/` claim those paths for Next. Navigation drills down with breadcrumbs, one job per screen.
-- `apps/worker` — job loop (`extract`, `compose`, `send_email`) plus the 15-minute scheduler and a `/health` HTTP server, runs on Render with `tsx`, applies migrations on boot.
+- `apps/worker` — job loop (`extract`, `compose`, `send_email`, `summarize`, `tutor`) plus the scheduler and a `/health` HTTP server. On Render it runs hourly as a cron job (`run-once.ts`); in Docker, as a loop. The web imports its `runJob` from `worker/jobs` to run learner-started jobs right after the response.
 - `packages/core` — domain types, prompt constants (`EXTRACTION_PROMPT_V3`, `REREAD_PROMPT_V1`, `COMPOSITION_PROMPT_V4`), note lines and edit planning, grading, quiz sizing.
 - `packages/db` — Drizzle schema, SQL migrations in `drizzle/`, repositories, and `note-reading.ts`, which reads and re-reads notes for both the worker and the web.
 - `packages/email` — React Email templates, localized HTML/text rendering, and browser previews.

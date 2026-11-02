@@ -12,14 +12,14 @@ The build blueprint. The data model is the centerpiece — it is the one part th
 | Web app | React Router single-page app in `apps/web/spa`, mounted by Next | Every signed-in screen, over the API |
 | Extension | Chrome/Firefox MV3 in `apps/extension` | Context-menu note capture over the API |
 | Database | Postgres on Neon | All state, plus the job queue |
-| Worker | Node service on Render (free web service, health-check pinged) | Extraction, composition, email sends |
+| Worker | Node job on Render (hourly cron) | Daily composition and sends, retries |
 | Queue | `jobs` table in Postgres | Work handoff, no Redis needed |
 | Images | Vercel Blob | Uploaded note images |
 | LLM | DeepSeek, behind one adapter module | Extraction and composition |
 | Email | React Email templates; Resend (or Brevo) delivery adapter | Transactional and quiz email |
 | Billing | Stripe | Modeled now, inactive |
 
-The web never calls the LLM inline. It writes a row and returns. The worker picks it up. That keeps request latency predictable and lets a slow extraction retry without the user waiting.
+The web never calls the LLM inline. It writes a job row and returns, then runs that job in the request's `after()`: extraction through `apps/web/lib/extract.ts`, and compose, tutor, and summarize through `apps/web/lib/jobs.ts`, which calls the worker's own `runJob` (`worker/jobs`). That keeps request latency predictable, and the learner does not wait for the hourly worker run. A job the web could not finish stays in the queue, and the worker picks it up.
 
 ### The signed-in web app
 
@@ -317,7 +317,7 @@ Images are sent to the model as image content and read the same way text is. Not
 
 ### Daily composition
 
-The send time is **one fixed instant for everyone**: 7:00 AM America/Toronto, computed by `dailySendAt()` in `packages/core/src/schedule.ts` (11:00 UTC in summer, 12:00 UTC in winter). Users cannot choose a time. The scheduler runs every 15 minutes while the worker is awake and finds classrooms that are due:
+The send time is **one fixed instant for everyone**: 7:00 AM America/Toronto, computed by `dailySendAt()` in `packages/core/src/schedule.ts` (11:00 UTC in summer, 12:00 UTC in winter). Users cannot choose a time. The scheduler runs once an hour, a minute past, so the first run after the send instant finds the classrooms that are due:
 
 ```sql
 SELECT c.*
@@ -443,9 +443,9 @@ The quiz payload also carries `sources` (upload id, subject, and added-at timest
 |---|---|
 | Web and SPA | Vercel (one project, one `next build`) |
 | Postgres | Neon |
-| Worker | Render free web service, kept awake through the 7:00 AM Eastern send by a GitHub Actions keep-alive |
+| Worker | Render cron job (`render.yaml`), hourly at a minute past |
 | Images | Vercel Blob |
-| Email | Resend (or Brevo), from `contact.tenminutesreview.study`: Vercel sends account email as `no-reply@`, the worker sends the daily quiz as `quiz@` (each deploy sets its own `EMAIL_FROM`) |
+| Email | Resend (or Brevo), from `contact.tenminutesreview.study`: Vercel sends account email as `no-reply@`, the worker sends the daily quiz as `quiz@` (each deploy sets its own `EMAIL_FROM`; Vercel also sets `QUIZ_EMAIL_FROM` to `quiz@` for the on-demand quiz email it sends) |
 | Domain | `tenminutesreview.study`, registered and DNS at Namecheap |
 
 The same app also runs as Docker images on any server; [SELF-HOSTING.md](SELF-HOSTING.md) covers that path.
@@ -473,7 +473,7 @@ For local billing tests, set `STRIPE_MODE=sandbox` with `STRIPE_SANDBOX_SECRET_K
 
 Migrations run from the worker on boot, so the web app never needs database credentials at build time.
 
-`.github/workflows/morning-ping.yml` wakes the worker at 10:05, 11:05, and 12:05 UTC and pings `/health` every two minutes for 50 minutes per run. That covers both send instants (11:00 UTC in summer, 12:00 UTC in winter) with lead time and keeps the instance from idling mid-compose or mid-send. The run fails visibly if the worker stops responding. Add the `WORKER_URL` repository variable before the first deploy.
+The worker runs once an hour at a minute past (`1 * * * *`). Both send instants (11:00 UTC in summer, 12:00 UTC in winter) fall on the hour, so each morning's first run composes and sends. Between runs nothing touches the database unless someone uses the app, so the Neon compute scales to zero and the free plan's compute hours last the month. Learner-started jobs run in the web right away (section 1); the worker retries any it left behind on its next run.
 
 ---
 

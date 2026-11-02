@@ -2,8 +2,12 @@ import { EXAM_MIN_POINTS } from "@tmr/core";
 import { bankSize, enqueueJob, getActiveComposeJob, getClassroom, hasPaidPlan } from "@tmr/db";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/api";
 import { getDb } from "@/lib/db";
+import { runJobAfterResponse } from "@/lib/jobs";
 import { getSessionUser } from "@/lib/session";
 import { localDateFor } from "@/app/api/_lib/quiz";
+
+// Room for the job that runs after the response.
+export const maxDuration = 300;
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -39,6 +43,9 @@ export async function POST(_request: Request, context: RouteContext) {
         source: "exam",
       },
     });
+    if (job) {
+      runJobAfterResponse(job.id);
+    }
     return jsonOk({ status: "pending", jobId: job?.id ?? null }, 202);
   } catch (error) {
     return handleRouteError(error);

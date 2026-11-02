@@ -279,10 +279,14 @@ export async function handleComposeJob(
     if (jobId) {
       await recordJobResult(db, jobId, { quizId: quiz.id });
     }
-    await enqueueJob(db, {
+    const email = await enqueueJob(db, {
       kind: "send_email",
       payload: { userId, quizDate: localDate, kind, quizId: quiz.id },
     });
+    // The web runs on-demand quizzes itself and sends this email right after.
+    if (jobId && email) {
+      await recordJobResult(db, jobId, { emailJobId: email.id });
+    }
   }
   console.log(
     `[worker] compose ${kind} ${classroomId} ${localDate}: ${kept.length} questions (${dropped.length} dropped${reviewNote})`,
